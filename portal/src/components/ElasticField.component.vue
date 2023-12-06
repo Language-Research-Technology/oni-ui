@@ -13,7 +13,8 @@
   </template>
   <template v-else>
     <template v-if="url">
-      <iconify-link :type="title" :name="name" :id="id"/>
+<!--      TODO: wait for Otis to merge my PR-->
+<!--      <iconify-link :type="title" :name="name" :id="id"/>-->
     </template>
     <template v-else-if="value">{{ value }}</template>
     <template v-else>

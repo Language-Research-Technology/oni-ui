@@ -1,7 +1,6 @@
 <template>
-  <span class="p-2">
-    <span v-if="noIcon">
-      <span class="flex justify-center" v-if="accessIcon === 'public'">
+    <span class="p-1 m-1" v-if="noIcon">
+      <span class="justify-center" v-if="accessIcon === 'public'">
         <el-tooltip
             class="box-item"
             effect="dark"
@@ -11,7 +10,7 @@
           <manku-icon name="Public" size="40" fill="grey"/>
         </el-tooltip>
       </span>
-      <span class="flex justify-center" v-if="accessIcon === 'login'">
+      <span class="justify-center" v-if="accessIcon === 'login'">
         <el-tooltip
             class="box-item"
             effect="dark"
@@ -21,7 +20,7 @@
           <manku-icon name="Login" size="40" fill="grey"/>
         </el-tooltip>
       </span>
-      <span class="flex justify-center" v-if="accessIcon === 'loginPlus'">
+      <span class="justify-center" v-if="accessIcon === 'loginPlus'">
         <el-tooltip
             class="box-item"
             effect="dark"
@@ -32,8 +31,8 @@
         </el-tooltip>
       </span>
     </span>
-    <span v-else>
-      <span class="flex justify-center">
+    <span class="p-1 m-1" v-else>
+      <span class="justify-center">
         <el-tooltip
             class="box-item"
             effect="dark"
@@ -48,7 +47,6 @@
       </el-tooltip>
       </span>
     </span>
-  </span>
 </template>
 <script>
 

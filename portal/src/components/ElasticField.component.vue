@@ -7,13 +7,13 @@
       </el-collapse-item>
     </el-collapse>
   </template>
+<!--  TODO: check the encodingFormat-->
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
   </template>
   <template v-else>
     <template v-if="url">
-      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
-         target="_blank" rel="nofollow noreferrer">{{ name || id }}</a>
+      <iconify-link :type="title" :name="name" :id="id"/>
     </template>
     <template v-else-if="value">{{ value }}</template>
     <template v-else>
@@ -33,6 +33,7 @@
 import {first, isEmpty} from "lodash";
 import convertSize from "convert-size";
 import {defineAsyncComponent} from 'vue';
+import IconifyLink from "./widgets/IconifyLink.component.vue";
 
 export default {
   components: {
@@ -41,7 +42,8 @@ export default {
     ),
     MetaField: defineAsyncComponent(() =>
         import('@/components/MetaField.component.vue')
-    )
+    ),
+    IconifyLink
   },
   props: ['field', 'title'],
   data() {

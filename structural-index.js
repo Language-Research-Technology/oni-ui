@@ -1,4 +1,4 @@
-const configuration = require('./configuration.json');
+const configuration = require('./lib/config');
 const fetch = require('node-fetch');
 
 (async () => {

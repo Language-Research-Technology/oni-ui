@@ -1,7 +1,7 @@
 // const {Client} = require('@elastic/elasticsearch');
 const { Client } = require('@opensearch-project/opensearch');
 const {Indexer} = require('./lib/Indexer-remote');
-const configuration = require('./configuration.json');
+const configuration = require('./lib/config');
 const ocfl = require("@ocfl/ocfl-fs");
 const fs = require("fs-extra");
 const assert = require("assert");
@@ -35,10 +35,11 @@ const fetch = require("node-fetch");
   }
   // Configure mappings
   // Put Settings
-  await client.indices.putSettings({
-    index: elastic['index'],
-    body: elastic['indexConfiguration']
-  });
+  // elastic.indexConfiguration.highlight = {};
+  // await client.indices.putSettings({
+  //   index: elastic['index'],
+  //   body: elastic['indexConfiguration']
+  // });
   //Cluster settings
   const settings = {
     "persistent": {

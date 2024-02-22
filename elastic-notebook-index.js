@@ -1,5 +1,5 @@
 const {Client} = require('@elastic/elasticsearch');
-const configuration = require('./configuration.json');
+const configuration = require('./lib/config.js');
 const notebooksConfig = require('./notebooks.configuration.json');
 const {Octokit} = require("octokit")
 const {Indexer} = require("./lib/Indexer");

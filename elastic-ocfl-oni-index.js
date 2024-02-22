@@ -1,7 +1,7 @@
 //const {Client} = require('@elastic/elasticsearch');
 const { Client } = require('@opensearch-project/opensearch');
 const {Indexer} = require('./lib/Indexer');
-const configuration = require('./configuration.json');
+const configuration = require('./lib/config.js');
 const ocfl = require("@ocfl/ocfl-fs");
 const fs = require("fs-extra");
 const assert = require("assert");

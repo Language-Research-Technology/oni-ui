@@ -1,6 +1,6 @@
 //const {Client} = require('@elastic/elasticsearch');
 const {Client} = require('@opensearch-project/opensearch');
-const configuration = require('./configuration.json');
+const configuration = require('./lib/config');
 const readline = require('readline');
 
 const rl = readline.createInterface({

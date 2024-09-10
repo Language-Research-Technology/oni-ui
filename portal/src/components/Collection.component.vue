@@ -202,6 +202,11 @@ export default {
       const crateId = encodeURIComponent(this.$route.query._crateId);
       //encodeURIComponent may return "undefined" string
       if (isUndefined(id) || id === "undefined" || isUndefined(crateId) || crateId === "undefined") {
+        this.$gtag.event("/collection", {
+          'event_category': "collection",
+          'event_label': "no-id-collection",
+          'value': id
+        });
         await this.$router.push({ path: '/404' });
       } else {
         const metadata = await this.$elasticService.single({
@@ -211,7 +216,11 @@ export default {
         this.metadata = metadata?._source;
         console.log('DEBUG COLLECTION');
         console.log(this.metadata);
-        // process.exit();
+        this.$gtag.event("/collection", {
+          'event_category': "collection",
+          'event_label': "loaded-collection",
+          'value': id
+        });
         if (!isEmpty(this.metadata)) {
           await this.populate();
           this.collectionSubCollections = await this.filter({
@@ -224,8 +233,14 @@ export default {
           }, true);
           const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
           this.aggregations = summaries.aggregations;
+
           putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
         } else {
+          this.$gtag.event("/collection", {
+            'event_category': "collection",
+            'event_label': "no-metadata-collection",
+            'value': id
+          });
           await this.$router.push({ path: '/404' });
         }
       }
@@ -234,6 +249,12 @@ export default {
     }
   },
   updated() {
+    const id = encodeURIComponent(this.$route.query.id);
+    this.$gtag.event("/collection", {
+      'event_category': "browsed-collection",
+      'event_label': "loaded-collection",
+      'value': id
+    });
     putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
 

@@ -37,7 +37,6 @@ import {
   removeLocalStorage,
 } from "@/storage";
 import EnrollmentCard from '../cards/EnrollmentCard.component.vue';
-import { event as gaEvent} from 'vue-gtag';
 
 export default {
   components: {EnrollmentCard},
@@ -71,6 +70,11 @@ export default {
           this.loading = false;
           await new Promise((resolve) => setTimeout(resolve, 3000));
           await this.$router.push("/login");
+          this.$gtag.event("/oauth-callback", {
+            'event_category': "login",
+            'event_label': "error-login-in",
+            'value': response.status
+          });
         } else {
           try {
             this.loadingText = 'Checking memberships';
@@ -95,7 +99,11 @@ export default {
                 await this.$router.push("/");
               }
             }
-            gaEvent('login', { method: this.$route.query.state });
+            this.$gtag.event("/oauth-callback", {
+              'event_category': "login",
+              'event_label': "log-in",
+              'value': this.$route.query.state
+            });
             this.loading = false;
           } catch (e) {
             this.loading = false;
@@ -107,6 +115,11 @@ export default {
         this.loadingText = 'there was an error login you in, please try again';
         this.goHome = true;
         this.loading = false;
+        this.$gtag.event("/oauth-callback", {
+          'event_category': "login",
+          'event_label': "error-login-in",
+          'value': e
+        });
         console.error(e);
       }
     },

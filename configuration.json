@@ -402,6 +402,8 @@
     "log": {
       "logFolder": "/opt/storage/oni/logs"
     },
+    "host": "localhost:8080",
+    "protocol": "http",
     "ocfl": {
       "ocflPath": "/opt/storage/oni/ocfl",
       "ocflScratch": "/opt/storage/oni/scratch-ocfl",

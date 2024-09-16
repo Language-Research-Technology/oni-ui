@@ -65,15 +65,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5" v-if="zipUrl">
-        <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">Downloads</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <a :href="zipUrl" :download="name+'.zip'">Download Zip</a>
-          </el-card>
-        </el-col>
-      </el-row>
+      <ZipDownloadObjectCard :name="name" :id="this.$route.query.id"/>
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
@@ -127,6 +119,7 @@ import SummariesCard from './cards/SummariesCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
 import {putLocalStorage} from '@/storage';
 import TakedownCard from "./cards/TakedownCard.component.vue";
+import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 
 export default {
   components: {
@@ -144,7 +137,8 @@ export default {
     ContentCard,
     FieldHelperCard,
     MemberOfLink,
-    TakedownCard
+    TakedownCard,
+    ZipDownloadObjectCard
   },
   props: [],
 
@@ -204,8 +198,7 @@ export default {
       collectionSubCollections: [],
       collectionMembers: [],
       limitMembers: 10,
-      aggregations: [],
-      zipUrl: undefined
+      aggregations: []
     }
   },
   async mounted() {
@@ -247,25 +240,6 @@ export default {
   },
   updated() {
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
-  },
-  watch: {
-    zipUrl: {
-      async handler(newZipUrl) {
-        if(newZipUrl === undefined) {
-          const route = `/object/${encodeURIComponent(this.$route.query._crateId)}.zip`;
-          console.log(route);
-          let response = await this.$http.get({route});
-          console.log("DOWNLOAD ZIP")
-          console.log(response)
-          if (response.status === 200) {
-            return route;
-          } else {
-            return undefined;
-          }
-        }
-      },
-      immediate: true
-    }
   },
 
   methods: {
@@ -380,6 +354,28 @@ export default {
           scrollId: items?._scroll_id,
           route: null
         }
+      }
+    },
+    async getZipInfo() {
+      //TODO: do we have other downloads?
+      const route = `/object/${encodeURIComponent(this.$route.query._crateId)}.zip`;
+      let response = await this.$http.head({route});
+      const zip = {};
+      if (response.status === 200) {
+        //TODO: response headers
+        //TODO: calculate size from bites from the header called
+        zip.url = `/api${route}`;
+        const name = this.name?.[0]['@value'] || this.$route.query._crateId;
+        zip.name = name + '.zip'
+        try {
+          const expandedSize = response.headers.get('x-expanded-size')
+          zip.expandedSize = convertSize(parseInt(expandedSize), {accuracy: 2});
+        } catch (e) {
+          console.error(e);
+        }
+        const numberOfFiles = response.headers.get('x-number-of-files')
+        zip.numberOfFiles = numberOfFiles;
+        this.zip = zip;
       }
     }
   }

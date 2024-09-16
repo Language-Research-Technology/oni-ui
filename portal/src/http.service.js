@@ -31,6 +31,16 @@ export default class HTTPService {
     } catch (error) {
     }
   }
+  async head({ route }) {
+    let headers = this.getHeaders();
+    let response = await fetch(`/api${ route }`, {
+      method: "HEAD",
+      headers,
+      credentials: "include"
+    });
+    //this.checkAuthorised({ status: response.status });
+    return response;
+  }
 
   async get({ route }) {
     let headers = this.getHeaders();
@@ -45,8 +55,6 @@ export default class HTTPService {
 
   async post({ route, body }) {
     let headers = this.getHeaders();
-    console.log("headers: POST:")
-    console.log(headers)
     let response = await fetch(`/api${ route }`, {
       method: "POST",
       headers,

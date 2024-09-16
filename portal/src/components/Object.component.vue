@@ -30,6 +30,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <ZipDownloadObjectCard :name="name" :id="this.$route.query.id"/>
       <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
           <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
@@ -113,6 +114,7 @@ import CollectionItem from "./CollectionItem.component.vue";
 import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
 import TakedownCard from "./cards/TakedownCard.component.vue"
 import BinderHubCard from "./cards/BinderHubCard.component.vue"
+import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 
 export default {
   components: {
@@ -128,7 +130,8 @@ export default {
     CollectionItem,
     AggregationAsIcon,
     TakedownCard,
-    BinderHubCard
+    BinderHubCard,
+    ZipDownloadObjectCard
   },
   props: [],
   data() {

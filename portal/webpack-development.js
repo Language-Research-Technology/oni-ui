@@ -1,5 +1,5 @@
 const path = require("path");
-const { merge } = require("webpack-merge");
+const {merge} = require("webpack-merge");
 const common = require("./webpack-common");
 const CopyPlugin = require("copy-webpack-plugin");
 
@@ -9,13 +9,15 @@ const configuration = merge(common, {
   devServer: {
     setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {
-          throw new Error('webpack-dev-server is not defined');
+        throw new Error('webpack-dev-server is not defined');
       }
-
       return middlewares;
-  },
+    },
     static: {
       directory: path.join(__dirname, "dist"),
+    },
+    devMiddleware: {
+      writeToDisk: true,
     },
     compress: true,
     host: "0.0.0.0",

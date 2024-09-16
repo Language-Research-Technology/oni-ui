@@ -16,7 +16,7 @@
                       class="box-item"
                       effect="light"
                       trigger="click"
-                      :content="'Number of Files:'+zip.numberOfFiles + ', expanded size ' +zip.expandedSize + '.'"
+                      :content="'Number of files: ' + zip.numberOfFiles + ', size: ' + zip.expandedSize + '.'"
                       placement="top"
           >
             <el-button link>
@@ -57,7 +57,7 @@ export default {
       },
       deep: true
     },
-    'id':{
+    'id': {
       async handler(newValue, oldValue) {
         await this.getObjectZip(newValue);
       },

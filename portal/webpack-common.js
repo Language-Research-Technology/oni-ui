@@ -27,6 +27,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: process.env.TITLE || "Oni",
       template: "./public/index.html",
+      favicon: "./public/favicon.ico"
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({filename: "[contenthash].css"}),

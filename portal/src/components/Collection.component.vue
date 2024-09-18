@@ -65,7 +65,17 @@
           </el-card>
         </el-col>
       </el-row>
-      <ZipDownloadObjectCard :name="name" :id="this.$route.query.id"/>
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">Downloads</h5>
+            <hr class="divider divider-gray pt-2"/>
+            <template v-for="z of zips">
+              <ZipLink :name="z.name" :id="z.id" v-if="this.name != undefined"/>
+            </template>
+          </el-card>
+        </el-col>
+      </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
@@ -120,6 +130,7 @@ import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
 import {putLocalStorage} from '@/storage';
 import TakedownCard from "./cards/TakedownCard.component.vue";
 import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
+import ZipLink from './ZipLink.component.vue';
 
 export default {
   components: {
@@ -138,7 +149,8 @@ export default {
     FieldHelperCard,
     MemberOfLink,
     TakedownCard,
-    ZipDownloadObjectCard
+    ZipDownloadObjectCard,
+    ZipLink
   },
   props: [],
 
@@ -198,7 +210,8 @@ export default {
       collectionSubCollections: [],
       collectionMembers: [],
       limitMembers: 10,
-      aggregations: []
+      aggregations: [],
+      zips: []
     }
   },
   async mounted() {
@@ -239,6 +252,13 @@ export default {
     }
   },
   updated() {
+    this.zips = [];
+    this.zips.push({name: this.name, id: this.$route.query.id})
+    for(let m of this.metadata?._memberOf || []) {
+      //How to find out if this actually can be zipped? Or that it contains
+      //only the metadata?
+      this.zips.push({name: m.name, id: m['@id']});
+    }
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
 
@@ -354,28 +374,6 @@ export default {
           scrollId: items?._scroll_id,
           route: null
         }
-      }
-    },
-    async getZipInfo() {
-      //TODO: do we have other downloads?
-      const route = `/object/${encodeURIComponent(this.$route.query._crateId)}.zip`;
-      let response = await this.$http.head({route});
-      const zip = {};
-      if (response.status === 200) {
-        //TODO: response headers
-        //TODO: calculate size from bites from the header called
-        zip.url = `/api${route}`;
-        const name = this.name?.[0]['@value'] || this.$route.query._crateId;
-        zip.name = name + '.zip'
-        try {
-          const expandedSize = response.headers.get('x-expanded-size')
-          zip.expandedSize = convertSize(parseInt(expandedSize), {accuracy: 2});
-        } catch (e) {
-          console.error(e);
-        }
-        const numberOfFiles = response.headers.get('x-number-of-files')
-        zip.numberOfFiles = numberOfFiles;
-        this.zip = zip;
       }
     }
   }

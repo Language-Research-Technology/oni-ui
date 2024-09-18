@@ -30,7 +30,17 @@
           </el-card>
         </el-col>
       </el-row>
-      <ZipDownloadObjectCard :name="name" :id="this.$route.query.id"/>
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">Downloads</h5>
+            <hr class="divider divider-gray pt-2"/>
+            <template v-for="z of zips">
+              <ZipLink :name="z.name" :id="z.id" v-if="this.name != undefined"/>
+            </template>
+          </el-card>
+        </el-col>
+      </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
           <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
@@ -115,6 +125,7 @@ import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
 import TakedownCard from "./cards/TakedownCard.component.vue"
 import BinderHubCard from "./cards/BinderHubCard.component.vue"
 import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
+import ZipLink from './ZipLink.component.vue';
 
 export default {
   components: {
@@ -131,7 +142,8 @@ export default {
     AggregationAsIcon,
     TakedownCard,
     BinderHubCard,
-    ZipDownloadObjectCard
+    ZipDownloadObjectCard,
+    ZipLink
   },
   props: [],
   data() {
@@ -157,7 +169,8 @@ export default {
       loading: false,
       membersFiltered: {},
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
-      fullPath: window.location.href
+      fullPath: window.location.href,
+      zips:[]
     }
   },
   async updated() {
@@ -173,6 +186,11 @@ export default {
         '_memberOf.@id': [this.crateId],
         'conformsTo.@id': [this.conformsToObject]
       }, false);
+    }
+    console.log(JSON.stringify(this.metadata?._memberOf))
+    this.zips = [];
+    for(let m of this.metadata?._memberOf){
+      this.zips.push({name: m.name, id: m['@id']})
     }
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },

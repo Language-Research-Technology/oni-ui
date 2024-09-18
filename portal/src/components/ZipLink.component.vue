@@ -2,7 +2,7 @@
   <el-row v-if="zip.url">
     <p v-if="zip?.numberOfFiles && zip?.expandedSize">
       Files: {{ zip.numberOfFiles }}, Size: {{ zip.expandedSize }}
-    </p>
+    </p><br/>
     <el-link
         :underline="true"
         type="primary"

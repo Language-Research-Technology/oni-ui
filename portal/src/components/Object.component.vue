@@ -36,7 +36,7 @@
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
             <template v-for="z of zips">
-              <ZipLink :name="z.name" :id="z.id" v-if="this.name != undefined"/>
+              <ZipLink :name="z.name" :id="z.id" :message="z.message" v-if="this.name != undefined"/>
             </template>
           </el-card>
         </el-col>
@@ -189,8 +189,8 @@ export default {
     }
     console.log(JSON.stringify(this.metadata?._memberOf))
     this.zips = [];
-    for(let m of this.metadata?._memberOf){
-      this.zips.push({name: m.name, id: m['@id']})
+    for(let m of this.metadata?._memberOf) {
+      this.zips.push({name: m.name, id: m['@id'], message: 'Current object included in this download'})
     }
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },

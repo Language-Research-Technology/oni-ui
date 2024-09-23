@@ -11,6 +11,12 @@
           :download="zip.name">
         {{ zip.name }}
       </el-link>
+      <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message"
+                  placement="top">
+        <el-button size="small" link>
+          <font-awesome-icon icon="fa-solid fa-circle-info"/>
+        </el-button>
+      </el-tooltip>
     </el-col>
   </el-row>
 </template>
@@ -19,7 +25,7 @@
 import convertSize from "convert-size";
 
 export default {
-  props: ['name', 'id'],
+  props: ['name', 'id', 'message'],
   data() {
     return {
       zip: {

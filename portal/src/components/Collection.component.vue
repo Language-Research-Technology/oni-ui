@@ -70,8 +70,12 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
-            <template v-for="z of zips">
-              <ZipLink :name="z.name" :id="z.id" v-if="this.name != undefined"/>
+            <template v-if="zipDownload.bundledObject">
+              <ZipLink :name="zipDownload.name" :id="zipDownload.id" v-if="this.name != undefined"/>
+            </template>
+            <template v-else>
+              This collection cannot be downloaded in a single request, navigate to the collection/object pages to
+              download.
             </template>
           </el-card>
         </el-col>
@@ -153,7 +157,6 @@ export default {
     ZipLink
   },
   props: [],
-
   head() {
     let metaArr = []
     for (let meta of this.metaTags || []) {
@@ -211,7 +214,9 @@ export default {
       collectionMembers: [],
       limitMembers: 10,
       aggregations: [],
-      zips: []
+      zips: [],
+      zipDownload: {},
+      openDownloads: false
     }
   },
   async mounted() {
@@ -253,15 +258,23 @@ export default {
   },
   updated() {
     this.zips = [];
-    this.zips.push({name: this.name, id: this.$route.query.id})
-    for(let m of this.metadata?._memberOf || []) {
-      //How to find out if this actually can be zipped? Or that it contains
-      //only the metadata?
-      this.zips.push({name: m.name, id: m['@id']});
-    }
+    let isBundled = this.metadata['hasMember'] && this.metadata['hasMember'].length > 0;
+    this.zipDownload = {name: this.name, id: this.$route.query.id, bundledObject: isBundled};
+
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
-
+  watch: {
+    openDownloads: {
+      handler(newValue, oldValue) {
+        //TODO: get the zips of all memberOfs...
+        if (newValue === 'true') {
+          //TODO: How to find out if this actually can be zipped? Or that it contains
+          //only the metadata?
+        }
+      },
+      immediate: true
+    }
+  },
   methods: {
     first,
     isEmpty,

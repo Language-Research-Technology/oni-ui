@@ -1,15 +1,17 @@
 <template>
   <el-row v-if="zip.url">
-    <p v-if="zip?.numberOfFiles && zip?.expandedSize">
-      Files: {{ zip.numberOfFiles }}, Size: {{ zip.expandedSize }}
-    </p><br/>
-    <el-link
-        :underline="true"
-        type="primary"
-        :href="zip.url"
-        :download="zip.name">
-      {{ zip.name }}
-    </el-link>
+    <el-col>
+      <p v-if="zip?.numberOfFiles && zip?.expandedSize">
+        Files: {{ zip.numberOfFiles }}, Size: {{ zip.expandedSize }}
+      </p>
+      <el-link
+          :underline="true"
+          type="primary"
+          :href="zip.url"
+          :download="zip.name">
+        {{ zip.name }}
+      </el-link>
+    </el-col>
   </el-row>
 </template>
 <script>

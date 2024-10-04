@@ -1,7 +1,7 @@
 <template>
   <el-dialog
       v-model="visible"
-      :title="objectTotals + ' download(s) for this collection'"
+      title="Downloads for this collection"
       width="50%">
     <el-pagination class="items-center w-full"
                    background layout="prev, pager, next"
@@ -10,7 +10,7 @@
                    v-model:currentPage="currentPage"
                    @current-change="updatePages($event)"
                    @update:page-size="pageSize"/>
-    <template v-if="objectTotals > 0" v-loading="loading">
+    <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <h3 class="font-bold">Details</h3>
@@ -27,7 +27,7 @@
                  :message="obj.message" :asTableRow="true"
                  v-if="obj.name"/>
       </template>
-    </template>
+    </div>
     <template v-else>
       <p>No downloads associated with this item/collection.</p>
     </template>

@@ -28,6 +28,7 @@ export default {
       console.log(`Logout:`);
       delete this.$store.state.user;
       removeLocalStorage({key: tokenSessionKey});
+      this.$cookies.remove("session", '/', window.location.host);
       removeLocalStorage({key: 'isLoggedIn'});
       await this.$http.get({route: "/logout"});
     }

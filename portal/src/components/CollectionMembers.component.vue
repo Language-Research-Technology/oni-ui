@@ -22,7 +22,7 @@
       <div class="py-2 w-full">
         <el-pagination class="items-center w-full"
                        background layout="prev, pager, next"
-                       :total="items?.total"
+                       :total="items?.total || 0"
                        v-model:page-size="pageSize"
                        v-model:currentPage="currentPage"
                        @current-change="updatePages($event)"

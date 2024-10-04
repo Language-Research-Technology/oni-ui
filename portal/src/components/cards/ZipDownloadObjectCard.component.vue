@@ -5,7 +5,14 @@
         <h5 class="text-2xl font-medium">Downloads</h5>
         <hr class="divider divider-gray pt-2"/>
         <el-row>
+          <el-link v-if="noAccess">
+            You do not have permission to download these files.
+            <template v-if="!isLoggedIn">
+              <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
+            </template>
+          </el-link>
           <el-link
+              v-else
               :underline="true"
               type="primary"
               :href="zip.url"
@@ -36,6 +43,9 @@ export default {
   props: ['name', 'id'],
   data() {
     return {
+      isLoginEnabled: this.$store.state.configuration.ui.login?.enabled,
+      isLoggedIn: false,
+      noAccess: false,
       zip: {
         url: undefined,
         name: undefined,
@@ -62,6 +72,13 @@ export default {
         await this.getObjectZip(newValue);
       },
       immediate: true
+    },
+    '$store.state.user': {
+      async handler() {
+        this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+      },
+      flush: 'post',
+      immediate: true
     }
   },
   methods: {
@@ -81,6 +98,9 @@ export default {
         }
         const numberOfFiles = response.headers.get('Archive-File-Count')
         this.zip.numberOfFiles = numberOfFiles;
+      }
+      if (response.status === 403) {
+        this.noAccess = true;
       }
     }
   }

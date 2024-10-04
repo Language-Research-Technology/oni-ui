@@ -79,6 +79,7 @@ export default {
             this.$store.commit("setUserData", user);
             this.$store.commit("setIsLoggedIn", true);
             putLocalStorage({key: tokenSessionKey, data: {token}});
+            this.$cookies.set("session", token);
             const membershipsStatus = await this.$membership.set();
             const memberships = membershipsStatus?.memberships;
             //TODO: do smarter membership checks

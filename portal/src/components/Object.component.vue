@@ -32,12 +32,15 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
             <template v-for="z of zips">
-              <ZipLink :name="z.name" :id="z.id" :message="z.message" v-if="this.name != undefined"/>
+              <ZipLink :name="z.name" :id="z.id" :message="z.message"/>
             </template>
+            <p v-if="zips && zips.length === 0">No direct downloads for this object</p>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
+            <DownloadsModal :id="this.rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>
       </el-row>
@@ -126,6 +129,7 @@ import TakedownCard from "./cards/TakedownCard.component.vue"
 import BinderHubCard from "./cards/BinderHubCard.component.vue"
 import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 import ZipLink from './ZipLink.component.vue';
+import DownloadsModal from './widgets/DownloadsModal.component.vue';
 
 export default {
   components: {
@@ -143,7 +147,8 @@ export default {
     TakedownCard,
     BinderHubCard,
     ZipDownloadObjectCard,
-    ZipLink
+    ZipLink,
+    DownloadsModal
   },
   props: [],
   data() {
@@ -170,7 +175,8 @@ export default {
       membersFiltered: {},
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
       fullPath: window.location.href,
-      zips:[]
+      zips: [],
+      openDownloads: false
     }
   },
   async updated() {
@@ -187,10 +193,10 @@ export default {
         'conformsTo.@id': [this.conformsToObject]
       }, false);
     }
-    console.log(JSON.stringify(this.metadata?._memberOf))
     this.zips = [];
-    for(let m of this.metadata?._memberOf) {
-      this.zips.push({name: m.name, id: m['@id'], message: 'Current object included in this download'})
+    for (let m of this.metadata?._memberOf || []) {
+      const name = first(m.name)?.['@value'];
+      this.zips.push({name: name, id: m['@id'], message: 'Current object included in this download'})
     }
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },

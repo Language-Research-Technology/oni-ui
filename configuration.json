@@ -261,7 +261,8 @@
           "_metadataLicense",
           "identifier",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ],
         "displayHasMember": false,
         "displayHasPart": true
@@ -318,7 +319,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ]
       }
     },
@@ -337,7 +339,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ]
       }
     },
@@ -375,7 +378,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ],
         "displayHasMember": false,
         "displayHasPart": false
@@ -457,12 +461,12 @@
       "cilogon": {
         "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
         "clientSecret": "XXXXXXXXXXXX",
-        "redirect_uri": "http://localhost:11000/auth/cilogon/callback",
-        "authorizeHost": "https://test.cilogon.org",
+        "redirect_uri": "http://localhost:8000/auth/cilogon/callback",
+        "authorizeHost": "https://test.cilogon.aaf.edu.au",
         "authorizePath": "/authorize",
-        "tokenHost": "https://test.cilogon.org",
+        "tokenHost": "https://test.cilogon.aaf.edu.au",
         "tokenPath": "/oauth2/token",
-        "user": "https://test.cilogon.org/oauth2/userinfo",
+        "user": "https://test.cilogon.aaf.edu.au/oauth2/userinfo",
         "bearer": "token",
         "scope": "openid+profile+email+org.cilogon.userinfo+offline_access",
         "use_refresh_token": true,

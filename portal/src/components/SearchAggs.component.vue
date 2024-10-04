@@ -4,7 +4,7 @@
                    v-model:currentPage="currentPage"
                    v-model:page-size="pageSize"
                    layout="prev, pager, next"
-                   :total="filteredValues.length"
+                   :total="filteredValues.length || 0"
                    @current-change="updatePages"
                    :hide-on-single-page="true"/>
     <el-input class="pt-1"

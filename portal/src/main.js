@@ -19,7 +19,7 @@ import {MankuIcon} from "manku-icon-lib";
 import log from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import VuePapaParse from 'vue-papa-parse';
-import { VueHeadMixin, createHead } from '@unhead/vue';
+import {VueHeadMixin, createHead} from '@unhead/vue';
 
 const level = process.env.NODE_ENV === "development" ? "debug" : "warn";
 log.setLevel(level);
@@ -31,6 +31,8 @@ import HTTPService from "./http.service";
 import MembershipService from "./membership.service";
 import ElasticService from "./elastic.service";
 import VueGtag from "vue-gtag";
+import VueCookies from 'vue-cookies';
+import ZipService from "./zip.service";
 
 (async () => {
   const app = createApp(App);
@@ -40,6 +42,7 @@ import VueGtag from "vue-gtag";
   app.use(store);
   app.use(router);
   app.use(ElementPlus);
+  app.use(VueCookies, {expires: '7d', domain: window.location.host});
   app.use(VuePapaParse);
   app.component('font-awesome-icon', FontAwesomeIcon);
   app.component('manku-icon', MankuIcon);
@@ -60,6 +63,7 @@ import VueGtag from "vue-gtag";
     store.commit("saveConfiguration", {...configuration});
 
     app.config.globalProperties.$membership = new MembershipService({router});
+    app.config.globalProperties.$zip = new ZipService({router, apiPath: '/api'});
     app.config.globalProperties.$elasticService = new ElasticService({router, configuration});
   } else {
     configuration.ui = null;

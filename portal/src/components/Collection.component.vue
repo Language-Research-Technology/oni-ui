@@ -67,16 +67,17 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value'] != undefined">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
             <template v-if="zipDownload.bundledObject">
-              <ZipLink :name="zipDownload.name" :id="zipDownload.id" v-if="this.name != undefined"/>
+              <ZipLink :id="zipDownload.id" :name="zipDownload.name" :message="zipDownload.message"/>
             </template>
             <template v-else>
-              This collection cannot be downloaded in a single request, navigate to the collection/object pages to
-              download.
+              <p>This collection cannot be downloaded in a single request:</p>
             </template>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
+            <DownloadsModal :id="rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>
       </el-row>
@@ -135,9 +136,11 @@ import {putLocalStorage} from '@/storage';
 import TakedownCard from "./cards/TakedownCard.component.vue";
 import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 import ZipLink from './ZipLink.component.vue';
+import DownloadsModal from './widgets/DownloadsModal.component.vue';
 
 export default {
   components: {
+    DownloadsModal,
     PropertySummaryCard,
     SummariesCard,
     MetaTopCard,
@@ -216,7 +219,8 @@ export default {
       aggregations: [],
       zips: [],
       zipDownload: {},
-      openDownloads: false
+      openDownloads: false,
+      rootId: ''
     }
   },
   async mounted() {
@@ -259,8 +263,10 @@ export default {
   updated() {
     this.zips = [];
     let isBundled = this.metadata['hasMember'] && this.metadata['hasMember'].length > 0;
-    this.zipDownload = {name: this.name, id: this.$route.query.id, bundledObject: isBundled};
-
+    const name = first(this.name)?.['@value'];
+    if(name) {
+      this.zipDownload = {name: name, id: this.$route.query.id, bundledObject: isBundled};
+    }
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   watch: {
@@ -279,6 +285,7 @@ export default {
     first,
     isEmpty,
     async populate() {
+      this.rootId = first(this.metadata['_root'])?.['@id'];
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);

@@ -4,20 +4,19 @@
       <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
         <h5 class="text-2xl font-medium">Downloads</h5>
         <hr class="divider divider-gray pt-2"/>
-        <el-row>
-          <el-link v-if="noAccess">
-            You do not have permission to download these files.
-            <template v-if="!isLoggedIn">
-              <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
-            </template>
-          </el-link>
-          <el-link
-              v-else
+        <el-row>hasAccess: {{hasAccess}}
+          <el-link v-if="hasAccess"
               :underline="true"
               type="primary"
               :href="zip.url"
               :download="zip.name">
             {{ zip.name }}
+          </el-link>
+          <el-link v-else>
+            You do not have permission to download these files.
+            <template v-if="!isLoggedIn">
+              <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
+            </template>
           </el-link>
           <el-tooltip v-if="zip?.numberOfFiles && zip?.expandedSize"
                       class="box-item"
@@ -45,7 +44,7 @@ export default {
     return {
       isLoginEnabled: this.$store.state.configuration.ui.login?.enabled,
       isLoggedIn: false,
-      noAccess: false,
+      hasAccess: false,
       zip: {
         url: undefined,
         name: undefined,
@@ -98,9 +97,9 @@ export default {
         }
         const numberOfFiles = response.headers.get('Archive-File-Count')
         this.zip.numberOfFiles = numberOfFiles;
-      }
-      if (response.status === 403) {
-        this.noAccess = true;
+        this.hasAccess = true;
+      } else if (response.status === 403) {
+        this.hasAccess = false;
       }
     }
   }

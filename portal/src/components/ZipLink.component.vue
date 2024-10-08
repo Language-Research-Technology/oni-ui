@@ -11,7 +11,7 @@
             :xl="asTableRow ? 8 : 24">
       <p v-if="zip.noAccess">
         You do not have permission to download these files.
-        <el-link :underline="false">
+        <el-link :underline="false" type="primary">
           <template v-if="!isLoggedIn">
             <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
           </template>

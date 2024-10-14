@@ -108,7 +108,8 @@ router.beforeEach(onAuthRequired);
 async function onAuthRequired(to, from, next) {
   const httpService = new HTTPService({ router, loginPath: '/login' });
   let isAuthed = await httpService.get({ route: "/authenticated" });
-  if (isAuthed.status === 200) {
+  const hasSession = getCookie('session');
+  if (isAuthed.status === 200 && hasSession) {
     putLocalStorage({ key: 'isLoggedIn', data: true });
   } else {
     putLocalStorage({ key: 'isLoggedIn', data: false });
@@ -129,6 +130,14 @@ async function onAuthRequired(to, from, next) {
     }
   }
   next();
+}
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop().split(';').shift();
+  }
+  return null;
 }
 
 export default router;

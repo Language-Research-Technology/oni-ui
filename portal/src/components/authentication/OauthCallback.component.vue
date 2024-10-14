@@ -37,7 +37,7 @@ import {
   removeLocalStorage,
 } from "@/storage";
 import EnrollmentCard from '../cards/EnrollmentCard.component.vue';
-import { event as gaEvent} from 'vue-gtag';
+import {event as gaEvent} from 'vue-gtag';
 
 export default {
   components: {EnrollmentCard},
@@ -57,7 +57,7 @@ export default {
     async login() {
       try {
         this.loadingText = 'Logging you in';
-        let {code_verifier} = getLocalStorage({key: loginSessionKey});
+        let {code_verifier} = getLocalStorage({key: loginSessionKey}) || {};
         removeLocalStorage({key: loginSessionKey});
         let response = await this.$http.post({
           route: `/oauth/${this.$route.query.state}/code`,
@@ -96,7 +96,7 @@ export default {
                 await this.$router.push("/");
               }
             }
-            gaEvent('login', { method: this.$route.query.state });
+            gaEvent('login', {method: this.$route.query.state});
             this.loading = false;
           } catch (e) {
             this.loading = false;

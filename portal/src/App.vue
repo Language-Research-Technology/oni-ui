@@ -4,7 +4,8 @@
 </template>
 
 <script>
-import {tokenSessionKey, getLocalStorage, putLocalStorage} from "@/storage";
+import {tokenSessionKey, getLocalStorage, putLocalStorage, removeLocalStorage} from "@/storage";
+
 export default {
   data() {
     return {};
@@ -19,6 +20,11 @@ export default {
         let {token} = getLocalStorage({key: tokenSessionKey});
         let user = JSON.parse(atob(token.split(".")[1]));
         this.$store.commit("setUserData", user);
+        const hasSession = this.$cookies.get('session');
+        if(!hasSession) {
+          removeLocalStorage({key: tokenSessionKey});
+          removeLocalStorage({key: 'isLoggedIn'});
+        }
       } else {
         this.$store.commit("isLoggedIn", false);
         putLocalStorage({key: 'isLoggedIn', data: false});

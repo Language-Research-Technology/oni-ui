@@ -42,7 +42,7 @@ import ZipService from "./zip.service";
   app.use(store);
   app.use(router);
   app.use(ElementPlus);
-  app.use(VueCookies, {expires: '7d', domain: window.location.host});
+  app.use(VueCookies, {expires: '1d'});
   app.use(VuePapaParse);
   app.component('font-awesome-icon', FontAwesomeIcon);
   app.component('manku-icon', MankuIcon);

@@ -127,7 +127,6 @@ import CollectionItem from "./CollectionItem.component.vue";
 import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
 import TakedownCard from "./cards/TakedownCard.component.vue"
 import BinderHubCard from "./cards/BinderHubCard.component.vue"
-import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 import ZipLink from './ZipLink.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 
@@ -146,7 +145,6 @@ export default {
     AggregationAsIcon,
     TakedownCard,
     BinderHubCard,
-    ZipDownloadObjectCard,
     ZipLink,
     DownloadsModal
   },
@@ -192,6 +190,11 @@ export default {
         '_memberOf.@id': [this.crateId],
         'conformsTo.@id': [this.conformsToObject]
       }, false);
+      this.$gtag.event("/object", {
+        'event_category': "object",
+        'event_label': "loaded-object",
+        'value': id
+      });
     }
     this.zips = [];
     for (let m of this.metadata?._memberOf || []) {
@@ -224,8 +227,18 @@ export default {
       this.metadata = metadata?._source;
       await this.populate();
       initSnip({selector: '#license', button: '#readMoreLicense'});
+      this.$gtag.event("/object", {
+        'event_category': "object",
+        'event_label': "mounted-object",
+        'value': id
+      });
       putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
     } catch (e) {
+      this.$gtag.event("/object", {
+        'event_category': "object",
+        'event_label': "error-mounting-object",
+        'value': 'error'
+      });
       console.error(e)
     }
   },

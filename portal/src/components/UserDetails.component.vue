@@ -109,6 +109,11 @@ export default {
       const response = await this.$http.get({route: "/user/token"});
       const {user} = await response.json();
       this.user = user;
+      this.$gtag.event("/user", {
+        'event_category': "user",
+        'event_label': "generated-token",
+        'value': true
+      });
     },
     async removeApiToken() {
       const response = await this.$http.delete({route: "/user/token"});

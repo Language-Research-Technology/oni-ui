@@ -134,7 +134,6 @@ import SummariesCard from './cards/SummariesCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
 import {putLocalStorage} from '@/storage';
 import TakedownCard from "./cards/TakedownCard.component.vue";
-import ZipDownloadObjectCard from './cards/ZipDownloadObjectCard.component.vue';
 import ZipLink from './ZipLink.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 
@@ -156,7 +155,6 @@ export default {
     FieldHelperCard,
     MemberOfLink,
     TakedownCard,
-    ZipDownloadObjectCard,
     ZipLink
   },
   props: [],
@@ -229,6 +227,11 @@ export default {
       const crateId = encodeURIComponent(this.$route.query._crateId);
       //encodeURIComponent may return "undefined" string
       if (isUndefined(id) || id === "undefined" || isUndefined(crateId) || crateId === "undefined") {
+        this.$gtag.event("/collection", {
+          'event_category': "collection",
+          'event_label': "no-id-collection",
+          'value': id
+        });
         await this.$router.push({path: '/404'});
       } else {
         const metadata = await this.$elasticService.single({
@@ -238,7 +241,11 @@ export default {
         this.metadata = metadata?._source;
         console.log('DEBUG COLLECTION');
         console.log(this.metadata);
-        // process.exit();
+        this.$gtag.event("/collection", {
+          'event_category': "collection",
+          'event_label': "loaded-collection",
+          'value': id
+        });
         if (!isEmpty(this.metadata)) {
           await this.populate();
           this.collectionSubCollections = await this.filter({
@@ -251,9 +258,15 @@ export default {
           }, true);
           const summaries = await this.filter({'_collectionStack.@id': [this.$route.query.id]});
           this.aggregations = summaries.aggregations;
-          putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+
+          putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
         } else {
-          await this.$router.push({path: '/404'});
+          this.$gtag.event("/collection", {
+            'event_category': "collection",
+            'event_label': "no-metadata-collection",
+            'value': id
+          });
+          await this.$router.push({ path: '/404' });
         }
       }
     } catch (e) {
@@ -267,19 +280,16 @@ export default {
     if(name) {
       this.zipDownload = {name: name, id: this.$route.query.id, bundledObject: isBundled};
     }
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    const id = encodeURIComponent(this.$route.query.id);
+    this.$gtag.event("/collection", {
+      'event_category': "browsed-collection",
+      'event_label': "loaded-collection",
+      'value': id
+    });
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   watch: {
-    openDownloads: {
-      handler(newValue, oldValue) {
-        //TODO: get the zips of all memberOfs...
-        if (newValue === 'true') {
-          //TODO: How to find out if this actually can be zipped? Or that it contains
-          //only the metadata?
-        }
-      },
-      immediate: true
-    }
+
   },
   methods: {
     first,

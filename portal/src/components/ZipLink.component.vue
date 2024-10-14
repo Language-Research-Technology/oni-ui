@@ -23,6 +23,7 @@
                  type="primary"
                  :href="zip.url"
                  :download="zip.name"
+                 :onClick="trackEvent"
         >
           {{ zip.name }}
           <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message"
@@ -78,7 +79,14 @@ export default {
     this.zip = await this.$zip.get(this.id, this.name);
   },
   methods: {
-    first
+    first,
+    trackEvent(e) {
+      this.$gtag.event("/download", {
+        'event_category': "zip",
+        'event_label': "download-zip",
+        'value': this.zip.url
+      });
+    }
   }
 }
 </script>

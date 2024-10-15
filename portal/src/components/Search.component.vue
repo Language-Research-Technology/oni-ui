@@ -614,6 +614,10 @@ export default {
         });
         this.populate({items: this.items, newSearch: true, aggregations: this.aggregations});
         this.loading = false;
+        this.$gtag.event("search", {
+          'event_category': "search",
+          'event_label': "search"
+        });
       } catch (e) {
         this.errorDialogVisible = true;
         this.errorDialogText = e.message;

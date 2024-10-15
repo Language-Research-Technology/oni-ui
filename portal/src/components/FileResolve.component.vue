@@ -254,6 +254,11 @@ export default {
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(link.href);
+          this.$gtag.event("/file-download", {
+            'event_category': "file",
+            'event_label': "download-file",
+            'value': this.zip.url
+          });
         }
 
         this.loading = false;

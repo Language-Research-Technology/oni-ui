@@ -282,7 +282,7 @@ export default {
     }
     const id = encodeURIComponent(this.$route.query.id);
     this.$gtag.event("/collection", {
-      'event_category': "browsed-collection",
+      'event_category': "collection",
       'event_label': "loaded-collection",
       'value': id
     });

@@ -81,8 +81,8 @@ export default {
   methods: {
     first,
     trackEvent(e) {
-      this.$gtag.event("/download", {
-        'event_category': "zip",
+      this.$gtag.event("object-download", {
+        'event_category': "object",
         'event_label': "download-zip",
         'value': this.zip.url
       });

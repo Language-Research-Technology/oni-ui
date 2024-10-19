@@ -36,11 +36,13 @@ export default {
   },
   beforeMount() {},
   mounted() {
-    if (this.$route.path === '/') this.$router.push('/search');
+    if (this.$route.path === '/')
+      this.$router.push(this.$store.state.configuration.ui?.topNavItems?.[0]?.route || '/search');
   },
   watch: {
     async '$route.path'() {
-      if (this.$route.path === '/') this.$router.push('/search');
+      if (this.$route.path === '/')
+        this.$router.push(this.$store.state.configuration.ui?.topNavItems?.[0]?.route || '/search');
     },
   },
   data() {

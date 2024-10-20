@@ -26,12 +26,11 @@
                                :field="{ 'name': special.name, 'display': special.label }"
                                :id="id"/>
           </el-row>
-          <el-row v-else v-if="details?.[special.field]">
+          <el-row v-else v-if="details[special.field]">
             <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white">
               {{ special.label }}:&nbsp;
             </p>
-            <span v-for="l of details?.[special.field]">{{ first(l?.name)?.['@value'] }}</span>
-            <p>{{ first(details?.[special.field])?.['@value'] }}</p>
+            <p>{{ first(details[special.field])?.[special.name] }}</p>
           </el-row>
         </template>
         <el-row :align="'middle'" v-if="Array.isArray(_memberOf) && _memberOf.length > 0" class="">
@@ -70,8 +69,8 @@
             {{ conformsTo }}
           </p>
         </el-row>
-        <el-row class="py-4 pr-4" v-if="first(details?.description)">
-          <p :id="'desc_'+_uuid">{{ first(details?.description)?.['@value'] }}</p>
+        <el-row class="py-4 pr-4" v-if="details.description">
+          <p :id="'desc_'+_uuid">{{ details.description }}</p>
         </el-row>
         <el-row v-if="types && types.includes('RepositoryCollection')">
           <span v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }},&nbsp;</span>

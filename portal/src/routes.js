@@ -1,21 +1,22 @@
-import AboutComponent from '@/components/About.component.vue';
-import ApiDocsComponent from '@/components/ApiDocsComponent.component.vue';
-import CollectionComponent from '@/components/Collection.component.vue';
+import ShellComponent from '@/components/Shell.component.vue';
+import UserComponent from '@/components/User.component.vue';
 import LoginComponent from '@/components/Login.component.vue';
 import LogoutComponent from '@/components/Logout.component.vue';
-import NotFoundPage from '@/components/NotFoundPage.vue';
-import ObjectComponent from '@/components/Object.component.vue';
-import ObjectOpenComponent from '@/components/ObjectOpen.component.vue';
-import PrivacyComponent from '@/components/Privacy.component.vue';
+import ListComponent from '@/components/List.component.vue';
 import SearchComponent from '@/components/Search.component.vue';
 import SearchMapComponent from '@/components/SearchMap.component.vue';
-import ShellComponent from '@/components/Shell.component.vue';
+import CollectionComponent from '@/components/Collection.component.vue';
+import ObjectComponent from '@/components/Object.component.vue';
+import ObjectOpenComponent from '@/components/ObjectOpen.component.vue';
+import AboutComponent from '@/components/About.component.vue';
 import TermsComponent from '@/components/Terms.component.vue';
-import UserComponent from '@/components/User.component.vue';
+import PrivacyComponent from '@/components/Privacy.component.vue';
+import ApiDocsComponent from '@/components/ApiDocsComponent.component.vue';
 import CallbackOauthLogin from '@/components/authentication/OauthCallback.component.vue';
-import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
-import { createRouter, createWebHistory } from 'vue-router';
+import NotFoundPage from '@/components/NotFoundPage.vue';
 import HTTPService from './http.service';
+import { createRouter, createWebHistory } from 'vue-router';
+import { loginSessionKey, tokenSessionKey, putLocalStorage, getLocalStorage, removeLocalStorage } from '@/storage';
 
 const routes = [
   {
@@ -32,6 +33,11 @@ const routes = [
         path: 'map',
         name: 'map',
         component: SearchMapComponent,
+      },
+      {
+        path: 'list',
+        name: 'list',
+        component: ListComponent,
       },
       {
         path: 'collection',
@@ -71,7 +77,6 @@ const routes = [
         meta: {
           requiresAuth: true,
         },
-        children: [],
       },
       {
         path: '/login',

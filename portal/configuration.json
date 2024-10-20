@@ -80,12 +80,12 @@
     },
     "topNavItems": [
       {
-        "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
-        "display": "Top Collections"
+        "route": "list?conformsTo=https%3A%2F%2Fpurl.archive.org%2Flanguage-data-commons%2Fprofile%23Collection",
+        "display": "Collections"
       },
       {
-        "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
-        "display": "Collections"
+        "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
+        "display": "Top Collections"
       },
       {
         "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522SoftwareApplication%2522%255D%257D",
@@ -95,17 +95,19 @@
     "search": {
       "sorting": [
         {
-          "value": "relevance",
-          "label": "Relevance"
+          "value": "identifier",
+          "label": "Collections",
+          "field": "identifier"
         },
         {
-          "value": "_isTopLevel.@value.keyword",
-          "label": "Collections"
+          "value": "title",
+          "label": "Title",
+          "field": "title"
         },
         {
-          "value": "name",
-          "label": "Name",
-          "field": "name.@value.keyword"
+          "value": "created_at",
+          "label": "Created",
+          "field": "created_at"
         }
       ],
       "searchSorting": {
@@ -126,7 +128,9 @@
         "value": "desc",
         "label": "Descending"
       },
-      "searchDetails": [{ "field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value" }]
+      "searchDetails": [
+        {"field": "inLanguage", "label": "Language", "name": "name"}
+      ]
     },
     "main": {
       "fields": [

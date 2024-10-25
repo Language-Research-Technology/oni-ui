@@ -36,20 +36,16 @@ export default {
   },
   methods: {
     async setup() {
-      const isAuthed = await this.$http.get({ route: '/authenticated' });
-      if (isAuthed.status === 200) {
-        const { token } = getLocalStorage({ key: tokenSessionKey });
-        const user = JSON.parse(atob(token.split('.')[1]));
-        this.$store.commit('setUserData', user);
-        const hasSession = this.$cookies.get('session');
-        if (!hasSession) {
-          removeLocalStorage({ key: tokenSessionKey });
-          removeLocalStorage({ key: 'isLoggedIn' });
-        }
-      } else {
-        this.$store.commit('isLoggedIn', false);
-        putLocalStorage({ key: 'isLoggedIn', data: false });
-      }
+      // NOTE: Temp disable auth
+      // const isAuthed = await this.$http.get({route: "/authenticated"});
+      // if (isAuthed.status === 200) {
+      //   const {token} = getLocalStorage({key: tokenSessionKey});
+      //   const user = JSON.parse(atob(token.split(".")[1]));
+      //   this.$store.commit("setUserData", user);
+      // } else {
+      //   this.$store.commit("isLoggedIn", false);
+      //   putLocalStorage({key: 'isLoggedIn', data: false});
+      // }
     },
   },
   checkSessionCookie() {

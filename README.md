@@ -12,7 +12,7 @@ Current guide applies to Mac and Linux:
    1. Mac only: Open docker application (no need to sign in) and give permission for /opt/storage/oni (Gear icon > Resources > File Sharing > Browse > Find /opt on local drive > Select + > Apply & restart)
 2. Verify your docker-compose.yml points to the right ocfl repository
    1. Currently, using **Oni** version **2.1.0**
-3. Base `configuration.json` is provided, modify as you wish
+3. Copy `configuration.local.json` to `configuration.json` and modify as you wish
 4. Start an Oni
    1. `docker compose up`
    2. Wait for oni to be ready

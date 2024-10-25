@@ -388,9 +388,10 @@
   },
   "api": {
     "structural": {
-      "host": "https://catalog.paradisec.org.au",
-      "key": "XXX",
-      "secret": "XXX"
+      "endpoint": "https://catalog.paradisec.org.au",
+      "path": "/api/v1/oni",
+      "clientId": "REPLACE_ME",
+      "clientSecret": "REPLACE_ME"
     },
     "origins": [
       {

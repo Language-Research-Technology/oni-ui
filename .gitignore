@@ -1,7 +1,7 @@
 data
 node_modules
 .idea
-*.configuration.json
+configuration.json
 .env
 .DS_Store
 binderhubconfiguration.json

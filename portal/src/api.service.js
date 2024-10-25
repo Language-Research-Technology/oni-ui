@@ -88,41 +88,41 @@ export default class HTTPService {
     return data;
   }
 
-  async #post(route, body) {
-    const headers = await this.#getHeaders();
-    const response = await fetch(`${this.apiUri}${route}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    const data = response.json();
-
-    return data;
-  }
-
-  async #put(route, body) {
-    const headers = await this.#getHeaders();
-    const response = await fetch(`${this.apiUri}${route}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    const data = response.json();
-
-    return data;
-  }
-
-  async #delete(route) {
-    const headers = await this.#getHeaders();
-    const response = await fetch(`${this.apiUri}${route}`, {
-      method: 'DELETE',
-      headers,
-    });
-
-    const data = response.json();
-
-    return data;
-  }
+  // async #post(route, body) {
+  //   const headers = await this.#getHeaders();
+  //   const response = await fetch(`${this.apiUri}${route}`, {
+  //     method: 'POST',
+  //     headers,
+  //     body: JSON.stringify(body),
+  //   });
+  //
+  //   const data = response.json();
+  //
+  //   return data;
+  // }
+  //
+  // async #put(route, body) {
+  //   const headers = await this.#getHeaders();
+  //   const response = await fetch(`${this.apiUri}${route}`, {
+  //     method: 'PUT',
+  //     headers,
+  //     body: JSON.stringify(body),
+  //   });
+  //
+  //   const data = response.json();
+  //
+  //   return data;
+  // }
+  //
+  // async #delete(route) {
+  //   const headers = await this.#getHeaders();
+  //   const response = await fetch(`${this.apiUri}${route}`, {
+  //     method: 'DELETE',
+  //     headers,
+  //   });
+  //
+  //   const data = response.json();
+  //
+  //   return data;
+  // }
 }

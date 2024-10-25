@@ -30,19 +30,17 @@
       </el-row>
     </el-col>
     <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8">
-      <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
+      <el-row v-if="license" :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2"/>
             <h4 class="text-1xl font-medium">
               Content in this collection is licensed as:
+              <ul class="list-disc my-2 mx-3 pl-2">
+                <li> {{ this.license.name }} </li>
+              </ul>
             </h4>
-            <PropertySummaryCard
-                :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"
-                :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"
-                :fieldName="'license'"
-                :external="true" :id="this.$route.query.id" :root="this.metadata._root"/>
           </el-card>
         </el-col>
       </el-row>
@@ -141,10 +139,7 @@ import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
-import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
-import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
-import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
 import { putLocalStorage } from '@/storage';
 import TakedownCard from './cards/TakedownCard.component.vue';
 
@@ -213,7 +208,7 @@ export default {
       metadata: {},
       name: '',
       graph: [],
-      license: [],
+      license: undefined,
       tops: [],
       meta: [],
       metaTags: [],
@@ -308,34 +303,41 @@ export default {
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);
-      // this.populateMetaTags(this.configTag?.meta);
-      // this.populateLicense();
+      this.populateLicense();
+      this.populateMetaTags(this.configTag?.meta);
       // await this.populateBuckets();
     },
-    // populateMetaTags(config = []) {
-    // for (let field of config) {
-    // let helper = this.helpers.find(h => h.id === field.name);
-    // if (!helper) {
-    // helper = {
-    // "id": field.content,
-    // "display": field.name,
-    // "url": "",
-    // "definition": "TODO: Add definition"
-    // }
-    // }
-    //
-    // let value;
-    // if (this.metadata[field.content]) {
-    // value = this.metadata[field.content];
-    // }
-    // this.metaTags.push({
-    // name: field.name,
-    // value: value,
-    // help: helper
-    // // })
-    // }
-    //see populateTop
-    // },
+    populateMetaTags(config = []) {
+      for (const field of config) {
+        let helper = this.helpers.find((h) => h.id === field.name);
+        if (!helper) {
+          helper = {
+            id: field.content,
+            display: field.name,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
+        }
+
+        let value;
+        switch (field.content) {
+          case 'license':
+            value = this.license?.name;
+            break;
+          case 'publisher':
+            value = this.metadata.publisher?.['@id'];
+            break;
+          default:
+            value = this.metadata[field.content];
+        }
+
+        this.metaTags.push({
+          name: field.name,
+          value: value,
+          help: helper,
+        });
+      }
+    },
     populateName(config) {
       this.name = this.metadata[config.name];
       this.nameDisplay = this.metadata[config.display];
@@ -361,7 +363,7 @@ export default {
       }
     },
     populateMeta(config) {
-      const keys = Object.keys(this.metadata); //.map(f => this.config.hide.find(f=> console.log(f)))
+      const keys = Object.keys(this.metadata);
       const filtered = reject(keys, (o) => config.hide.find((f) => o === f));
       for (const filter of filtered) {
         let helper = this.helpers.find((h) => h.id === filter);
@@ -378,7 +380,9 @@ export default {
       this.meta = sortBy(this.meta, 'name');
     },
     populateLicense() {
-      this.license = first(this.metadata?.license);
+      const id = this.metadata.license?.['@id'];
+
+      this.license = this.graph.find((item) => item['@id'] === id);
     },
     async populateBuckets() {
       const items = await this.$elasticService.multi({

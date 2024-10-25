@@ -1,9 +1,4 @@
-// TODO: Store the access token and the expiry in local storage
-// import {
-//   tokenSessionKey,
-//   removeLocalStorage,
-//   getLocalStorage
-// } from "@/storage";
+import {apiTokenAccessKey, putLocalStorage, getLocalStorage} from '@/storage';
 
 // FIXME: This cirrent implemenation means the client and secret are client side
 // so we need to ensure the scope is public only
@@ -35,10 +30,22 @@ export default class HTTPService {
     };
   }
 
+  #notExpired(expiry) {
+    return expiry > Date.now();
+  }
+
   async #getToken() {
     // FIXME: Deal with expired tokens
-    if (this.token) {
+    if (this.token && this.#notExpired(this.expiry)) {
       return this.token;
+    }
+
+    const {token, expiry} = getLocalStorage({key: apiTokenAccessKey}) || {};
+    if (token && this.#notExpired(expiry)) {
+      this.token = token;
+      this.expiry = expiry;
+
+      return token;
     }
 
     try {
@@ -59,6 +66,9 @@ export default class HTTPService {
       if (response.status === 200) {
         const json = await response.json();
         this.token = json.access_token;
+        this.expiry = json.expires_in * 1000 + Date.now();
+
+        putLocalStorage({key: apiTokenAccessKey, data: {token: this.token, expiry: this.expiry}});
 
         return this.token;
       }

@@ -1,5 +1,6 @@
 export const loginSessionKey = 'oni-login-session-data';
 export const tokenSessionKey = 'oni-user-token';
+export const apiTokenAccessKey = 'oni-api-token';
 
 // local storage handlers
 export function putLocalStorage({ key, data }) {

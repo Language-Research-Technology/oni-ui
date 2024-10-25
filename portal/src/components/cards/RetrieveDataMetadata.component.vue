@@ -4,7 +4,7 @@
       <el-link
           :underline="true"
           type="primary"
-          :href="`/api/object/meta?resolve-parts&noUrid&id=${encodeURIComponent(id)}`" download="ro-crate-metadata.json">
+          :href="link" download="ro-crate-metadata.json">
         Download metadata
       </el-link>
     </li>
@@ -12,25 +12,26 @@
       <el-link
           :underline="true"
           type="primary"
-          :href="`/api/object/meta?resolve-parts&noUrid&id=${encodeURIComponent(id)}`" target="_blank" rel="noreferrer noopener">
+          :href="link" target="_blank" rel="noreferrer noopener">
         Open metadata in a new window
       </el-link>
     </li>
   </ul>
 </template>
 <script>
-import { first } from 'lodash';
-
 export default {
   props: ['id'],
   data() {
     return {
-      metaPath: '',
-      notebooks: [],
+      link: '',
     };
   },
-  methods: {
-    first,
+  async mounted() {
+    const metadata = await this.$api.getCrate(this.id);
+    const json = JSON.stringify(metadata, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+
+    this.link = URL.createObjectURL(blob);
   },
 };
 </script>

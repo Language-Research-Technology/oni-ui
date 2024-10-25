@@ -7,6 +7,14 @@
       </el-collapse-item>
     </el-collapse>
   </template>
+  <template v-if="geometry">
+    {{ geometry.asWKT }}
+    <LeafletMap class="h-72 flex grow min-w-[200px] mr-4"
+                :modelValue="geometry"
+                :transformer="transformer"
+                :enableDrawing="false"></LeafletMap>
+    <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
+  </template>
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
   </template>
@@ -23,7 +31,6 @@
         </manku-icon>
       </a><br/>
     </template>
-    <template v-else-if="value"><div class="break-words">{{ value }}</div></template>
     <template v-else>
       <p>
         {{ name }}
@@ -38,16 +45,18 @@
   </template>
 </template>
 <script>
+import transformer from '@/components/widgets/geo';
 import convertSize from 'convert-size';
-import { first, isEmpty } from 'lodash';
+import { first, isEmpty, isEqual, isString } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
-    NotebookViewerWidget: defineAsyncComponent(() => import('./widgets/NotebookViewerWidget.component.vue')),
+    NotebookViewerWidget: defineAsyncComponent(() => import('@/components/widgets/NotebookViewerWidget.component.vue')),
     MetaField: defineAsyncComponent(() => import('@/components/MetaField.component.vue')),
+    LeafletMap: defineAsyncComponent(() => import('@/components/widgets/LeafletMap.vue')),
   },
-  props: ['field', 'title'],
+  props: ['field', 'title', 'graph'],
   data() {
     return {
       id: '',
@@ -55,6 +64,7 @@ export default {
       description: '',
       url: '',
       value: '',
+      geometry: '',
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
       expandField: false,
@@ -62,62 +72,65 @@ export default {
     };
   },
   mounted() {
-    this.id = this.field?.['@id'] || this.field?.['@value'];
-    this.url = this.testURL(this.id);
-    this.name = first(this.field?.name)?.['@value'] || first(this.field)?.['@value'];
-    this.description = first(this.field?.description)?.['@value'];
-    // This only if the value is ever empty, AKA not indexed or resolved
-    if (isEmpty(this.name)) {
-      this.name = this.id;
-      if (isEmpty(this.description)) {
-        this.description = 'This value only has an Id';
-      }
-    }
-    if (this.title === 'base64') {
-    }
-    for (const f of this.expand) {
-      if (f === this.title) {
-        console.log(f, this.title);
-        this.expandField = { name: this.title, data: this.field };
-      }
-    }
-    this.value = this.cleanValue();
-    // There is id name there is no @value what to do!
-    if (!this.id && !this.name) {
-      if (Array.isArray(this.field)) {
-        if (this.field?.['@id']) {
-          this.name = first(this.field['@id']);
-        } else {
-          this.name = first(this.field)?.['@id'] || first(this.field);
-        }
-      } else {
-        if (this.field?.['@id']) {
-          this.name = this.field['@id'];
-        } else {
-          this.name = this.field;
-        }
-      }
-    }
+    this.renderField(this.field);
   },
   methods: {
     first,
+    transformer,
+    renderField(field) {
+      if (isString(field)) {
+        return this.renderString(field);
+      }
+
+      if (field['@type'] === 'Place') {
+        return this.renderField(field.geo);
+      }
+
+      if (field['@type'] === 'Geometry') {
+        this.geometry = field;
+        return;
+      }
+
+      // NOTE: Assume we need to look it up in the graph
+      if (isEqual(Object.keys(field), ['@id'])) {
+        this.id = field['@id'];
+        this.url = this.testURL(this.id);
+        if (this.url) {
+          return;
+        }
+
+        const newField = this.localLookup(this.id);
+        if (!newField) {
+          this.description = 'This value only has an Id';
+          return;
+        }
+
+        this.renderField(newField);
+
+        return;
+      }
+
+      this.id = field['@id'];
+      this.url = this.testURL(this.id);
+      this.name = field.name;
+      this.description = field.description;
+    },
+    renderString(field) {
+      this.name = field;
+      this.url = this.testURL(this.name);
+    },
+    localLookup(id) {
+      const item = this.graph.find((m) => m['@id'] === id);
+      if (!item) {
+        return false;
+      }
+
+      return item;
+    },
     testURL(url) {
       if (typeof url === 'string' && url?.startsWith('http')) {
         //TODO: make this a real url test
         return url;
-      }
-    },
-    cleanValue() {
-      if (this.byteFields.find((f) => f.toLowerCase() === this.title?.toLowerCase())) {
-        return this.convert(this.field?.['@value']);
-      }
-      return this.field?.['@value'] || null;
-    },
-    convert(value) {
-      try {
-        return convertSize(Number.parseInt(value), { accuracy: 2 });
-      } catch (e) {
-        return value;
       }
     },
   },

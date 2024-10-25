@@ -45,10 +45,10 @@
 </template>
 <script>
 import { first } from 'lodash';
-import toInt from 'validator/es/lib/toInt';
-import { toRaw } from 'vue';
 import CollectionItem from './CollectionItem.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
+import { toRaw } from 'vue';
+import toInt from 'validator/es/lib/toInt';
 
 export default {
   components: {
@@ -65,10 +65,11 @@ export default {
     };
   },
   async mounted() {
-    await this.setMembers();
+    // await this.setMembers();
+    console.log('🪚 FIXME');
   },
   async updated() {
-    await this.setMembers();
+    // await this.setMembers();
   },
   watch: {},
   methods: {

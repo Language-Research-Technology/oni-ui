@@ -95,36 +95,31 @@
 
 
 <script>
-
 import {first, last, isEmpty, orderBy, find, isUndefined} from 'lodash';
-import {CloseBold} from "@element-plus/icons-vue";
-import {defineAsyncComponent, toRaw} from "vue";
+import {CloseBold} from '@element-plus/icons-vue';
+import {defineAsyncComponent, toRaw} from 'vue';
 import SearchDetailElement from './SearchDetailElement.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
 import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
-import SearchAdvanced from "./SearchAdvanced.component.vue";
-import SearchMap from "./SearchMap.component.vue";
+import SearchAdvanced from './SearchAdvanced.component.vue';
+import SearchMap from './SearchMap.component.vue';
 
 import {v4 as uuid} from 'uuid';
 
 export default {
   components: {
-    SearchBar: defineAsyncComponent(() =>
-        import("@/components/SearchBar.component.vue")
-    ),
+    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.component.vue')),
     SearchAdvanced,
     SearchDetailElement,
     CloseBold,
     SearchAggs,
-    SearchMap
+    SearchMap,
   },
   data() {
-    const sorting = this.$store.state.configuration.ui.search?.sorting || [
-      {value: 'relevance', label: 'Relevance'}
-    ];
+    const sorting = this.$store.state.configuration.ui.search?.sorting || [{value: 'relevance', label: 'Relevance'}];
     const ordering = this.$store.state.configuration.ui.search?.ordering || [
       {value: 'asc', label: 'Ascending'},
-      {value: 'desc', label: 'Descending'}
+      {value: 'desc', label: 'Descending'},
     ];
 
     return {
@@ -139,7 +134,7 @@ export default {
       sorting,
       ordering,
       selectedSorting: first(sorting),
-      selectedOrder: first(ordering)
+      selectedOrder: first(ordering),
     };
   },
   async created() {
@@ -175,9 +170,9 @@ export default {
           params.offset = (this.currentPage - 1) * this.pageSize;
         }
 
-        const data = await this.$api.get('/objects', params);
+        const data = await this.$api.getObjects(params);
 
-        this.totals = data.total
+        this.totals = data.total;
         this.items = data.data;
       } catch (e) {
         this.errorDialogVisible = true;
@@ -192,10 +187,10 @@ export default {
     getSearchDetailUrl(item) {
       // TODO: this is not good, maybe do it with a ConformsTo to specify link.
       // But have to think about it because not all files have conformsTo!
-      const { types } = item;
-      const repoType = types.find(t => t === 'RepositoryCollection');
-      const fileType = types.find(t => t === 'File');
-      const itemType = types.find(t => t === 'RepositoryObject');
+      const {types} = item;
+      const repoType = types.find((t) => t === 'RepositoryCollection');
+      const fileType = types.find((t) => t === 'File');
+      const itemType = types.find((t) => t === 'RepositoryObject');
 
       const crateId = encodeURIComponent(item.crateId);
 
@@ -245,8 +240,8 @@ export default {
     },
     showMap() {
       this.$router.push({path: '/map'});
-    }
-  }
+    },
+  },
 };
 </script>
 <style>

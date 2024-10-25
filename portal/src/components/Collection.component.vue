@@ -2,8 +2,8 @@
   <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <member-of-link :memberOf="metadata?._memberOf"/>
-        {{ first(this.name)?.['@value'] }}
+        <member-of-link :memberOf="metadata.memberOf" />
+        {{ name }}
       </h5>
     </el-row>
     <hr class="divider divider-gray pt-2"/>
@@ -13,7 +13,7 @@
       <MetaTopCard :tops="this.tops" :className="'px-5 py-2'"/>
       <el-row class="px-5">
         <el-col v-for="meta of this.meta">
-          <meta-field :meta="meta" :routePath="'collection'" :crateId="this.$route.query._crateId"/>
+          <meta-field :meta="meta" :graph="graph" :routePath="'collection'" :crateId="this.$route.query.crateId" />
         </el-col>
       </el-row>
       <el-row v-if="collectionSubCollections">
@@ -117,25 +117,36 @@
       </el-row>
     </el-col>
   </el-row>
+  <el-dialog v-model="errorDialogVisible" width="40%" center>
+    <el-alert title="Error" type="warning" :closable="false">
+      <p class="break-normal">{{ this.errorDialogText }}</p>
+    </el-alert>
+    <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+        </span>
+    </template>
+  </el-dialog>
 </template>
 <script>
-import { putLocalStorage } from '@/storage';
-import { first, isEmpty, isUndefined, reject, sortBy } from 'lodash';
+import { first, isUndefined, isEmpty, reject, sortBy } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import MetaField from './MetaField.component.vue';
-import ZipLink from './ZipLink.component.vue';
-import ContentCard from './cards/ContentCard.component.vue';
-import FieldHelperCard from './cards/FieldHelperCard.component.vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
 import MemberOfCard from './cards/MemberOfCard.component.vue';
+import ContentCard from './cards/ContentCard.component.vue';
+import FieldHelperCard from './cards/FieldHelperCard.component.vue';
+import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
+import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
+import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
 import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
 import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
+import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
+import { putLocalStorage } from '@/storage';
 import TakedownCard from './cards/TakedownCard.component.vue';
-import DownloadsModal from './widgets/DownloadsModal.component.vue';
-import MemberOfLink from './widgets/MemberOfLink.component.vue';
 
 export default {
   components: {
@@ -153,7 +164,6 @@ export default {
     FieldHelperCard,
     MemberOfLink,
     TakedownCard,
-    ZipLink,
   },
   props: [],
   head() {
@@ -192,6 +202,9 @@ export default {
 
   data() {
     return {
+      errorDialogVisible: false,
+      errorDialogText: '',
+
       id: null,
       config: this.$store.state.configuration.ui.collection,
       fields: this.$store.state.configuration.ui.main.fields,
@@ -199,6 +212,7 @@ export default {
       configTag: this.$store.state.configuration.ui.head || {},
       metadata: {},
       name: '',
+      graph: [],
       license: [],
       tops: [],
       meta: [],
@@ -212,83 +226,77 @@ export default {
       collectionMembers: [],
       limitMembers: 10,
       aggregations: [],
-      zips: [],
-      zipDownload: {},
-      openDownloads: false,
-      rootId: '',
     };
   },
   async mounted() {
     try {
-      const id = encodeURIComponent(this.$route.query.id);
-      const crateId = encodeURIComponent(this.$route.query._crateId);
-      //encodeURIComponent may return "undefined" string
-      if (isUndefined(id) || id === 'undefined' || isUndefined(crateId) || crateId === 'undefined') {
-        this.$gtag.event('/collection', {
-          event_category: 'collection',
-          event_label: 'no-id-collection',
-          value: id,
-        });
+      const { crateId } = this.$route.query;
+      if (isUndefined(crateId)) {
         await this.$router.push({ path: '/404' });
-      } else {
-        const metadata = await this.$elasticService.single({
-          id: id,
-          _crateId: crateId,
-        });
-        this.metadata = metadata?._source;
-        console.log('DEBUG COLLECTION');
-        console.log(this.metadata);
-        this.$gtag.event('/collection', {
-          event_category: 'collection',
-          event_label: 'loaded-collection',
-          value: id,
-        });
-        if (!isEmpty(this.metadata)) {
-          await this.populate();
-          this.collectionSubCollections = await this.filter(
-            {
-              '_memberOf.@id': [this.$route.query.id],
-              'conformsTo.@id': [this.conformsToCollection],
-            },
-            true,
-          );
-          this.collectionMembers = await this.filter(
-            {
-              '_memberOf.@id': [this.$route.query.id],
-              'conformsTo.@id': [this.conformsToObject],
-            },
-            true,
-          );
-          const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
-          this.aggregations = summaries.aggregations;
 
-          putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
-        } else {
-          this.$gtag.event('/collection', {
-            event_category: 'collection',
-            event_label: 'no-metadata-collection',
-            value: id,
-          });
-          await this.$router.push({ path: '/404' });
-        }
+        return;
       }
+
+      const crate = await this.$api.getCrate(crateId);
+      if (!crate) {
+        await this.$router.push({ path: '/404' });
+        return;
+      }
+
+      this.graph = crate['@graph'];
+      if (!this.graph) {
+        this.errorDialogVisible = true;
+        this.errorDialogText = 'Invalid RO-Crate: Graph not found';
+
+        return;
+      }
+
+      const work = this.graph.find(
+        (item) => item['@type'] === 'CreativeWork' && item['@id'] === 'ro-crate-metadata.json',
+      );
+      if (!work) {
+        this.errorDialogVisible = true;
+        this.errorDialogText = 'Invalid RO-Crate: CreativeWork not found';
+
+        return;
+      }
+
+      if (work?.about?.['@id'] !== crateId) {
+        this.errorDialogVisible = true;
+        this.errorDialogText = 'Invalid RO-Crate: CreativeWork about does not match';
+        return;
+      }
+
+      const obj = this.graph.find((item) => item['@id'] === crateId);
+      if (!obj) {
+        this.errorDialogVisible = true;
+        CollecI;
+        this.errorDialogText = 'Invalid RO-Crate: Object not found';
+        return;
+      }
+
+      this.metadata = obj;
+      await this.populate();
+      // this.collectionSubCollections = await this.filter({
+      // '_memberOf.@id': [this.$route.query.id],
+      // 'conformsTo.@id': [this.conformsToCollection]
+      // }, true);
+      // this.collectionMembers = await this.filter({
+      // '_memberOf.@id': [this.$route.query.id],
+      // 'conformsTo.@id': [this.conformsToObject]
+      // }, true);
+      // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
+      // this.aggregations = summaries.aggregations;
+      // putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
+      // } else {
+      // // await this.$router.push({ path: '/404' });
+      // }
+      // }
     } catch (e) {
       console.error(e);
     }
   },
   updated() {
-    this.zips = [];
-    const isBundled = this.metadata.hasMember && this.metadata.hasMember.length > 0;
-    const name = first(this.name)?.['@value'];
-    if (name) {
-      this.zipDownload = { name: name, id: this.$route.query.id, bundledObject: isBundled };
-    }
-    const id = encodeURIComponent(this.$route.query.id);
-    this.$gtag.event('/collection', {
-      event_category: 'collection',
-      event_label: 'loaded-collection',
-      value: id,
-    });
     putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   watch: {},
@@ -300,34 +308,34 @@ export default {
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);
-      this.populateMetaTags(this.configTag?.meta);
-      this.populateLicense();
-      await this.populateBuckets();
+      // this.populateMetaTags(this.configTag?.meta);
+      // this.populateLicense();
+      // await this.populateBuckets();
     },
-    populateMetaTags(config = []) {
-      for (const field of config) {
-        let helper = this.helpers.find((h) => h.id === field.name);
-        if (!helper) {
-          helper = {
-            id: field.content,
-            display: field.name,
-            url: '',
-            definition: 'TODO: Add definition',
-          };
-        }
-
-        let value;
-        if (this.metadata[field.content]) {
-          value = this.metadata[field.content];
-        }
-        this.metaTags.push({
-          name: field.name,
-          value: value,
-          help: helper,
-        });
-      }
-      //see populateTop
-    },
+    // populateMetaTags(config = []) {
+    // for (let field of config) {
+    // let helper = this.helpers.find(h => h.id === field.name);
+    // if (!helper) {
+    // helper = {
+    // "id": field.content,
+    // "display": field.name,
+    // "url": "",
+    // "definition": "TODO: Add definition"
+    // }
+    // }
+    //
+    // let value;
+    // if (this.metadata[field.content]) {
+    // value = this.metadata[field.content];
+    // }
+    // this.metaTags.push({
+    // name: field.name,
+    // value: value,
+    // help: helper
+    // // })
+    // }
+    //see populateTop
+    // },
     populateName(config) {
       this.name = this.metadata[config.name];
       this.nameDisplay = this.metadata[config.display];
@@ -343,12 +351,8 @@ export default {
             definition: 'TODO: Add definition',
           };
         }
-        let value;
-        if (this.metadata[field.name]) {
-          value = this.metadata[field.name];
-        } else {
-          value = [{ '@value': 'Not Defined' }];
-        }
+
+        const value = this.metadata[field.name] || 'Not Defined';
         this.tops.push({
           name: field.display,
           value: value,
@@ -384,7 +388,7 @@ export default {
       });
       const aggregations = items?.aggregations;
       this.buckets = [];
-      for (const field of this.fields) {
+      for (let field of this.fields) {
         if (aggregations[field.name]) {
           this.buckets.push({ field: field.display, buckets: aggregations[field.name]?.buckets });
         }
@@ -395,20 +399,20 @@ export default {
       const form = this.takedownForm;
       return `${form}${currentUrl}`;
     },
-
-    //TODO: refactor this integrate to multi
-    async filter(filters, scroll) {
-      const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
-      if (items?.hits?.hits.length > 0) {
-        return {
-          data: items?.hits?.hits,
-          aggregations: items?.aggregations,
-          total: items.hits?.total.value,
-          scrollId: items?._scroll_id,
-          route: null,
-        };
-      }
-    },
+    //
+    // //TODO: refactor this integrate to multi
+    // async filter(filters, scroll) {
+    // const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
+    // if (items?.hits?.hits.length > 0) {
+    // return {
+    // data: items?.hits?.hits,
+    // aggregations: items?.aggregations,
+    // total: items.hits?.total.value,
+    // scrollId: items?._scroll_id,
+    // route: null
+    // }
+    // }
+    // }
   },
 };
 </script>

@@ -119,17 +119,16 @@ const router = createRouter({
 router.beforeEach(onAuthRequired);
 
 async function onAuthRequired(to, from, next) {
-  const httpService = new HTTPService({ router, loginPath: '/login' });
-  const isAuthed = await httpService.get({ route: '/authenticated' });
-  const hasSession = getCookie('session');
-  if (isAuthed.status === 200 && hasSession) {
-    putLocalStorage({ key: 'isLoggedIn', data: true });
-  } else {
-    putLocalStorage({ key: 'isLoggedIn', data: false });
-  }
-  if (isAuthed.status === 200 && to.path === '/login') {
-    return next({ path: '/' });
-  }
+  // const httpService = new HTTPService({ router, loginPath: '/login' });
+  // let isAuthed = await httpService.get({ route: "/authenticated" });
+  // if (isAuthed.status === 200) {
+  // putLocalStorage({ key: 'isLoggedIn', data: true });
+  // } else {
+  putLocalStorage({ key: 'isLoggedIn', data: false });
+  // }
+  // if (isAuthed.status === 200 && to.path === "/login") {
+  //   return next({ path: "/" });
+  // }
   if (to.meta?.requiresAuth) {
     console.log(`requires Auth ${to.path}`);
     try {

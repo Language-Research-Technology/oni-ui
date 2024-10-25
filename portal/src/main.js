@@ -29,6 +29,7 @@ prefixer.apply(log);
 import HTTPService from './http.service';
 import MembershipService from './membership.service';
 import ElasticService from './elastic.service';
+import ApiService from './api.service';
 import VueGtag from 'vue-gtag';
 import configuration from '../configuration.json';
 
@@ -56,7 +57,8 @@ import configuration from '../configuration.json';
   store.commit('saveConfiguration', { ...configuration });
 
   app.config.globalProperties.$membership = new MembershipService({ router });
-  app.config.globalProperties.$elasticService = new ElasticService({ router, configuration });
+  app.config.globalProperties.$api = new ApiService({ router, configuration });
+  // app.config.globalProperties.$elasticService = new ElasticService({router, configuration});
 
   app.mount('#app');
 

@@ -1,8 +1,8 @@
-import { GeoCoordinates, GeoShape } from './geo_schema';
 /** Geo format transformation utils */
+import { GeoCoordinates, GeoShape } from './geo_schema';
 import { Geometry } from './geo_wkt';
 
-export default function (L, entity = { '@type': [] }) {
+export default function (L, entity) {
   const Transformers = {
     GeoCoordinates: GeoCoordinates(L),
     GeoShape: GeoShape(L),
@@ -10,26 +10,21 @@ export default function (L, entity = { '@type': [] }) {
   };
   Transformers['http://www.opengis.net/ont/geosparql#Geometry'] = Transformers[Geometry];
 
+  const transformer = Transformers[entity['@type']];
+  if (!transformer) {
+    throw new Error(`Unknown shape type ${entity['@type']}`);
+  }
+
   return {
     get shapes() {
-      const shapes = new Set();
-      for (const t of entity['@type']) {
-        for (const s of Transformers[t]?.shapes) shapes.add(s);
-      }
-      return Array.from(shapes);
+      return transformer.shapes;
     },
     fromEntity() {
-      // convert from entity to leaflet shapes
-      if (entity) {
-        //console.log(entity['@type']);
-        return entity['@type'].reduce((a, t) => a.concat(Transformers[t]?.from(entity) || []), []);
-      }
+      return transformer.from(entity);
     },
-    toEntity(shapes) {
-      // update entity with the given shapes
-      for (const t of entity['@type']) {
-        Transformers[t]?.to(shapes, entity);
-      }
+    toEntity(shape) {
+      transformer.to(shape, entity);
+
       return entity;
     },
   };

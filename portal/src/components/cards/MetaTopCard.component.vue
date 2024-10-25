@@ -6,25 +6,12 @@
       </p>
     </el-col>
     <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-      <p>{{ first(field.value)?.['@value'] }}</p>
+      <p>{{ field.value }}</p>
     </el-col>
   </el-row>
 </template>
 <script>
-import { first } from 'lodash';
-import FieldHelperCard from './FieldHelperCard.component.vue';
-
 export default {
-  components: {
-    FieldHelperCard,
-  },
-  props: ['tops', 'elasticField', 'className'],
-  data() {
-    return {};
-  },
-  mounted() {
-    console.log(this.elasticField);
-  },
-  methods: { first },
+  props: ['tops', 'className'],
 };
 </script>

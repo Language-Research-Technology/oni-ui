@@ -129,14 +129,13 @@ function initMap() {
 
       featuresLayer.clearLayers();
       if (!val) return;
-      for (const shape of transform.value.fromEntity()) {
-        if (shape) {
-          try {
-            shape.addTo(featuresLayer);
-          } catch (error) {
-            console.log(error);
-            console.log(shape);
-          }
+      const shape = transform.value.fromEntity();
+      if (shape) {
+        try {
+          shape.addTo(featuresLayer);
+        } catch (error) {
+          console.log(error);
+          console.log(shape);
         }
       }
       console.log(featuresLayer.getLayers());
@@ -162,8 +161,8 @@ function initControls(map, featuresLayer) {
     }
   }
   function moveTooltip(e) {
-    tooltip.style.left = `${e.containerPoint.x + 5}px`;
-    tooltip.style.top = `${e.containerPoint.y - tooltip.offsetHeight - 5}px`;
+    tooltip.style.left = e.containerPoint.x + 5 + 'px';
+    tooltip.style.top = e.containerPoint.y - tooltip.offsetHeight - 5 + 'px';
   }
   // show tooltip
   map.on('mousemove', moveTooltip);

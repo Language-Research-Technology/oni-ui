@@ -30,8 +30,8 @@
 </template>
 <script>
 import { first } from 'lodash';
-import LeafletMap from './widgets/LeafletMap.vue';
 import transformer from './widgets/geo';
+import LeafletMap from './widgets/LeafletMap.vue';
 
 export default {
   components: {
@@ -69,7 +69,6 @@ export default {
       if (this.filePath) {
         return `/${this.routePath}?id=${encodeURIComponent(this.parentId)}&_crateId=${encodeURIComponent(this.crateId)}&fileId=${this.filePath}`;
       }
-      return `/${this.routePath}?id=${encodeURIComponent(this.field)}&_crateId=${encodeURIComponent(this.crateId)}`;
     },
   },
 };

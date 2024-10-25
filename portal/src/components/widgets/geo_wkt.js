@@ -1,5 +1,4 @@
 const reRoot = /^(<.+>\s+)?(\w+)\s*(\(.+\))$/s;
-const reBrackets = /a/;
 
 /**
  * Read a WKT formatted string and return a leaflet layer object
@@ -18,10 +17,10 @@ function read(L, wkt, number) {
           icon: new L.NumberedDivIcon({ number }),
         });
       }
+
       return L.marker(points[0], {
         icon: new L.LocationDivIcon(),
       });
-
     case 'LINESTRING':
       return L.polyline(points, { kind: 'line' });
     case 'POLYGON': {
@@ -203,10 +202,10 @@ export function Geometry(L) {
     shapes: ['point', 'box', 'polygon'],
     from(entity) {
       const wkt = entity['http://www.opengis.net/ont/geosparql#asWKT'] || entity.asWKT || entity['geo:asWKT'] || [];
-      return wkt.map((data) => read(L, data));
+      return read(L, wkt);
     },
-    to(shapes, entity = {}) {
-      entity.asWKT = shapes.map((s) => write(s));
+    to(shape, entity = {}) {
+      entity.asWKT = write(shape);
       return entity;
     },
   };

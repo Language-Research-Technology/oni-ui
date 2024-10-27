@@ -44,9 +44,9 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5" v-if="metadata?._memberOf && metadata?._memberOf.length > 0">
+      <el-row :gutter="20" class="pb-5" v-if="metadata.memberOf">
         <el-col>
-          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
+          <MemberOfCard :routePath="'collection'" :memberOf="metadata.memberOf" />
         </el-col>
       </el-row>
       <!-- <el-row :gutter="20" class="pb-5"> -->
@@ -215,7 +215,7 @@ export default {
 
       this.loading = true;
 
-      const {error, metadata} = await this.$api.getCrate(this.crateId);
+      const { error, metadata } = await this.$api.getCrate(this.crateId);
       if (error) {
         this.errorDialogText = error;
         this.errorDialogVisible = true;

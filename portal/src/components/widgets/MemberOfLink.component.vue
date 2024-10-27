@@ -16,7 +16,7 @@ export default {
     setLink() {
       const crateId = this.memberOf?.['@id'];
       this.link = `/collection?crateId=${encodeURIComponent(crateId)}`;
-      this.value = memberOf.name || undefined;
+      this.value = this.memberOf?.name || undefined;
     },
   },
   data() {

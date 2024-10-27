@@ -57,7 +57,7 @@
           <search-detail-element v-if="item.record" :id="item.crateId" :href="getSearchDetailUrl(item)"
                                  :name="item.record.name"
                                  :conformsTo="item.conformsTo" :types="item.types"
-                                 :_memberOf="item.memberOf" :highlight="item.description"
+                                 :memberOf="item.memberOf" :highlight="item.description"
                                  :root="item.record._root"
                                  :parent="item.record._parent"
                                  :details="item.record" :score="item._score"/>

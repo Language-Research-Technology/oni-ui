@@ -113,7 +113,8 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  // TODO make this configurable
+  history: createWebHistory("/oni"),
   routes,
 });
 router.beforeEach(onAuthRequired);

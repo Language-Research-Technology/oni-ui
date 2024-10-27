@@ -158,119 +158,123 @@ export default {
       searchDetails: this.$store.state.configuration.ui.search.searchDetails || [],
     };
   },
-  watch: {
-    types: {
-      async handler() {
-        await this.updateSummaries();
-      },
-      flush: 'post',
-      immediate: true,
-    },
-  },
-  async mounted() {
-    await this.updateSummaries();
-  },
-  async computed() {
-    await this.updateSummaries();
-  },
+  // watch: {
+  //   'types': {
+  //     async handler() {
+  //       await this.updateSummaries();
+  //     },
+  //     flush: 'post',
+  //     immediate: true
+  //   }
+  // },
+  // async mounted() {
+  //   await this.updateSummaries();
+  // },
+  // async computed() {
+  //   await this.updateSummaries();
+  // },
   methods: {
     first,
     toArray,
     isEmpty,
-    getFilter({ field, id }) {
-      const filter = {};
-      filter[field] = [id];
-      let filterEncoded = encodeURIComponent(JSON.stringify(filter));
-      if (this.$route.query.f) {
-        filterEncoded = this.mergeQueryFilters({ filters: this.$route.query.f, filter });
-      }
-      if (this.$route.query.q) {
-        const searchQuery = `q=${this.$route.query.q}`;
-        return `/search?${searchQuery}&f=${filterEncoded}`;
-      }
-      return `/search?f=${filterEncoded}`;
-    },
-    mergeQueryFilters({ filters, filter }) {
-      let decodedFilters = decodeURIComponent(filters);
-      decodedFilters = JSON.parse(decodedFilters);
-      const merged = merge(decodedFilters, filter);
-      return encodeURIComponent(JSON.stringify(merged));
-    },
-    async updateSummaries() {
-      let summaries;
-      if (this.types?.includes('RepositoryCollection')) {
-        this.subCollections = await this.filter({
-          '_memberOf.@id': [this.id],
-          'conformsTo.@id': [this.conformsToCollection],
-        });
-        this.members = await this.filter({
-          '_collectionStack.@id': [this.id],
-          'conformsTo.@id': [this.conformsToObject],
-        });
-        summaries = await this.filter({
-          '_collectionStack.@id': [this.id],
-        });
-      }
-      if (this.types?.includes('RepositoryObject')) {
-        if (this.types.includes('RepositoryObject')) {
-          summaries = await this.filter({
-            '_parent.@id': [this.id],
-          });
-        }
-      }
-      this.aggregations = summaries?.aggregations;
-      // Get the buckets to extract one value: File counts
-      const buckets = summaries?.aggregations?.['@type']?.buckets;
-      if (buckets) {
-        this.typeFile = find(buckets, (obj) => obj.key === 'File');
-      }
-      this.total = this.members?.total;
-      if (!this.descriptionSnipped) {
-        initSnip({ selector: `#desc_${this._uuid}`, lines: 3 });
-      }
-      this.loading = false;
-    },
-    //TODO: refactor this integrate to multi
-    async filter(filters) {
-      const items = await this.$elasticService.multi({
-        filters: filters,
-        sort: 'relevance',
-        order: 'desc',
-      });
-      if (items?.hits?.hits.length > 0) {
-        return {
-          data: items?.hits?.hits,
-          aggregations: items?.aggregations,
-          total: items.hits?.total.value,
-          scrollId: items?._scroll_id,
-          route: null,
-        };
-      }
-    },
-    findLicense(detail) {
-      const key = first(detail)?.['@id'];
-      const license = this.licenses.find((l) => l.license === key);
-      if (license) {
-        if (isUndefined(license.access)) {
-          return 'login';
-        }
-        return license.access;
-      }
-      return 'public';
-    },
-    getValue(name) {
-      //this is because this!! value = "first(first(details.modality)?.['name'])?.['@value']"
-      if (name.includes('name')) {
-        const det = /[^.]*/.exec(name)?.[0];
-        return first(first(this.details[det])?.name)?.['@value'];
-      }
-      const det = /[^.]*/.exec(name)?.[0];
-      return first(this.details[det])?.['@value'];
-    },
-    doSnip(selector) {
-      toggleSnip(selector);
-      this.descriptionSnipped = true;
-    },
+    //   getFilter({field, id}) {
+    //     const filter = {};
+    //     filter[field] = [id];
+    //     let filterEncoded = encodeURIComponent(JSON.stringify(filter));
+    //     if (this.$route.query.f) {
+    //       filterEncoded = this.mergeQueryFilters({filters: this.$route.query.f, filter})
+    //     }
+    //     if (this.$route.query.q) {
+    //       const searchQuery = `q=${this.$route.query.q}`;
+    //       return `/search?${searchQuery}&f=${filterEncoded}`;
+    //     } else {
+    //       return `/search?f=${filterEncoded}`;
+    //     }
+    //   },
+    //   mergeQueryFilters({filters, filter}) {
+    //     let decodedFilters = decodeURIComponent(filters);
+    //     decodedFilters = JSON.parse(decodedFilters);
+    //     const merged = merge(decodedFilters, filter);
+    //     return encodeURIComponent(JSON.stringify(merged));
+    //   },
+    //   async updateSummaries() {
+    //     let summaries;
+    //     if (this.types && this.types.includes('RepositoryCollection')) {
+    //       this.subCollections = await this.filter({
+    //         'memberOf.@id': [this.id],
+    //         'conformsTo.@id': [this.conformsToCollection]
+    //       });
+    //       this.members = await this.filter({
+    //         '_collectionStack.@id': [this.id],
+    //         'conformsTo.@id': [this.conformsToObject]
+    //       });
+    //       summaries = await this.filter({
+    //         '_collectionStack.@id': [this.id]
+    //       });
+    //     }
+    //     if (this.types && this.types.includes('RepositoryObject')) {
+    //       if (this.types.includes('RepositoryObject')) {
+    //         summaries = await this.filter({
+    //           '_parent.@id': [this.id]
+    //         });
+    //       }
+    //     }
+    //     this.aggregations = summaries?.aggregations;
+    //     // Get the buckets to extract one value: File counts
+    //     const buckets = summaries?.aggregations?.['@type']?.buckets;
+    //     if (buckets) {
+    //       this.typeFile = find(buckets, (obj) => obj.key === 'File');
+    //     }
+    //     this.total = this.members?.total;
+    //     if (!this.descriptionSnipped) {
+    //       initSnip({selector: '#desc_' + this._uuid, lines: 3});
+    //     }
+    //     this.loading = false;
+    //   },
+    //   //TODO: refactor this integrate to multi
+    //   async filter(filters) {
+    //     const items = await this.$elasticService.multi({
+    //       filters: filters,
+    //       sort: 'relevance',
+    //       order: 'desc'
+    //     });
+    //     if (items?.hits?.hits.length > 0) {
+    //       return {
+    //         data: items?.hits?.hits,
+    //         aggregations: items?.aggregations,
+    //         total: items.hits?.total.value,
+    //         scrollId: items?._scroll_id,
+    //         route: null
+    //       }
+    //     }
+    //   },
+    //   findLicense(detail) {
+    //     const key = first(detail)?.['@id'];
+    //     let license = this.licenses.find(l => l.license === key);
+    //     if (license) {
+    //       if (isUndefined(license.access)) {
+    //         return 'login';
+    //       } else {
+    //         return license.access;
+    //       }
+    //     } else {
+    //       return 'public';
+    //     }
+    //   },
+    //   getValue(name) {
+    //     //this is because this!! value = "first(first(details.modality)?.['name'])?.['@value']"
+    //     if (name.includes('name')) {
+    //       let det = /[^.]*/.exec(name)?.[0];
+    //       return first(first(this.details[det])?.['name'])?.['@value']
+    //     } else {
+    //       let det = /[^.]*/.exec(name)?.[0];
+    //       return first(this.details[det])?.['@value']
+    //     }
+    //   },
+    //   doSnip(selector) {
+    //     toggleSnip(selector);
+    //     this.descriptionSnipped = true;
+    //   }
   },
 };
 </script>

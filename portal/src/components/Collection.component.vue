@@ -13,7 +13,7 @@
       <MetaTopCard :tops="this.tops" :className="'px-5 py-2'"/>
       <el-row class="px-5">
         <el-col v-for="meta of this.meta">
-          <meta-field :meta="meta" :routePath="'collection'" :crateId="crateId" />
+          <meta-field :meta="meta" />
         </el-col>
       </el-row>
       <el-row>
@@ -213,10 +213,13 @@ export default {
         return;
       }
 
-      const { error, metadata } = await this.$api.getCrate(this.crateId);
+      this.loading = true;
+
+      const {error, metadata} = await this.$api.getCrate(this.crateId);
       if (error) {
         this.errorDialogText = error;
         this.errorDialogVisible = true;
+
         return;
       }
 
@@ -227,6 +230,9 @@ export default {
 
       this.metadata = metadata;
       await this.populate();
+
+      this.loading = false;
+
       // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
       // this.aggregations = summaries.aggregations;
       putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });

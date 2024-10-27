@@ -45,10 +45,10 @@
   </template>
 </template>
 <script>
-import transformer from '@/components/widgets/geo';
+import { isString, isNumber } from 'lodash';
 import convertSize from 'convert-size';
-import { first, isEmpty, isEqual, isString } from 'lodash';
 import { defineAsyncComponent } from 'vue';
+import transformer from '@/components/widgets/geo';
 
 export default {
   components: {
@@ -75,10 +75,9 @@ export default {
     this.renderField(this.field);
   },
   methods: {
-    first,
     transformer,
     renderField(field) {
-      if (isString(field)) {
+      if (isString(field) || isNumber(field)) {
         this.name = field;
         return;
       }

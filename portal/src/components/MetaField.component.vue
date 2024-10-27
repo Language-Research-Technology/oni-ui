@@ -39,7 +39,7 @@ export default {
     ElasticField,
     ElasticResolveField,
   },
-  props: ['meta', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
+  props: ['meta', 'isExpand'],
   methods: {
     first,
     startCase,

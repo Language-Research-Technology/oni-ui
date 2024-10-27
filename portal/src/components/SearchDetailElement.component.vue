@@ -33,12 +33,12 @@
             <p>{{ first(details[special.field])?.[special.name] }}</p>
           </el-row>
         </template>
-        <el-row :align="'middle'" v-if="Array.isArray(_memberOf) && _memberOf.length > 0" class="">
+        <el-row :align="'middle'" v-if="Array.isArray(memberOf) && memberOf.length > 0" class="">
           <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white">
             Member of:&nbsp;
           </p>
           <div class="flex flex-wrap">
-            <a v-for="mO of _memberOf"
+            <a v-for="mO of memberOf"
                class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
                :href="'/collection?id=' + encodeURIComponent(mO?.['@id']) + '&_crateId=' + encodeURIComponent(mO?.['@id'])">
               {{ first(mO?.name)?.['@value'] || mO?.['@id'] }}
@@ -54,10 +54,10 @@
           <!--          <el-button>{{ first(p?.name)?.['@value'] || p?.['@id'] }}</el-button>-->
           <!--        </a>-->
           <!--      </div>-->
-          <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white" v-if="!Array.isArray(_memberOf)">
+          <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white" v-if="!Array.isArray(memberOf)">
             &nbsp;In:&nbsp;
           </p>
-          <div class="flex flex-wrap" v-if="!Array.isArray(_memberOf)">
+          <div class="flex flex-wrap" v-if="!Array.isArray(memberOf)">
             <a
                 :href="'/collection?id=' + encodeURIComponent(root?.['@id']) + '&_crateId=' + encodeURIComponent(root?.['@id'])">
               <el-button>{{ first(first(root)?.name)?.['@value'] || first(root)?.['@id'] }}</el-button>
@@ -139,7 +139,7 @@ export default {
     AggregationHelper,
     AggregationAsIcon,
   },
-  props: ['id', 'href', 'name', 'conformsTo', 'types', '_memberOf', 'root', 'highlight', 'parent', 'details', 'score'],
+  props: ['id', 'href', 'name', 'conformsTo', 'types', 'memberOf', 'root', 'highlight', 'parent', 'details', 'score'],
   data() {
     return {
       fields: this.$store.state.configuration.ui.main.fields || [],

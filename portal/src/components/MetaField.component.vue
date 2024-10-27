@@ -18,11 +18,10 @@
     </el-col>
     <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
       <template v-if="Array.isArray(meta.data)">
-        <elastic-field :field="d" :title="meta.name" :graph="graph" v-for="d of meta.data"/>
+        <elastic-field :field="d" :title="meta.name" v-for="d of meta.data"/>
       </template>
       <template v-else>
-        <elastic-field :field="meta.data" :title="meta.name" :graph="graph"/>
-        <!-- <elastic-resolve-field :name="meta.name" :field="meta.data" :routePath="routePath" :filePath="filePath" :parentId="parentId" :crateId="crateId"/> -->
+        <elastic-field :field="meta.data" :title="meta.name" />
       </template>
     </el-col>
     </template>
@@ -40,7 +39,7 @@ export default {
     ElasticField,
     ElasticResolveField,
   },
-  props: ['meta', 'graph', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
+  props: ['meta', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
   methods: {
     first,
     startCase,

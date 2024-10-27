@@ -56,7 +56,7 @@ export default {
     MetaField: defineAsyncComponent(() => import('@/components/MetaField.component.vue')),
     LeafletMap: defineAsyncComponent(() => import('@/components/widgets/LeafletMap.vue')),
   },
-  props: ['field', 'title', 'graph'],
+  props: ['field', 'title'],
   data() {
     return {
       id: '',
@@ -79,34 +79,7 @@ export default {
     transformer,
     renderField(field) {
       if (isString(field)) {
-        return this.renderString(field);
-      }
-
-      if (field['@type'] === 'Place') {
-        return this.renderField(field.geo);
-      }
-
-      if (field['@type'] === 'Geometry') {
-        this.geometry = field;
-        return;
-      }
-
-      // NOTE: Assume we need to look it up in the graph
-      if (isEqual(Object.keys(field), ['@id'])) {
-        this.id = field['@id'];
-        this.url = this.testURL(this.id);
-        if (this.url) {
-          return;
-        }
-
-        const newField = this.localLookup(this.id);
-        if (!newField) {
-          this.description = 'This value only has an Id';
-          return;
-        }
-
-        this.renderField(newField);
-
+        this.name = field;
         return;
       }
 
@@ -114,21 +87,12 @@ export default {
       this.url = this.testURL(this.id);
       this.name = field.name;
       this.description = field.description;
-    },
-    renderString(field) {
-      this.name = field;
-      this.url = this.testURL(this.name);
-    },
-    localLookup(id) {
-      const item = this.graph.find((m) => m['@id'] === id);
-      if (!item) {
-        return false;
+      if (field.geo) {
+        this.geometry = field.geo;
       }
-
-      return item;
     },
     testURL(url) {
-      if (typeof url === 'string' && url?.startsWith('http')) {
+      if (isString(url) && url.startsWith('http')) {
         //TODO: make this a real url test
         return url;
       }

@@ -8,29 +8,29 @@
     </el-row>
     <hr class="divider divider-gray pt-2"/>
   </div>
-  <el-row :justify="'center'" v-if="this.metadata" class="m-5 pt2 px-10 pb-7">
+  <el-row :justify="'center'" v-if="metadata" class="m-5 pt2 px-10 pb-7">
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
       <MetaTopCard :tops="this.tops" :className="'px-5 py-2'"/>
       <el-row class="px-5">
         <el-col v-for="meta of this.meta">
-          <meta-field :meta="meta" :graph="graph" :routePath="'collection'" :crateId="this.$route.query.crateId" />
+          <meta-field :meta="meta" :routePath="'collection'" :crateId="crateId" />
         </el-col>
       </el-row>
       <el-row>
         <el-col>
-          <collection-members title="Sub Collections" :id="$route.query.crateId" :conformsTo="conformsToCollection"
+          <collection-members title="Sub Collections" :id="crateId" :conformsTo="conformsToCollection"
             :routePath="'collection'" />
         </el-col>
       </el-row>
       <el-row>
         <el-col>
-          <collection-members title="Objects in Collection" :id="$route.query.crateId" :conformsTo="conformsToObject"
+          <collection-members title="Objects in Collection" :id="crateId" :conformsTo="conformsToObject"
             :routePath="'object'" />
         </el-col>
       </el-row>
     </el-col>
     <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8">
-      <el-row v-if="license" :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
+      <el-row v-if="metadata.license" :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
@@ -38,7 +38,7 @@
             <h4 class="text-1xl font-medium">
               Content in this collection is licensed as:
               <ul class="list-disc my-2 mx-3 pl-2">
-                <li> {{ this.license.name }} </li>
+                <li> {{ metadata.license.name }} </li>
               </ul>
             </h4>
           </el-card>
@@ -67,7 +67,7 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
             <hr class="divider divider-gray pt-2" />
-            <RetrieveDataMetadata :id="this.$route.query.crateId" />
+            <RetrieveDataMetadata :id="crateId" />
             <template v-if="metadata.metadataLicense?.id">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
@@ -81,16 +81,16 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship">
-        <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <SimpleRelationshipCard :id="this.$route.query.id" :objectType="relationship.type"
-                                    :objectName="relationship.name"/>
-          </el-card>
-        </el-col>
-      </el-row>
+      <!-- <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship"> -->
+      <!--   <el-col> -->
+      <!--     <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5"> -->
+      <!--       <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5> -->
+      <!--       <hr class="divider divider-gray pt-2" /> -->
+      <!--       <SimpleRelationshipCard :id="crateId" :objectType="relationship.type" -->
+      <!--         :objectName="relationship.name" /> -->
+      <!--     </el-card> -->
+      <!--   </el-col> -->
+      <!-- </el-row> -->
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <TakedownCard/>
@@ -100,7 +100,7 @@
   </el-row>
   <el-dialog v-model="errorDialogVisible" width="40%" center>
     <el-alert title="Error" type="warning" :closable="false">
-      <p class="break-normal">{{ this.errorDialogText }}</p>
+      <p class="break-normal">{{ errorDialogText }}</p>
     </el-alert>
     <template #footer>
         <span class="dialog-footer">
@@ -183,14 +183,13 @@ export default {
       errorDialogVisible: false,
       errorDialogText: '',
 
-      id: null,
+      crateId: null,
       config: this.$store.state.configuration.ui.collection,
       fields: this.$store.state.configuration.ui.main.fields,
       helpers: this.$store.state.configuration.ui.helpers || [],
       configTag: this.$store.state.configuration.ui.head || {},
       metadata: {},
       name: '',
-      graph: [],
       license: undefined,
       tops: [],
       meta: [],
@@ -198,7 +197,7 @@ export default {
       takedownForm: this.$store.state.configuration.ui.googleForm?.takedown,
       conformsToCollection: this.$store.state.configuration.api.conformsTo.collection,
       conformsToObject: this.$store.state.configuration.api.conformsTo.object,
-      findObjectByRelationship: this.$store.state.configuration.ui.collection.relationships,
+      // findObjectByRelationship: this.$store.state.configuration.ui.collection.relationships,
       collectionSubCollections: [],
       collectionMembers: [],
       limitMembers: 10,
@@ -207,60 +206,30 @@ export default {
   },
   async mounted() {
     try {
-      const { crateId } = this.$route.query;
-      if (isUndefined(crateId)) {
+      this.crateId = this.$route.query.crateId;
+      if (!this.crateId) {
         await this.$router.push({ path: '/404' });
 
         return;
       }
 
-      const crate = await this.$api.getCrate(crateId);
-      if (!crate) {
+      const { error, metadata } = await this.$api.getCrate(this.crateId);
+      if (error) {
+        this.errorDialogText = error;
+        this.errorDialogVisible = true;
+        return;
+      }
+
+      if (!metadata) {
         await this.$router.push({ path: '/404' });
         return;
       }
 
-      this.graph = crate['@graph'];
-      if (!this.graph) {
-        this.errorDialogVisible = true;
-        this.errorDialogText = 'Invalid RO-Crate: Graph not found';
-
-        return;
-      }
-
-      const work = this.graph.find(
-        (item) => item['@type'] === 'CreativeWork' && item['@id'] === 'ro-crate-metadata.json',
-      );
-      if (!work) {
-        this.errorDialogVisible = true;
-        this.errorDialogText = 'Invalid RO-Crate: CreativeWork not found';
-
-        return;
-      }
-
-      if (work?.about?.['@id'] !== crateId) {
-        this.errorDialogVisible = true;
-        this.errorDialogText = 'Invalid RO-Crate: CreativeWork about does not match';
-        return;
-      }
-
-      const obj = this.graph.find((item) => item['@id'] === crateId);
-      if (!obj) {
-        this.errorDialogVisible = true;
-        CollecI;
-        this.errorDialogText = 'Invalid RO-Crate: Object not found';
-        return;
-      }
-
-      this.metadata = obj;
+      this.metadata = metadata;
       await this.populate();
       // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
       // this.aggregations = summaries.aggregations;
-      // putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
-      // } else {
-      // // await this.$router.push({ path: '/404' });
-      // }
-      // }
+      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     } catch (e) {
       console.error(e);
     }
@@ -277,7 +246,6 @@ export default {
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);
-      this.populateLicense();
       this.populateMetaTags(this.configTag?.meta);
     },
     populateMetaTags(config = []) {
@@ -352,11 +320,7 @@ export default {
         this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
-    },
-    populateLicense() {
-      const id = this.metadata.license?.['@id'];
-
-      this.license = this.graph.find((item) => item['@id'] === id);
+      console.log(this.meta);
     },
     takedownLink() {
       const currentUrl = encodeURIComponent(window.location.href);

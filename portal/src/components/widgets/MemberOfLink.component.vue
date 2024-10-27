@@ -1,11 +1,9 @@
 <template>
   <span v-if="value">
-    <a class="break-words no-underline text-blue-600" :href="link">{{ value }}</a> >
+    <router-link class="break-words no-underline text-blue-600" :to="link">{{ value }}</router-link> >
   </span>
 </template>
 <script>
-import { first } from 'lodash';
-
 export default {
   props: ['memberOf'],
   updated() {
@@ -16,11 +14,9 @@ export default {
   },
   methods: {
     setLink() {
-      const memberOf = first(this.memberOf);
-      const id = memberOf?.['@id'];
-      const _crateId = memberOf?.['@id'];
-      this.link = `/collection?id=${encodeURIComponent(id)}&_crateId=${encodeURIComponent(_crateId)}`;
-      this.value = first(memberOf?.name)?.['@value'] || undefined;
+      const crateId = this.memberOf?.['@id'];
+      this.link = `/collection?crateId=${encodeURIComponent(crateId)}`;
+      this.value = memberOf.name || undefined;
     },
   },
   data() {

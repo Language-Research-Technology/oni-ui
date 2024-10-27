@@ -6,7 +6,7 @@
       </div>
       <div>
         <p>Access to <a :href="license['@id']" class="font-bold">{{
-            first(license['name'])?.['@value'] || license['@id']
+            license['name'] || license['@id']
           }}</a> granted
           to {{ this.user?.['name'] || this.user?.['email'] }}
         </p>

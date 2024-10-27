@@ -4,8 +4,9 @@
       <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20">
         <el-row :align="'middle'">
           <h5 class="text-2xl font-medium dark:text-white">
-            <a :href="href" class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
-              {{ this.name || this.id }}</a>
+            <router-link :to="href" class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
+              {{ this.name || this.id }}
+            </router-link>
           </h5>
         </el-row>
         <el-row :align="'middle'">
@@ -38,11 +39,11 @@
             Member of:&nbsp;
           </p>
           <div class="flex flex-wrap">
-            <a v-for="mO of memberOf"
+            <router-link v-for="mO of memberOf"
                class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
-               :href="'/collection?id=' + encodeURIComponent(mO?.['@id']) + '&_crateId=' + encodeURIComponent(mO?.['@id'])">
-              {{ first(mO?.name)?.['@value'] || mO?.['@id'] }}
-            </a>
+               :to="'/collection?crateId=' + encodeURIComponent(mO['@id'])">
+              {{ mO.name || mO['@id'] }}
+            </router-link>
           </div>
         </el-row>
         <el-row :align="'middle'" v-if="Array.isArray(parent) && parent.length > 0" class="pt-2">
@@ -58,10 +59,10 @@
             &nbsp;In:&nbsp;
           </p>
           <div class="flex flex-wrap" v-if="!Array.isArray(memberOf)">
-            <a
-                :href="'/collection?id=' + encodeURIComponent(root?.['@id']) + '&_crateId=' + encodeURIComponent(root?.['@id'])">
-              <el-button>{{ first(first(root)?.name)?.['@value'] || first(root)?.['@id'] }}</el-button>
-            </a>
+            <router-link
+                :to="'/collection?crateId=' + encodeURIComponent(root['@id'])">
+              <el-button>{{ root.name || root['@id'] }}</el-button>
+            </router-link>
           </div>
         </el-row>
         <el-row :align="'middle'">

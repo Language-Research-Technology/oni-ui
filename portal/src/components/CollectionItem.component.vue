@@ -14,7 +14,7 @@
   </template>
 </template>
 <script>
-import {first} from "lodash";
+import { first } from 'lodash';
 //  {{ first(field)?.['@value'] }}
 export default {
   props: ['field', 'routePath'],
@@ -22,12 +22,12 @@ export default {
     return {
       isURL: false,
       value: false,
-      link: ''
-    }
+      link: '',
+    };
   },
   mounted() {
     const id = this.field?.['@id'];
-    const tryCrateId = this.field?.['_crateId'];
+    const tryCrateId = this.field?._crateId;
     const crateId = first(tryCrateId)?.['@value'];
     this.isURL = this.testURL(id);
     if (!this.isURL) {
@@ -38,7 +38,7 @@ export default {
     first,
     testURL(url) {
       return url.startsWith('http');
-    }
-  }
-}
+    },
+  },
+};
 </script>

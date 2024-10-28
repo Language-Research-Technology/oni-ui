@@ -24,8 +24,8 @@ export default {
   props: ['not_found', 'not_found_message', 'go', 'go_url'],
   data() {
     return {
-      alpacaSVG: require('../assets/alpaca.svg')
-    }
-  }
-}
+      alpacaSVG: require('../assets/alpaca.svg'),
+    };
+  },
+};
 </script>

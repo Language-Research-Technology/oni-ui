@@ -25,14 +25,14 @@
 </template>
 
 <script>
-import 'element-plus/theme-chalk/display.css'
-import FileResolve from './FileResolve.component.vue';
-import { first } from 'lodash';
+import 'element-plus/theme-chalk/display.css';
 import { putLocalStorage } from '@/storage';
+import { first } from 'lodash';
+import FileResolve from './FileResolve.component.vue';
 
 export default {
   components: {
-    FileResolve
+    FileResolve,
   },
   data() {
     return {
@@ -44,8 +44,8 @@ export default {
       parentId: '',
       parentTitle: '',
       access: [],
-      license: []
-    }
+      license: [],
+    };
   },
   beforeMount() {
     this.id = this.$route.query.id;
@@ -58,7 +58,7 @@ export default {
     async getFileMetadata() {
       const metadata = await this.$elasticService.single({
         id: this.id,
-        _crateId: this.crateId
+        _crateId: this.crateId,
       });
       this.metadata = metadata?._source;
       this.populateData();
@@ -67,14 +67,14 @@ export default {
       putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     },
     populateData() {
-      this.title = first(this.metadata?.['name'])?.['@value'] || this.metadata['@id'];
-      const parent = first(this.metadata['_parent']);
+      this.title = first(this.metadata?.name)?.['@value'] || this.metadata['@id'];
+      const parent = first(this.metadata._parent);
       this.parentId = parent['@id'];
-      this.parentTitle = first(parent['name'])?.['@value'] || this.parentId;
-      this.encodingFormat = first(this.metadata?.['encodingFormat'])?.['@value'];
-      console.log('--------------')
-      console.log(this.encodingFormat)
-    }
-  }
-}
+      this.parentTitle = first(parent.name)?.['@value'] || this.parentId;
+      this.encodingFormat = first(this.metadata?.encodingFormat)?.['@value'];
+      console.log('--------------');
+      console.log(this.encodingFormat);
+    },
+  },
+};
 </script>

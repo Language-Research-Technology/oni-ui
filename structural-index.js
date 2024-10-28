@@ -7,11 +7,11 @@ const fetch = require('node-fetch');
   const adminToken = configuration.api.tokens.admin;
   const options = {
     headers: {
-      'Authorization': `Bearer ${adminToken}`,
+      Authorization: `Bearer ${adminToken}`,
     },
   };
   const url = `${protocol}://${host}/api/admin/index/structural`;
-  const structuralIndex = await fetch(url, {method: 'POST', ...options});
+  const structuralIndex = await fetch(url, { method: 'POST', ...options });
   if (structuralIndex.status === 404) {
     console.log(`Cannot index into ${url}`);
   } else {

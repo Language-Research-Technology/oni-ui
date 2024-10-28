@@ -4,7 +4,7 @@
   </span>
 </template>
 <script>
-import {first} from "lodash";
+import { first } from 'lodash';
 
 export default {
   props: ['memberOf'],
@@ -20,14 +20,14 @@ export default {
       const id = memberOf?.['@id'];
       const _crateId = memberOf?.['@id'];
       this.link = `/collection?id=${encodeURIComponent(id)}&_crateId=${encodeURIComponent(_crateId)}`;
-      this.value = first(memberOf?.['name'])?.['@value'] || undefined;
-    }
+      this.value = first(memberOf?.name)?.['@value'] || undefined;
+    },
   },
   data() {
     return {
       value: '',
-      link: ''
-    }
-  }
-}
+      link: '',
+    };
+  },
+};
 </script>

@@ -29,7 +29,7 @@
   </el-popover>
 </template>
 <script>
-import {first} from 'lodash';
+import { first } from 'lodash';
 
 export default {
   props: ['meta'],
@@ -38,34 +38,33 @@ export default {
       loading: false,
       definition: '',
       url: '',
-      baseVocab: this.$store.state.configuration.ui?.baseVocab || ""
-    }
+      baseVocab: this.$store.state.configuration.ui?.baseVocab || '',
+    };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     async searchMetaField() {
       this.loading = true;
       let id;
       if (this.meta.id) {
         id = `${this.baseVocab}${this.meta.id}`;
-        const content = await this.$elasticService.single({index: 'vocabs', _id: id});
-        if (content && content['_source']) {
-          const source = content['_source'];
+        const content = await this.$elasticService.single({ index: 'vocabs', _id: id });
+        if (content?._source) {
+          const source = content._source;
           this.definition = source?.['rdfs:comment'];
           this.url = id;
         } else {
           id = `schema:${this.meta.id}`;
-          const content = await this.$elasticService.single({index: 'vocabs', _id: id});
-          if (content && content['_source']) {
-            const source = content['_source'];
+          const content = await this.$elasticService.single({ index: 'vocabs', _id: id });
+          if (content?._source) {
+            const source = content._source;
             this.definition = source?.['rdfs:comment'];
             this.url = `http://schema.org/${this.meta.id}`;
           }
         }
       }
       this.loading = false;
-    }
-  }
-}
+    },
+  },
+};
 </script>

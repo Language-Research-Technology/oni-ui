@@ -38,18 +38,14 @@
   </template>
 </template>
 <script>
-import {first, isEmpty} from "lodash";
-import convertSize from "convert-size";
-import {defineAsyncComponent} from 'vue';
+import convertSize from 'convert-size';
+import { first, isEmpty } from 'lodash';
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
-    NotebookViewerWidget: defineAsyncComponent(() =>
-        import('./widgets/NotebookViewerWidget.component.vue')
-    ),
-    MetaField: defineAsyncComponent(() =>
-        import('@/components/MetaField.component.vue')
-    )
+    NotebookViewerWidget: defineAsyncComponent(() => import('./widgets/NotebookViewerWidget.component.vue')),
+    MetaField: defineAsyncComponent(() => import('@/components/MetaField.component.vue')),
   },
   props: ['field', 'title'],
   data() {
@@ -62,14 +58,14 @@ export default {
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
       expandField: false,
-      hide: false
-    }
+      hide: false,
+    };
   },
   mounted() {
     this.id = this.field?.['@id'] || this.field?.['@value'];
     this.url = this.testURL(this.id);
-    this.name = first(this.field?.['name'])?.['@value'] || first(this.field)?.['@value'];
-    this.description = first(this.field?.['description'])?.['@value'];
+    this.name = first(this.field?.name)?.['@value'] || first(this.field)?.['@value'];
+    this.description = first(this.field?.description)?.['@value'];
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
@@ -78,12 +74,11 @@ export default {
       }
     }
     if (this.title === 'base64') {
-
     }
-    for (let f of this.expand) {
+    for (const f of this.expand) {
       if (f === this.title) {
-        console.log(f, this.title)
-        this.expandField = {name: this.title, data: this.field};
+        console.log(f, this.title);
+        this.expandField = { name: this.title, data: this.field };
       }
     }
     this.value = this.cleanValue();
@@ -107,24 +102,24 @@ export default {
   methods: {
     first,
     testURL(url) {
-      if (typeof url === 'string' && url?.startsWith('http')) { //TODO: make this a real url test
+      if (typeof url === 'string' && url?.startsWith('http')) {
+        //TODO: make this a real url test
         return url;
       }
     },
     cleanValue() {
-      if (this.byteFields.find(f => f.toLowerCase() === this.title?.toLowerCase())) {
+      if (this.byteFields.find((f) => f.toLowerCase() === this.title?.toLowerCase())) {
         return this.convert(this.field?.['@value']);
-      } else {
-        return this.field?.['@value'] || null;
       }
+      return this.field?.['@value'] || null;
     },
     convert(value) {
       try {
-        return convertSize(parseInt(value), {accuracy: 2});
+        return convertSize(Number.parseInt(value), { accuracy: 2 });
       } catch (e) {
         return value;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

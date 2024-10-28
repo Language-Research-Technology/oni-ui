@@ -10,7 +10,7 @@
   </div>
 </template>
 <script>
-import {first} from 'lodash';
+import { first } from 'lodash';
 
 export default {
   props: ['external', 'id', 'field', 'value', 'fieldName'],
@@ -18,26 +18,26 @@ export default {
     return {
       href: '',
       text: '',
-      alt: ''
-    }
+      alt: '',
+    };
   },
   async mounted() {
-    let route = `/search/fields/items?field=${this.field}&value=${this.value}`;
+    const route = `/search/fields/items?field=${this.field}&value=${this.value}`;
     console.log(route);
-    let response = await this.$http.get({route});
+    const response = await this.$http.get({ route });
     const items = await response.json();
     const res = first(items.hits?.hits);
     const element = res?._source;
     const property = first(element?.[this.fieldName]);
     if (property) {
       this.href = property['@id'];
-      this.text = first(property['name'])?.['@value']
-      this.alt = first(property['description'])?.['@value']
+      this.text = first(property.name)?.['@value'];
+      this.alt = first(property.description)?.['@value'];
     } else {
       this.text = this.value;
       this.href = false;
     }
   },
   watch: {},
-}
+};
 </script>

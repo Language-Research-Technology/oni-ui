@@ -1,10 +1,10 @@
 const configuration = require('./configuration.json');
 const fetch = require('node-fetch');
-const readline = require('readline');
+const readline = require('node:readline');
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 function askForConfirmation() {
@@ -24,11 +24,11 @@ function askForConfirmation() {
       const adminToken = configuration.api.tokens.admin;
       const options = {
         headers: {
-          'Authorization': `Bearer ${adminToken}`,
+          Authorization: `Bearer ${adminToken}`,
         },
       };
       const url = `${protocol}://${host}/api/admin/index/structural`;
-      const deleteIndex = await fetch(url, {method: 'DELETE', ...options});
+      const deleteIndex = await fetch(url, { method: 'DELETE', ...options });
       console.log(`Deleting Index: ${url}`);
       if (deleteIndex.status === 404) {
         console.log('Index not found, nothing to delete');

@@ -6,12 +6,12 @@ const fetch = require('node-fetch');
   const adminToken = configuration.api.tokens.admin;
   const options = {
     headers: {
-      'Authorization': `Bearer ${adminToken}`,
+      Authorization: `Bearer ${adminToken}`,
     },
   };
   const url = `${apiHost}/admin/index/structural`;
-  const structuralIndex = await fetch(url, {method: 'GET', ...options});
-  console.log(`Fetch: ${structuralIndex.status}`)
+  const structuralIndex = await fetch(url, { method: 'GET', ...options });
+  console.log(`Fetch: ${structuralIndex.status}`);
   const res = await structuralIndex.json();
   console.log(JSON.stringify(res));
 })();

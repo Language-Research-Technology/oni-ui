@@ -19,8 +19,8 @@
   <div class="bottom justify-self-center"></div>
 </template>
 <script>
-import {first, isEmpty} from "lodash";
-import {initSnip, toggleSnip} from "../../tools";
+import { first, isEmpty } from 'lodash';
+import { initSnip, toggleSnip } from '../../tools';
 
 export default {
   props: ['license', 'hideDescription'],
@@ -30,8 +30,8 @@ export default {
       publicMetadataTitle: '',
       publicMetadataTip: '',
       allowTextIndexTitle: '',
-      allowTextIndexTip: ''
-    }
+      allowTextIndexTip: '',
+    };
   },
   methods: {
     first,
@@ -39,14 +39,13 @@ export default {
     doSnip(selector) {
       toggleSnip(selector);
       this.licenseSnipped = true;
-    }
+    },
   },
-  mounted() {
-  },
+  mounted() {},
   updated() {
     if (!this.licenseSnipped) {
-      initSnip({selector: '#license', button: '#readMoreLicense'});
+      initSnip({ selector: '#license', button: '#readMoreLicense' });
     }
-  }
-}
+  },
+};
 </script>

@@ -38,14 +38,26 @@
   </el-row>
 </template>
 <script>
-import {first, reject, sortBy} from "lodash";
-import FileResolve from "./FileResolve.component.vue";
-import MetaField from "./MetaField.component.vue";
+import { first, reject, sortBy } from 'lodash';
+import FileResolve from './FileResolve.component.vue';
+import MetaField from './MetaField.component.vue';
 
 export default {
   inheritAttrs: false,
   components: { MetaField, FileResolve },
-  props: ['title', 'part', 'active', 'id', 'encodingFormat', 'crateId', 'rootId', 'parentName', 'parentId', 'access', 'license'],
+  props: [
+    'title',
+    'part',
+    'active',
+    'id',
+    'encodingFormat',
+    'crateId',
+    'rootId',
+    'parentName',
+    'parentId',
+    'access',
+    'license',
+  ],
   data() {
     return {
       more: '',
@@ -53,15 +65,15 @@ export default {
       metadata: [],
       resolve: false,
       helpers: this.$store.state.configuration.ui.helpers || [],
-      config: this.$store.state.configuration.ui.file
-    }
+      config: this.$store.state.configuration.ui.file,
+    };
   },
   async mounted() {
     try {
       this.resolve = this.active;
       await this.getFileMetadata();
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   },
   async updated() {
@@ -73,7 +85,7 @@ export default {
       if (this.resolve) {
         const metadata = await this.$elasticService.single({
           id: this.id,
-          _crateId: this.crateId
+          _crateId: this.crateId,
         });
         this.metadata = metadata?._source;
         this.populateMeta(this.config.meta || []);
@@ -81,22 +93,22 @@ export default {
     },
     populateMeta(config) {
       this.meta = [];
-      const keys = Object.keys(this.metadata);//.map(f => config.hide.find(f=> console.log(f)))
-      const filtered = reject(keys, o => config.hide.find(f => o === f));
-      for (let filter of filtered) {
-        let helper = this.helpers.find(h => h.id === filter);
+      const keys = Object.keys(this.metadata); //.map(f => config.hide.find(f=> console.log(f)))
+      const filtered = reject(keys, (o) => config.hide.find((f) => o === f));
+      for (const filter of filtered) {
+        let helper = this.helpers.find((h) => h.id === filter);
         if (!helper) {
           helper = {
-            "id": filter,
-            "display": filter,
-            "url": "",
-            "definition": "TODO: Add definition"
-          }
+            id: filter,
+            display: filter,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
         }
         this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
-    }
-  }
-}
+    },
+  },
+};
 </script>

@@ -9,23 +9,23 @@
   </template>
 </template>
 <script>
-import {first} from 'lodash';
-import PropertyValue from '../PropertyValue.component.vue'
+import { first } from 'lodash';
+import PropertyValue from '../PropertyValue.component.vue';
 
 export default {
   components: {
-    PropertyValue
+    PropertyValue,
   },
   props: ['aggregations', 'fields', 'name', 'id', 'root', 'external', 'fieldName'],
   data() {
     return {
       buckets: [],
-      loading: false
-    }
+      loading: false,
+    };
   },
   async mounted() {
     this.loading = true;
-    const result = await this.filter({'_collectionStack.@id': [this.id]});
+    const result = await this.filter({ '_collectionStack.@id': [this.id] });
     this.buckets = result.aggregations;
     this.loading = false;
   },
@@ -38,9 +38,13 @@ export default {
   methods: {
     populateBuckets() {
       this.buckets = [];
-      for (let field of this.fields) {
-        if (this.aggregations && this.aggregations[field?.name]) {
-          this.buckets.push({name: field.name, field: field.display, buckets: this.aggregations[field.name]?.buckets});
+      for (const field of this.fields) {
+        if (this.aggregations?.[field?.name]) {
+          this.buckets.push({
+            name: field.name,
+            field: field.display,
+            buckets: this.aggregations[field.name]?.buckets,
+          });
         }
       }
     },
@@ -48,7 +52,9 @@ export default {
     async filter(filters) {
       const items = await this.$elasticService.multi({
         filters: filters,
-        aggs: this.aggregations, sort: 'relevance', order: 'desc'
+        aggs: this.aggregations,
+        sort: 'relevance',
+        order: 'desc',
       });
       if (items?.hits?.hits.length > 0) {
         return {
@@ -56,10 +62,10 @@ export default {
           aggregations: items?.aggregations,
           total: items.hits?.total.value,
           scrollId: items?._scroll_id,
-          route: null
-        }
+          route: null,
+        };
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

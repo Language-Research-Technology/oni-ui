@@ -27,13 +27,7 @@
 </template>
 
 <script>
-import {
-  loginSessionKey,
-  tokenSessionKey,
-  putLocalStorage,
-  getLocalStorage,
-  removeLocalStorage,
-} from "@/storage";
+import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
 
 export default {
   props: ['launch'],
@@ -48,15 +42,15 @@ export default {
       styles: {
         backgroundImage,
         'background-repeat': 'repeat',
-        'background-color': 'rgb(117 190 218)'
+        'background-color': 'rgb(117 190 218)',
       },
       textStyles: this.$store.state.configuration.ui.splashTextClass || 'text-5xl text-[#F4EDE4] pb-10',
-      centerDialogVisible: false
-    }
+      centerDialogVisible: false,
+    };
   },
   created() {
     if (this.$store.state.configuration.ui.splashEnabled) {
-      let splashed = getLocalStorage({key: 'splashed'});
+      const splashed = getLocalStorage({ key: 'splashed' });
       if (!splashed) {
         this.centerDialogVisible = true;
       }
@@ -77,10 +71,10 @@ export default {
       }
     },
     closeDialog() {
-      putLocalStorage({key: 'splashed', data: true});
+      putLocalStorage({ key: 'splashed', data: true });
       this.centerDialogVisible = false;
       this.$emit('close');
-    }
-  }
-}
+    },
+  },
+};
 </script>

@@ -18,7 +18,7 @@
         <input type="password" class="w-full h-12 rounded-lg px-4 text-lg focus:ring-blue-600 mb-4"
                placeholder="Password"/>
         <button
-            class="w-full h-12 rounded-lg bg-blue-600 text-gray-200 uppercase font-semibold hover:bg-blue-700 text-gray-100 transition mb-4"
+            class="w-full h-12 rounded-lg bg-blue-600 text-gray-200 uppercase font-semibold hover:bg-blue-700 transition mb-4"
             disabled="true">Admin Login
         </button>
         <p class="text-right mb-4">Forgot password</p>
@@ -28,29 +28,25 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
-    OauthLoginComponent: defineAsyncComponent(() =>
-        import("@/components/authentication/OauthLogin.component.vue")
-    ),
+    OauthLoginComponent: defineAsyncComponent(() => import('@/components/authentication/OauthLogin.component.vue')),
   },
   data() {
     return {
       siteName: this.$store.state.configuration.ui.siteName,
       siteNameX: this.$store.state.configuration.ui.siteNameX || '',
       loginProviders: this.$store.state.configuration.ui.loginProviders,
-      showAdmin: false
+      showAdmin: false,
     };
   },
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
     toggleAdmin() {
       this.showAdmin = !this.showAdmin;
-    }
-  }
+    },
+  },
 };
 </script>

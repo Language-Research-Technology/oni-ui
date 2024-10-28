@@ -127,18 +127,18 @@
   </div>
 </template>
 <script>
-import {first, merge, toArray, isEmpty, find, isUndefined} from 'lodash';
+import { find, first, isEmpty, isUndefined, merge, toArray } from 'lodash';
+import { v4 as uuid } from 'uuid';
+import { initSnip, toggleSnip } from '../tools';
 import SummariesCard from './cards/SummariesCard.component.vue';
 import AggregationHelper from './helpers/AggregationHelper.component.vue';
-import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
-import {initSnip, toggleSnip} from "../tools";
-import {v4 as uuid} from 'uuid';
+import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 
 export default {
   components: {
     SummariesCard,
     AggregationHelper,
-    AggregationAsIcon
+    AggregationAsIcon,
   },
   props: ['id', 'href', 'name', 'conformsTo', 'types', '_memberOf', 'root', 'highlight', 'parent', 'details', 'score'],
   data() {
@@ -156,17 +156,17 @@ export default {
       licenses: this.$store.state.configuration.ui?.licenses || [],
       _uuid: uuid(),
       aggConfig: this.$store.state.configuration.ui.aggregations,
-      searchDetails: this.$store.state.configuration.ui.search.searchDetails || []
-    }
+      searchDetails: this.$store.state.configuration.ui.search.searchDetails || [],
+    };
   },
   watch: {
-    'types': {
+    types: {
       async handler() {
         await this.updateSummaries();
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   async mounted() {
     await this.updateSummaries();
@@ -178,21 +178,20 @@ export default {
     first,
     toArray,
     isEmpty,
-    getFilter({field, id}) {
+    getFilter({ field, id }) {
       const filter = {};
       filter[field] = [id];
       let filterEncoded = encodeURIComponent(JSON.stringify(filter));
       if (this.$route.query.f) {
-        filterEncoded = this.mergeQueryFilters({filters: this.$route.query.f, filter})
+        filterEncoded = this.mergeQueryFilters({ filters: this.$route.query.f, filter });
       }
       if (this.$route.query.q) {
         const searchQuery = `q=${this.$route.query.q}`;
         return `/search?${searchQuery}&f=${filterEncoded}`;
-      } else {
-        return `/search?f=${filterEncoded}`;
       }
+      return `/search?f=${filterEncoded}`;
     },
-    mergeQueryFilters({filters, filter}) {
+    mergeQueryFilters({ filters, filter }) {
       let decodedFilters = decodeURIComponent(filters);
       decodedFilters = JSON.parse(decodedFilters);
       const merged = merge(decodedFilters, filter);
@@ -200,23 +199,23 @@ export default {
     },
     async updateSummaries() {
       let summaries;
-      if (this.types && this.types.includes('RepositoryCollection')) {
+      if (this.types?.includes('RepositoryCollection')) {
         this.subCollections = await this.filter({
           '_memberOf.@id': [this.id],
-          'conformsTo.@id': [this.conformsToCollection]
+          'conformsTo.@id': [this.conformsToCollection],
         });
         this.members = await this.filter({
           '_collectionStack.@id': [this.id],
-          'conformsTo.@id': [this.conformsToObject]
+          'conformsTo.@id': [this.conformsToObject],
         });
         summaries = await this.filter({
-          '_collectionStack.@id': [this.id]
+          '_collectionStack.@id': [this.id],
         });
       }
-      if (this.types && this.types.includes('RepositoryObject')) {
+      if (this.types?.includes('RepositoryObject')) {
         if (this.types.includes('RepositoryObject')) {
           summaries = await this.filter({
-            '_parent.@id': [this.id]
+            '_parent.@id': [this.id],
           });
         }
       }
@@ -228,7 +227,7 @@ export default {
       }
       this.total = this.members?.total;
       if (!this.descriptionSnipped) {
-        initSnip({selector: '#desc_' + this._uuid, lines: 3});
+        initSnip({ selector: `#desc_${this._uuid}`, lines: 3 });
       }
       this.loading = false;
     },
@@ -237,7 +236,7 @@ export default {
       const items = await this.$elasticService.multi({
         filters: filters,
         sort: 'relevance',
-        order: 'desc'
+        order: 'desc',
       });
       if (items?.hits?.hits.length > 0) {
         return {
@@ -245,37 +244,34 @@ export default {
           aggregations: items?.aggregations,
           total: items.hits?.total.value,
           scrollId: items?._scroll_id,
-          route: null
-        }
+          route: null,
+        };
       }
     },
     findLicense(detail) {
       const key = first(detail)?.['@id'];
-      let license = this.licenses.find(l => l.license === key);
+      const license = this.licenses.find((l) => l.license === key);
       if (license) {
         if (isUndefined(license.access)) {
           return 'login';
-        } else {
-          return license.access;
         }
-      } else {
-        return 'public';
+        return license.access;
       }
+      return 'public';
     },
     getValue(name) {
       //this is because this!! value = "first(first(details.modality)?.['name'])?.['@value']"
       if (name.includes('name')) {
-        let det = /[^.]*/.exec(name)?.[0];
-        return first(first(this.details[det])?.['name'])?.['@value']
-      } else {
-        let det = /[^.]*/.exec(name)?.[0];
-        return first(this.details[det])?.['@value']
+        const det = /[^.]*/.exec(name)?.[0];
+        return first(first(this.details[det])?.name)?.['@value'];
       }
+      const det = /[^.]*/.exec(name)?.[0];
+      return first(this.details[det])?.['@value'];
     },
     doSnip(selector) {
       toggleSnip(selector);
       this.descriptionSnipped = true;
-    }
-  }
-}
+    },
+  },
+};
 </script>

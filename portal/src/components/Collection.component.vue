@@ -101,21 +101,21 @@
   </el-row>
 </template>
 <script>
-import { first, isUndefined, isEmpty, reject, sortBy } from "lodash";
+import { putLocalStorage } from '@/storage';
+import { first, isEmpty, isUndefined, reject, sortBy } from 'lodash';
 import { defineAsyncComponent } from 'vue';
-import MetaField from "./MetaField.component.vue";
-import LicenseCard from "./cards/LicenseCard.component.vue"
-import MemberOfCard from './cards/MemberOfCard.component.vue';
+import MetaField from './MetaField.component.vue';
 import ContentCard from './cards/ContentCard.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
-import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue'
-import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue'
-import MemberOfLink from './widgets/MemberOfLink.component.vue';
+import LicenseCard from './cards/LicenseCard.component.vue';
+import MemberOfCard from './cards/MemberOfCard.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
+import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
+import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
+import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
-import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
-import { putLocalStorage } from '@/storage';
-import TakedownCard from "./cards/TakedownCard.component.vue";
+import TakedownCard from './cards/TakedownCard.component.vue';
+import MemberOfLink from './widgets/MemberOfLink.component.vue';
 
 export default {
   components: {
@@ -125,51 +125,48 @@ export default {
     RetrieveDataMetadata,
     SimpleRelationshipCard,
     MetaField,
-    CollectionMembers: defineAsyncComponent(() =>
-      import("@/components/CollectionMembers.component.vue")
-    ),
+    CollectionMembers: defineAsyncComponent(() => import('@/components/CollectionMembers.component.vue')),
     LicenseCard,
     MemberOfCard,
     ContentCard,
     FieldHelperCard,
     MemberOfLink,
-    TakedownCard
+    TakedownCard,
   },
   props: [],
 
   head() {
-    let metaArr = []
-    for (let meta of this.metaTags || []) {
+    const metaArr = [];
+    for (const meta of this.metaTags || []) {
       if (Array.isArray(meta.value)) {
-        for (let item of meta.value) {
+        for (const item of meta.value) {
           if (item.name) {
-            for (let name of item.name) {
-              let obj = {
+            for (const name of item.name) {
+              const obj = {
                 name: meta.name,
-                content: name["@value"].trim() || name
+                content: name['@value'].trim() || name,
               };
               metaArr.push(obj);
             }
           } else {
-            let obj = {
+            const obj = {
               name: meta.name,
-              content: item["@value"] || item
+              content: item['@value'] || item,
             };
             metaArr.push(obj);
           }
         }
       } else {
-        let obj = {
+        const obj = {
           name: meta.name,
-          content: meta.value
+          content: meta.value,
         };
         metaArr.push(obj);
       }
     }
     return {
-      meta: metaArr
-    }
-
+      meta: metaArr,
+    };
   },
 
   data() {
@@ -193,20 +190,20 @@ export default {
       collectionSubCollections: [],
       collectionMembers: [],
       limitMembers: 10,
-      aggregations: []
-    }
+      aggregations: [],
+    };
   },
   async mounted() {
     try {
       const id = encodeURIComponent(this.$route.query.id);
       const crateId = encodeURIComponent(this.$route.query._crateId);
       //encodeURIComponent may return "undefined" string
-      if (isUndefined(id) || id === "undefined" || isUndefined(crateId) || crateId === "undefined") {
+      if (isUndefined(id) || id === 'undefined' || isUndefined(crateId) || crateId === 'undefined') {
         await this.$router.push({ path: '/404' });
       } else {
         const metadata = await this.$elasticService.single({
           id: id,
-          _crateId: crateId
+          _crateId: crateId,
         });
         this.metadata = metadata?._source;
         console.log('DEBUG COLLECTION');
@@ -214,14 +211,20 @@ export default {
         // process.exit();
         if (!isEmpty(this.metadata)) {
           await this.populate();
-          this.collectionSubCollections = await this.filter({
-            '_memberOf.@id': [this.$route.query.id],
-            'conformsTo.@id': [this.conformsToCollection]
-          }, true);
-          this.collectionMembers = await this.filter({
-            '_memberOf.@id': [this.$route.query.id],
-            'conformsTo.@id': [this.conformsToObject]
-          }, true);
+          this.collectionSubCollections = await this.filter(
+            {
+              '_memberOf.@id': [this.$route.query.id],
+              'conformsTo.@id': [this.conformsToCollection],
+            },
+            true,
+          );
+          this.collectionMembers = await this.filter(
+            {
+              '_memberOf.@id': [this.$route.query.id],
+              'conformsTo.@id': [this.conformsToObject],
+            },
+            true,
+          );
           const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
           this.aggregations = summaries.aggregations;
           putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
@@ -230,7 +233,7 @@ export default {
         }
       }
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   },
   updated() {
@@ -246,18 +249,18 @@ export default {
       this.populateMeta(this.config.meta);
       this.populateMetaTags(this.configTag?.meta);
       this.populateLicense();
-      await this.populateBuckets()
+      await this.populateBuckets();
     },
     populateMetaTags(config = []) {
-      for (let field of config) {
-        let helper = this.helpers.find(h => h.id === field.name);
+      for (const field of config) {
+        let helper = this.helpers.find((h) => h.id === field.name);
         if (!helper) {
           helper = {
-            "id": field.content,
-            "display": field.name,
-            "url": "",
-            "definition": "TODO: Add definition"
-          }
+            id: field.content,
+            display: field.name,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
         }
 
         let value;
@@ -267,8 +270,8 @@ export default {
         this.metaTags.push({
           name: field.name,
           value: value,
-          help: helper
-        })
+          help: helper,
+        });
       }
       //see populateTop
     },
@@ -277,41 +280,41 @@ export default {
       this.nameDisplay = this.metadata[config.display];
     },
     populateTop(config) {
-      for (let field of config) {
-        let helper = this.helpers.find(h => h.id === field.name);
+      for (const field of config) {
+        let helper = this.helpers.find((h) => h.id === field.name);
         if (!helper) {
           helper = {
-            "id": field.name,
-            "display": field.display,
-            "url": "",
-            "definition": "TODO: Add definition"
-          }
+            id: field.name,
+            display: field.display,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
         }
         let value;
         if (this.metadata[field.name]) {
-          value = this.metadata[field.name]
+          value = this.metadata[field.name];
         } else {
           value = [{ '@value': 'Not Defined' }];
         }
         this.tops.push({
           name: field.display,
           value: value,
-          help: helper
+          help: helper,
         });
       }
     },
     populateMeta(config) {
-      const keys = Object.keys(this.metadata);//.map(f => this.config.hide.find(f=> console.log(f)))
-      const filtered = reject(keys, o => config.hide.find(f => o === f));
-      for (let filter of filtered) {
-        let helper = this.helpers.find(h => h.id === filter);
+      const keys = Object.keys(this.metadata); //.map(f => this.config.hide.find(f=> console.log(f)))
+      const filtered = reject(keys, (o) => config.hide.find((f) => o === f));
+      for (const filter of filtered) {
+        let helper = this.helpers.find((h) => h.id === filter);
         if (!helper) {
           helper = {
-            "id": filter,
-            "display": filter,
-            "url": "",
-            "definition": "TODO: Add definition"
-          }
+            id: filter,
+            display: filter,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
         }
         this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
@@ -322,20 +325,22 @@ export default {
     },
     async populateBuckets() {
       const items = await this.$elasticService.multi({
-        filters: { '_memberOf.@id': [this.$route.query.id] }, sort: 'relevance', order: 'desc'
+        filters: { '_memberOf.@id': [this.$route.query.id] },
+        sort: 'relevance',
+        order: 'desc',
       });
       const aggregations = items?.aggregations;
-      this.buckets = []
-      for (let field of this.fields) {
+      this.buckets = [];
+      for (const field of this.fields) {
         if (aggregations[field.name]) {
           this.buckets.push({ field: field.display, buckets: aggregations[field.name]?.buckets });
         }
       }
     },
     takedownLink() {
-      let currentUrl = encodeURIComponent(window.location.href);
+      const currentUrl = encodeURIComponent(window.location.href);
       const form = this.takedownForm;
-      return `${form}${currentUrl}`
+      return `${form}${currentUrl}`;
     },
 
     //TODO: refactor this integrate to multi
@@ -347,10 +352,10 @@ export default {
           aggregations: items?.aggregations,
           total: items.hits?.total.value,
           scrollId: items?._scroll_id,
-          route: null
-        }
+          route: null,
+        };
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

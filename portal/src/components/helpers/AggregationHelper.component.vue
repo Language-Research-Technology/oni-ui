@@ -8,56 +8,53 @@
   </template>
 </template>
 <script>
-import AggregationAsIcon from "../widgets/AggregationAsIcon.component.vue";
-import {isUndefined, uniqBy, orderBy} from "lodash";
+import { isUndefined, orderBy, uniqBy } from 'lodash';
+import AggregationAsIcon from '../widgets/AggregationAsIcon.component.vue';
 
 export default {
-  components: {AggregationAsIcon},
+  components: { AggregationAsIcon },
   props: ['aggregations', 'field', 'asIcons', 'id', 'item'],
   data() {
     return {
-      licenses: this.$store.state.configuration.ui?.licenses || []
-    }
+      licenses: this.$store.state.configuration.ui?.licenses || [],
+    };
   },
   computed: {
     buckets() {
       const buckets = [];
-      let bucketAggs = this.aggregations?.[this.field.name]?.buckets;
+      const bucketAggs = this.aggregations?.[this.field.name]?.buckets;
       if (Array.isArray(bucketAggs) && bucketAggs.length > 0) {
-        for (let bucket of bucketAggs) {
+        for (const bucket of bucketAggs) {
           let key = '';
           if (this.field.name === 'license.@id') {
             key = this.findLicense(bucket.key);
           } else {
-            key = bucket.key
+            key = bucket.key;
           }
           buckets.push({
             key,
             name: this.field.name,
-            display: this.field.display
+            display: this.field.display,
           });
         }
         const uniqueBuckets = uniqBy(buckets, 'key');
         const orderedBuckets = orderBy(uniqueBuckets, ['key']);
         return orderedBuckets;
-      } else {
-        return [];
       }
-    }
+      return [];
+    },
   },
   methods: {
     findLicense(key) {
-      let license = this.licenses.find(l => l.license === key);
+      const license = this.licenses.find((l) => l.license === key);
       if (license) {
         if (isUndefined(license.access)) {
           return 'login';
-        } else {
-          return license.access;
         }
-      } else {
-        return 'public';
+        return license.access;
       }
-    }
-  }
-}
+      return 'public';
+    },
+  },
+};
 </script>

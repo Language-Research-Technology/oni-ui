@@ -29,25 +29,19 @@
 </template>
 
 <script>
-import {
-  loginSessionKey,
-  tokenSessionKey,
-  putLocalStorage,
-  getLocalStorage,
-  removeLocalStorage,
-} from "@/storage";
+import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
+import { event as gaEvent } from 'vue-gtag';
 import EnrollmentCard from '../cards/EnrollmentCard.component.vue';
-import { event as gaEvent} from 'vue-gtag';
 
 export default {
-  components: {EnrollmentCard},
+  components: { EnrollmentCard },
   data() {
     return {
       error: false,
       loading: true,
       loadingText: 'Loading...',
       goHome: false,
-      showEnrollment: false
+      showEnrollment: false,
     };
   },
   mounted() {
@@ -57,42 +51,46 @@ export default {
     async login() {
       try {
         this.loadingText = 'Logging you in';
-        let {code_verifier} = getLocalStorage({key: loginSessionKey});
-        removeLocalStorage({key: loginSessionKey});
-        let response = await this.$http.post({
+        const { code_verifier } = getLocalStorage({ key: loginSessionKey });
+        removeLocalStorage({ key: loginSessionKey });
+        const response = await this.$http.post({
           route: `/oauth/${this.$route.query.state}/code`,
-          body: {code: this.$route.query.code, state: this.$route.query.state, code_verifier},
+          body: { code: this.$route.query.code, state: this.$route.query.state, code_verifier },
         });
         if (response.status !== 200) {
           this.error = true;
-          this.$store.commit("setIsLoggedIn", false);
+          this.$store.commit('setIsLoggedIn', false);
           console.log(response.statusText);
           this.loadingText = 'There was an error trying to login, try again';
           this.loading = false;
           await new Promise((resolve) => setTimeout(resolve, 3000));
-          await this.$router.push("/login");
+          await this.$router.push('/login');
         } else {
           try {
             this.loadingText = 'Checking memberships';
-            let {token} = await response.json();
-            let user = JSON.parse(atob(token.split(".")[1]));
-            this.$store.commit("setUserData", user);
-            this.$store.commit("setIsLoggedIn", true);
-            putLocalStorage({key: tokenSessionKey, data: {token}});
+            const { token } = await response.json();
+            const user = JSON.parse(atob(token.split('.')[1]));
+            this.$store.commit('setUserData', user);
+            this.$store.commit('setIsLoggedIn', true);
+            putLocalStorage({ key: tokenSessionKey, data: { token } });
             const membershipsStatus = await this.$membership.set();
             const memberships = membershipsStatus?.memberships;
             //TODO: do smarter membership checks
             //If user is not enrolled need to send it to enrollmentURL if configured
-            if (Array.isArray(memberships) === true && memberships.length === 0 && this.$store.state.configuration.ui.enrollment.enforced) {
+            if (
+              Array.isArray(memberships) === true &&
+              memberships.length === 0 &&
+              this.$store.state.configuration.ui.enrollment.enforced
+            ) {
               this.loadingText = 'Please enroll first';
               this.showEnrollment = true;
             } else {
-              let lastRoute = getLocalStorage({key: 'lastRoute'});
-              removeLocalStorage({key: 'lastRoute'});
+              const lastRoute = getLocalStorage({ key: 'lastRoute' });
+              removeLocalStorage({ key: 'lastRoute' });
               if (lastRoute) {
                 await this.$router.push(lastRoute);
               } else {
-                await this.$router.push("/");
+                await this.$router.push('/');
               }
             }
             gaEvent('login', { method: this.$route.query.state });

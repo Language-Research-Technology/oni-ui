@@ -12,11 +12,9 @@ export default {
     return {
       siteTitle: this.$store.state.configuration.ui?.shortTitle || 'Oni',
       enrollmentUrl: this.$store.state.configuration.ui?.enrollment?.URL || '',
-    }
+    };
   },
-  mounted() {
-  },
-  methods: {
-  }
-}
+  mounted() {},
+  methods: {},
+};
 </script>

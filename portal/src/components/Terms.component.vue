@@ -16,14 +16,12 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
       terms: this.$store.state.configuration.ui.terms,
-    }
+    };
   },
-  mounted() {
-  }
+  mounted() {},
 };
 </script>

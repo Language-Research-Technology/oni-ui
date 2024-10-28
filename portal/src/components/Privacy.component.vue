@@ -16,14 +16,12 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
       privacy: this.$store.state.configuration.ui.privacy,
-    }
+    };
   },
-  mounted() {
-  }
+  mounted() {},
 };
 </script>

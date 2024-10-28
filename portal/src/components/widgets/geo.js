@@ -1,19 +1,20 @@
 /** Geo format transformation utils */
+import { GeoCoordinates, GeoShape } from './geo_schema';
 import { Geometry } from './geo_wkt';
-import { GeoShape, GeoCoordinates } from './geo_schema';
 
-export default function (L, entity = {'@type':[]}) {
+export default function (L, entity = { '@type': [] }) {
   const Transformers = {
     GeoCoordinates: GeoCoordinates(L),
     GeoShape: GeoShape(L),
-    Geometry: Geometry(L)
+    Geometry: Geometry(L),
   };
-  Transformers["http://www.opengis.net/ont/geosparql#Geometry"] = Transformers[Geometry];
+  Transformers['http://www.opengis.net/ont/geosparql#Geometry'] = Transformers[Geometry];
 
   return {
     get shapes() {
       const shapes = new Set();
       for (const t of entity['@type']) {
+        // biome-ignore lint/correctness/noUnsafeOptionalChaining: <explanation>
         for (const s of Transformers[t]?.shapes) shapes.add(s);
       }
       return Array.from(shapes);
@@ -31,6 +32,6 @@ export default function (L, entity = {'@type':[]}) {
         Transformers[t]?.to(shapes, entity);
       }
       return entity;
-    }
+    },
   };
 }

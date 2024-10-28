@@ -13,25 +13,18 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
-    UserDetails: defineAsyncComponent(() =>
-        import("@/components/UserDetails.component.vue")
-    ),
-    UserMemberships: defineAsyncComponent(() =>
-        import("@/components/UserMemberships.component.vue")
-    ),
+    UserDetails: defineAsyncComponent(() => import('@/components/UserDetails.component.vue')),
+    UserMemberships: defineAsyncComponent(() => import('@/components/UserMemberships.component.vue')),
   },
   data() {
-    return {
-    };
+    return {};
   },
-  mounted() {
-  },
-  methods: {
-  }
+  mounted() {},
+  methods: {},
 };
 </script>
 

@@ -7,7 +7,6 @@ function spaceDelimitedToLatLng(text) {
   return result;
 }
 
-
 const toSchemaOrg = {
   box(shape) {
     const b = shape.getBounds();
@@ -22,7 +21,7 @@ const toSchemaOrg = {
   line(shape) {
     const points = shape.getLatLngs();
     if (!Array.isArray(points[0])) {
-      return points.map(p => p.lat + ' ' + p.lng).join(' ');
+      return points.map((p) => `${p.lat} ${p.lng}`).join(' ');
     }
   },
   polygon(shape) {
@@ -30,11 +29,10 @@ const toSchemaOrg = {
     console.log(points);
 
     if (!Array.isArray(points[0])) {
-      return points.map(p => p.lat + ' ' + p.lng).join(' ');
-    } else {
-      return points[0].map(p => p.lat + ' ' + p.lng).join(' ');
+      return points.map((p) => `${p.lat} ${p.lng}`).join(' ');
     }
-  }
+    return points[0].map((p) => `${p.lat} ${p.lng}`).join(' ');
+  },
 };
 
 export function GeoCoordinates(L) {
@@ -51,10 +49,11 @@ export function GeoCoordinates(L) {
       return result;
     },
     to(shapes, entity = {}) {
-      const latitude = [], longitude = [];
+      const latitude = [];
+      const longitude = [];
       for (const shape of shapes) {
         if (shape instanceof L.Marker) {
-          const {lat, lng} = shape.getLatLng();
+          const { lat, lng } = shape.getLatLng();
           latitude.push(lat);
           longitude.push(lng);
         }
@@ -62,8 +61,8 @@ export function GeoCoordinates(L) {
       entity.latitude = latitude;
       entity.longitude = longitude;
       return entity;
-    }
-  }
+    },
+  };
 }
 
 export function GeoShape(L) {
@@ -84,7 +83,7 @@ export function GeoShape(L) {
     polygon(text) {
       //return ['polygon', spaceDelimitedToLatLng(text)];
       return L.polygon(spaceDelimitedToLatLng(text), { kind: 'polygon' });
-    }
+    },
   };
 
   return {
@@ -93,7 +92,7 @@ export function GeoShape(L) {
       const result = [];
       for (const type in fromSchemaOrg) {
         if (entity[type]) {
-          result.push(...(entity[type].map(text => fromSchemaOrg[type](text))));
+          result.push(...entity[type].map((text) => fromSchemaOrg[type](text)));
         }
       }
       return result;
@@ -111,8 +110,6 @@ export function GeoShape(L) {
         entity[t] = data[t];
       }
       return entity;
-    }
-
+    },
   };
 }
-

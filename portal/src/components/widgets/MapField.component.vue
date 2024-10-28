@@ -4,5 +4,5 @@
 <script>
 export default {
   props: ['location'],
-}
+};
 </script>

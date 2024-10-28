@@ -49,8 +49,6 @@
     </span>
 </template>
 <script>
-
-
 export default {
   props: ['item', 'id', 'field'],
   data() {
@@ -58,8 +56,8 @@ export default {
       noIcon: false,
       iconType: 'file',
       accessIcon: 'none',
-      special: false
-    }
+      special: false,
+    };
   },
   mounted() {
     if (/text\/plain/.test(this.item)) {
@@ -106,6 +104,6 @@ export default {
     } else {
       this.noIcon = true;
     }
-  }
-}
+  },
+};
 </script>

@@ -29,28 +29,28 @@
   </template>
 </template>
 <script>
-import {first} from "lodash";
-import transformer from './widgets/geo';
+import { first } from 'lodash';
 import LeafletMap from './widgets/LeafletMap.vue';
+import transformer from './widgets/geo';
 
 export default {
   components: {
-    LeafletMap
+    LeafletMap,
   },
   props: ['name', 'field', 'routePath', 'filePath', 'parentId', 'crateId'],
   data() {
     return {
       isURL: false,
       link: '',
-      fieldMap: {}
-    }
+      fieldMap: {},
+    };
   },
   mounted() {
     if (this.field) {
       if (this.name === '_contentLocation' || this.name === '_spatialCoverage') {
-        this.fieldMap = {'@type': ['Geometry'], asWKT: [this.field]};
+        this.fieldMap = { '@type': ['Geometry'], asWKT: [this.field] };
       } else {
-        this.isURL = this.testURL(this.field)
+        this.isURL = this.testURL(this.field);
         if (!this.isURL) {
           this.link = this.tryResolve();
         }
@@ -68,10 +68,9 @@ export default {
     tryResolve(uri) {
       if (this.filePath) {
         return `/${this.routePath}?id=${encodeURIComponent(this.parentId)}&_crateId=${encodeURIComponent(this.crateId)}&fileId=${this.filePath}`;
-      } else {
-        return `/${this.routePath}?id=${encodeURIComponent(this.field)}&_crateId=${encodeURIComponent(this.crateId)}`;
       }
-    }
-  }
-}
+      return `/${this.routePath}?id=${encodeURIComponent(this.field)}&_crateId=${encodeURIComponent(this.crateId)}`;
+    },
+  },
+};
 </script>

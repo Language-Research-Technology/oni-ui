@@ -7,12 +7,7 @@
 </template>
 
 <script>
-
-import {
-  tokenSessionKey,
-  removeLocalStorage,
-  getLocalStorage
-} from "@/storage";
+import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
 
 export default {
   data() {
@@ -25,12 +20,13 @@ export default {
   },
   methods: {
     async logout() {
-      console.log(`Logout:`);
+      console.log('Logout:');
+      // biome-ignore lint/performance/noDelete: <explanation>
       delete this.$store.state.user;
-      removeLocalStorage({key: tokenSessionKey});
-      removeLocalStorage({key: 'isLoggedIn'});
-      await this.$http.get({route: "/logout"});
-    }
-  }
+      removeLocalStorage({ key: tokenSessionKey });
+      removeLocalStorage({ key: 'isLoggedIn' });
+      await this.$http.get({ route: '/logout' });
+    },
+  },
 };
 </script>

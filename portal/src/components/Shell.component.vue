@@ -24,30 +24,29 @@
 </template>
 
 <script>
-import NavView from './Nav.component.vue';
 import FooterView from './Footer.component.vue';
-import MaintenacePage from "./MaintenacePage.vue";
+import MaintenacePage from './MaintenacePage.vue';
+import NavView from './Nav.component.vue';
 
 export default {
   components: {
     MaintenacePage,
     NavView,
-    FooterView
+    FooterView,
   },
-  beforeMount() {
-  },
+  beforeMount() {},
   mounted() {
-    if (this.$route.path === "/") this.$router.push("/search");
+    if (this.$route.path === '/') this.$router.push('/search');
   },
   watch: {
     async '$route.path'() {
-      if (this.$route.path === "/") this.$router.push("/search");
+      if (this.$route.path === '/') this.$router.push('/search');
     },
   },
   data() {
     return {
-      ui: this.$store.state.configuration?.ui
-    }
+      ui: this.$store.state.configuration?.ui,
+    };
   },
 };
 </script>

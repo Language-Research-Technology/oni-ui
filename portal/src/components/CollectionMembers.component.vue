@@ -44,16 +44,16 @@
   </el-row>
 </template>
 <script>
-import {first} from "lodash";
-import CollectionItem from "./CollectionItem.component.vue";
-import ElasticResolveField from "./ElasticResolveField.component.vue";
-import {toRaw} from "vue";
-import toInt from "validator/es/lib/toInt";
+import { first } from 'lodash';
+import toInt from 'validator/es/lib/toInt';
+import { toRaw } from 'vue';
+import CollectionItem from './CollectionItem.component.vue';
+import ElasticResolveField from './ElasticResolveField.component.vue';
 
 export default {
   components: {
     CollectionItem,
-    ElasticResolveField
+    ElasticResolveField,
   },
   props: ['title', 'id', 'conformsTo', 'routePath'],
   data() {
@@ -61,8 +61,8 @@ export default {
       items: [],
       pageSize: 10,
       currentPage: 1,
-      loading: false
-    }
+      loading: false,
+    };
   },
   async mounted() {
     await this.setMembers();
@@ -75,10 +75,13 @@ export default {
     toInt,
     first,
     async setMembers() {
-      this.items = await this.filter({
-        '_memberOf.@id': [this.id],
-        'conformsTo.@id': [this.conformsTo]
-      }, true);
+      this.items = await this.filter(
+        {
+          '_memberOf.@id': [this.id],
+          'conformsTo.@id': [this.conformsTo],
+        },
+        true,
+      );
     },
     async updatePages(page) {
       this.currentPage = page;
@@ -94,7 +97,7 @@ export default {
         order: 'desc',
         operation: 'must',
         pageSize: this.pageSize,
-        searchFrom: (this.currentPage - 1) * this.pageSize
+        searchFrom: (this.currentPage - 1) * this.pageSize,
       });
       this.loading = false;
       if (items?.hits?.hits.length > 0) {
@@ -103,10 +106,10 @@ export default {
           aggregations: items?.aggregations,
           total: items.hits?.total.value,
           scrollId: items?._scroll_id,
-          route: null
-        }
+          route: null,
+        };
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

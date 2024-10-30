@@ -138,7 +138,6 @@ export default {
         this.active = this.topNavHome;
       } else {
         this.active = this.$route.name;
-        console.log(`Active Route: ${this.active}`);
       }
     },
   },

@@ -1,4 +1,4 @@
-import {isEqual, isString} from 'lodash';
+import {isEqual} from 'lodash';
 
 import {apiTokenAccessKey, putLocalStorage, getLocalStorage} from '@/storage';
 
@@ -58,25 +58,25 @@ export default class HTTPService {
     // NOTE: Assume we need to look it up in the graph if only has an ID
     if (isEqual(Object.keys(value), ['@id'])) {
       const id = value['@id'];
-      if (isString(id) && id?.startsWith('http')) {
+
+      const newValue = graph.find((m) => m['@id'] === id);
+      if (!newValue && id?.startsWith('http')) {
         // TODO: Is it possible to have an http id and still be in the graph?
         return value;
       }
-
-      const newValue = graph.find((m) => m['@id'] === id);
       if (!newValue) {
         newValue.description = 'This value only has an Id';
 
         return newValue;
       }
 
-      if (newValue['@type'] === 'Place') {
+      if (newValue.geo) {
         newValue.geo = this.#resolveObject(graph, newValue.geo);
       }
       // FIXME: thy are the location field names different i.e, geo vs location
-      if (newValue['@type'] === 'Language') {
-        newValue.location = this.#resolveObject(graph, newValue.location);
-      }
+      // if (newValue['@type'] === 'Language' && newValue.location) {
+      //   newValue.location = this.#resolveObject(graph, newValue.location);
+      // }
 
       return newValue;
     }
@@ -85,12 +85,15 @@ export default class HTTPService {
   }
 
   async #getHeaders() {
-    const token = await this.#getToken();
-
-    return {
-      authorization: `Bearer ${token}`,
+    const headers = {
       'Content-Type': 'application/json',
     };
+    if (this.api.clientId) {
+      const token = await this.#getToken();
+      headers.authorization = `Bearer ${token}`;
+    };
+
+    return headers;
   }
 
   #notExpired(expiry) {

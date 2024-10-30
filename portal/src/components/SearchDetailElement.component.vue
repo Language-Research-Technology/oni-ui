@@ -31,7 +31,7 @@
             <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white">
               {{ special.label }}:&nbsp;
             </p>
-            <p>{{ first(details[special.field])?.[special.name] }}</p>
+            <p>{{ details[special.field][special.name] }}</p>
           </el-row>
         </template>
         <el-row :align="'middle'" v-if="Array.isArray(memberOf) && memberOf.length > 0" class="">

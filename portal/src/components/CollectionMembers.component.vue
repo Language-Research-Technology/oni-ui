@@ -1,34 +1,36 @@
 <template>
-  <el-row>
-    <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
-      <div class="grid-content p-6">
-        <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
-          {{ title }}: {{ total }}
-        </h5>
-      </div>
-      <div></div>
-    </el-col>
-  </el-row>
-  <el-row class="p-10">
-    <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-      <div class="py-2 w-full">
-        <el-pagination class="items-center w-full"
-                       background layout="prev, pager, next"
-                       :total="total"
-                       v-model:page-size="pageSize"
-                       v-model:currentPage="currentPage"
-                       @current-change="updatePages($event)"
-                       @update:page-size="pageSize"/>
-      </div>
-      <div v-loading="loading">
-        <ul v-for="item of items" :key="item.crateId">
-          <li>
-            <collection-item :field="item" :routePath="routePath"/>
-          </li>
-        </ul>
-      </div>
-    </el-col>
-  </el-row>
+  <template v-if="total">
+    <el-row>
+      <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
+        <div class="grid-content p-6">
+          <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+            {{ title }}: {{ total }}
+          </h5>
+        </div>
+        <div></div>
+      </el-col>
+    </el-row>
+    <el-row class="p-10">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+        <div class="py-2 w-full">
+          <el-pagination class="items-center w-full"
+                         background layout="prev, pager, next"
+                         :total="total"
+                         v-model:page-size="pageSize"
+                         v-model:currentPage="currentPage"
+                         @current-change="updatePages($event)"
+                         @update:page-size="pageSize"/>
+        </div>
+        <div v-loading="loading">
+          <ul v-for="item of items" :key="item.crateId">
+            <li>
+              <collection-item :field="item" :routePath="routePath"/>
+            </li>
+          </ul>
+        </div>
+      </el-col>
+    </el-row>
+  </template>
 </template>
 <script>
 import {first} from 'lodash';
@@ -45,7 +47,7 @@ export default {
   props: ['title', 'id', 'conformsTo', 'routePath'],
   data() {
     return {
-      items: [],
+      items: null,
       total: 0,
       pageSize: 10,
       currentPage: 1,

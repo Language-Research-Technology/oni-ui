@@ -86,7 +86,7 @@ export default {
       this.url = this.testURL(this.id);
       this.name = field.name;
       this.description = field.description;
-      if (field.geo) {
+      if (field.name === 'contentLocation') {
         this.geometry = field.geo;
       }
     },

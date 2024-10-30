@@ -37,10 +37,10 @@
             <hr class="divider divider-gray pt-2"/>
             <h4 class="text-1xl font-medium">
               Content in this collection is licensed as:
-              <ul class="list-disc my-2 mx-3 pl-2">
-                <li> {{ metadata.license.name }} </li>
-              </ul>
             </h4>
+            <ul class="list-disc my-2 mx-3 pl-2">
+              <li> {{ metadata.license.name }} </li>
+            </ul>
           </el-card>
         </el-col>
       </el-row>
@@ -153,14 +153,14 @@ export default {
             for (const name of item.name) {
               const obj = {
                 name: meta.name,
-                content: name['@value'].trim() || name,
+                content: name.trim() || name,
               };
               metaArr.push(obj);
             }
           } else {
             const obj = {
               name: meta.name,
-              content: item['@value'] || item,
+              content: item || item,
             };
             metaArr.push(obj);
           }
@@ -183,7 +183,7 @@ export default {
       errorDialogVisible: false,
       errorDialogText: '',
 
-      crateId: null,
+      crateId: this.$route.query.crateId,
       config: this.$store.state.configuration.ui.collection,
       fields: this.$store.state.configuration.ui.main.fields,
       helpers: this.$store.state.configuration.ui.helpers || [],
@@ -326,7 +326,6 @@ export default {
         this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
-      console.log(this.meta);
     },
     takedownLink() {
       const currentUrl = encodeURIComponent(window.location.href);

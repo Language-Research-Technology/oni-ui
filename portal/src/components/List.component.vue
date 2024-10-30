@@ -5,7 +5,7 @@
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col>
               <span id="total_results"
-                    class="my-1 mr-2" v-show="this.totals">Total: <span>{{ this.totals }} entries</span></span>
+                    class="my-1 mr-2" v-show="totals">Total: <span>{{ this.totals }} entries</span></span>
             </el-col>
             <el-col>
               <el-button size="large" @click="showMap()">
@@ -56,8 +56,8 @@
              v-loading="loading">
           <search-detail-element v-if="item.record" :id="item.crateId" :href="getSearchDetailUrl(item)"
                                  :name="item.record.name"
-                                 :conformsTo="item.conformsTo" :types="item.types"
-                                 :memberOf="item.memberOf" :highlight="item.description"
+                                 :conformsTo="item.conformsTo" :types="item.recordType"
+                                 :memberOf="item.memberOf" :highlight="item.highlight"
                                  :root="item.record._root"
                                  :parent="item.record._parent"
                                  :details="item.record" :score="item._score"/>
@@ -138,15 +138,10 @@ export default {
     };
   },
   async created() {
-    console.log('created');
     await this.fetch();
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
-  async mounted() {
-    console.log('mounted');
-  },
   async updated() {
-    console.log('updated');
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
@@ -187,10 +182,10 @@ export default {
     getSearchDetailUrl(item) {
       // TODO: this is not good, maybe do it with a ConformsTo to specify link.
       // But have to think about it because not all files have conformsTo!
-      const {types} = item;
-      const repoType = types.find((t) => t === 'RepositoryCollection');
-      const fileType = types.find((t) => t === 'File');
-      const itemType = types.find((t) => t === 'RepositoryObject');
+      const {recordType} = item;
+      const repoType = recordType.find((t) => t === 'RepositoryCollection');
+      const fileType = recordType.find((t) => t === 'File');
+      const itemType = recordType.find((t) => t === 'RepositoryObject');
 
       const crateId = encodeURIComponent(item.crateId);
 

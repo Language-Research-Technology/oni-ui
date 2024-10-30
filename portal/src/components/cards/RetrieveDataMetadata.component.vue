@@ -27,6 +27,7 @@ export default {
     };
   },
   async mounted() {
+    // TODO: This happends at mount but we should only grab it if they click on the link or cache it from the original call
     const metadata = await this.$api.getCrate(this.id);
     const json = JSON.stringify(metadata, null, 2);
     const blob = new Blob([json], { type: 'application/json' });

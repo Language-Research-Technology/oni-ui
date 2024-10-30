@@ -28,7 +28,7 @@
   </el-row>
 </template>
 <script>
-import { first, upperFirst, startCase } from 'lodash';
+import { startCase } from 'lodash';
 import ElasticField from './ElasticField.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
@@ -41,7 +41,6 @@ export default {
   },
   props: ['meta', 'isExpand'],
   methods: {
-    first,
     startCase,
   },
 };

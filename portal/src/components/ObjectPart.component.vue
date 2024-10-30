@@ -69,47 +69,13 @@ export default {
     };
   },
   async mounted() {
-    await this.getFileMetadata();
-  },
-  async updated() {
-    await this.getFileMetadata();
+    await this.populateMeta(this.config.meta || []);
   },
   methods: {
     first,
-    async getFileMetadata() {
-      try {
-        if (!this.resolve) {
-          return;
-        }
-
-        this.loading = true;
-
-        const { error, metadata } = await this.$api.getCrate(this.crateId);
-        if (error) {
-          console.error(error);
-          this.errorDialogText = error;
-          this.errorDialogVisible = true;
-
-          return;
-        }
-
-        if (!metadata) {
-          await this.$router.push({ path: '/404' });
-          return;
-        }
-
-        this.metadata = metadata;
-        console.log('🪚 metadata:', JSON.stringify(metadata));
-        await this.populateMeta(this.config.meta || []);
-      } catch (e) {
-        console.error(e);
-        this.errorDialogText = e.messagr;
-        this.errorDialogVisible = true;
-      }
-    },
     populateMeta(config) {
       this.meta = [];
-      const keys = Object.keys(this.metadata);
+      const keys = Object.keys(this.part);
       const filtered = reject(keys, (o) => config.hide.find((f) => o === f));
       for (const filter of filtered) {
         let helper = this.helpers.find((h) => h.id === filter);
@@ -121,7 +87,7 @@ export default {
             definition: 'TODO: Add definition',
           };
         }
-        this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
+        this.meta.push({ name: filter, data: this.part[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
     },

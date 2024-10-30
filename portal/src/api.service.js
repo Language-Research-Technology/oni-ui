@@ -1,4 +1,5 @@
 import {isEqual} from 'lodash';
+import {ROCrate} from 'ro-crate';
 
 import {apiTokenAccessKey, putLocalStorage, getLocalStorage} from '@/storage';
 
@@ -18,70 +19,11 @@ export default class HTTPService {
   }
 
   async getCrate(crateId) {
-    const crate = await this.#get('/object/meta', {id: crateId});
-    const graph = crate['@graph'];
-    if (!graph) {
-      return {error: 'Invalid RO-Crate: Graph not found'};
-    }
+    const json = await this.#get('/object/meta', {id: crateId});
 
-    const work = graph.find((item) => item['@id'] === 'ro-crate-metadata.json');
-    if (!work) {
-      return {error: 'Invalid RO-Crate: CreativeWork not found'};
-    }
+    const crate = new ROCrate(json, { array: false, link: true });
 
-    if (work.about?.['@id'] !== crateId) {
-      return {error: 'Invalid RO-Crate: CreativeWork about does not match'};
-    }
-
-    const metadata = graph.find((item) => item['@id'] === crateId);
-    if (!metadata) {
-      return {error: 'Invalid RO-Crate: Metadata not found'};
-    }
-
-    // Flatten the graph
-    Object.entries(metadata).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        metadata[key] = value.map((v) => this.#resolveObject(graph, v));
-      } else {
-        metadata[key] = this.#resolveObject(graph, value);
-      }
-    });
-
-    return {metadata};
-  }
-
-  #resolveObject(graph, value) {
-    if (Array.isArray(value)) {
-      return value.map((v) => this.#resolveObject(graph, v));
-    }
-
-    // NOTE: Assume we need to look it up in the graph if only has an ID
-    if (isEqual(Object.keys(value), ['@id'])) {
-      const id = value['@id'];
-
-      const newValue = graph.find((m) => m['@id'] === id);
-      if (!newValue && id?.startsWith('http')) {
-        // TODO: Is it possible to have an http id and still be in the graph?
-        return value;
-      }
-      if (!newValue) {
-        newValue.description = 'This value only has an Id';
-
-        return newValue;
-      }
-
-      if (newValue.geo) {
-        newValue.geo = this.#resolveObject(graph, newValue.geo);
-      }
-      // FIXME: thy are the location field names different i.e, geo vs location
-      // if (newValue['@type'] === 'Language' && newValue.location) {
-      //   newValue.location = this.#resolveObject(graph, newValue.location);
-      // }
-
-      return newValue;
-    }
-
-    return value;
+    return { metadata: crate.rootDataset };
   }
 
   async #getHeaders() {

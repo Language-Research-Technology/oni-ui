@@ -11,7 +11,9 @@
   </el-row>
 </template>
 <script>
+import { first } from 'lodash';
 export default {
   props: ['tops', 'className'],
+  methods: { first },
 };
 </script>

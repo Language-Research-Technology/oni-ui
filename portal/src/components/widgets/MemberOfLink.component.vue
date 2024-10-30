@@ -16,7 +16,8 @@ export default {
     setLink() {
       const crateId = this.memberOf?.['@id'];
       this.link = `/collection?crateId=${encodeURIComponent(crateId)}`;
-      this.value = this.memberOf?.name || undefined;
+      // TODO: Should rocrates add a name to memberOf? Eslastic search had this
+      this.value = this.memberOf?.name || crateId;
     },
   },
   data() {

@@ -3,7 +3,7 @@
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
         <member-of-link :memberOf="metadata.memberOf"/>
-        {{ this.name }}
+        {{ name }}
       </h5>
     </el-row>
     <hr class="divider divider-gray pt-2"/>
@@ -99,8 +99,6 @@
   </template>
 </template>
 <script>
-import { first, isUndefined, reject, isEmpty, sortBy, isEqual } from 'lodash';
-import { initSnip, toggleSnip } from '../tools';
 import MetaField from './MetaField.component.vue';
 import { defineAsyncComponent } from 'vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
@@ -208,9 +206,7 @@ export default {
     // putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
-    isEqual,
     first,
-    isEmpty,
     toggleSnip,
     async populate() {
       try {
@@ -263,7 +259,12 @@ export default {
       this.licenseText = this.license.description;
     },
     populateParts() {
+      // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
+      console.log('metadata', this.metadata.hasPart);
       this.parts = this.metadata.hasPart;
+      if (this.parts && !isArray(this.parts)) {
+        this.parts = [this.parts];
+      }
       if (this.parts?.length) {
         const uniqueParts = this.parts.map((p) => p.encodingFormat);
         this.uniqueParts = [...new Set(uniqueParts)];

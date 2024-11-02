@@ -260,7 +260,6 @@ export default {
     },
     populateParts() {
       // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
-      console.log('metadata', this.metadata.hasPart);
       this.parts = this.metadata.hasPart;
       if (this.parts && !isArray(this.parts)) {
         this.parts = [this.parts];

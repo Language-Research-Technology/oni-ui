@@ -47,9 +47,9 @@
   </el-row>
 </template>
 <script>
-import {first} from "lodash";
-import convertSize from "convert-size";
-import {getLocalStorage} from "@/storage";
+import { getLocalStorage } from '@/storage';
+import convertSize from 'convert-size';
+import { first } from 'lodash';
 
 export default {
   props: ['id', 'name', 'message', 'licenses', 'asTableRow'],
@@ -61,32 +61,32 @@ export default {
         url: undefined,
         name: undefined,
         expandedSize: '',
-        numberOfFiles: 0
-      }
-    }
+        numberOfFiles: 0,
+      },
+    };
   },
   watch: {
     '$store.state.user': {
       async handler() {
-        this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   async mounted() {
-    this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+    this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
     this.zip = await this.$zip.get(this.id, this.name);
   },
   methods: {
     first,
     trackEvent(e) {
-      this.$gtag.event("object-download", {
-        'event_category': "object",
-        'event_label': "download-zip",
-        'value': this.zip.url
+      this.$gtag.event('object-download', {
+        event_category: 'object',
+        event_label: 'download-zip',
+        value: this.zip.url,
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>

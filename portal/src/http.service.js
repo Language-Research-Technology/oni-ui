@@ -1,65 +1,60 @@
-import {
-  tokenSessionKey,
-  removeLocalStorage,
-  getLocalStorage
-} from "@/storage";
+import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
 
 export default class HTTPService {
-  constructor({ router, loginPath = "/login" }) {
+  constructor({ router, loginPath = '/login' }) {
     this.router = router;
     this.loginPath = loginPath;
   }
 
   getHeaders() {
     try {
-      let { token } = getLocalStorage({ key: tokenSessionKey });
+      const { token } = getLocalStorage({ key: tokenSessionKey });
       return {
-        authorization: `Bearer ${ token }`,
-        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       };
     } catch (error) {
       return {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       };
     }
   }
 
   getToken() {
     try {
-      let { token } = getLocalStorage({ key: tokenSessionKey });
+      const { token } = getLocalStorage({ key: tokenSessionKey });
       return token;
-    } catch (error) {
-    }
+    } catch (error) {}
   }
   async head({ route }) {
-    let headers = this.getHeaders();
-    let response = await fetch(`/api${ route }`, {
-      method: "HEAD",
+    const headers = this.getHeaders();
+    const response = await fetch(`/api${route}`, {
+      method: 'HEAD',
       headers,
-      credentials: "include"
+      credentials: 'include',
     });
     //this.checkAuthorised({ status: response.status });
     return response;
   }
 
   async get({ route }) {
-    let headers = this.getHeaders();
-    let response = await fetch(`/api${ route }`, {
-      method: "GET",
+    const headers = this.getHeaders();
+    const response = await fetch(`/api${route}`, {
+      method: 'GET',
       headers,
-      credentials: "include"
+      credentials: 'include',
     });
     //this.checkAuthorised({ status: response.status });
     return response;
   }
 
   async post({ route, body }) {
-    let headers = this.getHeaders();
-    let response = await fetch(`/api${ route }`, {
-      method: "POST",
+    const headers = this.getHeaders();
+    const response = await fetch(`/api${route}`, {
+      method: 'POST',
       headers,
       body: JSON.stringify(body),
-      credentials: "include"
+      credentials: 'include',
     });
 
     //this.checkAuthorised({ status: response.status });
@@ -67,8 +62,8 @@ export default class HTTPService {
   }
 
   async put({ route, body }) {
-    let response = await fetch(`/api${ route }`, {
-      method: "PUT",
+    const response = await fetch(`/api${route}`, {
+      method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
@@ -77,8 +72,8 @@ export default class HTTPService {
   }
 
   async delete({ route }) {
-    let response = await fetch(`/api${ route }`, {
-      method: "delete",
+    const response = await fetch(`/api${route}`, {
+      method: 'delete',
       headers: this.getHeaders(),
     });
     //this.checkAuthorised({ status: response.status });
@@ -87,8 +82,8 @@ export default class HTTPService {
 
   checkAuthorised({ status }) {
     if (status === 401) {
-      removeLocalStorage({key: tokenSessionKey});
-      removeLocalStorage({key: 'isLoggedIn'});
+      removeLocalStorage({ key: tokenSessionKey });
+      removeLocalStorage({ key: 'isLoggedIn' });
       this.router.push(this.loginPath);
     }
   }

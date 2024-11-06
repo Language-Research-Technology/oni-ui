@@ -71,23 +71,37 @@
 </template>
 
 <script>
-import 'element-plus/theme-chalk/display.css'
-import PDFWidget from './widgets/PDFWidget.component.vue';
-import {first, isUndefined} from 'lodash';
-import {VideoPlay} from "@element-plus/icons-vue";
+import 'element-plus/theme-chalk/display.css';
+import { VideoPlay } from '@element-plus/icons-vue';
+import { first, isUndefined } from 'lodash';
+import AccessHelper from './AccessHelper.component.vue';
 import CSVWidget from './widgets/CSVWidget.component.vue';
+import PDFWidget from './widgets/PDFWidget.component.vue';
 import PlainTextWidget from './widgets/PlainTextWidget.component.vue';
-import AccessHelper from "./AccessHelper.component.vue";
 
 export default {
   inheritAttrs: false,
-  props: ['resolve', 'id', 'encodingFormat', 'crateId', 'rootId', 'pdfPages', 'name', 'parentName', 'hideOpenLink', 'previewText', 'isPreview', 'access', 'license'],
+  props: [
+    'resolve',
+    'id',
+    'encodingFormat',
+    'crateId',
+    'rootId',
+    'pdfPages',
+    'name',
+    'parentName',
+    'hideOpenLink',
+    'previewText',
+    'isPreview',
+    'access',
+    'license',
+  ],
   components: {
     PlainTextWidget,
     CSVWidget,
     VideoPlay,
     PDFWidget,
-    AccessHelper
+    AccessHelper,
   },
   data() {
     return {
@@ -111,8 +125,8 @@ export default {
       responseBlob: null,
       togglePreview: false,
       hidePreviewText: true,
-      forbidden: false
-    }
+      forbidden: false,
+    };
   },
   watch: {
     resolve: {
@@ -122,8 +136,8 @@ export default {
         }
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   async mounted() {
     this.setFileUrl();
@@ -136,27 +150,27 @@ export default {
       this.parentId = this.crateId;
       this.path = this.id;
       this.route = `/object/open?id=${encodeURIComponent(this.crateId)}`;
-      if (this.path != '') {
+      if (this.path !== '') {
         this.route += `&path=${encodeURIComponent(this.path)}`;
       }
       // Try to display only text and pdfs by default if there is an encodingFormat
-      if (this.encodingFormat && this.encodingFormat.match('text/|pdf')) {
+      if (this.encodingFormat?.match('text/|pdf')) {
         this.togglePreview = true;
       }
       if (!this.isPreview) {
         this.togglePreview = true;
       }
       if (this.togglePreview) {
-        console.log('this.togglePreview')
-        console.log(this.togglePreview)
+        console.log('this.togglePreview');
+        console.log(this.togglePreview);
         await this.tryDownloadBlob();
       }
     },
     async tryDownloadBlob() {
       this.loading = true;
       try {
-        this.responseBlob = await this.$http.get({route: this.route});
-        console.log(`this.responseBlob.status: ${this.responseBlob.status}`)
+        this.responseBlob = await this.$http.get({ route: this.route });
+        console.log(`this.responseBlob.status: ${this.responseBlob.status}`);
         if (this.responseBlob.status !== 200) {
           this.errorMessage = 'We could not load the file';
           if (this.responseBlob.status === 403) {
@@ -192,11 +206,22 @@ export default {
       //TODO: get encodingFormat directly from the API and merge these two ifs
       //TODO: issue https://github.com/Language-Research-Technology/oni-ui/issues/46
       if (!this.encodingFormat) {
-        if (this.path && (this.path.endsWith(".txt") || this.path.endsWith(".csv") || this.path.endsWith(".eaf") || this.path.endsWith(".html") || this.path.endsWith(".xml") || this.path.endsWith(".flab"))) {
+        if (
+          this.path &&
+          (this.path.endsWith('.txt') ||
+            this.path.endsWith('.csv') ||
+            this.path.endsWith('.eaf') ||
+            this.path.endsWith('.html') ||
+            this.path.endsWith('.xml') ||
+            this.path.endsWith('.flab'))
+        ) {
           await this.loadTxt();
           this.loading = false;
         }
-      } else if (this.encodingFormat && (this.encodingFormat?.startsWith('text/') || this.encodingFormat.endsWith('xml'))) {
+      } else if (
+        this.encodingFormat &&
+        (this.encodingFormat?.startsWith('text/') || this.encodingFormat.endsWith('xml'))
+      ) {
         await this.loadTxt();
         this.loading = false;
       } else {
@@ -204,16 +229,16 @@ export default {
           this.data = await this.responseBlob.blob();
           this.blobURL = window.URL.createObjectURL(this.data);
           //TODO: https://github.com/Language-Research-Technology/oni-ui/issues/46
-          if (this.path && (this.path.endsWith(".mp3") || this.path.endsWith(".wav"))) {
+          if (this.path && (this.path.endsWith('.mp3') || this.path.endsWith('.wav'))) {
             this.type = 'audio';
             this.data = this.blobURL;
             this.hidePreviewText = true;
-          } else if (this.path && this.path.endsWith(".mp4")) {
+          } else if (this.path?.endsWith('.mp4')) {
             this.type = 'video';
             this.sourceType = 'video/mp4';
             this.data = this.blobURL;
             this.hidePreviewText = true;
-          } else if (this.path && this.path.endsWith(".pdf")) {
+          } else if (this.path?.endsWith('.pdf')) {
             this.type = 'pdf';
             this.hidePreviewText = false;
           } else {
@@ -228,14 +253,13 @@ export default {
           this.loading = false;
         }
       }
-
     },
     async downloadFileUrl() {
       try {
         this.loading = true;
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.download = this.path;
-        let response = await this.$http.get({route: this.route});
+        const response = await this.$http.get({ route: this.route });
         if (response.status !== 200) {
           this.errorDialogVisible = true;
           this.errorDialogTitle = 'Download Error';
@@ -243,7 +267,8 @@ export default {
             this.forbidden = true;
           }
           if (response.status === 404) {
-            this.errorDialogText = 'The file was not found in the path, please contact your Data Provider or Data Steward';
+            this.errorDialogText =
+              'The file was not found in the path, please contact your Data Provider or Data Steward';
           } else {
             this.errorDialogText = response.statusText;
           }
@@ -254,10 +279,10 @@ export default {
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(link.href);
-          this.$gtag.event("/file-download", {
-            'event_category': "file",
-            'event_label': "download-file",
-            'value': this.zip.url
+          this.$gtag.event('/file-download', {
+            event_category: 'file',
+            event_label: 'download-file',
+            value: this.zip.url,
           });
         }
 
@@ -272,12 +297,11 @@ export default {
     setFileUrl() {
       this.parentId = this.crateId;
       this.path = this.id;
-      const url = '/object/open?id=' + encodeURIComponent(this.path) +
-          '&crateId=' + encodeURIComponent(this.crateId);
+      const url = `/object/open?id=${encodeURIComponent(this.path)}&crateId=${encodeURIComponent(this.crateId)}`;
       this.fileUrl = url;
     },
     getTitle() {
-      const title = first(this.meta['name']);
+      const title = first(this.meta.name);
       return title?.['@value'] || this.meta['@id'];
     },
     setError() {
@@ -288,13 +312,13 @@ export default {
     },
     async loadTxt() {
       this.type = 'txt';
-      console.log('load txt')
-      this.data = await this.responseBlob.text({type: 'text/plain', endings: 'native'});
-      if (this.path.endsWith(".csv")) {
+      console.log('load txt');
+      this.data = await this.responseBlob.text({ type: 'text/plain', endings: 'native' });
+      if (this.path.endsWith('.csv')) {
         this.tryCSV = true;
       }
       this.hidePreviewText = false;
-    }
-  }
-}
+    },
+  },
+};
 </script>

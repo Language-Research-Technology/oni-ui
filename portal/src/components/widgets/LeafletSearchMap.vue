@@ -1,13 +1,13 @@
 <script setup>
-import "leaflet/dist/leaflet.css";
-import "leaflet-gesture-handling/dist/leaflet-gesture-handling.css";
-import * as L from "leaflet";
-import "leaflet.path.drag";
-import "leaflet-editable";
-import { GestureHandling } from "leaflet-gesture-handling";
-import { reactive, computed, ref, onMounted, watch, onBeforeUnmount, nextTick } from "vue";
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+import * as L from 'leaflet';
+import 'leaflet.path.drag';
+import 'leaflet-editable';
+import { GestureHandling } from 'leaflet-gesture-handling';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
-delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.prototype._getIconUrl = undefined;
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -22,49 +22,54 @@ const props = defineProps({
   modelValue: { type: Object },
   //controls: { type: [String, Array], default: ['point', 'line', 'box', 'circle', 'polygon'] },
   transformer: { type: Function },
-  current: {}
+  current: {},
 });
 
 const emit = defineEmits({
   'update:modelValue': null,
-  'update:current': null
+  'update:current': null,
 });
 
 const allShapes = {
   point: {
-    update(layer, data) { layer.setLatLng(data); },
+    update(layer, data) {
+      layer.setLatLng(data);
+    },
     createFn: 'marker',
     drawFn: 'startMarker',
-    tooltip: 'Click to place a point. Press Esc to cancel.'
+    tooltip: 'Click to place a point. Press Esc to cancel.',
   },
   line: {
     createFn: 'polyline',
     drawFn: 'startPolyline',
-    tooltip: 'Click to start drawing a line, click on last point to finish a line. Press Esc to cancel.'
+    tooltip: 'Click to start drawing a line, click on last point to finish a line. Press Esc to cancel.',
   },
   box: {
     createFn: 'rectangle',
     drawFn: 'startRectangle',
-    tooltip: 'Click and drag to draw a box, release mouse to finish. Press Esc to cancel.'
+    tooltip: 'Click and drag to draw a box, release mouse to finish. Press Esc to cancel.',
   },
   circle: {
     createFn: 'circle',
     drawFn: 'startCircle',
-    tooltip: 'Click and drag to draw a circle, release mouse to finish. Press Esc to cancel.'
+    tooltip: 'Click and drag to draw a circle, release mouse to finish. Press Esc to cancel.',
   },
   polygon: {
     createFn: 'polygon',
     drawFn: 'startPolygon',
-    tooltip: 'Click to start drawing a polygon, click the first point to close the polygon. Press Esc to cancel.'
-  }
+    tooltip: 'Click to start drawing a polygon, click the first point to close the polygon. Press Esc to cancel.',
+  },
 };
 
 const transform = computed(() => props.transformer(L, props.modelValue));
-const enabledShapes = computed(() => transform.value.shapes.
-  filter(s => allShapes[s]).map(s => {
-    allShapes[s].name = s;
-    return allShapes[s];
-  }));
+const enabledShapes = computed(() =>
+  transform.value.shapes
+    .filter((s) => allShapes[s])
+    .map((s) => {
+      allShapes[s].name = s;
+      return allShapes[s];
+    }),
+);
 // const fromModel = computed(() => props.transformer(L));
 // const toModel = computed(() => props.transformer(L, props.modelValue));
 
@@ -81,11 +86,11 @@ function update(shapes) {
 //     polygon(latlngs) { layer.setLatLngs(latlngs); }
 //   })[layer.kind]?.(data, options);
 // }
-var map;
+let map;
 onMounted(async () => {
   console.log('map mounted');
   // wait so that leaflet div has a size because otherwise the tiles won't load
-  await new Promise(r => setTimeout(r, 100));
+  await new Promise((r) => setTimeout(r, 100));
   //setTimeout(initMap, 100);
   initMap();
 });
@@ -98,52 +103,55 @@ function initMap() {
   //console.log(mapRef.value);
 
   const layerById = {};
-  L.Map.addInitHook("addHandler", "gestureHandling", GestureHandling);
+  L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
   const featuresLayer = L.featureGroup();
   map = L.map(mapRef.value, {
     gestureHandling: true,
     editable: true,
     editOptions: {
-      featuresLayer
-    }
+      featuresLayer,
+    },
   });
   map.setView([-27, 140], 3);
   L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
   }).addTo(map);
   L.control.scale().addTo(map);
   featuresLayer.addTo(map);
   initControls(map, featuresLayer);
 
-  watch(props.modelValue, (val) => {
-    //todo: compare new values to existing values, only update when there is difference
-    console.log('shapes updated');
+  watch(
+    props.modelValue,
+    (val) => {
+      //todo: compare new values to existing values, only update when there is difference
+      console.log('shapes updated');
 
-    featuresLayer.clearLayers();
-    if (!val) return;
-    for (const shape of transform.value.fromEntity()) {
-      if (shape) {
-        try {
-          shape.addTo(featuresLayer);
-        } catch (error) {
-          console.log(error);
-          console.log(shape);
+      featuresLayer.clearLayers();
+      if (!val) return;
+      for (const shape of transform.value.fromEntity()) {
+        if (shape) {
+          try {
+            shape.addTo(featuresLayer);
+          } catch (error) {
+            console.log(error);
+            console.log(shape);
+          }
         }
       }
-    }
-    console.log(featuresLayer.getLayers());
-    const bounds = featuresLayer.getBounds();
-    if (bounds.isValid()) map.flyToBounds(bounds, { maxZoom: 7 });
-  }, { immediate: true });
-
+      console.log(featuresLayer.getLayers());
+      const bounds = featuresLayer.getBounds();
+      if (bounds.isValid()) map.flyToBounds(bounds, { maxZoom: 7 });
+    },
+    { immediate: true },
+  );
 }
 
 function initControls(map, featuresLayer) {
   //const controls = typeof props.controls === 'string' ? props.controls.split(' ') : props.controls;
-  var selectedShape;
-  var newShape;
-  var actionLink;
-  var isModified = false;
+  let selectedShape;
+  let newShape;
+  let actionLink;
+  let isModified = false;
   const tooltip = L.DomUtil.create('div', 'leaflet-draw-tooltip', map.getContainer());
 
   function deactivateAction() {
@@ -153,8 +161,8 @@ function initControls(map, featuresLayer) {
     }
   }
   function moveTooltip(e) {
-    tooltip.style.left = (e.containerPoint.x + 5) + 'px';
-    tooltip.style.top = (e.containerPoint.y - tooltip.offsetHeight - 5) + 'px';
+    tooltip.style.left = `${e.containerPoint.x + 5}px`;
+    tooltip.style.top = `${e.containerPoint.y - tooltip.offsetHeight - 5}px`;
   }
   // show tooltip
   map.on('mousemove', moveTooltip);
@@ -176,30 +184,33 @@ function initControls(map, featuresLayer) {
   L.Control.DrawControl = L.Control.extend({
     options: { position: 'topleft' },
     onAdd(map) {
-      var container = L.DomUtil.create('div', 'leaflet-control-draw leaflet-bar leaflet-control');
+      const container = L.DomUtil.create('div', 'leaflet-control-draw leaflet-bar leaflet-control');
       L.DomEvent.on(container, 'mousedown', L.DomEvent.stopPropagation);
       for (const shape of enabledShapes.value) {
         const fname = shape.drawFn;
-        const link = L.DomUtil.create('a', 'leaflet-control-draw-' + shape.name, container);
+        const link = L.DomUtil.create('a', `leaflet-control-draw-${shape.name}`, container);
         link.href = '#';
-        link.title = 'Create a new ' + shape.name;
-        L.DomEvent.on(link, 'click', ((e) => {
-          L.DomEvent.stop(e);
-          if (actionLink === link) {
-            map.editTools.stopDrawing();
-            stopAction();
-          } else {
-            map.editTools[fname](null, { kind: shape.name });
-            startAction(link, shape.tooltip);
-          }
-        }), this);
+        link.title = `Create a new ${shape.name}`;
+        L.DomEvent.on(
+          link,
+          'click',
+          (e) => {
+            L.DomEvent.stop(e);
+            if (actionLink === link) {
+              map.editTools.stopDrawing();
+              stopAction();
+            } else {
+              map.editTools[fname](null, { kind: shape.name });
+              startAction(link, shape.tooltip);
+            }
+          },
+          this,
+        );
       }
       return container;
-    }
+    },
   });
-  L.control.drawControl = function (opts) {
-    return new L.Control.DrawControl(opts);
-  };
+  L.control.drawControl = (opts) => new L.Control.DrawControl(opts);
   L.control.drawControl().addTo(map);
 
   L.Control.EditControl = L.Control.extend({
@@ -210,7 +221,7 @@ function initControls(map, featuresLayer) {
       const link = L.DomUtil.create('a', 'leaflet-control-edit-delete', container);
       link.href = '#';
       link.title = 'Delete a point or shape';
-      L.DomEvent.on(link, 'click', ((e) => {
+      L.DomEvent.on(link, 'click', (e) => {
         L.DomEvent.stop(e);
         if (actionLink === link) {
           stopAction();
@@ -219,31 +230,32 @@ function initControls(map, featuresLayer) {
           selectedShape?.disableEdit();
           startAction(link, 'Click on a point or shape to delete. Press Esc to finish.');
         }
-      }));
+      });
       return container;
-    }
+    },
   });
-  (new L.Control.EditControl()).addTo(map);
+  new L.Control.EditControl().addTo(map);
 
   // press esc key to cancel all ongoing action
-  map.on('keydown', function (e) {
+  map.on('keydown', (e) => {
     console.log('keydown');
-    if (e.originalEvent.keyCode === 27) { // 27 is escape key's keyCode
+    if (e.originalEvent.keyCode === 27) {
+      // 27 is escape key's keyCode
       map.editTools.stopDrawing();
       stopAction();
     }
   });
   //L.DomEvent.on(document.getElementsByClassName('leaflet-control-container')[0], 'mousedown', L.DomEvent.stopPropagation);
 
-  map.on('click', function (e) {
+  map.on('click', (e) => {
     console.log('map click', e);
     selectedShape?.disableEdit();
   });
-  map.on('editable:drawing:start', function (e) {
+  map.on('editable:drawing:start', (e) => {
     console.log('editable:drawing:start', e.layer._leaflet_id);
     selectedShape?.disableEdit();
   });
-  map.on('editable:drawing:end', function (e) {
+  map.on('editable:drawing:end', (e) => {
     console.log('editable:drawing:end', e);
     stopAction();
     if (isModified) {
@@ -254,7 +266,7 @@ function initControls(map, featuresLayer) {
     }
   });
 
-  featuresLayer.on('click', function (e) {
+  featuresLayer.on('click', (e) => {
     console.log('click', e);
     L.DomEvent.stop(e);
     const layer = e.layer;
@@ -276,20 +288,20 @@ function initControls(map, featuresLayer) {
       //   if (shapes[i] === layer) {
       //     return emit('update:current', i);
       //   }
-      // }      
+      // }
     }
   });
 
   map.on('editable:created', (e) => console.log('editable:created', e));
-  map.on('editable:enable', function (e) {
+  map.on('editable:enable', (e) => {
     console.log('editable:enable', e.layer._leaflet_id);
     if (e.layer.setStyle) e.layer.setStyle({ color: 'DarkRed' });
-    else if (e.layer._icon) e.layer._icon.style.filter = "hue-rotate(120deg)";
+    else if (e.layer._icon) e.layer._icon.style.filter = 'hue-rotate(120deg)';
   });
-  map.on('editable:disable', function (e) {
+  map.on('editable:disable', (e) => {
     console.log('editable:disable');
     if (e.layer.setStyle) e.layer.setStyle({ color: '#3388ff' });
-    else if (e.layer._icon) e.layer._icon.style.filter = "";
+    else if (e.layer._icon) e.layer._icon.style.filter = '';
     if (isModified) {
       console.log(featuresLayer.getLayers());
       update(featuresLayer.getLayers());
@@ -298,11 +310,14 @@ function initControls(map, featuresLayer) {
     selectedShape = null;
   });
 
-  map.on('editable:dragend editable:vertex:dragend editable:vertex:new editable:vertex:deleted editable:drawing:commit', (e) => {
-    // console.log(e.type);
-    // console.log(e.layer._leaflet_id);
-    isModified = true;
-  });
+  map.on(
+    'editable:dragend editable:vertex:dragend editable:vertex:new editable:vertex:deleted editable:drawing:commit',
+    (e) => {
+      // console.log(e.type);
+      // console.log(e.layer._leaflet_id);
+      isModified = true;
+    },
+  );
 
   // map.on('editable:drawing:click', (e) => console.log('editable:drawing:click', e));
   //map.on('editable:editing', (e) => console.log('editable:editing', e));
@@ -313,7 +328,6 @@ function initControls(map, featuresLayer) {
   // map.on('editable:vertex:new', (e) => { console.log('vertex:new', e); console.log('vertex:new', e.editTools.drawing()); });
   // map.on('editable:vertex:dragend', (e) => console.log('vertex:dragend', e));
 }
-
 </script>
 
 <template>

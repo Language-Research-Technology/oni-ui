@@ -211,28 +211,25 @@
 
 
 <script>
-
-import {first, last, isEmpty, orderBy, toArray, find, isUndefined} from 'lodash';
-import {CloseBold} from "@element-plus/icons-vue";
-import {defineAsyncComponent, toRaw} from "vue";
-import SearchDetailElement from './SearchDetailElement.component.vue';
+import { getLocalStorage, putLocalStorage, removeLocalStorage } from '@/storage';
+import { CloseBold } from '@element-plus/icons-vue';
+import { find, first, isEmpty, isUndefined, last, orderBy, toArray } from 'lodash';
+import { defineAsyncComponent, toRaw } from 'vue';
+import SearchAdvanced from './SearchAdvanced.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
-import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
-import SearchAdvanced from "./SearchAdvanced.component.vue";
-import SearchMap from "./SearchMap.component.vue";
+import SearchDetailElement from './SearchDetailElement.component.vue';
+import SearchMap from './SearchMap.component.vue';
 
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 export default {
   components: {
-    SearchBar: defineAsyncComponent(() =>
-        import("@/components/SearchBar.component.vue")
-    ),
+    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.component.vue')),
     SearchAdvanced,
     SearchDetailElement,
     CloseBold,
     SearchAggs,
-    SearchMap
+    SearchMap,
   },
   data() {
     return {
@@ -261,34 +258,32 @@ export default {
       conformsToNotebook: this.$store.state.configuration.ui.conformsTo?.notebook,
       noMoreResults: false,
       searchFields: this.$store.state.configuration.ui.searchFields, // Comes from merged API configuration
-      sorting: this.$store.state.configuration.ui.search?.sorting || [
-        {value: 'relevance', label: 'Relevance'}
-      ],
+      sorting: this.$store.state.configuration.ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }],
       searchSorting: this.$store.state.configuration.ui.search?.searchSorting || {
-        "value": "relevance",
-        "label": "Relevance"
+        value: 'relevance',
+        label: 'Relevance',
       },
       selectedSorting: null,
       startSorting: this.$store.state.configuration.ui.search?.startSorting || {
-        "value": "_isTopLevel.@value.keyword",
-        "label": "Collections"
+        value: '_isTopLevel.@value.keyword',
+        label: 'Collections',
       },
       defaultSorting: this.$store.state.configuration.ui.search?.defaultSorting || {
         value: 'relevance',
-        label: 'Relevance'
+        label: 'Relevance',
       },
       ordering: this.$store.state.configuration.ui.search?.ordering || [
-        {value: 'asc', label: 'Ascending'},
-        {value: 'desc', label: 'Descending'}
+        { value: 'asc', label: 'Ascending' },
+        { value: 'desc', label: 'Descending' },
       ],
-      defaultOrder: this.$store.state.configuration.ui.search?.defaultOrder || {value: 'asc', label: 'Ascending'},
-      selectedOrder: this.$store.state.configuration.ui.search?.defaultOrder || {value: 'asc', label: 'Ascending'},
+      defaultOrder: this.$store.state.configuration.ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' },
+      selectedOrder: this.$store.state.configuration.ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' },
       searchFrom: 0,
       selectedOperation: 'must',
       changedFilters: false,
       advancedSearch: false,
       advancedQueries: null,
-      resetAdvancedSearch: false
+      resetAdvancedSearch: false,
     };
   },
   watch: {
@@ -307,7 +302,7 @@ export default {
         await this.search();
       }
       this.loading = false;
-    }
+    },
   },
   async created() {
     console.log('created');
@@ -320,7 +315,7 @@ export default {
       this.updateAdvancedQueries();
     } else {
       this.advancedSearch = false;
-      removeLocalStorage({key: 'advancedQueries'});
+      removeLocalStorage({ key: 'advancedQueries' });
     }
     this.loading = true;
     // const aggregations = await this.$elasticService.multi({
@@ -335,7 +330,7 @@ export default {
     // this.aggregations = this.populateAggregations(aggregations['aggregations']);
     await this.search();
     this.loading = false;
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   async mounted() {
     console.log('mounted');
@@ -347,7 +342,7 @@ export default {
       this.searchFields = this.$store.state.configuration.ui.searchFields;
     }
     if (this.$route.query.a) {
-      this.updateAdvancedQueries()
+      this.updateAdvancedQueries();
     } else {
       this.advancedSearch = false;
     }
@@ -358,14 +353,14 @@ export default {
       this.advancedSearch = false;
     }
     // await this.updateFilters({});
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   methods: {
     toArray,
     first,
     isEmpty,
     isUndefined,
-    async updateFilters({clear, empty}) {
+    async updateFilters({ clear, empty }) {
       try {
         // updating filters from command
         if (clear?.f && clear?.filterKey) {
@@ -375,7 +370,7 @@ export default {
               delete this.filters[clear.filterKey];
             }
             //if there is an update on the filter the site will do another search.
-            await this.updateRoutes({updateFilters: true});
+            await this.updateRoutes({ updateFilters: true });
           }
         } else {
           // or updating filters from routes
@@ -386,7 +381,7 @@ export default {
             const filters = decodeURIComponent(this.$route.query.f);
             filterQuery = JSON.parse(filters);
             this.filters = {};
-            for (let [key, val] of Object.entries(filterQuery)) {
+            for (const [key, val] of Object.entries(filterQuery)) {
               this.filters[key] = val;
               if (this.filters[key].length === 0) {
                 delete this.filters[key];
@@ -398,7 +393,7 @@ export default {
         console.error(e);
       }
     },
-    async updateRoutes({queries, updateFilters}) {
+    async updateRoutes({ queries, updateFilters }) {
       let filters;
       const query = {};
       let localFilterUpdate = false;
@@ -408,7 +403,7 @@ export default {
         query.f = filters;
         localFilterUpdate = true;
       } else {
-        delete query.f;
+        query.f = undefined;
       }
       if (this.$route.query.f && !localFilterUpdate) {
         query.f = this.$route.query.f;
@@ -416,7 +411,7 @@ export default {
       let localSearchGroupUpdate = false;
       if (queries?.searchGroup) {
         this.advancedQueries = queries;
-        delete query.q;
+        query.q = undefined;
         query.a = queries.searchGroup;
         this.currentPage = 1;
         //this.selectedSorting = this.sorting[0];
@@ -424,14 +419,14 @@ export default {
       }
       if (this.$route.query.a && !localSearchGroupUpdate) {
         query.a = this.$route.query.a;
-        delete query.q;
+        query.q = undefined;
         this.updateAdvancedQueries();
       } else {
         this.advancedQueries = null; //clear advanced search
         query.q = this.searchInput;
       }
       query.r = uuid();
-      await this.$router.push({path: 'search', query, replace: true});
+      await this.$router.push({ path: 'search', query, replace: true });
     },
     updateAdvancedQueries() {
       this.advancedSearch = true;
@@ -441,27 +436,26 @@ export default {
       } catch (e) {
         throw new Error('There was a problem with your advanced query please try again');
       }
-      let queryString = this.$elasticService.queryString(searchGroup);
-      this.advancedQueries = {queryString, searchGroup};
+      const queryString = this.$elasticService.queryString(searchGroup);
+      this.advancedQueries = { queryString, searchGroup };
     },
-    async bucketSelected({checkedBuckets, id}) {
+    async bucketSelected({ checkedBuckets, id }) {
       // this.filters[id] = checkedBuckets.map((k) => {
       //   return {key: k}
       // });
       this.filters[id] = checkedBuckets;
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
-    populate({items, newSearch, aggregations}) {
+    populate({ items, newSearch, aggregations }) {
       this.items = [];
       if (newSearch) {
         this.newSearch = true;
-
       }
-      if (items?.['hits']) {
-        const thisItems = items['hits']['hits'];
-        this.totals = items['hits']['total'];
+      if (items?.hits) {
+        const thisItems = items.hits.hits;
+        this.totals = items.hits.total;
         if (thisItems.length > 0) {
-          for (let item of thisItems) {
+          for (const item of thisItems) {
             this.items.push(item);
           }
           this.more = true;
@@ -469,17 +463,17 @@ export default {
           this.more = false;
         }
       }
-      if (items?.['aggregations']) {
-        this.aggregations = this.populateAggregations(items['aggregations']);
-        this.memberOfBuckets = items['aggregations']?.['_memberOf.name.@value'];
+      if (items?.aggregations) {
+        this.aggregations = this.populateAggregations(items.aggregations);
+        this.memberOfBuckets = items.aggregations?.['_memberOf.name.@value'];
       }
     },
     populateAggregations(aggregations) {
       const a = {};
       //Note: below is converted to an ordered array not an object.
       const aggInfo = this.$store.state.configuration.ui.aggregations;
-      for (let agg of Object.keys(aggregations)) {
-        const info = aggInfo.find((a) => a['name'] === agg);
+      for (const agg of Object.keys(aggregations)) {
+        const info = aggInfo.find((a) => a.name === agg);
         const display = info?.display;
         const order = info?.order;
         const name = info?.name;
@@ -493,7 +487,7 @@ export default {
           name: name || agg,
           hide: hide,
           active: active,
-          help: help || ''
+          help: help || '',
         };
       }
       return orderBy(a, 'order');
@@ -514,7 +508,7 @@ export default {
         this.advancedSearch = this.$route.query.a || false;
       }
       this.advancedQueries = null;
-      this.resetAdvancedSearch = true
+      this.resetAdvancedSearch = true;
       this.searchFields = this.$store.state.configuration.ui.searchFields;
       this.$route.query.sf = encodeURIComponent(this.searchFields);
       this.$route.query.o = this.selectedOperation;
@@ -527,11 +521,11 @@ export default {
       await this.clearAggregations();
       // await this.search();
       const query = {};
-      await this.$router.push({path: 'search', query});
+      await this.$router.push({ path: 'search', query });
     },
     scrollToTop() {
-      setTimeout(function () {
-        console.log('ran scrolling to top')
+      setTimeout(() => {
+        console.log('ran scrolling to top');
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
@@ -541,7 +535,7 @@ export default {
       }, 100);
     },
     scrollToId(id) {
-      setTimeout(function () {
+      setTimeout(() => {
         // window.scroll({top: 0, left:0, behavior: 'smooth'});
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -549,29 +543,29 @@ export default {
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
         const element = document.getElementById(id);
-        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollIntoView({ behavior: 'smooth' });
         element.scrollTop = 0;
       }, 100);
     },
     scrollToSelector(selector) {
-      setTimeout(function () {
+      setTimeout(() => {
         // window.scroll({top: 0, left:0, behavior: 'smooth'});
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
         const element = document.querySelector(selector);
-        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollIntoView({ behavior: 'smooth' });
         element.scrollTop = 0;
       }, 100);
     },
     async clearAggregations() {
       if (this.aggregations) {
-        for (let agg of this.aggregations) {
+        for (const agg of this.aggregations) {
           //TODO: ask cos this may be silly?!?
           //this.$refs[agg][0].clear();
           const name = agg?.name;
           if (this.$refs[name]) {
-            for (let r of this.$refs[name]) {
+            for (const r of this.$refs[name]) {
               r.clear();
             }
           }
@@ -581,14 +575,18 @@ export default {
     },
     async search() {
       this.loading = true;
-      if (this.isStart) { //Revert start to sorting by the startSorting
+      if (this.isStart) {
+        //Revert start to sorting by the startSorting
         this.selectedSorting = this.startSorting;
         this.isStart = false;
-      } else if (this.searchInput) { // If there is a query sort by relevance
+      } else if (this.searchInput) {
+        // If there is a query sort by relevance
         this.selectedSorting = this.searchSorting;
-      } else if (this.advancedSearch) { // If advanced search is enabled sort by relevance
+      } else if (this.advancedSearch) {
+        // If advanced search is enabled sort by relevance
         this.selectedSorting = this.searchSorting;
-      } else if (!this.selectedSorting) { // If there is one selected sorting do that
+      } else if (!this.selectedSorting) {
+        // If there is one selected sorting do that
         this.selectedSorting = this.defaultSorting;
       }
       this.changedFilters = false;
@@ -610,13 +608,13 @@ export default {
           operation: this.selectedOperation,
           pageSize: this.pageSize,
           searchFrom: (this.currentPage - 1) * this.pageSize,
-          queries: this.advancedQueries
+          queries: this.advancedQueries,
         });
-        this.populate({items: this.items, newSearch: true, aggregations: this.aggregations});
+        this.populate({ items: this.items, newSearch: true, aggregations: this.aggregations });
         this.loading = false;
-        this.$gtag.event("search", {
-          'event_category': "search",
-          'event_label': "search"
+        this.$gtag.event('search', {
+          event_category: 'search',
+          event_label: 'search',
         });
       } catch (e) {
         this.errorDialogVisible = true;
@@ -630,65 +628,65 @@ export default {
       //      all files have conformsTo!
       let url;
       const types = item._source['@type'];
-      const repoType = types.find(t => t === 'RepositoryCollection');
-      const fileType = types.find(t => t === 'File');
-      const itemType = types.find(t => t === 'RepositoryObject');
+      const repoType = types.find((t) => t === 'RepositoryCollection');
+      const fileType = types.find((t) => t === 'File');
+      const itemType = types.find((t) => t === 'RepositoryObject');
       let id = encodeURIComponent(item._source['@id']);
-      let crateId = encodeURIComponent(first(item._source['_crateId'])?.['@value']);
+      const crateId = encodeURIComponent(first(item._source._crateId)?.['@value']);
       if (repoType) {
-        url = `/collection?id=${id}&_crateId=${crateId}`
+        url = `/collection?id=${id}&_crateId=${crateId}`;
       } else if (itemType) {
-        url = `/object?id=${id}&_crateId=${crateId}`
+        url = `/object?id=${id}&_crateId=${crateId}`;
       } else if (fileType) {
         let isNotebook;
-        if (item._source?.['conformsTo']) {
-          isNotebook = item._source['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
+        if (item._source?.conformsTo) {
+          isNotebook = item._source.conformsTo.find((c) => c['@id'] === this.conformsToNotebook);
         }
         if (isNotebook) {
           id = encodeURIComponent(item._id);
           url = `/object?_id=${id}`;
         } else {
           const fileId = id;
-          id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
-          url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`
+          id = encodeURIComponent(first(item._source._parent)?.['@id']);
+          url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`;
         }
       } else {
         //Defaults to object if it doesnt know what it is
-        url = `/object?id=${id}&_crateId=${crateId}`
+        url = `/object?id=${id}&_crateId=${crateId}`;
       }
       return url;
     },
     clean(string) {
       if (string === 'true') {
         return 'Yes';
-      } else if (string === 'false') {
-        return 'No';
-      } else {
-        string = string.replace(/@|_|(\..*)/g, "")
-        return string;
       }
+      if (string === 'false') {
+        return 'No';
+      }
+      string = string.replace(/@|_|(\..*)/g, '');
+      return string;
     },
     sortResults(sort) {
       this.currentPage = 1;
-      this.selectedSorting = find(this.sorting, {value: sort});
+      this.selectedSorting = find(this.sorting, { value: sort });
 
       this.search();
     },
     orderResults(order) {
       this.currentPage = 1;
-      this.selectedOrder = find(this.ordering, {value: order});
+      this.selectedOrder = find(this.ordering, { value: order });
       this.search();
     },
     async updatePages(page, scrollTo) {
       this.currentPage = page;
       await this.search();
-      this.scrollToTop();//Id(scrollTo);
+      this.scrollToTop(); //Id(scrollTo);
     },
     async clearFilters() {
       this.filters = {};
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
-    newAggs({query, aggsName}) {
+    newAggs({ query, aggsName }) {
       if (query.f) {
         //In here we need to merge the filters
         const decodedFilters = JSON.parse(decodeURIComponent(query.f));
@@ -697,12 +695,12 @@ export default {
       if (query.q) {
         this.searchInput = decodeURIComponent(query.q);
       }
-      console.log(isEmpty(this.filters))
+      console.log(isEmpty(this.filters));
       this.changedFilters = true;
     },
     enableAdvancedSearch() {
       this.advancedSearch = true;
-      this.scrollToTop();//('advanced_search_box');
+      this.scrollToTop(); //('advanced_search_box');
       this.searchInput = '';
     },
     basicSearch() {
@@ -711,7 +709,7 @@ export default {
       this.resetSearch();
     },
     mergeFilters(newFilters, aggsName) {
-      let filters = toRaw(this.filters);
+      const filters = toRaw(this.filters);
       if (isEmpty(this.filters)) {
         this.filters = newFilters;
       } else {
@@ -721,13 +719,13 @@ export default {
         }
       }
       console.log('is this.filters empty?');
-      console.log(isEmpty(this.filters))
+      console.log(isEmpty(this.filters));
       // this.filters = filters;
     },
     showMap() {
-      this.$router.push({path: '/map'});
-    }
-  }
+      this.$router.push({ path: '/map' });
+    },
+  },
 };
 </script>
 <style>

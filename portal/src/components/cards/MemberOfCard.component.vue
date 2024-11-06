@@ -17,16 +17,15 @@
   </el-card>
 </template>
 <script>
-import {first} from "lodash";
+import { first } from 'lodash';
 
 export default {
   props: ['_memberOf', 'routePath'],
   data() {
-    return {
-    }
+    return {};
   },
   methods: {
     first,
-  }
-}
+  },
+};
 </script>

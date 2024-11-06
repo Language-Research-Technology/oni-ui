@@ -126,9 +126,7 @@
         "value": "desc",
         "label": "Descending"
       },
-      "searchDetails": [
-        {"field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value"}
-      ]
+      "searchDetails": [{ "field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value" }]
     },
     "main": {
       "fields": [
@@ -153,15 +151,8 @@
           "name": "encodingFormat.@value"
         }
       ],
-      "byteFields": [
-        "size",
-        "contentSize"
-      ],
-      "expand": [
-        "speaker",
-        "author",
-        "citation"
-      ]
+      "byteFields": ["size", "contentSize"],
+      "expand": ["speaker", "author", "citation"]
     },
     "head": {
       "meta": [
@@ -397,11 +388,13 @@
       "key": "XXX",
       "secret": "XXX"
     },
-    "origins": [{
-      "host": "https://catalog.paradisec.org.au",
-      "key": "XXX",
-      "secret": "XXX"
-    }],
+    "origins": [
+      {
+        "host": "https://catalog.paradisec.org.au",
+        "key": "XXX",
+        "secret": "XXX"
+      }
+    ],
     "bootstrap": false,
     "log": {
       "logFolder": "/opt/storage/oni/logs"
@@ -424,14 +417,10 @@
     },
     "rocrate": {
       "dataTransform": {
-        "types": [
-          "File"
-        ]
+        "types": ["File"]
       }
     },
-    "administrators": [
-      "ephe@feko.mt"
-    ],
+    "administrators": ["ephe@feko.mt"],
     "session": {
       "lifetime": {
         "hours": 5
@@ -448,9 +437,7 @@
       "provider": "rems",
       "enrollment": {
         "enforced": false,
-        "groups": [
-          "CO:Members:all"
-        ],
+        "groups": ["CO:Members:all"],
         "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
       },
       "rems": {
@@ -656,22 +643,12 @@
           "field": "annotationType.@value.keyword"
         }
       ],
-      "highlightFields": [
-        "_text"
-      ],
+      "highlightFields": ["_text"],
       "test": {
         "filters": {
-          "hasFile.language.name": [
-            "Arabic, Standard",
-            "Chinese, Mandarin",
-            "Persian, Iranian",
-            "Turkish",
-            "Vietnames"
-          ]
+          "hasFile.language.name": ["Arabic, Standard", "Chinese, Mandarin", "Persian, Iranian", "Turkish", "Vietnames"]
         },
-        "@type": [
-          "TextDialogue"
-        ]
+        "@type": ["TextDialogue"]
       },
       "mappingFieldLimit": 3000,
       "mappings": {

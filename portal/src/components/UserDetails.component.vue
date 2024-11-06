@@ -80,17 +80,16 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
       user: {
         email: null,
         name: null,
-        id: null
+        id: null,
       },
       provider: '',
-      apiKeyPlaceholder: '*************'
+      apiKeyPlaceholder: '*************',
     };
   },
   mounted() {
@@ -100,28 +99,28 @@ export default {
   },
   methods: {
     async getUser() {
-      const response = await this.$http.get({route: "/user"});
-      const {user} = await response.json();
+      const response = await this.$http.get({ route: '/user' });
+      const { user } = await response.json();
       this.user = user;
-      this.provider = user['provider'];
+      this.provider = user.provider;
     },
     async updateApiToken() {
-      const response = await this.$http.get({route: "/user/token"});
-      const {user} = await response.json();
+      const response = await this.$http.get({ route: '/user/token' });
+      const { user } = await response.json();
       this.user = user;
-      this.$gtag.event("/user", {
-        'event_category': "user",
-        'event_label': "generated-token",
-        'value': true
+      this.$gtag.event('/user', {
+        event_category: 'user',
+        event_label: 'generated-token',
+        value: true,
       });
     },
     async removeApiToken() {
-      const response = await this.$http.delete({route: "/user/token"});
-      const {user} = await response.json();
+      const response = await this.$http.delete({ route: '/user/token' });
+      const { user } = await response.json();
       this.user = user;
       this.apiKeyPlaceholder = '';
-    }
-  }
+    },
+  },
 };
 </script>
 

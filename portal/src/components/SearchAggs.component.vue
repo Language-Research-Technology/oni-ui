@@ -30,13 +30,12 @@
   </div>
 </template>
 <script>
-
 export default {
   props: ['aggsName', 'buckets'],
   watch: {
     '$route.query.f'() {
       this.updateFilters();
-    }
+    },
   },
   async mounted() {
     await this.updateFilters();
@@ -58,7 +57,7 @@ export default {
         try {
           queryFilters = JSON.parse(decodedFilters);
         } catch (e) {
-          console.error('updatedFilters error:')
+          console.error('updatedFilters error:');
           console.error(e);
         }
       }
@@ -66,7 +65,7 @@ export default {
       if (!qfFound) {
         this.checkedBuckets = [];
       } else {
-        for (let [key, val] of Object.entries(queryFilters)) {
+        for (const [key, val] of Object.entries(queryFilters)) {
           if (key === this.aggsName) {
             this.checkedBuckets = val;
           }
@@ -75,20 +74,19 @@ export default {
           this.$emit('is-active');
         }
       }
-
     },
     async onChange() {
-      const query = {}
+      const query = {};
       if (this.$route.query.q) {
-        query.q = this.$route.query.q
+        query.q = this.$route.query.q;
       }
       if (this.$route.query.f) {
         const filters = this.$route.query.f;
-        let decodedFilters = decodeURIComponent(filters);
+        const decodedFilters = decodeURIComponent(filters);
         const queryFilters = JSON.parse(decodedFilters);
-        let checkedBuckets = [];
+        const checkedBuckets = [];
         if (this.checkedBuckets.length > 0) {
-          for (let cB of this.checkedBuckets) {
+          for (const cB of this.checkedBuckets) {
             checkedBuckets.push(cB);
           }
         }
@@ -109,7 +107,7 @@ export default {
       if (this.checkedBuckets.length > 0) {
         this.$emit('is-active');
       }
-      this.$emit('changed-aggs', {query, aggsName: this.aggsName});
+      this.$emit('changed-aggs', { query, aggsName: this.aggsName });
       // await this.$router.push({path: 'search', query});
     },
     updatePages(page) {
@@ -119,9 +117,9 @@ export default {
   computed: {
     filteredValues() {
       return this.buckets.filter((v) => {
-        return v.key.match(new RegExp(this.filter, "i"));
-      })
-    }
+        return v.key.match(new RegExp(this.filter, 'i'));
+      });
+    },
   },
   data() {
     return {
@@ -129,8 +127,8 @@ export default {
       pageStartIndex: 0,
       filter: undefined,
       currentPage: 1,
-      pageSize: 5
-    }
-  }
-}
+      pageSize: 5,
+    };
+  },
+};
 </script>

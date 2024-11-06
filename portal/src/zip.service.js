@@ -1,22 +1,22 @@
-import HTTPService from "./http.service";
-import convertSize from "convert-size";
+import convertSize from 'convert-size';
+import HTTPService from './http.service';
 
 export default class ZipService {
-  constructor({router, apiPath}) {
+  constructor({ router, apiPath }) {
     this.router = router;
-    this.apiPath = apiPath
+    this.apiPath = apiPath;
   }
 
   async get(id, name) {
-    const httpService = new HTTPService({router: this.router, loginPath: '/login'});
-    const route = `/object/${encodeURIComponent(id)}.zip`
-    let response = await httpService.head({route});
+    const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
+    const route = `/object/${encodeURIComponent(id)}.zip`;
+    const response = await httpService.head({ route });
     const zip = {};
     name = name || id;
-    zip.name = name + '.zip';
+    zip.name = `${name}.zip`;
     try {
-      const size = response.headers.get('Content-Length-Estimate')
-      zip.expandedSize = convertSize(parseInt(size), {accuracy: 2});
+      const size = response.headers.get('Content-Length-Estimate');
+      zip.expandedSize = convertSize(Number.parseInt(size), { accuracy: 2 });
     } catch (e) {
       console.error(e);
     }

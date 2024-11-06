@@ -26,15 +26,15 @@
   </template>
 </template>
 <script>
-import {first} from 'lodash';
+import { first } from 'lodash';
 
 export default {
   props: ['aggregations', 'fields', 'name', 'id', 'root', 'link'],
   data() {
     return {
       buckets: [],
-      loading: false
-    }
+      loading: false,
+    };
   },
   mounted() {
     this.loading = true;
@@ -47,7 +47,7 @@ export default {
     this.loading = false;
   },
   watch: {
-    'aggregations': {
+    aggregations: {
       handler() {
         if (this.aggregations) {
           this.loading = true;
@@ -56,15 +56,19 @@ export default {
         }
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   methods: {
     populateBuckets() {
       this.buckets = [];
-      for (let field of this.fields) {
-        if (this.aggregations && this.aggregations[field?.name]) {
-          this.buckets.push({name: field.name, field: field.display, buckets: this.aggregations[field.name]?.buckets});
+      for (const field of this.fields) {
+        if (this.aggregations?.[field?.name]) {
+          this.buckets.push({
+            name: field.name,
+            field: field.display,
+            buckets: this.aggregations[field.name]?.buckets,
+          });
         }
       }
     },
@@ -72,19 +76,19 @@ export default {
       const part = {};
       part[name] = [bucket];
       const root = first(this.root);
-      const rootName = first(root?.['name'])?.['@value'];
+      const rootName = first(root?.name)?.['@value'];
       if (rootName) {
         part['_root.name.@value'] = [rootName];
       } else {
-        part["_collectionStack.@id"] = [this.id]
+        part['_collectionStack.@id'] = [this.id];
       }
-      const stringify = JSON.stringify(part)
+      const stringify = JSON.stringify(part);
       //console.log(`/search?f=${stringify}`);
       return `/search?f=${encodeURIComponent(stringify)}`;
     },
     getExternalUrlFromId(name, bucket) {
       return id;
-    }
-  }
-}
+    },
+  },
+};
 </script>

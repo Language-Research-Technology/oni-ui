@@ -28,29 +28,25 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
-    OauthLoginComponent: defineAsyncComponent(() =>
-        import("@/components/authentication/OauthLogin.component.vue")
-    ),
+    OauthLoginComponent: defineAsyncComponent(() => import('@/components/authentication/OauthLogin.component.vue')),
   },
   data() {
     return {
       siteName: this.$store.state.configuration.ui.siteName,
       siteNameX: this.$store.state.configuration.ui.siteNameX || '',
       loginProviders: this.$store.state.configuration.ui.loginProviders,
-      showAdmin: false
+      showAdmin: false,
     };
   },
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
     toggleAdmin() {
       this.showAdmin = !this.showAdmin;
-    }
-  }
+    },
+  },
 };
 </script>

@@ -55,23 +55,18 @@
 </template>
 
 <script>
-
-import {
-  tokenSessionKey,
-  removeLocalStorage,
-  getLocalStorage
-} from "@/storage";
+import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
 import EnrollmentCard from './cards/EnrollmentCard.component.vue';
 
 export default {
-  components: {EnrollmentCard},
+  components: { EnrollmentCard },
   data() {
     return {
       loading: false,
       memberships: [],
       noEmrollmentDialogVisible: false,
       enrollmentUrl: '',
-      authorizationProvider: this.$store.state.configuration.ui.authorizationProvider || {}
+      authorizationProvider: this.$store.state.configuration.ui.authorizationProvider || {},
     };
   },
   mounted() {
@@ -93,8 +88,8 @@ export default {
       }
       this.memberships = membershipsStatus?.memberships;
       this.loading = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

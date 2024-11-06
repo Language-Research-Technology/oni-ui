@@ -5,12 +5,16 @@
   "main": "structural-index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome check --write .",
     "index": "node structural-index.js",
     "elastic": "node elastic-ocfl-oni-index.js",
     "notebooks": "node elastic-notebook-index.js"
   },
   "author": "Moises Sacal Bonequi",
   "license": "GPL-3.0",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  },
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",
     "@ocfl/ocfl-fs": "^0.2.0",

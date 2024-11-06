@@ -5,15 +5,11 @@
   "main": "babel.config.js",
   "scripts": {
     "test": "jest",
+    "lint": "biome check .",
     "dev": "npm install && webpack serve -c webpack-development.js",
     "build": "npm install && webpack -c webpack-production.js"
   },
-  "keywords": [
-    "Oni",
-    "UI",
-    "Discovery",
-    "Portal"
-  ],
+  "keywords": ["Oni", "UI", "Discovery", "Portal"],
   "author": "Moises Sacal",
   "license": "GPL-3.0",
   "dependencies": {
@@ -58,6 +54,7 @@
     "@babel/core": "^7.14.8",
     "@babel/plugin-proposal-optional-chaining": "^7.12.7",
     "@babel/preset-env": "^7.14.9",
+    "@biomejs/biome": "^1.9.4",
     "@headlessui/vue": "^1.4.2",
     "@heroicons/vue": "^1.0.5",
     "@vue/compiler-sfc": "^3.2.6",

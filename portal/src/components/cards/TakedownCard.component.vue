@@ -17,15 +17,15 @@
 export default {
   data() {
     return {
-      takedownForm: this.$store.state.configuration.ui.googleForm?.takedown
-    }
+      takedownForm: this.$store.state.configuration.ui.googleForm?.takedown,
+    };
   },
   methods: {
     takedownLink() {
-      let currentUrl = encodeURIComponent(window.location.href);
+      const currentUrl = encodeURIComponent(window.location.href);
       const form = this.takedownForm;
-      return `${form}${currentUrl}`
-    }
-  }
-}
+      return `${form}${currentUrl}`;
+    },
+  },
+};
 </script>

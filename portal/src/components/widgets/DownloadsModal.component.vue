@@ -39,13 +39,12 @@
   </el-dialog>
 </template>
 <script>
-
-import {first} from "lodash";
+import { first } from 'lodash';
 import ZipLink from '../ZipLink.component.vue';
 
 export default {
   components: {
-    ZipLink
+    ZipLink,
   },
   props: ['id', 'modelValue', 'title'],
   data() {
@@ -58,8 +57,8 @@ export default {
       objectTotals: 0,
       objectsScrollId: '',
       pageSize: 10,
-      currentPage: 1
-    }
+      currentPage: 1,
+    };
   },
   computed: {
     visible: {
@@ -68,8 +67,8 @@ export default {
       },
       set(value) {
         this.$emit('update:modelValue', value);
-      }
-    }
+      },
+    },
   },
   watch: {
     visible: {
@@ -77,8 +76,8 @@ export default {
         if (newValue) {
           this.getObjects();
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     first,
@@ -92,23 +91,23 @@ export default {
     async getObjects() {
       this.loading = true;
       const items = await this.$elasticService.multi({
-        filters: {'_root.@id': [this.id], '_isOCFL': 'true'},
+        filters: { '_root.@id': [this.id], _isOCFL: 'true' },
         sort: 'relevance',
         order: 'desc',
         pageSize: this.pageSize,
-        searchFrom: (this.currentPage - 1) * this.pageSize
+        searchFrom: (this.currentPage - 1) * this.pageSize,
       });
-      this.objectTotals = items?.['hits']?.['total']?.['value'];
-      this.objectsScrollId = items?.['_scroll_id'];
-      const thisItems = items?.['hits']?.['hits'];
+      this.objectTotals = items?.hits?.total?.value;
+      this.objectsScrollId = items?._scroll_id;
+      const thisItems = items?.hits?.hits;
       if (thisItems) {
         this.objects = thisItems;
         const objs = [];
-        for (let item of thisItems) {
+        for (const item of thisItems) {
           objs.push({
             id: item._source['@id'],
-            name: first(item._source['name'])?.['@value'],
-            license: item._source['license']
+            name: first(item._source.name)?.['@value'],
+            license: item._source.license,
           });
         }
         this.objects = objs;
@@ -116,7 +115,7 @@ export default {
         this.objects = this.objects.concat(thisItems);
       }
       this.loading = false;
-    }
-  }
-}
+    },
+  },
+};
 </script>

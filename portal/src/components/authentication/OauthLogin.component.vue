@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { loginSessionKey, putLocalStorage } from "@/storage";
+import { loginSessionKey, putLocalStorage } from '@/storage';
 
 export default {
   props: {
@@ -23,29 +23,28 @@ export default {
       required: true,
     },
     buttonStyle: {
-      type: String
+      type: String,
     },
     loginRoute: {
-      type: String
-    }
+      type: String,
+    },
   },
   data() {
     return {
       configuration: this.$store.state.configuration.ui.loginProviders[this.provider],
-      scope: "openid profile email",
+      scope: 'openid profile email',
       loggingIn: false,
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     async login() {
       this.loggingIn = true;
-      let response = await this.$http.get({ route: this.loginRoute });
-      let { url, code_verifier } = await response.json();
+      const response = await this.$http.get({ route: this.loginRoute });
+      const { url, code_verifier } = await response.json();
       putLocalStorage({ key: loginSessionKey, data: { code_verifier } });
       window.location.href = url;
-    }
-  }
+    },
+  },
 };
 </script>

@@ -1,11 +1,11 @@
 //const {Client} = require('@elastic/elasticsearch');
-const {Client} = require('@opensearch-project/opensearch');
+const { Client } = require('@opensearch-project/opensearch');
 const configuration = require('./configuration.json');
-const readline = require('readline');
+const readline = require('node:readline');
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 function askForConfirmation() {
@@ -23,18 +23,19 @@ function askForConfirmation() {
     node: 'http://localhost:9200', //This is different from Oni since we are talking to it directly
   });
   // Bootstrap index
-  const elastic = configuration['api']['elastic'];
+  const elastic = configuration.api.elastic;
+  const index = elastic.index || 'items';
   // Delete
   try {
     const confirmed = await askForConfirmation();
     if (confirmed) {
       const res = await client.indices.exists({
-        index: elastic['index'] || 'items'
+        index,
       });
-      if (res['statusCode'] !== 404) {
+      if (res.statusCode !== 404) {
         console.log('trying to delete the index');
         await client.indices.delete({
-          index: elastic['index'] || 'items'
+          index
         });
       }
     }
@@ -43,5 +44,4 @@ function askForConfirmation() {
   } finally {
     rl.close();
   }
-
 })();

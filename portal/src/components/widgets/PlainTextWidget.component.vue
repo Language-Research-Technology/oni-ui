@@ -2,16 +2,16 @@
   <div class="whitespace-pre-wrap bg-slate-50">{{ this.content }}</div>
 </template>
 <script>
-import {isEmpty} from 'lodash';
-import 'element-plus/theme-chalk/display.css'
+import { isEmpty } from 'lodash';
+import 'element-plus/theme-chalk/display.css';
 
 export default {
   props: ['data', 'limitText'],
   data() {
     return {
       content: '',
-      loading: false
-    }
+      loading: false,
+    };
   },
   watch: {
     data: {
@@ -23,8 +23,8 @@ export default {
         }
       },
       flush: 'post',
-      immediate: true
-    }
-  }
-}
+      immediate: true,
+    },
+  },
+};
 </script>

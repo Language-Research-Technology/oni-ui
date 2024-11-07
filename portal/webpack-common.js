@@ -1,53 +1,54 @@
-"use strict";
-
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
-const {VueLoaderPlugin} = require("vue-loader");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require('node:path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const webpack = require('webpack');
 
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({ path: '../.env' });
 
 module.exports = {
-  target: "web",
-  entry: ["./src/main.js"],
+  target: 'web',
+  entry: ['./src/main.js'],
   output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "[contenthash].js",
-    publicPath: process.env.ASSET_PATH || "http://localhost:11000/",
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[contenthash].js',
+    publicPath: process.env.ASSET_PATH || 'http://localhost:11000/',
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': {}
+      'process.env': {},
     }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: process.env.TITLE || "Oni",
-      template: "./public/index.html",
+      title: process.env.TITLE || 'Oni',
+      template: './public/index.html',
+      favicon: './public/favicon.ico',
     }),
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({filename: "[contenthash].css"}),
-    new CopyWebpackPlugin({patterns:[
+    new MiniCssExtractPlugin({ filename: '[contenthash].css' }),
+    new CopyWebpackPlugin({
+      patterns: [
         {
           // Copy the Swagger OAuth2 redirect file to the project root;
           // that file handles the OAuth2 redirect after authenticating the end-user.
           from: require.resolve('swagger-ui/dist/oauth2-redirect.html'),
-          to: './'
-        }
-      ]})
+          to: './',
+        },
+      ],
+    }),
   ],
   module: {
     rules: [
       {
         test: /\.vue$/,
-        loader: "vue-loader",
+        loader: 'vue-loader',
       },
       {
         test: /\.js$/,
-        loader: "babel-loader",
+        loader: 'babel-loader',
         exclude: /node_modules/,
       },
       {
@@ -56,19 +57,19 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: "",
+              publicPath: '',
             },
           },
-          "css-loader",
+          'css-loader',
           // "style-loader",
           {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: ['postcss-url']
-              }
-            }
-          }
+                plugins: ['postcss-url'],
+              },
+            },
+          },
         ],
       },
       {
@@ -77,16 +78,16 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: "",
+              publicPath: '',
             },
           },
-          "css-loader",
-          "postcss-loader",
+          'css-loader',
+          'postcss-loader',
         ],
       },
       {
         test: /\.(svg|png|jp(e*)g|gif|mp4)?$/,
-        type: "asset/resource",
+        type: 'asset/resource',
         // loader: "file-loader",
         // options: {
         //     name: "[contenthash].[ext]",
@@ -101,7 +102,7 @@ module.exports = {
       // { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-        type: "asset/resource",
+        type: 'asset/resource',
         // use: [
         //     {
         //         loader: "file-loader",
@@ -113,16 +114,16 @@ module.exports = {
       },
       {
         test: /\.mjs$/i,
-        resolve: { byDependency: { esm: { fullySpecified: false } } }
-      }
-    ]
+        resolve: { byDependency: { esm: { fullySpecified: false } } },
+      },
+    ],
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
-      src: path.resolve(__dirname, "src"),
-      assets: path.resolve(__dirname, "src/assets"),
-      components: path.resolve(__dirname, "src/components"),
-    }
-  }
+      '@': path.resolve(__dirname, 'src'),
+      src: path.resolve(__dirname, 'src'),
+      assets: path.resolve(__dirname, 'src/assets'),
+      components: path.resolve(__dirname, 'src/components'),
+    },
+  },
 };

@@ -29,8 +29,8 @@ export default {
   props: ['message', 'go'],
   data() {
     return {
-      alpacaSVG: require('../assets/alpaca.svg')
-    }
-  }
-}
+      alpacaSVG: require('../assets/alpaca.svg'),
+    };
+  },
+};
 </script>

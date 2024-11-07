@@ -19,18 +19,18 @@
   </ul>
 </template>
 <script>
-import {first} from "lodash";
+import { first } from 'lodash';
 
 export default {
   props: ['id'],
   data() {
     return {
       metaPath: '',
-      notebooks: []
-    }
+      notebooks: [],
+    };
   },
   methods: {
     first,
-  }
-}
+  },
+};
 </script>

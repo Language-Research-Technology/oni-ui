@@ -143,45 +143,45 @@
   <el-row></el-row>
 </template>
 <script>
-import "leaflet/dist/leaflet.css";
-import "leaflet-gesture-handling/dist/leaflet-gesture-handling.css";
-import * as L from "leaflet";
-import "leaflet.path.drag";
-import "leaflet-editable";
-import {GestureHandling} from "leaflet-gesture-handling";
-import {CloseBold} from "@element-plus/icons-vue";
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+import * as L from 'leaflet';
+import 'leaflet.path.drag';
+import 'leaflet-editable';
+import { getLocalStorage, putLocalStorage, removeLocalStorage } from '@/storage';
+import { CloseBold } from '@element-plus/icons-vue';
+import Geohash from 'latlon-geohash';
+import { GestureHandling } from 'leaflet-gesture-handling';
+import { clone, first, isEmpty, orderBy } from 'lodash';
 import {
-  reactive,
   computed,
-  ref,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
   onMounted,
   onUpdated,
-  watch,
-  onBeforeUnmount,
-  nextTick,
+  reactive,
+  ref,
   toRaw,
-  defineAsyncComponent
-} from "vue";
-import {clone, first, isEmpty, orderBy} from 'lodash';
+  watch,
+} from 'vue';
+import SearchAggs from './SearchAggs.component.vue';
 import SearchDetailElement from './SearchDetailElement.component.vue';
-import Geohash from "latlon-geohash";
-import SearchAggs from "./SearchAggs.component.vue";
-import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
 
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 //This is to fix a leaflet bug
 //https://salesforce.stackexchange.com/questions/180977/leaflet-error-when-zoom-after-close-popup-in-lightning-component
 L.Popup.prototype._animateZoom = function (e) {
   if (!this._map) {
-    return
+    return;
   }
-  var pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center),
-      anchor = this._getAnchor()
-  L.DomUtil.setPosition(this._container, pos.add(anchor))
-}
+  const pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center);
+  const anchor = this._getAnchor();
+  L.DomUtil.setPosition(this._container, pos.add(anchor));
+};
 
-delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.prototype._getIconUrl = undefined;
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -193,46 +193,46 @@ L.ClickableTooltip = L.Popup.extend({
   onAdd: function (map) {
     L.Popup.prototype.onAdd.call(this, map);
     const el = this.getElement();
-    const self = this;
-    el.addEventListener('click', function () {
-      self.fire("click");
+    el.addEventListener('click', () => {
+      this.fire('click');
     });
     el.style.pointerEvents = 'auto';
-  }
+  },
 });
 
 L.SearchControl = L.Control.extend({
   options: {
-    position: 'bottomright'
+    position: 'bottomright',
     //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
   },
-  onAdd: function (map) {
+  onAdd: (map) => {
     const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-bottomcenter');
     const button = L.DomUtil.create('a', '', container);
-    button.innerHTML = '<div class="cursor-pointer">' +
-        '<?xml version="1.0" encoding="utf-8"?>\n' +
-        '\n' +
-        '<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->\n' +
-        '<svg width="30px" height="30px" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">\n' +
-        '\n' +
-        '<g fill="none" fill-rule="evenodd" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" transform="matrix(0 1 1 0 2.5 2.5)">\n' +
-        '\n' +
-        '<path d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"/>\n' +
-        '\n' +
-        '<path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"/>\n' +
-        '\n' +
-        '</g>\n' +
-        '\n' +
-        '</svg>' +
-        '</div>';
-    button.className = 'leaflet-control-button-search'
+    button.innerHTML =
+      '<div class="cursor-pointer">' +
+      '<?xml version="1.0" encoding="utf-8"?>\n' +
+      '\n' +
+      '<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->\n' +
+      '<svg width="30px" height="30px" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">\n' +
+      '\n' +
+      '<g fill="none" fill-rule="evenodd" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" transform="matrix(0 1 1 0 2.5 2.5)">\n' +
+      '\n' +
+      '<path d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"/>\n' +
+      '\n' +
+      '<path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"/>\n' +
+      '\n' +
+      '</g>\n' +
+      '\n' +
+      '</svg>' +
+      '</div>';
+    button.className = 'leaflet-control-button-search';
     L.DomEvent.disableClickPropagation(button);
     L.DomEvent.on(button, 'click', () => {
       window.oni_ui.resetSearch();
     });
-    container.title = "Reset Search";
+    container.title = 'Reset Search';
     return container;
-  }
+  },
 });
 
 L.LocationDivIcon = L.Icon.extend({
@@ -241,12 +241,12 @@ L.LocationDivIcon = L.Icon.extend({
     iconUrl: require('assets/marker-circle-icon.png'),
     shadowUrl: require('assets/marker-circle-icon.png'),
     ref: '<a href="https://www.flaticon.com/free-icons/red" title="red icons">Red icons created by hqrloveq - Flaticon</a>',
-    iconSize: [24, 26],// size of the icon
+    iconSize: [24, 26], // size of the icon
     shadowSize: null, // size of the shadow
     iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-    shadowAnchor: null,  // the same for the shadow
-    popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-  }
+    shadowAnchor: null, // the same for the shadow
+    popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
+  },
 });
 
 L.NumberedDivIcon = L.Icon.extend({
@@ -262,55 +262,49 @@ L.NumberedDivIcon = L.Icon.extend({
     iconAnchor: (Point)
     popupAnchor: (Point)
     */
-    className: 'leaflet-div-icon'
+    className: 'leaflet-div-icon',
   },
   createIcon: function () {
-    var div = document.createElement('div');
-    var img = this._createImg(this.options['iconUrl']);
-    var numdiv = document.createElement('div');
-    numdiv.setAttribute("class", "number");
-    numdiv.innerHTML = this.options['number'] || '';
+    const div = document.createElement('div');
+    const img = this._createImg(this.options.iconUrl);
+    const numdiv = document.createElement('div');
+    numdiv.setAttribute('class', 'number');
+    numdiv.innerHTML = this.options.number || '';
     div.appendChild(img);
     div.appendChild(numdiv);
     this._setIconStyles(div, 'icon');
     return div;
   },
-//you could change this to add a shadow like in the normal marker if you really wanted
-  createShadow: function () {
-    return null;
-  }
+  //you could change this to add a shadow like in the normal marker if you really wanted
+  createShadow: () => null,
 });
 
 L.CountDivIcon = L.Icon.extend({
   options: {
     number: '',
-    className: 'leaflet-div-icon'
+    className: 'leaflet-div-icon',
   },
   createIcon: function () {
-    var div = document.createElement('div');
-    var img = this._createImg(this.options['iconUrl']);
-    var numdiv = document.createElement('div');
-    numdiv.setAttribute("class", "number");
-    numdiv.innerHTML = this.options['number'] || '';
+    const div = document.createElement('div');
+    const img = this._createImg(this.options.iconUrl);
+    const numdiv = document.createElement('div');
+    numdiv.setAttribute('class', 'number');
+    numdiv.innerHTML = this.options.number || '';
     div.appendChild(img);
     div.appendChild(numdiv);
     this._setIconStyles(div, 'icon');
     return div;
   },
-//you could change this to add a shadow like in the normal marker if you really wanted
-  createShadow: function () {
-    return null;
-  }
+  //you could change this to add a shadow like in the normal marker if you really wanted
+  createShadow: () => null,
 });
 
 export default {
   name: 'SearchMap',
   components: {
-    SearchBar: defineAsyncComponent(() =>
-        import("@/components/SearchBar.component.vue")
-    ),
+    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.component.vue')),
     SearchAggs,
-    CloseBold
+    CloseBold,
   },
   props: {},
   data() {
@@ -339,16 +333,16 @@ export default {
       errorDialogText: '',
       boundingBox: {},
       initBoundingBox: {
-        "topRight": {
-          "lat": 37.160316546736766,
-          "lon": -174.19921875
+        topRight: {
+          lat: 37.160316546736766,
+          lon: -174.19921875,
         },
-        "bottomLeft": {
-          "lat": -69.90011762668541,
-          "lon": 85.60546875
+        bottomLeft: {
+          lat: -69.90011762668541,
+          lon: 85.60546875,
         },
-        bottomRight: {lat: -11.523088, lon: 162.649886},
-        topLeft: {lat: -42.811522, lon: 108.649010}
+        bottomRight: { lat: -11.523088, lon: 162.649886 },
+        topLeft: { lat: -42.811522, lon: 108.64901 },
       },
       initView: [-25, 134],
       initZoom: 4,
@@ -358,11 +352,10 @@ export default {
       outOfBounds: 0,
       tooltip: undefined,
       pageSize: 10,
-      currentPage: 0
-    }
+      currentPage: 0,
+    };
   },
-  setup() {
-  },
+  setup() {},
   created() {
     if (this.$route.query.q) {
       this.searchInput = this.$route.query.q;
@@ -422,7 +415,7 @@ export default {
         await this.search();
       }
       this.loading = false;
-    }
+    },
   },
   methods: {
     isEmpty,
@@ -437,7 +430,7 @@ export default {
         this.updateAdvancedQueries();
       } else {
         this.advancedSearch = false;
-        removeLocalStorage({key: 'advancedQueries'});
+        removeLocalStorage({ key: 'advancedQueries' });
       }
       this.loading = true;
       // const aggregations = await this.$elasticService.multi({
@@ -452,7 +445,7 @@ export default {
       // this.aggregations = this.populateAggregations(aggregations['aggregations']);
       await this.search();
       this.loading = false;
-      putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     },
     async mounted() {
       console.log('mounted');
@@ -464,7 +457,7 @@ export default {
         this.searchFields = this.$store.state.configuration.ui.searchFields;
       }
       if (this.$route.query.a) {
-        this.updateAdvancedQueries()
+        this.updateAdvancedQueries();
       } else {
         this.advancedSearch = false;
       }
@@ -475,14 +468,14 @@ export default {
         this.advancedSearch = false;
       }
       // await this.updateFilters({});
-      putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     },
     initMap() {
       this.boundingBox = clone(this.initBoundingBox);
       this.searchFields = this.$store.state.configuration.ui.searchFields;
       this.geoHashLayer = L.featureGroup();
       this.tooltipLayers = L.layerGroup();
-      this.map = L.map("map", {
+      this.map = L.map('map', {
         gestureHandling: true,
         minZoom: this.minZoom, //Why does it stop working below 3?
         maxZoom: this.maxZoom, //18 is the max
@@ -494,7 +487,7 @@ export default {
       this.map.setView(this.initView, this.initZoom);
       L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-        continuousWorld: true // this doesnt seem to work
+        continuousWorld: true, // this doesnt seem to work
       }).addTo(this.map);
       L.control.scale().addTo(this.map);
       this.geoHashLayer.addTo(this.map);
@@ -505,8 +498,8 @@ export default {
       const topLeft = L.latLng(this.boundingBox.topLeft);
       const bottomRight = L.latLng(this.boundingBox.bottomRight);
       const bounds = L.latLngBounds(bottomRight, topLeft);
-      console.log("bounds", JSON.stringify(bounds))
-      if (bounds.isValid()) this.map.flyToBounds(bounds, {maxZoom: this.maxZoom});
+      console.log('bounds', JSON.stringify(bounds));
+      if (bounds.isValid()) this.map.flyToBounds(bounds, { maxZoom: this.maxZoom });
     },
     clearLayers() {
       this.geoHashLayer.clearLayers();
@@ -517,60 +510,59 @@ export default {
       if (!val) return;
       for (const bucket of val) {
         try {
-          const geohash = bucket['key'];
+          const geohash = bucket.key;
           let latlon = Geohash.decode(geohash);
           const newPosition = this.fitBounds(L.latLng(latlon.lat, latlon.lon));
           if (newPosition) {
-            latlon = newPosition
+            latlon = newPosition;
           }
-          let bounds = Geohash.bounds(geohash);
+          const bounds = Geohash.bounds(geohash);
           const newNEBounds = this.fitBounds(L.latLng(bounds.ne.lat, bounds.ne.lon));
           const newSWBounds = this.fitBounds(L.latLng(bounds.sw.lat, bounds.sw.lon));
           if (newNEBounds && newSWBounds) {
             bounds.ne.lat = newNEBounds.lat;
-            bounds.ne.lon = newNEBounds.lng
+            bounds.ne.lon = newNEBounds.lng;
             bounds.sw.lat = newSWBounds.lat;
-            bounds.sw.lon = newSWBounds.lng
+            bounds.sw.lon = newSWBounds.lng;
           }
 
           let shape;
-          if (bucket['doc_count'] > 0) {
+          if (bucket.doc_count > 0) {
             // TODO: clean if we are doing radius for everything or setup > 1 so you can have a single icon no circle
             // These next 2 lines will create a CIRCLE and
             // const radius = this.geohashRadius(geohash);
             // asWKT = `CIRCLE ( (${latlon['lon']} ${latlon['lat']}), ${radius} )`;
             const count = L.marker(latlon, {
-              icon: new L.NumberedDivIcon({number: bucket['doc_count']})
+              icon: new L.NumberedDivIcon({ number: bucket.doc_count }),
             });
-            count._data = {docCount: bucket['doc_count'], key: geohash, latlng: latlon};
+            count._data = { docCount: bucket.doc_count, key: geohash, latlng: latlon };
             count.addTo(this.geoHashLayer);
             let color = '#ffffff';
-            const docCount = bucket['doc_count'];
-            if (docCount <= 1)
-              color = '#ffea1f';
-            if (docCount > 1 && docCount <= 10)
-              color = '#4470a2';
-            if (docCount > 10 && docCount <= 30)
-              color = '#14a848';
-            if (docCount > 30)
-              color = '#ff0000';
+            const docCount = bucket.doc_count;
+            if (docCount <= 1) color = '#ffea1f';
+            if (docCount > 1 && docCount <= 10) color = '#4470a2';
+            if (docCount > 10 && docCount <= 30) color = '#14a848';
+            if (docCount > 30) color = '#ff0000';
 
             shape = L.rectangle(
-                [[bounds.sw.lat, bounds.sw.lon], [bounds.ne.lat, bounds.ne.lon]],
-                {color, weight: 1, opacity: 0.7}
+              [
+                [bounds.sw.lat, bounds.sw.lon],
+                [bounds.ne.lat, bounds.ne.lon],
+              ],
+              { color, weight: 1, opacity: 0.7 },
             );
           } else {
             //TODO decide whether to use single marker or no
             shape = L.marker(latlon, {
-              icon: new L.LocationDivIcon()
+              icon: new L.LocationDivIcon(),
             });
           }
-          shape._data = {docCount: bucket['doc_count'], key: geohash, latlng: latlon};
+          shape._data = { docCount: bucket.doc_count, key: geohash, latlng: latlon };
           shape.addTo(this.geoHashLayer);
 
           if (!this.map.getBounds().contains(latlon)) {
             console.log('shape is out of bounds', shape);
-            this.outOfBounds += parseInt(bucket['doc_count'] || 0);
+            this.outOfBounds += Number.parseInt(bucket.doc_count || 0);
           }
         } catch (error) {
           console.log('ERROR GEOHASH BUCKET', error);
@@ -615,9 +607,9 @@ export default {
           permanent: true,
           noWrap: true,
           maxWidth: 400,
-          maxHeight: 400
+          maxHeight: 400,
         });
-        let innerHHTML = '';
+        const innerHHTML = '';
         this.markerSelected = false;
         const data = e.layer?._data;
         // TODO: ask people if they like this behaviour
@@ -639,9 +631,9 @@ export default {
             const result = await this.searchGeoHash({
               geohash: data.key,
               pageSize: this.pageSize,
-              currentPage: this.currentPage
+              currentPage: this.currentPage,
             });
-            const total = result['hits']['total'];
+            const total = result.hits.total;
             const tooltipView = document.createElement('div');
             const totalDiv = document.createElement('div');
             totalDiv.innerHTML = `<div class="m-2"><p>Total: ${total?.value}</p></div>`;
@@ -661,9 +653,9 @@ export default {
             tooltipView.appendChild(divider);
             const hits = document.createElement('div');
             hits.id = 'tooltip_open';
-            for (let hit of result['hits']['hits']) {
+            for (const hit of result.hits.hits) {
               const newDiv = document.createElement('div');
-              newDiv.innerHTML = this.getInnerHTMLTooltip(hit['_source'], total);
+              newDiv.innerHTML = this.getInnerHTMLTooltip(hit._source, total);
               hits.appendChild(newDiv);
             }
             tooltipView.appendChild(hits);
@@ -679,36 +671,36 @@ export default {
       });
     },
     open(route) {
-      this.$router.push({path: route});
+      this.$router.push({ path: route });
     },
     getSearchDetailUrl(item) {
       let url;
       const types = item['@type'] || [];
-      const repoType = types.find(t => t === 'RepositoryCollection');
-      const fileType = types.find(t => t === 'File');
-      const itemType = types.find(t => t === 'RepositoryObject');
+      const repoType = types.find((t) => t === 'RepositoryCollection');
+      const fileType = types.find((t) => t === 'File');
+      const itemType = types.find((t) => t === 'RepositoryObject');
       let id = encodeURIComponent(item['@id']);
-      let crateId = encodeURIComponent(first(item['_crateId'])?.['@value']);
+      const crateId = encodeURIComponent(first(item._crateId)?.['@value']);
       if (repoType) {
-        url = `/collection?id=${id}&_crateId=${crateId}`
+        url = `/collection?id=${id}&_crateId=${crateId}`;
       } else if (itemType) {
-        url = `/object?id=${id}&_crateId=${crateId}`
+        url = `/object?id=${id}&_crateId=${crateId}`;
       } else if (fileType) {
         let isNotebook;
-        if (item?.['conformsTo']) {
-          isNotebook = item['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
+        if (item?.conformsTo) {
+          isNotebook = item.conformsTo.find((c) => c['@id'] === this.conformsToNotebook);
         }
         if (isNotebook) {
           id = encodeURIComponent(item._id);
           url = `/object?_id=${id}`;
         } else {
           const fileId = id;
-          id = encodeURIComponent(first(item['_parent'])?.['@id']);
-          url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`
+          id = encodeURIComponent(first(item._parent)?.['@id']);
+          url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`;
         }
       } else {
         //Defaults to object if it doesnt know what it is
-        url = `/object?id=${id}&_crateId=${crateId}`
+        url = `/object?id=${id}&_crateId=${crateId}`;
       }
       return url;
     },
@@ -716,10 +708,10 @@ export default {
       const title = first(item.name)['@value'] || item['@id'];
       const type = item['@type'];
       const href = this.getSearchDetailUrl(item);
-      const _memberOf = item['_memberOf'] || [];
+      const _memberOf = item._memberOf || [];
       let innerHTMLMemberOf = '';
       if (Array.isArray(_memberOf) && _memberOf.length > 0) {
-        for (let mO of _memberOf) {
+        for (const mO of _memberOf) {
           innerHTMLMemberOf += `
         <a class="text-sm m-1 text-gray-700 dark:text-gray-300 underline"
                href="/collection?id=${encodeURIComponent(mO?.['@id'])}&_crateId=${encodeURIComponent(mO?.['@id'])}">
@@ -777,7 +769,7 @@ export default {
           searchFields: this.searchFields,
           operation: this.selectedOperation,
         });
-        this.leafletAggs = items.aggregations['_geohash'];
+        this.leafletAggs = items.aggregations._geohash;
         const viewport = this.leafletAggs;
         this.updateLayerBuckets(viewport?.buckets);
         this.aggregations = this.populateAggregations(items.aggregations);
@@ -786,18 +778,18 @@ export default {
         this.totalRelation = total?.relation || 'eq';
         return items;
       } catch (e) {
-        console.log("error", e);
+        console.log('error', e);
         return [];
       }
     },
-    async searchGeoHash({geohash, pageSize, currentPage}) {
+    async searchGeoHash({ geohash, pageSize, currentPage }) {
       this.currentPage = 0;
       if (geohash) {
         const bounds = Geohash.bounds(geohash);
         this.boundingBox = {
-          topRight: {lat: bounds.ne.lat, lon: bounds.ne.lon},
-          bottomLeft: {lat: bounds.sw.lat, lon: bounds.sw.lon}
-        }
+          topRight: { lat: bounds.ne.lat, lon: bounds.ne.lon },
+          bottomLeft: { lat: bounds.sw.lat, lon: bounds.sw.lon },
+        };
         // const items = await this.$elasticService.map({init: false, boundingBox});
 
         const items = await this.$elasticService.map({
@@ -808,14 +800,14 @@ export default {
           searchFields: this.searchFields,
           operation: this.selectedOperation,
           page: pageSize,
-          searchFrom: currentPage * pageSize
-        })
+          searchFrom: currentPage * pageSize,
+        });
         return items;
       }
     },
     calculatePrecision(zoomLevel) {
       // This is a way to match zoom levels in leaflet vs precision levels in elastic/opensearch geoHashGridAggregation
-      let precision = Math.floor(parseInt(zoomLevel) / 2);
+      let precision = Math.floor(Number.parseInt(zoomLevel) / 2);
       if (precision < 1) {
         precision = 1;
       } else if (precision > 7) {
@@ -827,7 +819,7 @@ export default {
       this.zoomLevel = this.map.getZoom();
       this.currentPrecision = this.calculatePrecision(this.zoomLevel);
       this.setMapBounds(init);
-      await this.updateRoutes({updateFilters: init});
+      await this.updateRoutes({ updateFilters: init });
     },
     // Approximate the radius in meters of a geohash
     geohashRadius(geohash) {
@@ -836,7 +828,7 @@ export default {
 
       // Length of a degree (in meters) at the given latitude
       function degToMetersLat(latitude) {
-        return metersPerDegree * (1 / Math.cos(latitude * Math.PI / 180));
+        return metersPerDegree * (1 / Math.cos((latitude * Math.PI) / 180));
       }
 
       // Decode the geohash to get its bounding box
@@ -849,7 +841,7 @@ export default {
 
       // Calculate the width and height of the bounding box in degrees
       const widthDeg = bbox.ne.lat - bbox.sw.lat; //bbox[1] - bbox[0];
-      const heightDeg = bbox.ne.lon - bbox.sw.lon;//bbox[3] - bbox[2];
+      const heightDeg = bbox.ne.lon - bbox.sw.lon; //bbox[3] - bbox[2];
 
       // Convert the width and height from degrees to meters
       const widthMeters = widthDeg * metersPerDegree;
@@ -860,9 +852,9 @@ export default {
       return radius;
     },
     showList() {
-      this.$router.push({path: '/search'});
+      this.$router.push({ path: '/search' });
     },
-    newAggs({query, aggsName}) {
+    newAggs({ query, aggsName }) {
       if (query.f) {
         //In here we need to merge the filters
         const decodedFilters = JSON.parse(decodeURIComponent(query.f));
@@ -874,16 +866,16 @@ export default {
       //console.log(isEmpty(this.filters))
       this.changedFilters = true;
     },
-    populate({items, newSearch, aggregations}) {
+    populate({ items, newSearch, aggregations }) {
       this.items = [];
       if (newSearch) {
         this.newSearch = true;
       }
-      if (items?.['hits']) {
-        const thisItems = items['hits']['hits'];
-        this.totals = items['hits']['total'];
+      if (items?.hits) {
+        const thisItems = items.hits.hits;
+        this.totals = items.hits.total;
         if (thisItems.length > 0) {
-          for (let item of thisItems) {
+          for (const item of thisItems) {
             this.items.push(item);
           }
           this.more = true;
@@ -891,17 +883,17 @@ export default {
           this.more = false;
         }
       }
-      if (items?.['aggregations']) {
-        this.aggregations = this.populateAggregations(items['aggregations']);
-        this.memberOfBuckets = items['aggregations']?.['_memberOf.name.@value'];
+      if (items?.aggregations) {
+        this.aggregations = this.populateAggregations(items.aggregations);
+        this.memberOfBuckets = items.aggregations?.['_memberOf.name.@value'];
       }
     },
     populateAggregations(aggregations) {
       const a = {};
       //Note: below is converted to an ordered array not an object.
       const aggInfo = this.$store.state.configuration.ui.aggregations;
-      for (let agg of Object.keys(aggregations)) {
-        const info = aggInfo.find((a) => a['name'] === agg);
+      for (const agg of Object.keys(aggregations)) {
+        const info = aggInfo.find((a) => a.name === agg);
         const display = info?.display;
         const order = info?.order;
         const name = info?.name;
@@ -915,18 +907,18 @@ export default {
           name: name || agg,
           hide: hide,
           active: active,
-          help: help || ''
+          help: help || '',
         };
       }
       return orderBy(a, 'order');
     },
     enableAdvancedSearch() {
-      alert('Advanced Search is not available in Map View.')
+      alert('Advanced Search is not available in Map View.');
     },
     onInputChange(value) {
       this.searchInput = value;
     },
-    async updateFilters({clear, empty}) {
+    async updateFilters({ clear, empty }) {
       try {
         // updating filters from command
         if (clear?.f && clear?.filterKey) {
@@ -936,7 +928,7 @@ export default {
               delete this.filters[clear.filterKey];
             }
             //if there is an update on the filter the site will do another search.
-            await this.updateRoutes({updateFilters: true});
+            await this.updateRoutes({ updateFilters: true });
           }
         } else {
           // or updating filters from routes
@@ -947,7 +939,7 @@ export default {
             const filters = decodeURIComponent(this.$route.query.f);
             filterQuery = JSON.parse(filters);
             this.filters = {};
-            for (let [key, val] of Object.entries(filterQuery)) {
+            for (const [key, val] of Object.entries(filterQuery)) {
               this.filters[key] = val;
               if (this.filters[key].length === 0) {
                 delete this.filters[key];
@@ -959,7 +951,7 @@ export default {
         console.error(e);
       }
     },
-    async updateRoutes({queries, updateFilters}) {
+    async updateRoutes({ queries, updateFilters }) {
       let filters;
       const query = {};
       let localFilterUpdate = false;
@@ -969,7 +961,7 @@ export default {
         query.f = filters;
         localFilterUpdate = true;
       } else {
-        delete query.f;
+        query.f = undefined;
       }
       if (this.$route.query.f && !localFilterUpdate) {
         query.f = this.$route.query.f;
@@ -977,7 +969,7 @@ export default {
       let localSearchGroupUpdate = false;
       if (queries?.searchGroup) {
         this.advancedQueries = queries;
-        delete query.q;
+        query.q = undefined;
         query.a = queries.searchGroup;
         this.currentPage = 0;
         //this.selectedSorting = this.sorting[0];
@@ -985,7 +977,7 @@ export default {
       }
       if (this.$route.query.a && !localSearchGroupUpdate) {
         query.a = this.$route.query.a;
-        delete query.q;
+        query.q = undefined;
         this.updateAdvancedQueries();
       } else {
         this.advancedQueries = null; //clear advanced search
@@ -996,17 +988,17 @@ export default {
       query.bb = encodeURIComponent(JSON.stringify(this.boundingBox));
       console.log(JSON.stringify(this.boundingBox));
       query.r = uuid();
-      await this.$router.push({path: 'map', query, replace: false});
+      await this.$router.push({ path: 'map', query, replace: false });
     },
-    async bucketSelected({checkedBuckets, id}) {
+    async bucketSelected({ checkedBuckets, id }) {
       // this.filters[id] = checkedBuckets.map((k) => {
       //   return {key: k}
       // });
       this.filters[id] = checkedBuckets;
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
     async resetSearch() {
-      console.log(this.boundingBox)
+      console.log(this.boundingBox);
       this.map.setZoom(this.initZoom);
       this.map.setView(this.initView, this.initZoom);
       this.zoomLevel = this.initZoom;
@@ -1015,17 +1007,17 @@ export default {
       const topLeft = L.latLng(this.boundingBox.topLeft);
       const bottomRight = L.latLng(this.boundingBox.bottomRight);
       const bounds = L.latLngBounds(bottomRight, topLeft);
-      this.map.fitBounds(bounds, {maxZoom: this.maxZoom});
+      this.map.fitBounds(bounds, { maxZoom: this.maxZoom });
       this.filters = {};
       this.searchInput = '';
       await this.searchEvent(true);
     },
     async clearFilters() {
       this.filters = {};
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
     mergeFilters(newFilters, aggsName) {
-      let filters = toRaw(this.filters);
+      const filters = toRaw(this.filters);
       if (isEmpty(this.filters)) {
         this.filters = newFilters;
       } else {
@@ -1035,32 +1027,32 @@ export default {
         }
       }
       console.log('is this.filters empty?');
-      console.log(isEmpty(this.filters))
+      console.log(isEmpty(this.filters));
       // this.filters = filters;
     },
     clean(string) {
       if (string === 'true') {
         return 'Yes';
-      } else if (string === 'false') {
-        return 'No';
-      } else {
-        string = string.replace(/@|_|(\..*)/g, "")
-        return string;
       }
+      if (string === 'false') {
+        return 'No';
+      }
+      string = string.replace(/@|_|(\..*)/g, '');
+      return string;
     },
     setMapBounds(init) {
       if (init) {
         this.boundingBox = this.initBoundingBox;
-        console.log('init bounds', init)
+        console.log('init bounds', init);
       }
       const bounds = this.map.getBounds();
       if (bounds.isValid()) {
         this.boundingBox = {
-          topRight: {lat: bounds._northEast.lat, lon: bounds._northEast.lng},
-          bottomLeft: {lat: bounds._southWest.lat, lon: bounds._southWest.lng}
-        }
+          topRight: { lat: bounds._northEast.lat, lon: bounds._northEast.lng },
+          bottomLeft: { lat: bounds._southWest.lat, lon: bounds._southWest.lng },
+        };
       } else {
-        alert('Bounds not valid')
+        alert('Bounds not valid');
       }
       //console.log("boundingBox", JSON.stringify(this.boundingBox))
     },
@@ -1073,52 +1065,52 @@ export default {
       let isVisible = visibleBounds.contains(position);
       if (isVisible) {
         return undefined;
-      } else {
-        const initialPos = L.latLng([position.lat, position.lng]);
-        if (west < -180) {
-          const d = parseInt((west - 180) / 360);
-          position.lng += 360 * d;
+      }
+      const initialPos = L.latLng([position.lat, position.lng]);
+      if (west < -180) {
+        const d = Number.parseInt((west - 180) / 360);
+        position.lng += 360 * d;
+        isVisible = visibleBounds.contains(position);
+        if (d < -1 && !isVisible) {
+          // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
+          position = initialPos;
+          position.lng += 360 * (d + 1);
           isVisible = visibleBounds.contains(position);
-          if (d < -1 && !isVisible) { // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
-            position = initialPos;
-            position.lng += 360 * (d + 1);
-            isVisible = visibleBounds.contains(position);
-          }
-        } else if (east > 180) {
-          const d = parseInt((east + 180) / 360);
-          position.lng += 360 * d;
+        }
+      } else if (east > 180) {
+        const d = Number.parseInt((east + 180) / 360);
+        position.lng += 360 * d;
+        isVisible = visibleBounds.contains(position);
+        if (d > 1 && !flag) {
+          position = initialPos;
+          position.lng += 360 * (d - 1);
           isVisible = visibleBounds.contains(position);
-          if (d > 1 && !flag) {
-            position = initialPos;
-            position.lng += 360 * (d - 1);
-            isVisible = visibleBounds.contains(position);
-          }
         }
       }
       return position;
     },
-    async updateGeoHashSearch({geohash, pageSize, currentPage, nextPage}) {
+    async updateGeoHashSearch({ geohash, pageSize, currentPage, nextPage }) {
       if (currentPage <= 0) {
         currentPage = 0;
       }
       const result = await window.oni_ui.searchGeoHash({
         geohash,
         pageSize,
-        currentPage
+        currentPage,
       });
       const hits = document.getElementById('tooltip_open');
       hits.innerHTML = '';
       hits.scrollTop = 0;
-      const total = result['hits']['total'];
-      console.log(result['hits']['hits'].length)
-      if (result['hits']['hits'].length === 0) {
+      const total = result.hits.total;
+      console.log(result.hits.hits.length);
+      if (result.hits.hits.length === 0) {
         const noResults = document.createElement('div');
-        noResults.innerHTML = `<div>No More Results</div>`;
-        hits.appendChild(noResults)
+        noResults.innerHTML = '<div>No More Results</div>';
+        hits.appendChild(noResults);
       } else {
-        for (let hit of result['hits']['hits']) {
+        for (const hit of result.hits.hits) {
           const newDiv = document.createElement('div');
-          newDiv.innerHTML = this.getInnerHTMLTooltip(hit['_source'], total);
+          newDiv.innerHTML = this.getInnerHTMLTooltip(hit._source, total);
           hits.appendChild(newDiv);
         }
       }
@@ -1138,10 +1130,9 @@ export default {
       //   moreResultsDiv.innerHTML += `<p><a class="cursor-pointer" onclick="oni_ui.updateGeoHashSearch({geohash: '${geohash}', pageSize: ${pageSize}, currentPage: ${currentPage + 1}, nextPage: true})">Next Results</a></p>`;
       // }
       // hits.appendChild(moreResultsDiv);
-    }
-  }
-}
-
+    },
+  },
+};
 </script>
 
 <style>

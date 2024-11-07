@@ -13,9 +13,8 @@
 @import "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.7.3/build/styles/default.min.css";
 </style>
 <script>
-
 import 'element-plus/theme-chalk/display.css';
-import * as ipynb2html from 'ipynb2html'
+import * as ipynb2html from 'ipynb2html';
 import Prism from 'prismjs';
 
 export default {
@@ -24,18 +23,18 @@ export default {
   props: ['ipynb'],
   data() {
     return {
-      data: ''
-    }
+      data: '',
+    };
   },
   mounted() {
     ipynb2html.highlighter = function (text, pre, code, lang) {
       const language = lang || 'text';
-      pre.className = 'language-' + language;
-      if (typeof code != 'undefined') {
-        code.className = 'language-' + language;
+      pre.className = `language-${language}`;
+      if (typeof code !== 'undefined') {
+        code.className = `language-${language}`;
       }
       return this.highlighter(text, language);
-    }
+    };
     this.parseNotebook();
   },
   updated() {
@@ -56,14 +55,14 @@ export default {
       if (typeof lang === 'undefined') lang = 'markup';
       if (!Prism.languages.hasOwnProperty(lang)) {
         try {
-          require('prismjs/components/prism-' + lang + '.js');
+          require(`prismjs/components/prism-${lang}.js`);
         } catch (e) {
-          console.warn('** failed to load Prism lang: ' + lang);
+          console.warn(`** failed to load Prism lang: ${lang}`);
           Prism.languages[lang] = false;
         }
       }
       return Prism.languages[lang] ? Prism.highlight(code, Prism.languages[lang]) : code;
-    }
-  }
-}
+    },
+  },
+};
 </script>

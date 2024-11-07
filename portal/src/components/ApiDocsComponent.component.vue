@@ -10,20 +10,17 @@ export default {
     const ui = SwaggerUI({
       url: '/api/swagger.json',
       dom_id: '#swagger-ui',
-      presets: [
-        SwaggerUI.presets.apis,
-        SwaggerUI.SwaggerUIStandalonePreset
-      ],
+      presets: [SwaggerUI.presets.apis, SwaggerUI.SwaggerUIStandalonePreset],
       syntaxHighlight: {
         activated: false, //Disabled because it crashed on large response payloads
-        theme: "agate"
-      }
+        theme: 'agate',
+      },
     });
     ui.initOAuth({
-      appName: "Swagger UI Oni",
+      appName: 'Swagger UI Oni',
       // See https://demo.identityserver.io/ for configuration details.
-      clientId: 'implicit'
+      clientId: 'implicit',
     });
-  }
+  },
 };
 </script>

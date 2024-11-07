@@ -7,25 +7,24 @@
 </template>
 
 <script>
-
-import 'element-plus/theme-chalk/display.css'
-import VuePdfEmbed from 'vue-pdf-embed'
+import 'element-plus/theme-chalk/display.css';
+import VuePdfEmbed from 'vue-pdf-embed';
 
 export default {
   components: {
-    VuePdfEmbed
+    VuePdfEmbed,
   },
   inheritAttrs: false,
   props: ['blobURL', 'numPages'],
   data() {
     return {
-      pdfData: ''
-    }
+      pdfData: '',
+    };
   },
   mounted() {
     this.pdfData = this.blobURL;
-  }
-}
+  },
+};
 </script>
 <style>
 .vue-pdf-embed {

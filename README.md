@@ -31,13 +31,20 @@ Current guide applies to Mac and Linux:
    1. `cd portal`
    2. `npm install`
    3. `npm run dev`
-7. Open a browser to [http://localhost:11000](http://localhost:11000)
+7. Open a browser to [http://localhost:8000](http://localhost:8000)
 
-### TODOs
+## Helper Scripts
 
-- Create a production version of the portal
-- Create production containers
-- Do not use npm link. For that we need to stamp out libraries and remove unused ones
+Delete the structural index
+```bash
+node structural-delete-index.js
+```
+
+Check the status of the structural index
+
+```bash
+node structural-status.js
+```
 
 ### BinderHub Registry Setup
 

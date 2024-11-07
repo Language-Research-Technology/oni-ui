@@ -31,6 +31,20 @@
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
+            <h5 class="text-2xl font-medium">Downloads</h5>
+            <hr class="divider divider-gray pt-2"/>
+            <template v-for="z of zips">
+              <ZipLink :name="z.name" :id="z.id" :message="z.message"/>
+            </template>
+            <p v-if="zips && zips.length === 0">No direct downloads for this object</p>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
+            <DownloadsModal :id="this.rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
           <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
         </el-col>
@@ -99,20 +113,22 @@
   </template>
 </template>
 <script>
-import {first, isUndefined, reject, isEmpty, sortBy, isEqual} from "lodash";
-import {initSnip, toggleSnip} from "../tools";
-import MetaField from "./MetaField.component.vue";
-import {defineAsyncComponent} from 'vue';
+import { putLocalStorage } from '@/storage';
+import { first, isEmpty, isEqual, isUndefined, reject, sortBy } from 'lodash';
+import { defineAsyncComponent } from 'vue';
+import { initSnip, toggleSnip } from '../tools';
+import AccessHelper from './AccessHelper.component.vue';
+import CollectionItem from './CollectionItem.component.vue';
+import MetaField from './MetaField.component.vue';
+import ZipLink from './ZipLink.component.vue';
+import BinderHubCard from './cards/BinderHubCard.component.vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
 import MemberOfCard from './cards/MemberOfCard.component.vue';
-import AccessHelper from './AccessHelper.component.vue';
-import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
-import {putLocalStorage} from '@/storage';
-import CollectionItem from "./CollectionItem.component.vue";
-import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
-import TakedownCard from "./cards/TakedownCard.component.vue"
-import BinderHubCard from "./cards/BinderHubCard.component.vue"
+import TakedownCard from './cards/TakedownCard.component.vue';
+import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
+import DownloadsModal from './widgets/DownloadsModal.component.vue';
+import MemberOfLink from './widgets/MemberOfLink.component.vue';
 
 export default {
   components: {
@@ -122,13 +138,13 @@ export default {
     MetaField,
     AccessHelper,
     MemberOfLink,
-    ObjectPart: defineAsyncComponent(() =>
-        import('./ObjectPart.component.vue')
-    ),
+    ObjectPart: defineAsyncComponent(() => import('./ObjectPart.component.vue')),
     CollectionItem,
     AggregationAsIcon,
     TakedownCard,
-    BinderHubCard
+    BinderHubCard,
+    ZipLink,
+    DownloadsModal,
   },
   props: [],
   data() {
@@ -154,24 +170,39 @@ export default {
       loading: false,
       membersFiltered: {},
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
-      fullPath: window.location.href
-    }
+      fullPath: window.location.href,
+      zips: [],
+      openDownloads: false,
+    };
   },
   async updated() {
     const fileId = this.$route.query.fileId;
     if (fileId) {
-      setTimeout(function () {
-        const fileElement = document.getElementById('part-' + encodeURIComponent(fileId));
-        fileElement.scrollIntoView({behavior: "smooth", block: "start", inline: "start"});
+      setTimeout(() => {
+        const fileElement = document.getElementById(`part-${encodeURIComponent(fileId)}`);
+        fileElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' });
       }, 200);
     }
     if (this.crateId) {
-      this.membersFiltered = await this.filter({
-        '_memberOf.@id': [this.crateId],
-        'conformsTo.@id': [this.conformsToObject]
-      }, false);
+      this.membersFiltered = await this.filter(
+        {
+          '_memberOf.@id': [this.crateId],
+          'conformsTo.@id': [this.conformsToObject],
+        },
+        false,
+      );
+      this.$gtag.event('/object', {
+        event_category: 'object',
+        event_label: 'loaded-object',
+        value: id,
+      });
     }
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    this.zips = [];
+    for (const m of this.metadata?._memberOf || []) {
+      const name = first(m.name)?.['@value'];
+      this.zips.push({ name: name, id: m['@id'], message: 'Current object included in this download' });
+    }
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   async mounted() {
     try {
@@ -183,23 +214,33 @@ export default {
       //encodeURIComponent may return "undefined" string
       if (id && id !== 'undefined') {
         if (isUndefined(this.crateId) || this.crateId === 'undefined') {
-          await this.$router.push({path: '/404'});
+          await this.$router.push({ path: '/404' });
           this.loading = false;
         } else {
           metadata = await this.$elasticService.single({
             id,
-            crateId: this.crateId
+            crateId: this.crateId,
           });
         }
       } else if (_id && _id !== 'undefined') {
-        metadata = await this.$elasticService.single({_id});
+        metadata = await this.$elasticService.single({ _id });
       }
       this.metadata = metadata?._source;
       await this.populate();
-      initSnip({selector: '#license', button: '#readMoreLicense'});
-      putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+      initSnip({ selector: '#license', button: '#readMoreLicense' });
+      this.$gtag.event('/object', {
+        event_category: 'object',
+        event_label: 'mounted-object',
+        value: id,
+      });
+      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     } catch (e) {
-      console.error(e)
+      this.$gtag.event('/object', {
+        event_category: 'object',
+        event_label: 'error-mounting-object',
+        value: 'error',
+      });
+      console.error(e);
     }
   },
   methods: {
@@ -209,7 +250,7 @@ export default {
     toggleSnip,
     async populate() {
       try {
-        this.rootId = first(this.metadata['_root'])?.['@id'];
+        this.rootId = first(this.metadata._root)?.['@id'];
         this.populateAccess();
         this.populateName(this.config.name);
         this.populateTop(this.config.top);
@@ -226,37 +267,37 @@ export default {
       this.nameDisplay = this.metadata[config.display];
     },
     populateTop(config) {
-      for (let field of config) {
+      for (const field of config) {
         let value;
         if (this.metadata[field.name]) {
-          value = this.metadata[field.name]
+          value = this.metadata[field.name];
         } else {
-          value = [{'@value': 'Not Defined'}];
+          value = [{ '@value': 'Not Defined' }];
         }
-        this.tops.push({name: field.display, value: value});
+        this.tops.push({ name: field.display, value: value });
       }
     },
     populateMeta(config) {
-      const keys = Object.keys(this.metadata);//.map(f => this.config.hide.find(f=> console.log(f)))
-      const filtered = reject(keys, o => config.hide.find(f => o === f));
-      for (let filter of filtered) {
-        let helper = this.helpers.find(h => h.id === filter);
+      const keys = Object.keys(this.metadata); //.map(f => this.config.hide.find(f=> console.log(f)))
+      const filtered = reject(keys, (o) => config.hide.find((f) => o === f));
+      for (const filter of filtered) {
+        let helper = this.helpers.find((h) => h.id === filter);
         if (!helper) {
           helper = {
-            "id": filter,
-            "display": filter,
-            "url": "",
-            "definition": "TODO: Add definition"
-          }
+            id: filter,
+            display: filter,
+            url: '',
+            definition: 'TODO: Add definition',
+          };
         }
-        this.meta.push({name: filter, data: this.metadata[filter], help: helper});
+        this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
     },
     populateLicense() {
       this.license = first(this.metadata?.license);
       if (!this.license?.['@id']) {
-        console.log('show alert! no license no!no!')
+        console.log('show alert! no license no!no!');
       } else {
         this.licenseText = first(this.license?.description)?.['@value'];
       }
@@ -264,7 +305,7 @@ export default {
     populateParts() {
       this.parts = this.metadata.hasPart;
       if (this.parts?.length) {
-        let uniqueParts = this.parts.map((p) => first(p.encodingFormat)?.['@value']);
+        const uniqueParts = this.parts.map((p) => first(p.encodingFormat)?.['@value']);
         this.uniqueParts = [...new Set(uniqueParts)];
       }
     },
@@ -275,7 +316,8 @@ export default {
       if (this.$route.query.fileId === id) {
         this.activePart = true;
         return true;
-      } else if (index === 0 && !this.activePart) {
+      }
+      if (index === 0 && !this.activePart) {
         return true;
       }
       return false;
@@ -284,15 +326,15 @@ export default {
     //TODO: refactor this integrate to multi
     async filter(filters, scroll) {
       try {
-        const items = await this.$elasticService.multi({scroll, filters, sort: 'relevance', order: 'desc'});
+        const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
         if (items?.hits?.hits.length > 0) {
           return {
             data: items?.hits?.hits,
             aggregations: items?.aggregations,
             total: items.hits?.total.value,
             scrollId: items?._scroll_id,
-            route: null
-          }
+            route: null,
+          };
         }
       } catch (e) {
         console.error(e);
@@ -301,16 +343,16 @@ export default {
           aggregations: {},
           total: 0,
           scrollId: null,
-          route: null
-        }
+          route: null,
+        };
       }
     },
     moreObjects() {
       const filter = {
-        '_memberOf.@id': [encodeURIComponent(this.crateId)]
+        '_memberOf.@id': [encodeURIComponent(this.crateId)],
       };
       return encodeURIComponent(JSON.stringify(filter));
-    }
-  }
-}
+    },
+  },
+};
 </script>

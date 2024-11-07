@@ -6,8 +6,8 @@
   <div v-else>{{ this.content }}</div>
 </template>
 <script>
-import 'element-plus/theme-chalk/display.css'
-import {first, isUndefined} from "lodash";
+import 'element-plus/theme-chalk/display.css';
+import { first, isUndefined } from 'lodash';
 
 export default {
   props: ['data', 'limitText'],
@@ -17,8 +17,8 @@ export default {
       csv: Object,
       errorMessage: '',
       loading: false,
-      loadCsv: false
-    }
+      loadCsv: false,
+    };
   },
   mounted() {
     try {
@@ -35,7 +35,7 @@ export default {
         this.csv.data = parsedCsv.data.map((r) => {
           const row = {};
           for (let [index, col] of this.csv.cols.entries()) {
-            if (isUndefined(col) || col === "") {
+            if (isUndefined(col) || col === '') {
               col = '__nocolumn__';
             }
             row[col] = r[index];
@@ -47,12 +47,11 @@ export default {
       } else {
         this.loadCsv = false;
       }
-    } catch
-        (e) {
-      this.errorMessage = 'Cannot automatically convert to csv.'
+    } catch (e) {
+      this.errorMessage = 'Cannot automatically convert to csv.';
       console.log(e);
       this.loading = false;
     }
-  }
-}
+  },
+};
 </script>

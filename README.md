@@ -31,7 +31,7 @@ Current guide applies to Mac and Linux:
    1. `cd portal`
    2. `npm install`
    3. `npm run dev`
-7. Open a browser to [http://localhost:8000]() : This will use nginx features to use the site without nginx features point to [http://localhost:1100]()
+7. Open a browser to [http://localhost:8000]() : This will use nginx features to use the site without nginx features point to [http://localhost:11000]()
 
 ## Helper Scripts
 

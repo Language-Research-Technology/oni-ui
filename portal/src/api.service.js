@@ -17,8 +17,8 @@ export default class HTTPService {
     return objects;
   }
 
-  async getCrate(crateId) {
-    const json = await this.#get('/object/meta', {id: crateId});
+  async getRoCrate(id) {
+    const json = await this.#get('/object/meta', {id});
 
     const crate = new ROCrate(json, { array: false, link: true });
 

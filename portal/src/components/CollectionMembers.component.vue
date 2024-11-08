@@ -22,7 +22,7 @@
                          @update:page-size="pageSize"/>
         </div>
         <div v-loading="loading">
-          <ul v-for="item of items" :key="item.crateId">
+          <ul v-for="item of items" :key="item.id">
             <li>
               <collection-item :field="item" :routePath="routePath"/>
             </li>
@@ -69,8 +69,8 @@ export default {
         memberOf: this.id,
         conformsTo: this.conformsTo,
         limit: this.pageSize,
-        sortBy: 'identifier',
-        sortDirection: 'asc',
+        sort: 'title',
+        order: 'asc',
       };
 
       if (this.currentPage !== 1) {

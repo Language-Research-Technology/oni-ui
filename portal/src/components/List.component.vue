@@ -54,13 +54,13 @@
         <div v-for="item of this.items" :key="item._id"
              class="z-0 mt-0 mb-4 w-full"
              v-loading="loading">
-          <search-detail-element v-if="item.record" :id="item.crateId" :href="getSearchDetailUrl(item)"
-                                 :name="item.record.name"
+          <search-detail-element v-if="item" :id="item.id" :href="getSearchDetailUrl(item)"
+                                 :name="item.name"
                                  :conformsTo="item.conformsTo" :types="item.recordType"
                                  :memberOf="item.memberOf" :highlight="item.highlight"
-                                 :root="item.record._root"
-                                 :parent="item.record._parent"
-                                 :details="item.record" :score="item._score"/>
+                                 :root="item.root"
+                                 :parent="item.parent"
+                                 :details="item" :score="item._score"/>
         </div>
         <div v-loading="loading" v-if="!this.items.length > 0">
           <el-row class="pb-4 items-center">
@@ -137,11 +137,16 @@ export default {
       selectedOrder: first(ordering),
     };
   },
-  async created() {
-    await this.fetch();
+  created() {
+    this.fetch();
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
-  async updated() {
+  updated() {
+    this.fetch();
+    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+  },
+  watch() {
+    this.fetch();
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
@@ -154,8 +159,8 @@ export default {
       try {
         const params = {
           limit: this.pageSize,
-          sortBy: this.selectedSorting.value,
-          sortDirection: this.selectedOrder.value,
+          sort: this.selectedSorting.value,
+          order: this.selectedOrder.value,
         };
 
         if (this.$route.query.conformsTo) {
@@ -187,14 +192,14 @@ export default {
       const fileType = recordType.find((t) => t === 'File');
       const itemType = recordType.find((t) => t === 'RepositoryObject');
 
-      const crateId = encodeURIComponent(item.crateId);
+      const id = encodeURIComponent(item.id);
 
       if (repoType) {
-        return `/collection?crateId=${crateId}`;
+        return `/collection?id=${id}`;
       }
 
       if (itemType) {
-        return `/object?crateId=${crateId}`;
+        return `/object?id=${id}`;
       }
 
       // FIXME: Deal with files
@@ -210,12 +215,12 @@ export default {
       //   } else {
       //     const fileId = id;
       //     id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
-      //     return `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`
+      //     return `/object?id=${id}&_id=${id}&fileId=${fileId}`
       //   }
       // }
 
       // Defaults to object if it doesnt know what it is
-      return `/object?crateId=${crateId}`;
+      return `/object?id=${id}`;
     },
     sortResults(sort) {
       this.currentPage = 1;

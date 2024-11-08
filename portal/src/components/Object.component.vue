@@ -87,10 +87,10 @@
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
             <object-part :part="part" :title="part.name || part['@id']"
-                         :active="isPartActive(part['@id'], index)" :crateId="part['@id']"
+                         :active="isPartActive(part['@id'], index)" :id="part['@id']"
                          :encodingFormat="part['encodingFormat']"
                          :rootId="rootId" :parentName="name"
-                         :parentId="crateId"
+                         :parentId="id"
                          :license="license" :access="access"/>
           </li>
         </ul>
@@ -141,7 +141,7 @@ export default {
       buckets: [],
       parts: [],
       uniqueParts: [],
-      crateId: null,
+      id: null,
       rootId: null,
       access: null,
       activePart: null,
@@ -153,16 +153,16 @@ export default {
   },
   async mounted() {
     try {
-      this.crateId = this.$route.query.crateId;
-      if (!this.crateId) {
-        await this.$router.push({ path: '/404' });
+      this.id = this.$route.query.id;
+      if (!this.id) {
+        await this.$router.push({path: '/404'});
 
         return;
       }
 
       this.loading = true;
 
-      const { error, metadata } = await this.$api.getCrate(this.crateId);
+      const {error, metadata} = await this.$api.getRoCrate(this.id);
       if (error) {
         this.errorDialogText = error;
         this.errorDialogVisible = true;
@@ -194,10 +194,10 @@ export default {
     //     fileElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'start'});
     //   }, 200);
     // }
-    // if (this.crateId) {
+    // if (this.id) {
     //   this.membersFiltered = await this.filter(
     //     {
-    //       '_memberOf.@id': [this.crateId],
+    //       '_memberOf.@id': [this.id],
     //       'conformsTo.@id': [this.conformsToObject],
     //     },
     //     false,
@@ -311,7 +311,7 @@ export default {
     },
     moreObjects() {
       const filter = {
-        '_memberOf.@id': [encodeURIComponent(this.crateId)],
+        '_memberOf.@id': [encodeURIComponent(this.id)],
       };
       return encodeURIComponent(JSON.stringify(filter));
     },

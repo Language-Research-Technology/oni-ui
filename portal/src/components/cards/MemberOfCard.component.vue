@@ -7,7 +7,7 @@
         <el-link
             :underline="true"
             type="primary"
-            :href="`/${routePath}?crateId=${encodeURIComponent(memberOf['@id'])}`">
+            :href="`/${routePath}?id=${encodeURIComponent(memberOf['@id'])}`">
           {{ memberOf.name || memberOf['@id'] }}
         </el-link>
       </li>

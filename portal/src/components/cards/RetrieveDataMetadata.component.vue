@@ -26,7 +26,7 @@ export default {
   props: ['id'],
   methods: {
     async generateDownloadLink(onBlank) {
-      const metadata = await this.$api.getCrate(this.id);
+      const metadata = await this.$api.getRoCrate(this.id);
       const json = JSON.stringify(metadata, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
 

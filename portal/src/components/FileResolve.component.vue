@@ -85,7 +85,7 @@ export default {
     'resolve',
     'id',
     'encodingFormat',
-    'crateId',
+    'id',
     'rootId',
     'pdfPages',
     'name',
@@ -147,10 +147,10 @@ export default {
   },
   methods: {
     async resolveFile() {
-      this.parentId = this.crateId;
+      this.parentId = this.id;
       this.path = this.id;
-      this.route = `/object/open?id=${encodeURIComponent(this.crateId)}`;
-      if (this.path !== '') {
+      this.route = `/object/open?id=${encodeURIComponent(this.id)}`;
+      if (this.path != '') {
         this.route += `&path=${encodeURIComponent(this.path)}`;
       }
       // Try to display only text and pdfs by default if there is an encodingFormat
@@ -295,9 +295,9 @@ export default {
       }
     },
     setFileUrl() {
-      this.parentId = this.crateId;
+      this.parentId = this.id;
       this.path = this.id;
-      const url = `/object/open?id=${encodeURIComponent(this.path)}&crateId=${encodeURIComponent(this.crateId)}`;
+      const url = `/object/open?id=${encodeURIComponent(this.path)}`;
       this.fileUrl = url;
     },
     getTitle() {

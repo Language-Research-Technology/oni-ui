@@ -14,10 +14,10 @@ export default {
   },
   methods: {
     setLink() {
-      const crateId = this.memberOf?.['@id'];
-      this.link = `/collection?crateId=${encodeURIComponent(crateId)}`;
+      const id = this.memberOf?.['@id'];
+      this.link = `/collection?id=${encodeURIComponent(id)}`;
       // TODO: Should rocrates add a name to memberOf? Eslastic search had this
-      this.value = this.memberOf?.name || crateId;
+      this.value = this.memberOf?.name || id;
     },
   },
   data() {

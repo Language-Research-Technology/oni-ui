@@ -1,6 +1,6 @@
 <template>
   <p>
-    <el-link type="primary" :href="this.link">{{ this.field.record.name || this.field.crateId }}
+    <el-link type="primary" :href="this.link">{{ this.field.name || this.field.id }}
     </el-link>
   </p>
 </template>
@@ -13,8 +13,8 @@ export default {
     };
   },
   mounted() {
-    const crateId = this.field.crateId;
-    this.link = `/${this.routePath}?crateId=${encodeURIComponent(crateId)}`;
+    const id = this.field.id;
+    this.link = `/${this.routePath}?id=${encodeURIComponent(id)}`;
   },
 };
 </script>

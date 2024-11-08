@@ -37,7 +37,7 @@ export default {
   components: {
     LeafletMap,
   },
-  props: ['name', 'field', 'routePath', 'filePath', 'parentId', 'crateId'],
+  props: ['name', 'field', 'routePath', 'filePath', 'parentId', 'id'],
   data() {
     return {
       isURL: false,
@@ -67,8 +67,10 @@ export default {
     },
     tryResolve(uri) {
       if (this.filePath) {
-        return `/${this.routePath}?id=${encodeURIComponent(this.parentId)}&_crateId=${encodeURIComponent(this.crateId)}&fileId=${this.filePath}`;
+        return `/${this.routePath}?id=${encodeURIComponent(this.parentId)}&fileId=${this.filePath}`;
       }
+
+      return `/${this.routePath}?id=${encodeURIComponent(this.field)}`;
     },
   },
 };

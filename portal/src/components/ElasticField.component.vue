@@ -2,7 +2,7 @@
   <template v-if="expandField">
     <el-collapse>
       <el-collapse-item :title="name" :name="name">
-        <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :crateId="''" :filePath="''"
+        <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :id="''" :filePath="''"
                     :parentId="''"/>
       </el-collapse-item>
     </el-collapse>

@@ -18,13 +18,13 @@
       </el-row>
       <el-row>
         <el-col>
-          <collection-members title="Sub Collections" :id="crateId" :conformsTo="conformsToCollection"
+          <collection-members title="Sub Collections" :id="id" :conformsTo="conformsToCollection"
             :routePath="'collection'" />
         </el-col>
       </el-row>
       <el-row>
         <el-col>
-          <collection-members title="Objects in Collection" :id="crateId" :conformsTo="conformsToObject"
+          <collection-members title="Objects in Collection" :id="id" :conformsTo="conformsToObject"
             :routePath="'object'" />
         </el-col>
       </el-row>
@@ -67,7 +67,7 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
             <hr class="divider divider-gray pt-2" />
-            <RetrieveDataMetadata :id="crateId" />
+            <RetrieveDataMetadata :id="id" />
             <template v-if="metadata.metadataLicense?.id">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
@@ -86,7 +86,7 @@
       <!--     <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5"> -->
       <!--       <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5> -->
       <!--       <hr class="divider divider-gray pt-2" /> -->
-      <!--       <SimpleRelationshipCard :id="crateId" :objectType="relationship.type" -->
+      <!--       <SimpleRelationshipCard :id="id" :objectType="relationship.type" -->
       <!--         :objectName="relationship.name" /> -->
       <!--     </el-card> -->
       <!--   </el-col> -->
@@ -183,7 +183,7 @@ export default {
       errorDialogVisible: false,
       errorDialogText: '',
 
-      crateId: this.$route.query.crateId,
+      id: this.$route.query.id,
       config: this.$store.state.configuration.ui.collection,
       fields: this.$store.state.configuration.ui.main.fields,
       helpers: this.$store.state.configuration.ui.helpers || [],
@@ -206,8 +206,8 @@ export default {
   },
   async mounted() {
     try {
-      this.crateId = this.$route.query.crateId;
-      if (!this.crateId) {
+      this.id = this.$route.query.id;
+      if (!this.id) {
         await this.$router.push({ path: '/404' });
 
         return;
@@ -215,7 +215,7 @@ export default {
 
       this.loading = true;
 
-      const { error, metadata } = await this.$api.getCrate(this.crateId);
+      const { error, metadata } = await this.$api.getRoCrate(this.id);
       if (error) {
         this.errorDialogText = error;
         this.errorDialogVisible = true;

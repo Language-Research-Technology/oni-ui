@@ -18,7 +18,7 @@
           </div>
         </el-row>
         <template v-for="special of searchDetails">
-          <el-row v-if="types && types.includes('RepositoryCollection')">
+          <el-row v-if="types && types.includes('FIXMERepositoryCollection')">
             <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white">
               {{ special.label }}:&nbsp;
             </p>
@@ -41,7 +41,7 @@
           <div class="flex flex-wrap">
             <router-link v-for="mO of memberOf"
                class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
-               :to="'/collection?crateId=' + encodeURIComponent(mO['@id'])">
+               :to="'/collection?id=' + encodeURIComponent(mO['@id'])">
               {{ mO.name || mO['@id'] }}
             </router-link>
           </div>
@@ -60,7 +60,7 @@
           </p>
           <div class="flex flex-wrap" v-if="!Array.isArray(memberOf)">
             <router-link
-                :to="'/collection?crateId=' + encodeURIComponent(root['@id'])">
+                :to="'/collection?id=' + encodeURIComponent(root['@id'])">
               <el-button>{{ root.name || root['@id'] }}</el-button>
             </router-link>
           </div>

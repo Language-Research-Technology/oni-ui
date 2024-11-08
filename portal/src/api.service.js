@@ -1,4 +1,3 @@
-import {isEqual} from 'lodash';
 import {ROCrate} from 'ro-crate';
 
 import {apiTokenAccessKey, putLocalStorage, getLocalStorage} from '@/storage';
@@ -103,6 +102,14 @@ export default class HTTPService {
     }
 
     const data = await response.json();
+
+    if (response.status !== 200) {
+      if (data.errors) {
+        throw new Error(data.errors.join(', '));
+      }
+
+      throw new Error(response.body);
+    }
 
     return data;
   }

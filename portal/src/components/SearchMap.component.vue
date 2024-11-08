@@ -24,7 +24,7 @@
         <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide'] && aggs['name'] !== '_geohash'"
             class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
           <li @click="aggs.active = !aggs.active"
-              class="hover:cursor-pointer py-3 flex md:flex md:flex-grow flex-row justify-between space-x-1">
+              class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
                 <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
                   {{ aggs.display }}
                       <el-tooltip v-if="aggs.help"

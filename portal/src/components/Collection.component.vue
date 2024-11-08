@@ -94,6 +94,12 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
+          <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
+            :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']" />
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
           <TakedownCard />
         </el-col>
       </el-row>
@@ -116,6 +122,7 @@ import SummariesCard from './cards/SummariesCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
 import { putLocalStorage } from '@/storage';
 import TakedownCard from "./cards/TakedownCard.component.vue";
+import CitationCard from "./cards/CitationCard.component.vue";
 
 export default {
   components: {
@@ -133,7 +140,8 @@ export default {
     ContentCard,
     FieldHelperCard,
     MemberOfLink,
-    TakedownCard
+    TakedownCard,
+    CitationCard,
   },
   props: [],
 
@@ -232,6 +240,10 @@ export default {
     } catch (e) {
       console.error(e)
     }
+    document.dispatchEvent(new Event('ZoteroItemUpdated', {
+      bubbles: true,
+      cancelable: true
+    }))
   },
   updated() {
     putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });

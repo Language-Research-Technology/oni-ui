@@ -178,6 +178,10 @@
           "content": "creator"
         },
         {
+          "name": "DC.creator",
+          "content": "author"
+        },
+        {
           "name": "DC.contributor",
           "content": "contributor"
         },
@@ -191,7 +195,7 @@
         },
         {
           "name": "DC.language",
-          "content": "language"
+          "content": "inLanguage"
         },
         {
           "name": "DC.identifier",

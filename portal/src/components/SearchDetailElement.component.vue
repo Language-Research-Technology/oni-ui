@@ -73,10 +73,10 @@
         <el-row class="py-4 pr-4" v-if="details.description">
           <p :id="'desc_'+_uuid">{{ details.description }}</p>
         </el-row>
-        <el-row>
-          <span class="after:content-[',']" v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }}</span>
-          <span class="after:content-[',']" v-if="details.metadata?.objectsCount > 0">Objects: {{ details.metadata.objectsCount }}</span>
-          <span class="after:content-[',']" v-if="details.metadata?.filesCount > 0">Files: {{ details.metadata.filesCount }}</span>
+        <el-row class="gap-2 flex">
+          <span class="after:content-[','] last:after:content-none" v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="details.metadata?.objectsCount > 0">Objects: {{ details.metadata.objectsCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="details.metadata?.filesCount > 0">Files: {{ details.metadata.filesCount }}</span>
         </el-row>
         <el-row :align="'middle'" v-if="highlight">
           <ul>

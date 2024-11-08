@@ -332,20 +332,6 @@ export default {
       const form = this.takedownForm;
       return `${form}${currentUrl}`;
     },
-    //
-    // //TODO: refactor this integrate to multi
-    // async filter(filters, scroll) {
-    // const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
-    // if (items?.hits?.hits.length > 0) {
-    // return {
-    // data: items?.hits?.hits,
-    // aggregations: items?.aggregations,
-    // total: items.hits?.total.value,
-    // scrollId: items?._scroll_id,
-    // route: null
-    // }
-    // }
-    // }
   },
 };
 </script>

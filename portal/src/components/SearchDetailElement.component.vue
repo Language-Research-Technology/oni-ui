@@ -73,10 +73,10 @@
         <el-row class="py-4 pr-4" v-if="details.description">
           <p :id="'desc_'+_uuid">{{ details.description }}</p>
         </el-row>
-        <el-row v-if="types && types.includes('RepositoryCollection')">
-          <span v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }},&nbsp;</span>
-          <span v-if="total > 0">Objects: {{ total }}</span>
-          <span v-if="typeFile"><span v-if="total > 0">,&nbsp;</span>Files: {{ typeFile?.['doc_count'] }}</span>
+        <el-row>
+          <span class="after:content-[',']" v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }}</span>
+          <span class="after:content-[',']" v-if="details.metadata?.objectsCount > 0">Objects: {{ details.metadata.objectsCount }}</span>
+          <span class="after:content-[',']" v-if="details.metadata?.filesCount > 0">Files: {{ details.metadata.filesCount }}</span>
         </el-row>
         <el-row :align="'middle'" v-if="highlight">
           <ul>

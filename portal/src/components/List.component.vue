@@ -51,21 +51,21 @@
                          v-model:currentPage="currentPage"
                          @current-change="updatePages($event, 'top_menu')"/>
         </div>
-        <div v-for="item of this.items" :key="item._id"
+        <div v-for="object of this.objects" :key="object.id"
              class="z-0 mt-0 mb-4 w-full"
              v-loading="loading">
-          <search-detail-element v-if="item" :id="item.id" :href="getSearchDetailUrl(item)"
-                                 :name="item.name"
-                                 :conformsTo="item.conformsTo" :types="item.recordType"
-                                 :memberOf="item.memberOf" :highlight="item.highlight"
-                                 :root="item.root"
-                                 :parent="item.parent"
-                                 :details="item" :score="item._score"/>
+          <search-detail-element v-if="object" :id="object.id" :href="getSearchDetailUrl(object)"
+                                 :name="object.name"
+                                 :conformsTo="object.conformsTo" :types="object.recordType"
+                                 :memberOf="object.memberOf" :highlight="object.highlight"
+                                 :root="object.root"
+                                 :parent="object.parent"
+                                 :details="object" :score="object._score"/>
         </div>
-        <div v-loading="loading" v-if="!this.items.length > 0">
+        <div v-loading="loading" v-if="!this.objects.length > 0">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
-              <span v-if="!loading">No items found</span>
+              <span v-if="!loading">No objects found</span>
             </h5>
           </el-row>
         </div>
@@ -123,7 +123,7 @@ export default {
     ];
 
     return {
-      items: [],
+      objects: [],
       totals: 0,
       pageSize: 10,
       currentPage: 1,
@@ -170,10 +170,10 @@ export default {
           params.offset = (this.currentPage - 1) * this.pageSize;
         }
 
-        const data = await this.$api.getObjects(params);
+        const response = await this.$api.getObjects(params);
 
-        this.totals = data.total;
-        this.items = data.data;
+        this.totals = response.total;
+        this.objects = response.objects;
       } catch (e) {
         this.errorDialogVisible = true;
         this.errorDialogText = e.message;

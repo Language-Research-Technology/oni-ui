@@ -60,7 +60,7 @@ export default {
   async updated() {
     await this.setMembers();
   },
-  watch: {},
+  // watch: {},
   methods: {
     toInt,
     first,
@@ -80,7 +80,7 @@ export default {
       this.loading = true;
 
       const response = await this.$api.getObjects(params);
-      this.items = response.data;
+      this.items = response.objects;
       this.total = response.total;
 
       this.loading = false;

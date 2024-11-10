@@ -54,14 +54,9 @@
         <div v-for="object of this.objects" :key="object.id"
              class="z-0 mt-0 mb-4 w-full"
              v-loading="loading">
-          <search-detail-element v-if="object" :id="object.id" :href="getSearchDetailUrl(object)"
-                                 :name="object.name"
-                                 :conformsTo="object.conformsTo" :types="object.recordType"
-                                 :memberOf="object.memberOf" :highlight="object.highlight"
-                                 :root="object.root"
-                                 :parent="object.parent"
-                                 :details="object" :score="object._score"/>
+          <object-summary :object="object" />
         </div>
+
         <div v-loading="loading" v-if="!this.objects.length > 0">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
@@ -98,7 +93,7 @@
 import {first, last, isEmpty, orderBy, find, isUndefined} from 'lodash';
 import {CloseBold} from '@element-plus/icons-vue';
 import {defineAsyncComponent, toRaw} from 'vue';
-import SearchDetailElement from './SearchDetailElement.component.vue';
+import ObjectSummary from './ObjectSummary.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
 import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
 import SearchAdvanced from './SearchAdvanced.component.vue';
@@ -110,7 +105,7 @@ export default {
   components: {
     SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.component.vue')),
     SearchAdvanced,
-    SearchDetailElement,
+    ObjectSummary,
     CloseBold,
     SearchAggs,
     SearchMap,
@@ -183,44 +178,6 @@ export default {
     },
     scrollToTop() {
       window.scrollTo(0, 0);
-    },
-    getSearchDetailUrl(item) {
-      // TODO: this is not good, maybe do it with a ConformsTo to specify link.
-      // But have to think about it because not all files have conformsTo!
-      const {recordType} = item;
-      const repoType = recordType.find((t) => t === 'RepositoryCollection');
-      const fileType = recordType.find((t) => t === 'File');
-      const itemType = recordType.find((t) => t === 'RepositoryObject');
-
-      const id = encodeURIComponent(item.id);
-
-      if (repoType) {
-        return `/collection?id=${id}`;
-      }
-
-      if (itemType) {
-        return `/object?id=${id}`;
-      }
-
-      // FIXME: Deal with files
-      // if (fileType) {
-      //   let isNotebook;
-      //   if (item._source?.['conformsTo']) {
-      //     isNotebook = item._source['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
-      //   }
-      //
-      //   if (isNotebook) {
-      //     id = encodeURIComponent(item._id);
-      //     return `/object?_id=${id}`;
-      //   } else {
-      //     const fileId = id;
-      //     id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
-      //     return `/object?id=${id}&_id=${id}&fileId=${fileId}`
-      //   }
-      // }
-
-      // Defaults to object if it doesnt know what it is
-      return `/object?id=${id}`;
     },
     sortResults(sort) {
       this.currentPage = 1;

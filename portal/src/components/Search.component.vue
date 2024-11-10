@@ -1,7 +1,7 @@
 <template>
   <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-            class="h-full max-h-screen overflow-y-auto flex flex-col h-screen p-2"
+            class="h-full max-h-screen overflow-y-auto flex flex-col p-2"
             id="search_aggregation">
       <div v-show="!advancedSearch"
            class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
@@ -663,8 +663,7 @@ export default {
       if (string === 'false') {
         return 'No';
       }
-      string = string.replace(/@|_|(\..*)/g, '');
-      return string;
+      return string.replace(/@|_|(\..*)/g, '');
     },
     sortResults(sort) {
       this.currentPage = 1;

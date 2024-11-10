@@ -99,25 +99,29 @@
   </template>
 </template>
 <script>
-import MetaField from './MetaField.component.vue';
+import { reject, sortBy, isArray } from 'lodash';
+import { putLocalStorage } from '@/storage';
 import { defineAsyncComponent } from 'vue';
+import CollectionItem from './CollectionItem.component.vue';
+import AccessHelper from './AccessHelper.component.vue';
+import MetaField from './MetaField.component.vue';
+import BinderHubCard from './cards/BinderHubCard.component.vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
 import MemberOfCard from './cards/MemberOfCard.component.vue';
+import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
-import { putLocalStorage } from '@/storage';
-import CollectionItem from './CollectionItem.component.vue';
-import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
-import BinderHubCard from './cards/BinderHubCard.component.vue';
+import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
+import { initSnip, toggleSnip } from '../tools';
 
 export default {
   components: {
     MetaTopCard,
     LicenseCard,
     MemberOfCard,
+    MemberOfLink,
     MetaField,
     AccessHelper,
-    MemberOfLink,
     ObjectPart: defineAsyncComponent(() => import('./ObjectPart.component.vue')),
     CollectionItem,
     AggregationAsIcon,
@@ -141,7 +145,6 @@ export default {
       buckets: [],
       parts: [],
       uniqueParts: [],
-      id: null,
       rootId: null,
       access: null,
       activePart: null,
@@ -155,14 +158,14 @@ export default {
     try {
       this.id = this.$route.query.id;
       if (!this.id) {
-        await this.$router.push({path: '/404'});
+        await this.$router.push({ path: '/404' });
 
         return;
       }
 
       this.loading = true;
 
-      const {error, metadata} = await this.$api.getRoCrate(this.id);
+      const { error, metadata } = await this.$api.getRoCrate(this.id);
       if (error) {
         this.errorDialogText = error;
         this.errorDialogVisible = true;
@@ -206,8 +209,6 @@ export default {
     // putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
-    first,
-    toggleSnip,
     async populate() {
       try {
         this.rootId = this.metadata.root;

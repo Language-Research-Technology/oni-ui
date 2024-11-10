@@ -110,25 +110,24 @@
   </el-dialog>
 </template>
 <script>
-import { first, isUndefined, isEmpty, reject, sortBy } from 'lodash';
+import { putLocalStorage } from '@/storage';
+import { first, isEmpty, isUndefined, reject, sortBy } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import MetaField from './MetaField.component.vue';
-import LicenseCard from './cards/LicenseCard.component.vue';
-import MemberOfCard from './cards/MemberOfCard.component.vue';
 import ContentCard from './cards/ContentCard.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
-import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
-import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
-import MemberOfLink from './widgets/MemberOfLink.component.vue';
+import LicenseCard from './cards/LicenseCard.component.vue';
+import MemberOfCard from './cards/MemberOfCard.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
+import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
+import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
-import { putLocalStorage } from '@/storage';
 import TakedownCard from './cards/TakedownCard.component.vue';
+import MemberOfLink from './widgets/MemberOfLink.component.vue';
 
 export default {
   components: {
-    DownloadsModal,
     PropertySummaryCard,
     SummariesCard,
     MetaTopCard,

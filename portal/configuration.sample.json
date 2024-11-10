@@ -128,9 +128,7 @@
         "value": "desc",
         "label": "Descending"
       },
-      "searchDetails": [
-        {"field": "inLanguage", "label": "Language", "name": "name"}
-      ]
+      "searchDetails": [{ "field": "inLanguage", "label": "Language", "name": "name" }]
     },
     "main": {
       "fields": [

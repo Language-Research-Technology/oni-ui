@@ -1,4 +1,4 @@
-import * as esb from 'elastic-builder';
+import esb from 'elastic-builder';
 import { first, isEmpty } from 'lodash';
 import HTTPService from './http.service';
 
@@ -202,7 +202,6 @@ export default class ElasticService {
           .postTags('</mark>'),
       );
 
-    const query = esbQuery.toJSON().query;
     let highlight = esbQuery.toJSON().highlight;
     highlight = { ...highlight, ...this.highlighConfig };
     return highlight;
@@ -210,7 +209,6 @@ export default class ElasticService {
 
   disMaxQuery({ queries, filters }) {
     const filterTerms = this.termsQuery(filters);
-    const esbQueries = [];
     const mustDMQueries = [];
     const mustBoolQueries = [];
     const shouldDMQueries = [];
@@ -370,9 +368,8 @@ export default class ElasticService {
   }) {
     const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
     const route = this.searchRoute + this.indexRoute;
-    let sorting;
     const body = {};
-    const fields = ['_centroid'];
+    // const fields = ['_centroid'];
     // const geoAggs = esb.geoHashGridAggregation('viewport', fields[0]);
     const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
     let topRight = {};
@@ -433,21 +430,17 @@ export default class ElasticService {
   }
 }
 
-function switchFilter(operation, boolQueryObj, phraseQuery, filterTerms) {
+function switchFilter(operation, _boolQueryObj, phraseQuery, filterTerms) {
   switch (operation) {
     case 'must':
-      boolQueryObj = esb.boolQuery().must(phraseQuery).filter(filterTerms);
-      break;
+      return esb.boolQuery().must(phraseQuery).filter(filterTerms);
     case 'should':
-      boolQueryObj = esb.boolQuery().should(phraseQuery).filter(filterTerms);
-      break;
+      return esb.boolQuery().should(phraseQuery).filter(filterTerms);
     case 'must_not':
-      boolQueryObj = esb.boolQuery().mustNot(phraseQuery).filter(filterTerms);
-      break;
+      return esb.boolQuery().mustNot(phraseQuery).filter(filterTerms);
     default:
-      boolQueryObj = esb.boolQuery().should(phraseQuery).filter(filterTerms);
+      return esb.boolQuery().should(phraseQuery).filter(filterTerms);
   }
-  return boolQueryObj;
 }
 
 // https://opensearch.org/docs/latest/field-types/supported-field-types/geo-point/

@@ -7,7 +7,7 @@ const reRoot = /^(<.+>\s+)?(\w+)\s*(\(.+\))$/s;
  */
 function read(L, wkt, number) {
   const m = wkt.trim().match(reRoot);
-  const [, srs, type = '', data] = m ?? [];
+  const [, _srs, type = '', data] = m ?? [];
   if (!type || !data) return;
   const points = parsePoints(data);
   switch (type.toUpperCase()) {
@@ -157,7 +157,10 @@ function writer(L) {
       (l) => {
         const points = l
           .getLatLngs()
-          .map((p) => (p.push(p[0]), p))
+          .map((p) => {
+            p.push(p[0]);
+            return p;
+          })
           .map((p) => `(${p.map((c) => `${c.lng} ${c.lat}`).join(', ')})`)
           .join(', ');
         return `POLYGON (${points})`;

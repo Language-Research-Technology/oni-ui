@@ -39,7 +39,7 @@ export default {
         a.download = 'ro-crate-metadata.json';
         a.click();
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

@@ -1,11 +1,11 @@
-import {ROCrate} from 'ro-crate';
+import { ROCrate } from 'ro-crate';
 
-import {apiTokenAccessKey, putLocalStorage, getLocalStorage} from '@/storage';
+import { apiTokenAccessKey, getLocalStorage, putLocalStorage } from '@/storage';
 
 // FIXME: This cirrent implemenation means the client and secret are client side
 // so we need to ensure the scope is public only
 export default class HTTPService {
-  constructor({router, configuration}) {
+  constructor({ router, configuration }) {
     this.router = router;
     this.api = configuration.api.structural;
     this.apiUri = `${this.api.endpoint}${this.api.path}`;
@@ -18,7 +18,7 @@ export default class HTTPService {
   }
 
   async getRoCrate(id) {
-    const json = await this.#get('/object/meta', {id});
+    const json = await this.#get('/object/meta', { id });
 
     const crate = new ROCrate(json, { array: false, link: true });
 
@@ -32,7 +32,7 @@ export default class HTTPService {
     if (this.api.clientId) {
       const token = await this.#getToken();
       headers.authorization = `Bearer ${token}`;
-    };
+    }
 
     return headers;
   }
@@ -47,7 +47,7 @@ export default class HTTPService {
       return this.token;
     }
 
-    const {token, expiry} = getLocalStorage({key: apiTokenAccessKey}) || {};
+    const { token, expiry } = getLocalStorage({ key: apiTokenAccessKey }) || {};
     if (token && this.#notExpired(expiry)) {
       this.token = token;
       this.expiry = expiry;
@@ -75,7 +75,7 @@ export default class HTTPService {
         this.token = json.access_token;
         this.expiry = json.expires_in * 1000 + Date.now();
 
-        putLocalStorage({key: apiTokenAccessKey, data: {token: this.token, expiry: this.expiry}});
+        putLocalStorage({ key: apiTokenAccessKey, data: { token: this.token, expiry: this.expiry } });
 
         return this.token;
       }

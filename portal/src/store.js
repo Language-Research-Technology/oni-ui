@@ -1,9 +1,8 @@
-import { cloneDeep } from 'lodash';
 import { createStore } from 'vuex';
 
 const mutations = {
   reset: (state) => {
-    state = cloneDeep(resetState());
+    Object.assign(state, resetState());
   },
   saveConfiguration: (state, payload) => {
     state.configuration = { ...payload };

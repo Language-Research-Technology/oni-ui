@@ -150,7 +150,7 @@ export default {
       this.parentId = this.id;
       this.path = this.id;
       this.route = `/object/open?id=${encodeURIComponent(this.id)}`;
-      if (this.path != '') {
+      if (this.path !== '') {
         this.route += `&path=${encodeURIComponent(this.path)}`;
       }
       // Try to display only text and pdfs by default if there is an encodingFormat

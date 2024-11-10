@@ -30,8 +30,8 @@
 </template>
 <script>
 import { first } from 'lodash';
-import transformer from './widgets/geo';
 import LeafletMap from './widgets/LeafletMap.vue';
+import transformer from './widgets/geo';
 
 export default {
   components: {

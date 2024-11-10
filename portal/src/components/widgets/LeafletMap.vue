@@ -158,8 +158,8 @@ function initControls(map, featuresLayer) {
     }
   }
   function moveTooltip(e) {
-    tooltip.style.left = e.containerPoint.x + 5 + 'px';
-    tooltip.style.top = e.containerPoint.y - tooltip.offsetHeight - 5 + 'px';
+    tooltip.style.left = `${e.containerPoint.x + 5}px`;
+    tooltip.style.top = `${e.containerPoint.y - tooltip.offsetHeight - 5}px`;
   }
   // show tooltip
   map.on('mousemove', moveTooltip);

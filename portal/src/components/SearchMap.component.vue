@@ -1,7 +1,7 @@
 <template>
   <el-row>
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-            class="h-full max-h-screen overflow-y-auto flex flex-col h-screen p-2">
+            class="h-full max-h-screen overflow-y-auto flex flex-col p-2">
       <div v-show="!advancedSearch"
            class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
         <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput"
@@ -1037,8 +1037,7 @@ export default {
       if (string === 'false') {
         return 'No';
       }
-      string = string.replace(/@|_|(\..*)/g, '');
-      return string;
+      return string.replace(/@|_|(\..*)/g, '');
     },
     setMapBounds(init) {
       if (init) {
@@ -1073,6 +1072,7 @@ export default {
         isVisible = visibleBounds.contains(position);
         if (d < -1 && !isVisible) {
           // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
+          // biome-ignore lint/style/noParameterAssign: FIXME
           position = initialPos;
           position.lng += 360 * (d + 1);
           isVisible = visibleBounds.contains(position);
@@ -1082,6 +1082,7 @@ export default {
         position.lng += 360 * d;
         isVisible = visibleBounds.contains(position);
         if (d > 1 && !flag) {
+          // biome-ignore lint/style/noParameterAssign: FIXME
           position = initialPos;
           position.lng += 360 * (d - 1);
           isVisible = visibleBounds.contains(position);

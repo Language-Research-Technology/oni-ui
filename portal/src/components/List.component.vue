@@ -90,16 +90,16 @@
 
 
 <script>
-import {first, last, isEmpty, orderBy, find, isUndefined} from 'lodash';
-import {CloseBold} from '@element-plus/icons-vue';
-import {defineAsyncComponent, toRaw} from 'vue';
+import { getLocalStorage, putLocalStorage, removeLocalStorage } from '@/storage';
+import { CloseBold } from '@element-plus/icons-vue';
+import { find, first, isEmpty, isUndefined, last, orderBy } from 'lodash';
+import { defineAsyncComponent, toRaw } from 'vue';
 import ObjectSummary from './ObjectSummary.component.vue';
-import SearchAggs from './SearchAggs.component.vue';
-import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
 import SearchAdvanced from './SearchAdvanced.component.vue';
+import SearchAggs from './SearchAggs.component.vue';
 import SearchMap from './SearchMap.component.vue';
 
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 export default {
   components: {
@@ -111,10 +111,10 @@ export default {
     SearchMap,
   },
   data() {
-    const sorting = this.$store.state.configuration.ui.search?.sorting || [{value: 'relevance', label: 'Relevance'}];
+    const sorting = this.$store.state.configuration.ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
     const ordering = this.$store.state.configuration.ui.search?.ordering || [
-      {value: 'asc', label: 'Ascending'},
-      {value: 'desc', label: 'Descending'},
+      { value: 'asc', label: 'Ascending' },
+      { value: 'desc', label: 'Descending' },
     ];
 
     return {
@@ -134,15 +134,15 @@ export default {
   },
   created() {
     this.fetch();
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   updated() {
     this.fetch();
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   watch() {
     this.fetch();
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   methods: {
     first,
@@ -181,13 +181,13 @@ export default {
     },
     sortResults(sort) {
       this.currentPage = 1;
-      this.selectedSorting = find(this.sorting, {value: sort});
+      this.selectedSorting = find(this.sorting, { value: sort });
 
       this.fetch();
     },
     orderResults(order) {
       this.currentPage = 1;
-      this.selectedOrder = find(this.ordering, {value: order});
+      this.selectedOrder = find(this.ordering, { value: order });
       this.fetch();
     },
     async updatePages(page, scrollTo) {
@@ -196,7 +196,7 @@ export default {
       this.scrollToTop();
     },
     showMap() {
-      this.$router.push({path: '/map'});
+      this.$router.push({ path: '/map' });
     },
   },
 };

@@ -51,9 +51,8 @@ export default {
         console.warn(e);
       }
     },
-    highlighter(code, lang) {
-      if (typeof lang === 'undefined') lang = 'markup';
-      if (!Prism.languages.hasOwnProperty(lang)) {
+    highlighter(code, lang = 'markup') {
+      if (!Object.prototype.hasOwnProperty.call(Prism.languages, lang)) {
         try {
           require(`prismjs/components/prism-${lang}.js`);
         } catch (e) {

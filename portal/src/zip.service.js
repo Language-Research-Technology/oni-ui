@@ -12,8 +12,7 @@ export default class ZipService {
     const route = `/object/${encodeURIComponent(id)}.zip`;
     const response = await httpService.head({ route });
     const zip = {};
-    name = name || id;
-    zip.name = `${name}.zip`;
+    zip.name = `${name || id}.zip`;
     try {
       const size = response.headers.get('Content-Length-Estimate');
       zip.expandedSize = convertSize(Number.parseInt(size), { accuracy: 2 });

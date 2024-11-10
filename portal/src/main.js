@@ -6,6 +6,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import VueCookies from 'vue-cookies';
 
 library.add(fas, far, fab);
 
@@ -26,12 +27,11 @@ log.setLevel(level);
 const prefixer = prefix.noConflict();
 prefixer.reg(log);
 prefixer.apply(log);
-import HTTPService from './http.service';
-import MembershipService from './membership.service';
-import ElasticService from './elastic.service';
-import ApiService from './api.service';
 import VueGtag from 'vue-gtag';
 import configuration from '../configuration.json';
+import ApiService from './api.service';
+import HTTPService from './http.service';
+import MembershipService from './membership.service';
 
 (async () => {
   const app = createApp(App);

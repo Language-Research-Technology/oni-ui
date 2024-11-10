@@ -45,10 +45,10 @@
   </template>
 </template>
 <script>
-import { isString, isNumber } from 'lodash';
-import convertSize from 'convert-size';
-import { defineAsyncComponent } from 'vue';
 import transformer from '@/components/widgets/geo';
+import convertSize from 'convert-size';
+import { isNumber, isString } from 'lodash';
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {

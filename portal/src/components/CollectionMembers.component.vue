@@ -33,11 +33,11 @@
   </template>
 </template>
 <script>
-import {first} from 'lodash';
+import { first } from 'lodash';
+import toInt from 'validator/es/lib/toInt';
+import { toRaw } from 'vue';
 import CollectionItem from './CollectionItem.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
-import {toRaw} from 'vue';
-import toInt from 'validator/es/lib/toInt';
 
 export default {
   components: {

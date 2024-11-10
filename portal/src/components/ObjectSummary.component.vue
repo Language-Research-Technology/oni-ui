@@ -100,9 +100,9 @@
   </div>
 </template>
 <script>
+import { v4 as uuid } from 'uuid';
 // import AggregationHelper from './helpers/AggregationHelper.component.vue';
-import {initSnip, toggleSnip} from '../tools';
-import {v4 as uuid} from 'uuid';
+import { initSnip, toggleSnip } from '../tools';
 
 export default {
   // components: {
@@ -120,14 +120,14 @@ export default {
   },
   mounted() {
     if (!this.descriptionSnipped) {
-      initSnip({selector:'#desc_' + this._uuid, lines: 3});
+      initSnip({ selector: `#desc_${this._uuid}`, lines: 3 });
     }
   },
   methods: {
     getSearchDetailUrl(item) {
       // TODO: this is not good, maybe do it with a ConformsTo to specify link.
       // But have to think about it because not all files have conformsTo!
-      const {recordType} = item;
+      const { recordType } = item;
       const repoType = recordType.find((t) => t === 'RepositoryCollection');
       const fileType = recordType.find((t) => t === 'File');
       const itemType = recordType.find((t) => t === 'RepositoryObject');

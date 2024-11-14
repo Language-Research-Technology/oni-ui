@@ -1,5 +1,5 @@
-import { cloneDeep } from "lodash";
-import { createStore } from "vuex";
+import { cloneDeep } from 'lodash';
+import { createStore } from 'vuex';
 
 const mutations = {
   reset: (state) => {
@@ -13,7 +13,7 @@ const mutations = {
   },
   setIsLoggedIn(state, payload) {
     state.isLoggedIn = payload;
-  }
+  },
 };
 
 const actions = {};
@@ -30,6 +30,6 @@ function resetState() {
   return {
     configuration: undefined,
     user: {},
-    isLoggedIn: undefined
+    isLoggedIn: undefined,
   };
 }

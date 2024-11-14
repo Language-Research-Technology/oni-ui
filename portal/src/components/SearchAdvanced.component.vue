@@ -102,34 +102,34 @@
 </template>
 
 <script>
-
-import {defineAsyncComponent} from 'vue';
-import {Close} from '@element-plus/icons-vue'
-import {isEmpty} from 'lodash';
-import {getLocalStorage, removeLocalStorage} from '@/storage';
-import SearchAdvancedHelp from "./SearchAdvancedHelp.component.vue";
+import { getLocalStorage, removeLocalStorage } from '@/storage';
+import { Close } from '@element-plus/icons-vue';
+import { isEmpty } from 'lodash';
+import { defineAsyncComponent } from 'vue';
+import SearchAdvancedHelp from './SearchAdvancedHelp.component.vue';
 
 export default {
   props: ['searchInput', 'fields', 'resetAdvancedSearch'],
-  components: {SearchAdvancedHelp},
-  created() {
-  },
+  components: { SearchAdvancedHelp },
+  created() {},
   updated() {
     if (this.resetAdvancedSearch) {
-      this.searchGroup = [{
-        field: 'all_fields',
-        operation: 'AND',
-        operator: 'AND',
-        type: 'phrase',
-        searchInput: ''
-      }];
+      this.searchGroup = [
+        {
+          field: 'all_fields',
+          operation: 'AND',
+          operator: 'AND',
+          type: 'phrase',
+          searchInput: '',
+        },
+      ];
     }
   },
   computed: {},
   async mounted() {
     if (this.$route.query.a) {
       this.advancedSearch = true;
-      let searchGroup = JSON.parse(decodeURIComponent(this.$route.query.a));
+      const searchGroup = JSON.parse(decodeURIComponent(this.$route.query.a));
       this.searchGroup = searchGroup;
     }
   },
@@ -138,7 +138,7 @@ export default {
     isEmpty,
     advancedSearch() {
       this.setQueryString();
-      this.$emit('doAdvancedSearch', {queries: this.queries});
+      this.$emit('doAdvancedSearch', { queries: this.queries });
     },
     addNewLine() {
       this.searchGroup.push({
@@ -146,30 +146,34 @@ export default {
         operation: 'AND',
         operator: 'AND',
         type: 'phrase',
-        searchInput: ''
+        searchInput: '',
       });
     },
     clear() {
-      this.searchGroup = [{
-        field: 'all_fields',
-        operation: 'AND',
-        operator: 'AND',
-        type: 'phrase',
-        searchInput: ''
-      }];
+      this.searchGroup = [
+        {
+          field: 'all_fields',
+          operation: 'AND',
+          operator: 'AND',
+          type: 'phrase',
+          searchInput: '',
+        },
+      ];
     },
     removeLine(index) {
       this.searchGroup.splice(index, 1);
     },
     showBasicSearch() {
-      removeLocalStorage({key: 'advancedQueries'});
-      this.searchGroup = [{
-        field: 'all_fields',
-        operation: 'AND',
-        operator: 'AND',
-        type: 'phrase',
-        searchInput: ''
-      }];
+      removeLocalStorage({ key: 'advancedQueries' });
+      this.searchGroup = [
+        {
+          field: 'all_fields',
+          operation: 'AND',
+          operator: 'AND',
+          type: 'phrase',
+          searchInput: '',
+        },
+      ];
       this.$emit('basic-search');
     },
     doUseQueryString() {
@@ -180,22 +184,24 @@ export default {
       this.textQueryString = this.$elasticService.queryString(this.searchGroup);
       this.queries = {
         queryString: this.textQueryString,
-        searchGroup: encodeURIComponent(JSON.stringify(this.searchGroup))
-      }
-    }
+        searchGroup: encodeURIComponent(JSON.stringify(this.searchGroup)),
+      };
+    },
   },
   data() {
-    const fieldAdvancedSearch = [{label: 'All Fields', value: 'all_fields'}];
+    const fieldAdvancedSearch = [{ label: 'All Fields', value: 'all_fields' }];
     Object.keys(this.fields).map((f) => {
-      fieldAdvancedSearch.push({label: this.fields[f].label, value: f})
+      fieldAdvancedSearch.push({ label: this.fields[f].label, value: f });
     });
-    const searchGroup = [{
-      field: 'all_fields',
-      operation: 'AND',
-      operator: 'AND',
-      type: 'phrase',
-      searchInput: ''
-    }]
+    const searchGroup = [
+      {
+        field: 'all_fields',
+        operation: 'AND',
+        operator: 'AND',
+        type: 'phrase',
+        searchInput: '',
+      },
+    ];
     // searchGroup.push();
     return {
       searchGroup: searchGroup,
@@ -205,8 +211,8 @@ export default {
       useQueryString: false,
       queries: '',
       textQueryString: '',
-      showHelp: false
-    }
-  }
-}
+      showHelp: false,
+    };
+  },
+};
 </script>

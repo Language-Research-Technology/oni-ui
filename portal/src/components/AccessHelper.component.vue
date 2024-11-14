@@ -56,15 +56,13 @@
   </template>
 </template>
 <script>
-import {first, isEqual} from "lodash";
+import { first, isEqual } from 'lodash';
 
-import {
-  getLocalStorage
-} from "@/storage";
+import { getLocalStorage } from '@/storage';
 import EnrollmentCard from './cards/EnrollmentCard.component.vue';
 
 export default {
-  components: {EnrollmentCard},
+  components: { EnrollmentCard },
   props: ['access', 'license'],
   data() {
     return {
@@ -79,19 +77,19 @@ export default {
       helpUrl: this.$store.state.configuration.ui?.help?.helpUrl || '',
       loading: false,
       errorMessage: undefined,
-      memberships: []
-    }
+      memberships: [],
+    };
   },
   watch: {
     //lazy watcher to detect if it has been emptied and its not freshly mounted
     //TODO: not sure if we need both watchers and mounted to checkIfLoggedIn
     '$store.state.user': {
       async handler() {
-        this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   async updated() {
     this.loading = true;
@@ -127,7 +125,7 @@ export default {
           }
         }
       } else {
-        this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       }
     },
     getEnrollment() {
@@ -151,7 +149,7 @@ export default {
         //await this.$router.push(this.$route.fullPath);
         window.location.reload();
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

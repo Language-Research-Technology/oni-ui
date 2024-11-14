@@ -34,11 +34,11 @@
   <splash-screen :launch="splash" @close="splash=false"/>
 </template>
 <script>
-import SplashScreen from './SplashScreen.component.vue'
+import SplashScreen from './SplashScreen.component.vue';
 
 export default {
   name: 'FooterView',
-  components: {SplashScreen},
+  components: { SplashScreen },
   data() {
     return {
       copyright: this.$store.state.configuration.ui.footer.copyright,
@@ -47,8 +47,8 @@ export default {
       terms: this.$store.state.configuration.ui?.terms || null,
       privacy: this.$store.state.configuration.ui?.privacy || null,
       splash: false,
-      splashLauncher: this.$store.state.configuration.ui?.splashLauncher || null
-    }
-  }
-}
+      splashLauncher: this.$store.state.configuration.ui?.splashLauncher || null,
+    };
+  },
+};
 </script>

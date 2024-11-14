@@ -1,13 +1,13 @@
-import HTTPService from "./http.service";
 import * as esb from 'elastic-builder';
-import {isEmpty, first} from 'lodash';
+import { first, isEmpty } from 'lodash';
+import HTTPService from './http.service';
 
 export default class ElasticService {
-  constructor({router, configuration}) {
+  constructor({ router, configuration }) {
     this.router = router;
     this.searchRoute = '/search/index';
     this.indexRoute = '/items';
-    this.aggs = this.prepareAggregations(configuration.ui.aggregations)
+    this.aggs = this.prepareAggregations(configuration.ui.aggregations);
     this.highlightFields = configuration.ui.searchHighlights;
     this.highlighConfig = configuration.ui.hightlight || {};
     this.fields = configuration.ui.searchFields;
@@ -15,58 +15,73 @@ export default class ElasticService {
 
   prepareAggregations(aggregations) {
     const a = {};
-    for (let agg of aggregations) {
-      a[agg['name']] = {"terms": {"field": agg['field'], "size": 1000}};
+    for (const agg of aggregations) {
+      a[agg.name] = { terms: { field: agg.field, size: 1000 } };
     }
     return a;
   }
 
-
-  async multi({multi, filters, aggs, searchFields, sort, order, operation, pageSize, searchFrom, queries, sortField}) {
+  async multi({
+    multi,
+    filters,
+    aggs,
+    searchFields,
+    sort,
+    order,
+    operation,
+    pageSize,
+    searchFrom,
+    queries,
+    sortField,
+  }) {
     try {
-      const httpService = new HTTPService({router: this.router, loginPath: '/login'});
-      let route = this.searchRoute + this.indexRoute;
+      const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
+      const route = this.searchRoute + this.indexRoute;
       let sorting;
       if (sort === 'relevance') {
-        sorting = [{
-          _score: {
-            order: order
-          }
-        }];
+        sorting = [
+          {
+            _score: {
+              order: order,
+            },
+          },
+        ];
       } else if (sortField) {
-        const sortByKeyword = {}
-        sortByKeyword[sortField] = {order: order};
+        const sortByKeyword = {};
+        sortByKeyword[sortField] = { order: order };
         sorting = [sortByKeyword];
       } else {
-        sorting = [{
-          _script: {
-            type: "number",
-            order: order,
-            script: {
-              lang: 'painless',
-              source: `doc['${sort}'].size() > 0 ? 1 : 0`
-            }
-          }
-        }];
+        sorting = [
+          {
+            _script: {
+              type: 'number',
+              order: order,
+              script: {
+                lang: 'painless',
+                source: `doc['${sort}'].size() > 0 ? 1 : 0`,
+              },
+            },
+          },
+        ];
         // const sortField = {};
         // sortField[`${sort}.@value.keyword`] = {order};
         // sorting.push(sortField);
       }
-      let body = {
+      const body = {
         query: {},
-        sort: sorting
-      }
+        sort: sorting,
+      };
       // console.log('sorting');
       // console.log(JSON.stringify(sorting));
       let query;
       if (queries) {
-        query = this.disMaxQuery({queries, filters});
+        query = this.disMaxQuery({ queries, filters });
       } else {
         query = this.boolQuery({
           searchQuery: multi,
           fields: searchFields,
           filters,
-          operation
+          operation,
         });
       }
       //console.log(query);
@@ -75,55 +90,54 @@ export default class ElasticService {
       if (aggs) {
         body.aggs = aggs;
       } else {
-        body.aggs = this.aggs
+        body.aggs = this.aggs;
       }
-      body['size'] = pageSize;
-      body['from'] = searchFrom;
-      body['track_total_hits'] = true;
+      body.size = pageSize;
+      body.from = searchFrom;
+      body.track_total_hits = true;
       // console.log('multi query')
       // console.log(JSON.stringify(body));
-      let response = await httpService.post({route, body})
+      const response = await httpService.post({ route, body });
       if (response.status !== 200) {
         //httpService.checkAuthorised({status: response.status});
         //TODO: Return an exact error from the API.
         const error = await response.json();
-        const msg = 'Query Error: ' + error?.message || 'There was an error with your query'
+        const msg = `Query Error: ${error?.message}` || 'There was an error with your query';
         throw new Error(msg);
-      } else {
-        const results = await response.json();
-        //console.log(results);
-        return results;
       }
+      const results = await response.json();
+      //console.log(results);
+      return results;
     } catch (e) {
       throw new Error(e.message);
     }
   }
 
-  async single({index, id, _crateId, _id}) {
-    const httpService = new HTTPService({router: this.router, loginPath: '/login'});
+  async single({ index, id, _crateId, _id }) {
+    const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
     let route = this.searchRoute + this.indexRoute;
     if (index) {
-      route = this.searchRoute + '/' + index;
+      route = `${this.searchRoute}/${index}`;
     }
-    let body = {
+    const body = {
       aggs: this.aggs, // maybe we dont need to send aggregations
-      query: {}
-    }
+      query: {},
+    };
     if (_id) {
       body.query = {
         match: {
-          _id: decodeURIComponent(_id)
-        }
-      }
+          _id: decodeURIComponent(_id),
+        },
+      };
     } else {
       body.query = {
         dis_max: {
           queries: [
-            {match: {'@id': decodeURIComponent(id)}},
-            {match: {'_crateId': decodeURIComponent(_crateId)}}
-          ]
-        }
-      }
+            { match: { '@id': decodeURIComponent(id) } },
+            { match: { _crateId: decodeURIComponent(_crateId) } },
+          ],
+        },
+      };
     }
 
     // const query = this.boolQuery({ fields: this.fields, filters:[] });
@@ -131,68 +145,70 @@ export default class ElasticService {
     // body.highlight = this.highlights(this.highlightFields);
     // body.query.bool.must.push(query);
 
-    let response = await httpService.post({route, body});
+    const response = await httpService.post({ route, body });
     if (response.status !== 200) {
       //httpService.checkAuthorised({status: response.status});
       throw new Error(response.statusText);
-    } else {
-      const results = await response.json();
-      //console.log(first(results?.hits?.hits));
-      return first(results?.hits?.hits);
     }
+    const results = await response.json();
+    //console.log(first(results?.hits?.hits));
+    return first(results?.hits?.hits);
   }
 
-  boolQuery({searchQuery, fields, filters, operation}) {
+  boolQuery({ searchQuery, fields, filters, operation }) {
     //console.log('bool query');
     const filterTerms = this.termsQuery(filters);
     let boolQueryObj = {};
     if (isEmpty(searchQuery) && filterTerms.length > 0) {
       boolQueryObj = esb.boolQuery().filter(filterTerms);
     } else if (!isEmpty(searchQuery) && filterTerms.length > 0) {
-      let multiFields = []
-      for (let [key, value] of Object.entries(fields)) {
+      const multiFields = [];
+      for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
           multiFields.push(key);
         }
       }
-      let phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
+      const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
       boolQueryObj = switchFilter(operation, boolQueryObj, phraseQuery, filterTerms);
     } else if (!isEmpty(searchQuery) && filterTerms.length <= 0) {
-      let multiFields = []
-      for (let [key, value] of Object.entries(fields)) {
+      const multiFields = [];
+      for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
           multiFields.push(key);
         }
       }
-      let phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
+      const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
       boolQueryObj = switchFilter(operation, boolQueryObj, phraseQuery, filterTerms);
     } else if (isEmpty(searchQuery) && filterTerms.length <= 0) {
       boolQueryObj = esb.boolQuery().must(esb.matchAllQuery());
     }
-    const esbQuery = esb.requestBodySearch().query(boolQueryObj)
+    const esbQuery = esb.requestBodySearch().query(boolQueryObj);
     const query = esbQuery.toJSON().query;
     //console.log(JSON.stringify({query: query}))
     return query;
   }
 
   highlights(highlightFields) {
-    const esbQuery = esb.requestBodySearch()
+    const esbQuery = esb
+      .requestBodySearch()
       .query(esb.matchQuery('not', 'important'))
-      .highlight(esb.highlight()
-        .numberOfFragments(3)
-        .fragmentSize(200)
-        .fields(highlightFields)
-        .preTags('<mark class="font-bold">')
-        .postTags('</mark>')
+      .highlight(
+        esb
+          .highlight()
+          .numberOfFragments(3)
+          .fragmentSize(200)
+          .fields(highlightFields)
+          .preTags('<mark class="font-bold">')
+          .postTags('</mark>'),
       );
 
     const query = esbQuery.toJSON().query;
     let highlight = esbQuery.toJSON().highlight;
-    highlight = {...highlight, ...this.highlighConfig};
+    highlight = { ...highlight, ...this.highlighConfig };
     return highlight;
   }
 
-  disMaxQuery({queries, filters}) {
+  disMaxQuery({ queries, filters }) {
     const filterTerms = this.termsQuery(filters);
     const esbQueries = [];
     const mustDMQueries = [];
@@ -208,7 +224,7 @@ export default class ElasticService {
       //boolQuery.must(esb.simpleQueryStringQuery(queries.queryString));
     } else {
       //Note: this code below is never used. Delete
-      for (let q of queries) {
+      for (const q of queries) {
         if (q.operation === 'must') {
           if (q.multiField) {
             mustDMQueries.push(esb.multiMatchQuery(q.fields, q.query).operator('or').type(q.type));
@@ -262,25 +278,19 @@ export default class ElasticService {
         }
       }
       if (mustDMQueries.length > 0) {
-        boolQuery.must(
-          esb.disMaxQuery().queries(mustDMQueries)
-        )
+        boolQuery.must(esb.disMaxQuery().queries(mustDMQueries));
       }
       if (mustBoolQueries.length > 0) {
-        boolQuery.must(mustBoolQueries)
+        boolQuery.must(mustBoolQueries);
       }
       if (shouldDMQueries.length > 0) {
-        boolQuery.should(
-          esb.disMaxQuery().queries(shouldDMQueries)
-        )
+        boolQuery.should(esb.disMaxQuery().queries(shouldDMQueries));
       }
       if (shouldBoolQueries.length > 0) {
-        boolQuery.should(shouldBoolQueries)
+        boolQuery.should(shouldBoolQueries);
       }
       if (mustNotDMQueries.length > 0) {
-        boolQuery.mustNot(
-          esb.disMaxQuery().queries(mustNotDMQueries)
-        )
+        boolQuery.mustNot(esb.disMaxQuery().queries(mustNotDMQueries));
       }
       if (mustNotBoolQueries.length > 0) {
         boolQuery.mustNot(mustNotBoolQueries);
@@ -288,17 +298,17 @@ export default class ElasticService {
     }
     boolQuery.filter(filterTerms);
     boolQuery.minimumShouldMatch(0);
-    const esbQuery = esb.requestBodySearch().query(boolQuery)
+    const esbQuery = esb.requestBodySearch().query(boolQuery);
     const query = esbQuery.toJSON().query;
     //console.log(JSON.stringify({query: query}))
     return query;
   }
 
   termsQuery(filters) {
-    let filterTerms = [];
+    const filterTerms = [];
     if (!isEmpty(filters)) {
       //console.log(JSON.stringify(filters));
-      for (let bucket of Object.keys(filters)) {
+      for (const bucket of Object.keys(filters)) {
         if (filters[bucket].length > 0 || (filters[bucket]?.v && filters[bucket].v.length > 0)) {
           //TODO: send the type of field in the filters
           let field = '';
@@ -307,9 +317,9 @@ export default class ElasticService {
             field = bucket.concat('.keyword');
           } else {
             type = filters[bucket]?.t;
-            field = bucket.concat('.' + type);
+            field = bucket.concat(`.${type}`);
           }
-          let values = filters[bucket]?.v || filters[bucket];
+          const values = filters[bucket]?.v || filters[bucket];
           //console.log(values)
           filterTerms.push(esb.termsQuery(field, values));
         }
@@ -347,78 +357,79 @@ export default class ElasticService {
     return qS;
   }
 
-  async map({init = true, boundingBox, precision = 5, multi, searchFields, filters, operation, pageSize, searchFrom}) {
-    const httpService = new HTTPService({router: this.router, loginPath: '/login'});
-    let route = this.searchRoute + this.indexRoute;
+  async map({
+    init = true,
+    boundingBox,
+    precision = 5,
+    multi,
+    searchFields,
+    filters,
+    operation,
+    pageSize,
+    searchFrom,
+  }) {
+    const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
+    const route = this.searchRoute + this.indexRoute;
     let sorting;
-    let body = {}
+    const body = {};
     const fields = ['_centroid'];
     // const geoAggs = esb.geoHashGridAggregation('viewport', fields[0]);
-    const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid')
-      .precision(precision);
-    let topRight = {}
-    let bottomLeft = {}
+    const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
+    let topRight = {};
+    let bottomLeft = {};
     let geoQuery = {};
     if (init) {
-      topRight = esb.geoPoint()
-        .lat(90)
-        .lon(180);
-      bottomLeft = esb.geoPoint()
-        .lat(-90)
-        .lon(-180);
-      geoQuery = esb.geoBoundingBoxQuery().field('_centroid')
-        .topRight(topRight)
-        .bottomLeft(bottomLeft);
+      topRight = esb.geoPoint().lat(90).lon(180);
+      bottomLeft = esb.geoPoint().lat(-90).lon(-180);
+      geoQuery = esb.geoBoundingBoxQuery().field('_centroid').topRight(topRight).bottomLeft(bottomLeft);
     } else {
       let tR = boundingBox.topRight;
       tR = fixMalformedCoordinates(tR);
-      topRight = esb.geoPoint()
-        .lat(tR.lat)
-        .lon(tR.lon);
+      topRight = esb.geoPoint().lat(tR.lat).lon(tR.lon);
       let bL = boundingBox.bottomLeft;
       bL = fixMalformedCoordinates(bL);
-      bottomLeft = esb.geoPoint()
-        .lat(bL.lat)
-        .lon(bL.lon)
-      geoQuery = esb.geoBoundingBoxQuery().field('_centroid')
+      bottomLeft = esb.geoPoint().lat(bL.lat).lon(bL.lon);
+      geoQuery = esb
+        .geoBoundingBoxQuery()
+        .field('_centroid')
         .topRight(topRight)
         .bottomLeft(bottomLeft)
-        .validationMethod("COERCE")
+        .validationMethod('COERCE');
     }
     const aggs = geoAggs.toJSON();
 
-    body.aggs = {...aggs, ...this.aggs};
+    body.aggs = { ...aggs, ...this.aggs };
     const geoQueryJson = geoQuery.toJSON();
     const geoBoundingBox = geoQueryJson.geo_bounding_box;
     const boolQuery = this.boolQuery({
       searchQuery: multi,
       fields: searchFields,
       filters,
-      operation
+      operation,
     });
     if (!boolQuery.bool.filter) boolQuery.bool.filter = {};
-    if (boolQuery.bool.filter && boolQuery.bool.filter.length) { //if array
-        boolQuery.bool.must = boolQuery.bool.filter;
+    if (boolQuery.bool.filter?.length) {
+      //if array
+      boolQuery.bool.must = boolQuery.bool.filter;
     } else if (boolQuery.bool.filter.terms) {
-      boolQuery.bool.must = {terms: boolQuery.bool.filter.terms};
+      boolQuery.bool.must = { terms: boolQuery.bool.filter.terms };
     }
-    boolQuery.bool.filter = {geo_bounding_box: geoBoundingBox};
+    boolQuery.bool.filter = { geo_bounding_box: geoBoundingBox };
     body.query = boolQuery;
-    body['size'] = pageSize;
-    body['from'] = searchFrom;
-    body['track_total_hits'] = true;
+    body.size = pageSize;
+    body.from = searchFrom;
+    body.track_total_hits = true;
     //console.log("body", JSON.stringify(body));
     //console.log(body);
     console.log(JSON.stringify(body));
-    let response = await httpService.post({route, body});
+    const response = await httpService.post({ route, body });
     if (response.status !== 200) {
       //httpService.checkAuthorised({status: response.status});
       throw new Error(response.statusText);
-    } else {
-      const results = await response.json();
-      //console.log(results);
-      return results;
     }
+    const results = await response.json();
+    //console.log(results);
+    return results;
   }
 }
 

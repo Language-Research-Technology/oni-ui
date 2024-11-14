@@ -15,7 +15,7 @@
   </template>
 </template>
 <script>
-import { first } from "lodash";
+import { first } from 'lodash';
 
 export default {
   props: ['id', 'objectType', 'objectName'],
@@ -25,8 +25,8 @@ export default {
       objects: [{}],
       scrollId: '',
       objectTotals: 0,
-      objectsScrollId: ''
-    }
+      objectsScrollId: '',
+    };
   },
   mounted() {
     this.getNextobjects();
@@ -38,19 +38,21 @@ export default {
         scroll: true,
         filters: {
           'input.@id': [this.id],
-          '@type': [this.objectType]
-        }, sort: 'relevance', order: 'desc'
+          '@type': [this.objectType],
+        },
+        sort: 'relevance',
+        order: 'desc',
       });
-      this.objectTotals = items?.['hits']?.['total']?.['value'];
-      this.objectsScrollId = items?.['_scroll_id'];
-      const thisItems = items?.['hits']?.['hits'];
+      this.objectTotals = items?.hits?.total?.value;
+      this.objectsScrollId = items?._scroll_id;
+      const thisItems = items?.hits?.hits;
       if (thisItems) {
         this.objects = thisItems;
       } else {
         this.objects = this.objects.concat(thisItems);
       }
       this.loading = false;
-    }
-  }
-}
+    },
+  },
+};
 </script>

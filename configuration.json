@@ -126,9 +126,7 @@
         "value": "desc",
         "label": "Descending"
       },
-      "searchDetails": [
-        {"field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value"}
-      ]
+      "searchDetails": [{ "field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value" }]
     },
     "main": {
       "fields": [
@@ -153,15 +151,8 @@
           "name": "encodingFormat.@value"
         }
       ],
-      "byteFields": [
-        "size",
-        "contentSize"
-      ],
-      "expand": [
-        "speaker",
-        "author",
-        "citation"
-      ]
+      "byteFields": ["size", "contentSize"],
+      "expand": ["speaker", "author", "citation"]
     },
     "head": {
       "title": "DC.publisher",
@@ -258,7 +249,8 @@
           "_metadataLicense",
           "identifier",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ],
         "displayHasMember": false,
         "displayHasPart": true
@@ -315,7 +307,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ]
       }
     },
@@ -334,7 +327,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ]
       }
     },
@@ -372,7 +366,8 @@
           "_metadataIsPublic",
           "_metadataLicense",
           "_mainCollection",
-          "_subCollection"
+          "_subCollection",
+          "_isOCFL"
         ],
         "displayHasMember": false,
         "displayHasPart": false
@@ -381,7 +376,7 @@
     "helpers": [],
     "baseVocab": "https://w3id.org/ldac/terms#",
     "analytics": {
-      "gaMeasurementId": "G-XXX"
+      "gaMeasurementId": "G-LN82JVFCWL"
     }
   },
   "api": {
@@ -390,15 +385,19 @@
       "key": "XXX",
       "secret": "XXX"
     },
-    "origins": [{
-      "host": "https://catalog.paradisec.org.au",
-      "key": "XXX",
-      "secret": "XXX"
-    }],
+    "origins": [
+      {
+        "host": "https://catalog.paradisec.org.au",
+        "key": "XXX",
+        "secret": "XXX"
+      }
+    ],
     "bootstrap": false,
     "log": {
       "logFolder": "/opt/storage/oni/logs"
     },
+    "host": "localhost:8080",
+    "protocol": "http",
     "ocfl": {
       "ocflPath": "/opt/storage/oni/ocfl",
       "ocflScratch": "/opt/storage/oni/scratch-ocfl",
@@ -409,18 +408,16 @@
       "create": {
         "repoName": "ATAP",
         "collections": "../test-data/ingest-crate-list.development.json"
-      }
+      },
+      "previewPath": "/opt/storage/oni/temp/ocfl/previews",
+      "previewPathInternal": "/ocfl/previews"
     },
     "rocrate": {
       "dataTransform": {
-        "types": [
-          "File"
-        ]
+        "types": ["File"]
       }
     },
-    "administrators": [
-      "ephe@feko.mt"
-    ],
+    "administrators": ["ephe@feko.mt"],
     "session": {
       "lifetime": {
         "hours": 5
@@ -437,9 +434,7 @@
       "provider": "rems",
       "enrollment": {
         "enforced": false,
-        "groups": [
-          "CO:Members:all"
-        ],
+        "groups": ["CO:Members:all"],
         "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
       },
       "rems": {
@@ -452,12 +447,12 @@
       "cilogon": {
         "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
         "clientSecret": "XXXXXXXXXXXX",
-        "redirect_uri": "http://localhost:11000/auth/cilogon/callback",
-        "authorizeHost": "https://test.cilogon.org",
+        "redirect_uri": "http://localhost:8000/auth/cilogon/callback",
+        "authorizeHost": "https://test.cilogon.aaf.edu.au",
         "authorizePath": "/authorize",
-        "tokenHost": "https://test.cilogon.org",
+        "tokenHost": "https://test.cilogon.aaf.edu.au",
         "tokenPath": "/oauth2/token",
-        "user": "https://test.cilogon.org/oauth2/userinfo",
+        "user": "https://test.cilogon.aaf.edu.au/oauth2/userinfo",
         "bearer": "token",
         "scope": "openid+profile+email+org.cilogon.userinfo+offline_access",
         "use_refresh_token": true,
@@ -645,22 +640,12 @@
           "field": "annotationType.@value.keyword"
         }
       ],
-      "highlightFields": [
-        "_text"
-      ],
+      "highlightFields": ["_text"],
       "test": {
         "filters": {
-          "hasFile.language.name": [
-            "Arabic, Standard",
-            "Chinese, Mandarin",
-            "Persian, Iranian",
-            "Turkish",
-            "Vietnames"
-          ]
+          "hasFile.language.name": ["Arabic, Standard", "Chinese, Mandarin", "Persian, Iranian", "Turkish", "Vietnames"]
         },
-        "@type": [
-          "TextDialogue"
-        ]
+        "@type": ["TextDialogue"]
       },
       "mappingFieldLimit": 3000,
       "mappings": {

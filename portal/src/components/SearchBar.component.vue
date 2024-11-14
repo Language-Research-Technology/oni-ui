@@ -43,19 +43,26 @@
 </template>
 
 <script>
-
-import {defineAsyncComponent} from 'vue';
-import {Close} from '@element-plus/icons-vue'
-import {isEmpty} from 'lodash';
+import { Close } from '@element-plus/icons-vue';
+import { isEmpty } from 'lodash';
+import { defineAsyncComponent } from 'vue';
 
 export default {
-  props: ['searchInput', 'clearSearch', 'filters', 'search', 'fields', 'showFields', 'enableAdvancedSearch', 'searchPath'],
+  props: [
+    'searchInput',
+    'clearSearch',
+    'filters',
+    'search',
+    'fields',
+    'showFields',
+    'enableAdvancedSearch',
+    'searchPath',
+  ],
   components: {},
   created() {
     this.searchQuery = this.searchInput;
   },
-  updated() {
-  },
+  updated() {},
   async mounted() {
     this.searchQuery = this.searchInput;
   },
@@ -65,7 +72,7 @@ export default {
     },
     clearSearch() {
       this.resetBar();
-    }
+    },
   },
   methods: {
     isEmpty,
@@ -74,11 +81,11 @@ export default {
       let query = {};
       if (this.$route.query.f) {
         console.log(this.$route.query.f);
-        query = {...query, f: this.$route.query.f};
+        query = { ...query, f: this.$route.query.f };
       }
       //Why did we have this if?
       //if (!isEmpty(query)) {
-        await this.$router.push({path: this.searchPath, query});
+      await this.$router.push({ path: this.searchPath, query });
       //}
     },
     async searchInputField(e) {
@@ -97,17 +104,17 @@ export default {
     },
     async doSearch() {
       let query = {
-        q: this.searchQuery
+        q: this.searchQuery,
       };
       if (this.$route.query.f) {
-        query = {...query, f: this.$route.query.f};
+        query = { ...query, f: this.$route.query.f };
       }
       this.$emit('basicSearch', {});
       // await this.$router.push({path: this.path, query});
     },
     showAdvancedSearch() {
       this.$emit('advanced-search');
-    }
+    },
   },
   data() {
     return {
@@ -118,8 +125,8 @@ export default {
       scrollId: '',
       showFieldSearch: false,
       operator: 'must',
-      searchFields: {}
-    }
-  }
-}
+      searchFields: {},
+    };
+  },
+};
 </script>

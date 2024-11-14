@@ -20,8 +20,8 @@ export default {
   data() {
     return {
       buckets: [],
-      loading: false
-    }
+      loading: false,
+    };
   },
   async mounted() {
     this.loading = true;
@@ -31,16 +31,18 @@ export default {
   methods: {
     async populateBuckets() {
       const items = await this.$elasticService.multi({
-        filters: {'_collectionStack.@id': [this.id]}, sort: 'relevance', order: 'desc'
+        filters: { '_collectionStack.@id': [this.id] },
+        sort: 'relevance',
+        order: 'desc',
       });
       const aggregations = items?.aggregations;
       this.buckets = [];
-      for (let field of this.fields) {
-        if (aggregations && aggregations[field?.name]) {
-          this.buckets.push({field: field.display, buckets: aggregations[field.name]?.buckets});
+      for (const field of this.fields) {
+        if (aggregations?.[field?.name]) {
+          this.buckets.push({ field: field.display, buckets: aggregations[field.name]?.buckets });
         }
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

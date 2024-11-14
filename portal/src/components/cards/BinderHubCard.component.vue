@@ -34,8 +34,7 @@
 </template>
 
 <script>
-
-import {first} from "lodash";
+import { first } from 'lodash';
 
 export default {
   props: ['gitOrg', 'gitName', 'gitBranch', 'filepath'],
@@ -53,7 +52,7 @@ export default {
     return {
       binderhubs: [],
       registryJson: this.$store.state.configuration.ui.binderhubRegistry?.registryJson,
-      binderhubsErrors: undefined
+      binderhubsErrors: undefined,
     };
   },
   methods: {
@@ -62,33 +61,34 @@ export default {
       try {
         const response = await fetch(this.registryJson, {
           headers: {
-            'Accept': 'application/vnd.github.raw+json'
-          }
+            Accept: 'application/vnd.github.raw+json',
+          },
         });
         if (response.status === 200) {
-          let binderhubData = await response.json();
+          const binderhubData = await response.json();
           this.binderhubs = binderhubData.binderhubs || [];
           this.trafficIcon();
-          this.trafficStyle()
+          this.trafficStyle();
         } else {
-          this.binderhubsErrors = "There was an error generating notebook links from GitHub, please contact your administrator.";
+          this.binderhubsErrors =
+            'There was an error generating notebook links from GitHub, please contact your administrator.';
           console.error(await response.text());
         }
       } catch (e) {
         console.error(e);
-        this.binderhubsErrors = "There was an error generating notebook links from GitHub, please contact your administrator.";
+        this.binderhubsErrors =
+          'There was an error generating notebook links from GitHub, please contact your administrator.';
       }
     },
     generateUrl(baseUrl) {
-      let notebookPath = `v2/gh/${first(this.gitOrg)?.['@value']}/${first(this.gitName)?.['@value']}/${first(this.gitBranch)?.['@value']}?filepath=${first(this.filepath)?.['@id']}`;
+      const notebookPath = `v2/gh/${first(this.gitOrg)?.['@value']}/${first(this.gitName)?.['@value']}/${first(this.gitBranch)?.['@value']}?filepath=${first(this.filepath)?.['@id']}`;
       return `${baseUrl}/${notebookPath}`;
     },
     authenticationTooltip(element) {
       if (element) {
         return 'Access: Authentication required.';
-      } else {
-        return 'Access: Authentication not required.';
       }
+      return 'Access: Authentication not required.';
     },
     // memoryTooltip(current, required) {
     //   if (current < required) {
@@ -100,17 +100,15 @@ export default {
     trafficIcon(element) {
       if (element) {
         return 'fa-solid fa-circle-exclamation';
-      } else {
-        return 'fa-solid fa-circle-check';
       }
+      return 'fa-solid fa-circle-check';
     },
     trafficStyle(element) {
       if (element) {
         return 'color: #FFD43B;';
-      } else {
-        return 'color: #51c09f';
       }
-    }
+      return 'color: #51c09f';
+    },
   },
 };
 </script>

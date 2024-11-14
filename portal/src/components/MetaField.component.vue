@@ -27,26 +27,25 @@
   </el-row>
 </template>
 <script>
-import {first} from "lodash";
-import ElasticField from "./ElasticField.component.vue";
-import ElasticResolveField from "./ElasticResolveField.component.vue";
-import FieldHelperCard from "./cards/FieldHelperCard.component.vue";
+import { first } from 'lodash';
+import ElasticField from './ElasticField.component.vue';
+import ElasticResolveField from './ElasticResolveField.component.vue';
+import FieldHelperCard from './cards/FieldHelperCard.component.vue';
 
 export default {
   components: {
     FieldHelperCard,
     ElasticField,
-    ElasticResolveField
+    ElasticResolveField,
   },
   props: ['meta', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
   data() {
-    return {}
+    return {};
   },
   async mounted() {
     try {
-
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   },
   methods: {
@@ -59,7 +58,7 @@ export default {
     },
     capitalizeFirstLetter(string) {
       return string[0].toUpperCase() + string.slice(1);
-    }
-  }
-}
+    },
+  },
+};
 </script>

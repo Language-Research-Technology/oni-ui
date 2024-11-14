@@ -24,19 +24,14 @@
   </el-sub-menu>
 </template>
 <script>
-
-import {
-  tokenSessionKey,
-  removeLocalStorage,
-  getLocalStorage
-} from "@/storage";
-import {ArrowDown} from '@element-plus/icons-vue'
-import {find} from 'lodash';
+import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
+import { ArrowDown } from '@element-plus/icons-vue';
+import { find } from 'lodash';
 
 export default {
   name: 'NavUser',
   components: {
-    ArrowDown
+    ArrowDown,
   },
   data() {
     return {
@@ -53,7 +48,7 @@ export default {
   computed: {
     current: async function () {
       return this.$route.path;
-    }
+    },
   },
   watch: {
     //lazy watcher to detect if it has been emptied and its not freshly mounted
@@ -63,8 +58,8 @@ export default {
         this.updateUser();
       },
       flush: 'post',
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   updated() {
     this.updateUser();
@@ -74,7 +69,7 @@ export default {
   },
   methods: {
     updateUser() {
-      this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+      this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       this.user = this.$store.state.user;
       this.setName();
     },
@@ -86,13 +81,12 @@ export default {
     },
     findAndClamp(obj, fields) {
       if (obj) {
-        for (let f of fields) {
+        for (const f of fields) {
           if (obj[f]) {
             if (obj[f].length > 30) {
               return obj[f].substring(0, 30);
-            } else {
-              return obj[f];
             }
+            return obj[f];
           }
         }
       }
@@ -109,18 +103,18 @@ export default {
       this.errorMessages = [];
       const membershipsStatus = await this.$membership.get();
       if (membershipsStatus) {
-        for (let m of membershipsStatus.memberships) {
-          if (m['group']) {
-            this.userMemberships.push(m['group']);
+        for (const m of membershipsStatus.memberships) {
+          if (m.group) {
+            this.userMemberships.push(m.group);
           }
           //TODO: I dont like this change to something better
-          if (m['error']) {
-            this.errorMessages.push(m['error']);
+          if (m.error) {
+            this.errorMessages.push(m.error);
           }
         }
       }
       this.loading = false;
-    }
-  }
+    },
+  },
 };
 </script>

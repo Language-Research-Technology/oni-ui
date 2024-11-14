@@ -11,8 +11,8 @@
   </el-row>
 </template>
 <script>
+import { first } from 'lodash';
 import FieldHelperCard from './FieldHelperCard.component.vue';
-import {first} from "lodash";
 
 export default {
   components: {
@@ -20,11 +20,11 @@ export default {
   },
   props: ['tops', 'elasticField', 'className'],
   data() {
-    return {}
+    return {};
   },
   mounted() {
-    console.log(this.elasticField)
+    console.log(this.elasticField);
   },
-  methods: {first}
-}
+  methods: { first },
+};
 </script>

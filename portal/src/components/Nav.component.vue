@@ -80,20 +80,15 @@
 }
 </style>
 <script>
-
-import {
-  tokenSessionKey,
-  removeLocalStorage,
-  getLocalStorage
-} from "@/storage";
+import logo from '@/assets/logo.svg';
+import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
+import { defineAsyncComponent, toRaw } from 'vue';
 import NavUser from './NavUser.component.vue';
-import logo from "@/assets/logo.svg";
-import {defineAsyncComponent, toRaw} from "vue";
 
 export default {
   name: 'NavView',
   components: {
-    NavUser
+    NavUser,
   },
   data() {
     return {
@@ -112,13 +107,13 @@ export default {
       search: null,
       clear: null,
       filters: null,
-      onInputChange: null
+      onInputChange: null,
     };
   },
   computed: {
     current: async function () {
       return this.$route.path;
-    }
+    },
   },
   watch: {
     '$route.query.view': {
@@ -126,18 +121,17 @@ export default {
         this.activate();
       },
       flush: 'post',
-      immediate: true
+      immediate: true,
     },
     '$route.query': {
       handler() {
         this.activate();
       },
       flush: 'post',
-      immediate: true
+      immediate: true,
     },
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     activate: function () {
       if (this.$route.name === this.topNavHome) {
@@ -146,7 +140,7 @@ export default {
         this.active = this.$route.name;
         console.log(`Active Route: ${this.active}`);
       }
-    }
-  }
+    },
+  },
 };
 </script>

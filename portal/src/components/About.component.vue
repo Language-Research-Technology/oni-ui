@@ -24,14 +24,12 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
       help: this.$store.state.configuration.ui.help,
-    }
+    };
   },
-  mounted() {
-  }
+  mounted() {},
 };
 </script>

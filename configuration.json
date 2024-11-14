@@ -155,6 +155,7 @@
       "expand": ["speaker", "author", "citation"]
     },
     "head": {
+      "title": "DC.publisher",
       "meta": [
         {
           "name": "DC.title",
@@ -169,6 +170,10 @@
           "content": "creator"
         },
         {
+          "name": "DC.creator",
+          "content": "author"
+        },
+        {
           "name": "DC.contributor",
           "content": "contributor"
         },
@@ -177,20 +182,12 @@
           "content": "datePublished"
         },
         {
-          "name": "DC.coverage",
-          "content": "temporalCoverage"
-        },
-        {
           "name": "DC.language",
-          "content": "language"
+          "content": "inLanguage"
         },
         {
           "name": "DC.identifier",
           "content": "@id"
-        },
-        {
-          "name": "DC.publisher",
-          "content": "publisher"
         },
         {
           "name": "DC.type",

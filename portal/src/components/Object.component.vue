@@ -2,20 +2,20 @@
   <div class="px-10 pt-10 pb-7 z-10 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <member-of-link :memberOf="metadata?._memberOf"/>
+        <member-of-link :memberOf="metadata?._memberOf" />
         {{ first(this.name)?.['@value'] }}
       </h5>
     </el-row>
-    <hr class="divider divider-gray pt-2"/>
+    <hr class="divider divider-gray pt-2" />
   </div>
   <el-row :justify="'center'" v-if="this.metadata" class="m-5 px-10" v-loading="loading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
-      <AccessHelper v-if="access" :access="access" :license="license"/>
+      <AccessHelper v-if="access" :access="access" :license="license" />
       <div class="px-5 pb-5">
-        <MetaTopCard :tops="this.tops" :className="'py-5'"/>
+        <MetaTopCard :tops="this.tops" :className="'py-5'" />
         <el-row class="">
           <el-col v-for="meta of this.meta">
-            <meta-field :meta="meta" :routePath="'object'" :crateId="this.crateId"/>
+            <meta-field :meta="meta" :routePath="'object'" :crateId="this.crateId" />
           </el-col>
         </el-row>
       </div>
@@ -25,8 +25,8 @@
         <el-col v-if="this.license?.['@id']">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <license-card v-if="this.license?.['@id']" :license="license"/>
+            <hr class="divider divider-gray pt-2" />
+            <license-card v-if="this.license?.['@id']" :license="license" />
           </el-card>
         </el-col>
       </el-row>
@@ -34,29 +34,29 @@
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
             <h5 class="text-2xl font-medium">Downloads</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <template v-for="z of zips">
-              <ZipLink :name="z.name" :id="z.id" :message="z.message"/>
+              <ZipLink :name="z.name" :id="z.id" :message="z.message" />
             </template>
             <p v-if="zips && zips.length === 0">No direct downloads for this object</p>
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
-            <DownloadsModal :id="this.rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
+            <DownloadsModal :id="this.rootId" v-model="openDownloads" :title="first(name)?.['@value']" />
           </el-card>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
-          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
+          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf" />
         </el-col>
       </el-row>
       <el-row v-if="membersFiltered?.data && membersFiltered?.data.length">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <ul>
               <li v-for="d of membersFiltered.data">
-                <collection-item :field="d._source" :routePath="'object'"/>
+                <collection-item :field="d._source" :routePath="'object'" />
               </li>
               <li v-if="membersFiltered">
                 <el-link type="primary" :href="`/search?f=${moreObjects()}`">more...</el-link>
@@ -67,17 +67,13 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <BinderHubCard v-if="metadata['gitName']"
-                         :gitOrg="metadata['gitOrg']"
-                         :gitName="metadata['gitName']"
-                         :gitBranch="metadata['gitBranch']"
-                         :filepath="metadata['filepath']"
-          />
+          <BinderHubCard v-if="metadata['gitName']" :gitOrg="metadata['gitOrg']" :gitName="metadata['gitName']"
+            :gitBranch="metadata['gitBranch']" :filepath="metadata['filepath']" />
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <TakedownCard/>
+          <TakedownCard />
         </el-col>
       </el-row>
     </el-col>
@@ -89,7 +85,7 @@
           <h2 class="text-2xl tracking-tight dark:text-white">
             Files: {{ parts.length }}
             <AggregationAsIcon v-for="part of uniqueParts" :item="part" :field="{ 'name': 'File', 'display': 'File' }"
-                               :id="id"/>
+              :id="id" />
           </h2>
         </div>
         <div></div>
@@ -101,11 +97,10 @@
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part?.['@id'])"></a>
             <object-part :part="part" :title="first(part?.name)?.['@value'] || part?.['@id']"
-                         :active="isPartActive(part?.['@id'], index)" :id="encodeURIComponent(part?.['@id'])"
-                         :encodingFormat="first(part?.['encodingFormat'])?.['@value']" :crateId="this.crateId"
-                         :rootId="this.rootId" :parentName="first(this.name)?.['@value']"
-                         :parentId="this.$route.query.id"
-                         :license="license" :access="access"/>
+              :active="isPartActive(part?.['@id'], index)" :id="encodeURIComponent(part?.['@id'])"
+              :encodingFormat="first(part?.['encodingFormat'])?.['@value']" :crateId="this.crateId"
+              :rootId="this.rootId" :parentName="first(this.name)?.['@value']" :parentId="this.$route.query.id"
+              :license="license" :access="access" />
           </li>
         </ul>
       </el-col>
@@ -113,9 +108,9 @@
   </template>
 </template>
 <script>
+import { defineAsyncComponent } from 'vue';
 import { putLocalStorage } from '@/storage';
 import { first, isEmpty, isEqual, isUndefined, reject, sortBy } from 'lodash';
-import { defineAsyncComponent } from 'vue';
 import { initSnip, toggleSnip } from '../tools';
 import AccessHelper from './AccessHelper.component.vue';
 import CollectionItem from './CollectionItem.component.vue';

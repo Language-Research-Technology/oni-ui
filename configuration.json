@@ -164,6 +164,7 @@
       ]
     },
     "head": {
+      "title": "DC.publisher",
       "meta": [
         {
           "name": "DC.title",
@@ -190,20 +191,12 @@
           "content": "datePublished"
         },
         {
-          "name": "DC.coverage",
-          "content": "temporalCoverage"
-        },
-        {
           "name": "DC.language",
           "content": "inLanguage"
         },
         {
           "name": "DC.identifier",
           "content": "@id"
-        },
-        {
-          "name": "DC.publisher",
-          "content": "publisher"
         },
         {
           "name": "DC.type",

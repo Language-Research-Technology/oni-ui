@@ -187,6 +187,7 @@ export default {
       fields: this.$store.state.configuration.ui.main.fields,
       helpers: this.$store.state.configuration.ui.helpers || [],
       configTag: this.$store.state.configuration.ui.head || {},
+      title: this.$store.state.configuration.ui.title || '',
       metadata: {},
       name: '',
       license: [],
@@ -256,11 +257,11 @@ export default {
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);
-      this.populateMetaTags(this.configTag?.meta);
+      this.populateMetaTags(this.configTag?.meta, this.configTag?.title);
       this.populateLicense();
       await this.populateBuckets()
     },
-    populateMetaTags(config = []) {
+    populateMetaTags(config = [], title) {
       for (let field of config) {
         let helper = this.helpers.find(h => h.id === field.name);
         if (!helper) {
@@ -282,6 +283,11 @@ export default {
           help: helper
         })
       }
+      this.metaTags.push({
+        name: title,
+        value: this.title,
+        help: {}
+      });
       //see populateTop
     },
     populateName(config) {

@@ -137,8 +137,6 @@ import PropertySummaryCard from './cards/PropertySummaryCard.component.vue';
 import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
 import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
-import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
-import { putLocalStorage } from '@/storage';
 import CitationCard from './cards/CitationCard.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';

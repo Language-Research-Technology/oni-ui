@@ -111,7 +111,6 @@
 import { defineAsyncComponent } from 'vue';
 import { putLocalStorage } from '@/storage';
 import { first, isEmpty, isEqual, isUndefined, reject, sortBy } from 'lodash';
-import { defineAsyncComponent } from 'vue';
 import { initSnip, toggleSnip } from '../tools';
 import AccessHelper from './AccessHelper.component.vue';
 import CollectionItem from './CollectionItem.component.vue';
@@ -121,8 +120,6 @@ import BinderHubCard from './cards/BinderHubCard.component.vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
 import MemberOfCard from './cards/MemberOfCard.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
-import { putLocalStorage } from '@/storage';
-import BinderHubCard from './cards/BinderHubCard.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
 import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';

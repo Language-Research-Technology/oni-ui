@@ -5,7 +5,7 @@
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col>
               <span id="total_results"
-                    class="my-1 mr-2" v-show="totals">Total: <span>{{ this.totals }} entries</span></span>
+                    class="my-1 mr-2" v-show="total">Total: <span>{{ total }} entries</span></span>
             </el-col>
             <el-col>
               <el-button size="large" @click="showMap()">
@@ -45,19 +45,19 @@
         <div class="py-0 w-full pb-2">
           <el-pagination class="items-center w-full"
                          background layout="prev, pager, next"
-                         :total="totals"
+                         :total="total"
                          v-model:page-size="pageSize"
                          @update:page-size="pageSize"
                          v-model:currentPage="currentPage"
                          @current-change="updatePages($event, 'top_menu')"/>
         </div>
-        <div v-for="object of this.objects" :key="object.id"
+        <div v-for="object of objects" :key="object.id"
              class="z-0 mt-0 mb-4 w-full"
              v-loading="loading">
           <object-summary :object="object" />
         </div>
 
-        <div v-loading="loading" v-if="!this.objects.length > 0">
+        <div v-loading="loading" v-if="!objects.length > 0">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
               <span v-if="!loading">No objects found</span>
@@ -67,7 +67,7 @@
         <div class="py-2 w-full">
           <el-pagination class="items-center w-full"
                          background layout="prev, pager, next"
-                         :total="totals"
+                         :total="total"
                          v-model:page-size="pageSize"
                          @update:page-size="pageSize"
                          v-model:currentPage="currentPage"
@@ -75,13 +75,13 @@
         </div>
       </div>
   </el-row>
-  <el-dialog v-model="errorDialogVisible" width="40%" center>
+  <el-dialog v-model="errorDialogText" width="40%" center>
     <el-alert title="Error" type="warning" :closable="false">
-      <p class="break-normal">{{ this.errorDialogText }}</p>
+      <p class="break-normal">{{ errorDialogText }}</p>
     </el-alert>
     <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+          <el-button type="primary" @click="errorDialogText = undefined">Close</el-button>
         </span>
     </template>
   </el-dialog>
@@ -92,7 +92,7 @@
 <script>
 import { getLocalStorage, putLocalStorage, removeLocalStorage } from '@/storage';
 import { CloseBold } from '@element-plus/icons-vue';
-import { find, first, isEmpty, isUndefined, last, orderBy } from 'lodash';
+import { find } from 'lodash';
 import { defineAsyncComponent, toRaw } from 'vue';
 import ObjectSummary from './ObjectSummary.component.vue';
 import SearchAdvanced from './SearchAdvanced.component.vue';
@@ -119,32 +119,30 @@ export default {
 
     return {
       objects: [],
-      totals: 0,
+
+      total: 0,
       pageSize: 10,
       currentPage: 1,
+
       loading: false,
-      errorDialogVisible: false,
-      errorDialogText: '',
-      conformsToNotebook: this.$store.state.configuration.ui.conformsTo?.notebook,
+
+      errorDialogText: undefined,
+
       sorting,
       ordering,
-      selectedSorting: first(sorting),
-      selectedOrder: first(ordering),
+      selectedSorting: sorting[0],
+      selectedOrder: ordering[0],
     };
   },
   created() {
+    console.log('created');
     this.fetch();
   },
   updated() {
-    this.fetch();
-  },
-  watch() {
+    console.log('updated');
     this.fetch();
   },
   methods: {
-    first,
-    isEmpty,
-    isUndefined,
     async fetch() {
       this.loading = true;
 
@@ -164,17 +162,13 @@ export default {
 
         const response = await this.$api.getObjects(params);
 
-        this.totals = response.total;
+        this.total = response.total;
         this.objects = response.objects;
       } catch (e) {
-        this.errorDialogVisible = true;
         this.errorDialogText = e.message;
       }
 
       this.loading = false;
-    },
-    scrollToTop() {
-      window.scrollTo(0, 0);
     },
     sortResults(sort) {
       this.currentPage = 1;
@@ -190,7 +184,7 @@ export default {
     async updatePages(page, scrollTo) {
       this.currentPage = page;
       await this.fetch();
-      this.scrollToTop();
+      window.scrollTo(0, 0);
     },
     showMap() {
       this.$router.push({ path: '/map' });

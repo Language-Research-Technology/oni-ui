@@ -113,6 +113,8 @@ export default {
     return {
       _uuid: uuid(),
       aggConfig: this.$store.state.configuration.ui.aggregations,
+      conformsToNotebook: this.$store.state.configuration.ui.conformsTo?.notebook,
+
       // TODO: Rename this
       searchDetails: this.$store.state.configuration.ui.search.searchDetails || [],
       // aggregations: this.$store.state.configuration.ui.aggregations,

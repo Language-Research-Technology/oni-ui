@@ -14,9 +14,9 @@ import ShellComponent from '@/components/Shell.component.vue';
 import TermsComponent from '@/components/Terms.component.vue';
 import UserComponent from '@/components/User.component.vue';
 import CallbackOauthLogin from '@/components/authentication/OauthCallback.component.vue';
-import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
+import { putLocalStorage, removeLocalStorage } from '@/storage';
 import { createRouter, createWebHistory } from 'vue-router';
-import HTTPService from './http.service';
+// import HTTPService from './http.service';
 
 const routes = [
   {
@@ -121,17 +121,26 @@ router.beforeEach(onAuthRequired);
 
 async function onAuthRequired(to, from, next) {
   // const httpService = new HTTPService({ router, loginPath: '/login' });
-  // let isAuthed = await httpService.get({ route: "/authenticated" });
-  // if (isAuthed.status === 200) {
-  // putLocalStorage({ key: 'isLoggedIn', data: true });
-  // } else {
-  putLocalStorage({ key: 'isLoggedIn', data: false });
-  // }
-  // if (isAuthed.status === 200 && to.path === "/login") {
-  //   return next({ path: "/" });
-  // }
+  // TODO: Put auth back if needed
+  const authData = { status: 401 }; // await httpService.get({ route: "/authenticated" });
+  const isAuthed = authData.status === 200;
+  putLocalStorage({ key: 'isLoggedIn', data: isAuthed });
+
+  if (isAuthed && to.path === '/login') {
+    return next({ path: '/' });
+  }
+
+  if (!isAuthed && to.meta.requiresAuth) {
+    // Save the last route
+    return next('/login');
+  }
+
   if (to.meta?.requiresAuth) {
     console.log(`requires Auth ${to.path}`);
+
+    // Store the current route for oAuth
+    putLocalStorage({ key: 'lastRoute', data: to.fullPath });
+
     try {
       if (isAuthed.status === 401 && from.path !== '/login') {
         removeLocalStorage({ key: 'user' });
@@ -142,15 +151,8 @@ async function onAuthRequired(to, from, next) {
       if (from.path !== '/login') return next({ path: '/login' });
     }
   }
+
   next();
-}
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop().split(';').shift();
-  }
-  return null;
 }
 
 export default router;

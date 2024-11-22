@@ -234,15 +234,10 @@ export default {
 
       // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
       // this.aggregations = summaries.aggregations;
-      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     } catch (e) {
       console.error(e);
     }
   },
-  updated() {
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
-  },
-  watch: {},
   methods: {
     first,
     isEmpty,

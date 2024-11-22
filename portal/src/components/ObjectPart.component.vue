@@ -1,7 +1,7 @@
 <template>
   <el-row class="grid-content p-6">
     <el-col :xs="22" :sm="22" :md="22" :lg="22" :xl="22">
-      <h5 class="text-2xl font-normal leading-normal mt-0 mb-2">{{ title }}</h5>
+      <h5 class="text-2xl font-normal leading-normal mt-0 mb-2">{{ part.name }}</h5>
     </el-col>
     <el-col :xs="2" :sm="2" :md="2" :lg="2" :xl="2">
       <template v-if="resolve">
@@ -24,12 +24,11 @@
         </li>
       </ul>
     </el-col>
-    <!-- <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14"> -->
-    <!--   // TDOO: Show the files -->
-    <!--   <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="encodingFormat" :crateId="crateId" -->
-    <!--     :rootId="rootId" :pdfPages="1" :name="title" :parentName="parentName" previewText="Click 'View File' to see more" -->
-    <!--     isPreview="true" :access="access" :license="license" /> -->
-    <!-- </el-col> -->
+    <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
+      <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="part.encodingFormat" :crateId="crateId"
+        :name="title" previewText="Click 'View File' to see more"
+        isPreview="true" :access="access" :license="license" />
+    </el-col>
   </el-row>
   <el-row>
     <el-col class="divide-solid divide-y-2 divide-red-700">
@@ -46,18 +45,7 @@ import MetaField from './MetaField.component.vue';
 export default {
   inheritAttrs: false,
   components: { MetaField, FileResolve },
-  props: [
-    'title',
-    'part',
-    'active',
-    'encodingFormat',
-    'crateId',
-    'rootId',
-    'parentName',
-    'parentId',
-    'access',
-    'license',
-  ],
+  props: ['part', 'active', 'crateId', 'rootId', 'parentName', 'parentId', 'access', 'license'],
   data() {
     return {
       more: '',

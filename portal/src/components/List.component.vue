@@ -134,15 +134,12 @@ export default {
   },
   created() {
     this.fetch();
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   updated() {
     this.fetch();
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   watch() {
     this.fetch();
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   methods: {
     first,

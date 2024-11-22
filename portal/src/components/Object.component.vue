@@ -88,7 +88,6 @@
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
             <object-part :part="part" :title="part.name || part['@id']"
                          :active="isPartActive(part['@id'], index)" :id="part['@id']"
-                         :encodingFormat="part['encodingFormat']"
                          :rootId="rootId" :parentName="name"
                          :parentId="id"
                          :license="license" :access="access"/>
@@ -184,7 +183,6 @@ export default {
       this.loading = false;
 
       initSnip({ selector: '#license', button: '#readMoreLicense' });
-      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     } catch (e) {
       console.error(e);
     }
@@ -206,7 +204,6 @@ export default {
     //     false,
     //   );
     // }
-    // putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
     async populate() {
@@ -271,7 +268,9 @@ export default {
       }
     },
     populateAccess() {
-      this.access = this.metadata._access;
+      // FIXME: Use real data
+      // this.access = this.metadata._access;
+      this.access = { hasAccess: true };
     },
     isPartActive(id, index) {
       if (this.$route.query.fileId === id) {

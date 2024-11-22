@@ -64,7 +64,6 @@ export default {
       this.populateData();
       this.license = first(this.metadata?.license);
       this.access = this.metadata._access;
-      putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     },
     populateData() {
       this.title = first(this.metadata?.name)?.['@value'] || this.metadata['@id'];

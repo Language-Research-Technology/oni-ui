@@ -330,7 +330,6 @@ export default {
     // this.aggregations = this.populateAggregations(aggregations['aggregations']);
     await this.search();
     this.loading = false;
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   async mounted() {
     console.log('mounted');
@@ -353,7 +352,6 @@ export default {
       this.advancedSearch = false;
     }
     // await this.updateFilters({});
-    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   methods: {
     toArray,

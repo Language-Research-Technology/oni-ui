@@ -1,37 +1,5 @@
 <template>
-  <span class="p-1 m-1" v-if="noIcon">
-    <span class="justify-center" v-if="accessIcon === 'public'">
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="You can access this data immediately and by doing so you accept the licence terms specified on the record."
-          placement="bottom"
-      >
-        <manku-icon name="public" size="40" fill="grey"/>
-      </el-tooltip>
-    </span>
-    <span class="justify-center" v-if="accessIcon === 'login'">
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="You can access this data after logging in. You may also have to agree to licence terms in an automatic process."
-          placement="bottom"
-      >
-        <manku-icon name="login" size="40" fill="grey"/>
-      </el-tooltip>
-    </span>
-    <span class="justify-center" v-if="accessIcon === 'loginPlus'">
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="There are restrictions on access to this data. Log in to get further information."
-          placement="bottom"
-      >
-        <manku-icon name="loginplus" size="40" fill="grey"/>
-      </el-tooltip>
-    </span>
-  </span>
-  <span class="p-1 m-1" v-else>
+  <span class="p-1 m-1">
     <span class="justify-center">
       <el-tooltip
           class="box-item"

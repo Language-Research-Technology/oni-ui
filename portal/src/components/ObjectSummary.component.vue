@@ -56,16 +56,18 @@
         </el-row>
 
         <el-row class="py-4 pr-4" v-if="object.description">
-          <p :id="'desc_'+_uuid">{{ object.description }}</p>
+          <p :id="'desc_'+uuid">{{ object.description }}</p>
         </el-row>
 
         <el-row class="gap-2 flex">
-          <span class="after:content-[','] last:after:content-none" v-if="object.metadata?.collections">Collections: {{ object.metadata.collections }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="object.metadata?.objectsCount">Objects: {{ object.metadata.objectsCount }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="object.metadata?.filesCount">Files: {{ object.metadata.filesCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.collections">Collections: {{ object.extra.collections }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.objectsCount">Objects: {{ object.extra.objectsCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.filesCount">Files: {{ object.extra.filesCount }}</span>
         </el-row>
+      </el-col>
 
-    <!--   <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0"> -->
+      <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
+        <AccessControlIcon :accessControl="object.extra.accessControl"/>
     <!--     <template v-if="types.includes('RepositoryCollection') || types.includes('RepositoryObject')"> -->
     <!--       <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig"> -->
     <!--         <template v-if="agg.icons"> -->
@@ -100,18 +102,20 @@
   </div>
 </template>
 <script>
-import { v4 as uuid } from 'uuid';
+import { v4 as v4uuid } from 'uuid';
 // import AggregationHelper from './helpers/AggregationHelper.component.vue';
+import AccessControlIcon from './widgets/AccessControlIcon.component.vue';
 import { initSnip, toggleSnip } from '../tools';
 
 export default {
-  // components: {
-  //   AggregationHelper,
-  // },
+  components: {
+    AccessControlIcon,
+    //   AggregationHelper,
+  },
   props: ['object'],
   data() {
     return {
-      _uuid: uuid(),
+      uuid: v4uuid(),
       aggConfig: this.$store.state.configuration.ui.aggregations,
       conformsToNotebook: this.$store.state.configuration.ui.conformsTo?.notebook,
 
@@ -122,7 +126,7 @@ export default {
   },
   mounted() {
     if (!this.descriptionSnipped) {
-      initSnip({ selector: `#desc_${this._uuid}`, lines: 3 });
+      initSnip({ selector: `#desc_${this.uuid}`, lines: 3 });
     }
   },
   methods: {

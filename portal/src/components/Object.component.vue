@@ -110,7 +110,7 @@ import MemberOfCard from './cards/MemberOfCard.component.vue';
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
-import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
+// import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 import { initSnip, toggleSnip } from '../tools';
 
 export default {
@@ -123,7 +123,7 @@ export default {
     AccessHelper,
     ObjectPart: defineAsyncComponent(() => import('./ObjectPart.component.vue')),
     CollectionItem,
-    AggregationAsIcon,
+    // AggregationAsIcon,
     TakedownCard,
     BinderHubCard,
   },

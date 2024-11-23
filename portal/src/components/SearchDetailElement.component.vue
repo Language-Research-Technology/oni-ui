@@ -97,28 +97,28 @@
         <template v-if="types.includes('RepositoryCollection') || types.includes('RepositoryObject')">
           <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig">
             <template v-if="agg.icons">
-              <AggregationHelper :asIcons="true"
-                                 :aggregations="aggregations"
-                                 :field="{ 'name': agg.name, 'display': agg.display }"
-                                 :id="id"/>
+              <!-- <AggregationHelper :asIcons="true" -->
+              <!--                    :aggregations="aggregations" -->
+              <!--                    :field="{ 'name': agg.name, 'display': agg.display }" -->
+              <!--                    :id="id"/> -->
             </template>
           </el-row>
         </template>
         <template v-else>
           <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig">
-            <template v-if="agg.icons">
-              <template v-if="agg.name === 'license.@id'"><!--This is needed because license comes from configuration-->
-                <AggregationHelper :asIcons="true"
-                                   :item="findLicense(details.license)"
-                                   :field="{'display': 'Licence'}"/>
-              </template>
-              <template v-else>
-                <AggregationHelper :asIcons="true"
-                                   :item="getValue(agg.name)"
-                                   :field="{ 'name': agg.name, 'display': agg.display }"
-                                   :id="id"/>
-              </template>
-            </template>
+            <!-- <template v-if="agg.icons"> -->
+              <!-- <template v-if="agg.name === 'license.@id'">!--This is needed because license comes from configuration-- -->
+                <!-- <AggregationHelper :asIcons="true" -->
+                <!--                    :item="findLicense(details.license)" -->
+                <!--                    :field="{'display': 'Licence'}"/> -->
+              <!-- </template> -->
+              <!-- <template v-else> -->
+                <!-- <AggregationHelper :asIcons="true" -->
+                <!--                    :item="getValue(agg.name)" -->
+                <!--                    :field="{ 'name': agg.name, 'display': agg.display }" -->
+                <!--                    :id="id"/> -->
+              <!-- </template> -->
+            <!-- </template> -->
           </el-row>
         </template>
       </el-col>
@@ -131,14 +131,13 @@ import { find, first, isEmpty, isUndefined, merge, toArray } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import { initSnip, toggleSnip } from '../tools';
 import SummariesCard from './cards/SummariesCard.component.vue';
-import AggregationHelper from './helpers/AggregationHelper.component.vue';
-import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
+// import AggregationHelper from './helpers/AggregationHelper.component.vue';
+// import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 
 export default {
   components: {
     SummariesCard,
-    AggregationHelper,
-    AggregationAsIcon,
+  //  AggregationHelper,
   },
   props: ['id', 'href', 'name', 'conformsTo', 'types', 'memberOf', 'root', 'highlight', 'parent', 'details', 'score'],
   data() {

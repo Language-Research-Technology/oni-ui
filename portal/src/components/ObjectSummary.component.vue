@@ -68,34 +68,12 @@
 
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
         <AccessControlIcon :accessControl="object.extra.accessControl"/>
-    <!--     <template v-if="types.includes('RepositoryCollection') || types.includes('RepositoryObject')"> -->
-    <!--       <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig"> -->
-    <!--         <template v-if="agg.icons"> -->
-    <!--           <AggregationHelper :asIcons="true" -->
-    <!--                              :aggregations="aggregations" -->
-    <!--                              :field="{ 'name': agg.name, 'display': agg.display }" -->
-    <!--                              :id="id"/> -->
-    <!--         </template> -->
-    <!--       </el-row> -->
-    <!--     </template> -->
-    <!--     <template v-else> -->
-    <!--       <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig"> -->
-    <!--         <template v-if="agg.icons"> -->
-    <!--           <template v-if="agg.name === 'license.@id'"><--This is needed because license comes from configuration-->
-    <!--             <AggregationHelper :asIcons="true" -->
-    <!--                                :item="findLicense(object.license)" -->
-    <!--                                :field="{'display': 'Licence'}"/> -->
-    <!--           </template> -->
-    <!---->
-    <!--           <template v-else> -->
-    <!--             <AggregationHelper :asIcons="true" -->
-    <!--                                :item="getValue(agg.name)" -->
-    <!--                                :field="{ 'name': agg.name, 'display': agg.display }" -->
-    <!--                                :id="id"/> -->
-    <!--           </template> -->
-    <!--         </template> -->
-    <!--       </el-row> -->
-    <!--     </template> -->
+        <CommunicationModeIcon :accessControl="object.extra.communicationMode"/>
+        <el-row :span="24" class="flex justify-center">
+          <template v-for="mediaType of object.extra.mediaType">
+            <MediaTypeIcon :mediaType="mediaType"/>
+          </template>
+        </el-row>
       </el-col>
     </el-row>
     <hr class="divide-y divide-gray-500"/>
@@ -103,14 +81,16 @@
 </template>
 <script>
 import { v4 as v4uuid } from 'uuid';
-// import AggregationHelper from './helpers/AggregationHelper.component.vue';
 import AccessControlIcon from './widgets/AccessControlIcon.component.vue';
+import CommunicationModeIcon from './widgets/CommunicationModeIcon.component.vue';
+import MediaTypeIcon from './widgets/MediaTypeIcon.component.vue';
 import { initSnip, toggleSnip } from '../tools';
 
 export default {
   components: {
     AccessControlIcon,
-    //   AggregationHelper,
+    CommunicationModeIcon,
+    MediaTypeIcon,
   },
   props: ['object'],
   data() {

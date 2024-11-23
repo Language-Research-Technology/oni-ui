@@ -28,7 +28,11 @@ export default {
         return 'file-audio';
       }
 
-      if (mediaType.startsWith('xml')) {
+      if (mediaType.startsWith('image')) {
+        return 'file-image';
+      }
+
+      if (mediaType.includes('xml')) {
         return 'file-code';
       }
 
@@ -46,6 +50,10 @@ export default {
           return 'file-word';
         case 'application/x-ipynb+json':
           return 'clipboard';
+      }
+
+      if (mediaType.startsWith('text')) {
+        return 'file-lines';
       }
 
       console.log(`Need mediaType icon for ${mediaType}`);

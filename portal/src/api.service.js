@@ -14,6 +14,22 @@ export default class HTTPService {
   async getObjects(params) {
     const objects = await this.#get('/objects', params);
 
+    // NOTE: Temp so we can test agains old LDACA API
+    if (this.api.endpoint.includes('ldaca')) {
+      const { total, data } = objects;
+      const newData = data.map(({ crateId, locked, objectRoot, record, url, ...rest }) => ({
+        id: crateId,
+        ...rest,
+      }));
+      const newObjects = {
+        total,
+        objects: newData,
+      };
+
+      console.log(newObjects);
+      return newObjects;
+    }
+
     return objects;
   }
 

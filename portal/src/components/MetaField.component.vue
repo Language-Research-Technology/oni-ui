@@ -30,14 +30,12 @@
 <script>
 import { startCase } from 'lodash';
 import ElasticField from './ElasticField.component.vue';
-import ElasticResolveField from './ElasticResolveField.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
 
 export default {
   components: {
     FieldHelperCard,
     ElasticField,
-    ElasticResolveField,
   },
   props: ['meta', 'isExpand'],
   methods: {

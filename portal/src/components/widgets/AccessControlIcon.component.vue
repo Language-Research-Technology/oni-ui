@@ -10,7 +10,7 @@ export default {
   props: ['accessControl'],
   data() {
     return {
-      icon: undefined,
+      iconName: undefined,
       content: undefined,
     };
   },

@@ -7,6 +7,7 @@
       </el-collapse-item>
     </el-collapse>
   </template>
+
   <template v-if="geometry">
     {{ geometry.asWKT }}
     <LeafletMap class="h-72 flex grow min-w-[200px] mr-4"

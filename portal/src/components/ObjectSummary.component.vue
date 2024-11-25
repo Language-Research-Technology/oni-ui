@@ -67,10 +67,10 @@
       </el-col>
 
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
-        <AccessControlIcon :accessControl="object.extra.accessControl"/>
-        <CommunicationModeIcon :accessControl="object.extra.communicationMode"/>
+        <AccessControlIcon :accessControl="object.extra?.accessControl"/>
+        <CommunicationModeIcon :communicationMode="object.extra?.communicationMode"/>
         <el-row :span="24" class="flex justify-center">
-          <template v-for="mediaType of object.extra.mediaType">
+          <template v-for="mediaType of object.extra?.mediaType">
             <MediaTypeIcon :mediaType="mediaType"/>
           </template>
         </el-row>

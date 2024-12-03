@@ -7,6 +7,16 @@
         </el-link>
 
         <el-dialog v-model="dialogVisible" title="Citation" width="40%">
+            <div v-if="this.creditText">
+                <h4 class="text-1xl font-medium">
+                    Suggested Citation
+                </h4>
+                <p class="spaced">
+                <div v-html="suggestedCitation"></div>
+                </p>
+                <hr class="divider divider-gray mt-4 pb-2" />
+                <p class="spaced"></p>
+            </div>
             <h4 class="text-1xl font-medium">
                 Bibliography Entry
             </h4>
@@ -59,10 +69,11 @@ import { first } from "lodash";
 import { ref } from 'vue';
 
 export default {
-    props: ['name', 'author', 'datePublished', 'id', 'memberOf', 'citation', 'creator', 'doi'],
+    props: ['name', 'author', 'datePublished', 'id', 'memberOf', 'citation', 'creator', 'doi', 'creditText'],
     data() {
         return {
             citationDoi: this.getCitationDoi(),
+            suggestedCitation: this.getSuggestedCitation(),
             bibliography: this.getBibliographyEntry(),
             relatedPublishedWork: this.getRelatedPublishedWork(),
         }
@@ -84,6 +95,10 @@ export default {
             let citationDoi = `${this.citation?.[0]?.['@id']}`;
             return citationDoi;
         },
+        getSuggestedCitation() {
+            let result = `${first(this.creditText)?.['@value']}`;
+            return result
+        },
         getBibliographyEntry() {
             let author = `<b>Author:</b> ${Array.isArray(this.author) && this.author.length > 0 ? this.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
                 : (Array.isArray(this.creator) && this.creator.length > 0 ? this.creator.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
@@ -101,15 +116,14 @@ export default {
             let variables = [author, title, publishedDate, publisher, baseUrl, locator, accessDate];
             let result = variables.filter(value => !String(value).includes("undefined")).join(", ");
             return result
-
         },
         getRelatedPublishedWork() {
-            //let citationAuthor = `<b>Author:</b> TODO`;
+            let citationAuthor = `<b>Author:</b> ${Array.isArray((this.citation)?.author) && (this.citation)?.author.length > 0 ? (this.citation)?.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ') : 'undefined'}`;
             let citationTitle = `<b>Title:</b> ${first(this.citation)?.name[0]?.['@value']}`;
             let citationPublishedDate = `<b>Date:</b> ${first(this.citation)?.datePublished[0]?.['@value']}`;
             let citationPublisher = `<b>Publisher:</b> ${first(this.citation)?.publisher[0]?.['@value']}`;
             let citationLocator = `<b>Locator:</b> ${this.citation?.[0]?.['@id']}`;
-            let variables = [citationTitle, citationPublishedDate, citationPublisher, citationLocator];
+            let variables = [citationAuthor, citationTitle, citationPublishedDate, citationPublisher, citationLocator];
             let result = variables.filter(value => !String(value).includes("undefined")).join(", ");
             return result
         }

@@ -25,8 +25,8 @@
       </ul>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
-      <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="part.encodingFormat" :crateId="crateId"
-        :name="title" previewText="Click 'View File' to see more"
+      <file-resolve class="flex justify-center" :id="part.id" :resolve="resolve" :encodingFormat="part.encodingFormat" :crateId="crateId"
+        previewText="Click 'View File' to see more"
         isPreview="true" :access="access" :license="license" />
     </el-col>
   </el-row>

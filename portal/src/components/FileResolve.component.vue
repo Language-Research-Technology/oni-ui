@@ -81,18 +81,7 @@ import PlainTextWidget from './widgets/PlainTextWidget.component.vue';
 
 export default {
   inheritAttrs: false,
-  props: [
-    'resolve',
-    'id',
-    'encodingFormat',
-    'id',
-    'name',
-    'hideOpenLink',
-    'previewText',
-    'isPreview',
-    'access',
-    'license',
-  ],
+  props: ['id', 'resolve', 'encodingFormat', 'hideOpenLink', 'previewText', 'isPreview', 'access', 'license'],
   components: {
     PlainTextWidget,
     CSVWidget,
@@ -151,7 +140,8 @@ export default {
         this.route += `&path=${encodeURIComponent(this.path)}`;
       }
       // Try to display only text and pdfs by default if there is an encodingFormat
-      if (this.encodingFormat?.match('text/|pdf')) {
+      const formats = this.encodingFormat;
+      if (this.encodingFormat.some((format) => String(format).match(/text\/|pdf/))) {
         this.togglePreview = true;
       }
       if (!this.isPreview) {

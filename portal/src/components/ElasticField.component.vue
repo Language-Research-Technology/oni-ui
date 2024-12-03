@@ -2,13 +2,12 @@
   <template v-if="expandField">
     <el-collapse>
       <el-collapse-item :title="name" :name="name">
-        <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :id="''" :filePath="''"
-                    :parentId="''"/>
+        <meta-field :meta="expandField" :isExpand="true" />
       </el-collapse-item>
     </el-collapse>
   </template>
 
-  <template v-if="geometry">
+  <template v-else-if="geometry">
     {{ geometry.asWKT }}
     <LeafletMap class="h-72 flex grow min-w-[200px] mr-4"
                 :modelValue="geometry"
@@ -16,33 +15,34 @@
                 :enableDrawing="false"></LeafletMap>
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
   </template>
+
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
   </template>
+
+  <template v-else-if="url">
+    <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute"  :href="id"
+       target="_blank" rel="nofollow noreferrer">
+      <manku-icon :name="title" height="30">
+        <template #notFound>
+        <span class="break-all">
+          {{ name || id }}
+        </span>
+        </template>
+      </manku-icon>
+    </a><br/>
+  </template>
+
   <template v-else>
-    <template v-if="url">
-      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute"  :href="id"
-         target="_blank" rel="nofollow noreferrer">
-        <manku-icon :name="title" height="30">
-          <template #notFound>
-          <span class="break-all">
-            {{ name || id }}
-          </span>
-          </template>
-        </manku-icon>
-      </a><br/>
-    </template>
-    <template v-else>
-      <p>
-        {{ name }}
-        <el-tooltip v-if="description" class="box-item" effect="light" trigger="click" :content="description"
-                    placement="top">
-          <el-button size="small" link>
-            <font-awesome-icon icon="fa-solid fa-circle-info"/>
-          </el-button>
-        </el-tooltip>
-      </p>
-    </template>
+    <p>
+      {{ name || id }}
+      <el-tooltip v-if="description" class="box-item" effect="light" trigger="click" :content="description"
+                  placement="top">
+        <el-button size="small" link>
+          <font-awesome-icon icon="fa-solid fa-circle-info"/>
+        </el-button>
+      </el-tooltip>
+    </p>
   </template>
 </template>
 <script>
@@ -73,22 +73,31 @@ export default {
     };
   },
   mounted() {
-    this.renderField(this.field);
+    this.renderField();
   },
   methods: {
     transformer,
-    renderField(field) {
-      if (isString(field) || isNumber(field)) {
-        this.name = field;
+    renderField() {
+      if (isString(this.field) || isNumber(this.field)) {
+        this.name = this.field;
         return;
       }
 
-      this.id = field['@id'];
+      this.id = this.field['@id'];
       this.url = this.testURL(this.id);
-      this.name = field.name;
-      this.description = field.description;
-      if (field.name === 'contentLocation') {
-        this.geometry = field.geo;
+      this.name = this.field.name;
+      this.description = this.field.description;
+
+      if (this.field.name === 'contentLocation') {
+        this.geometry = this.field.geo;
+
+        return;
+      }
+
+      if (this.expand.includes(this.title)) {
+        this.expandField = { name: this.title, data: this.field };
+
+        return;
       }
     },
     testURL(url) {

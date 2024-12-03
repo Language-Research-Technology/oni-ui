@@ -12,8 +12,8 @@
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
       <MetaTopCard :tops="this.tops" :className="'px-5 py-2'"/>
       <el-row class="px-5">
-        <el-col v-for="meta of this.meta">
-          <meta-field :meta="meta" />
+        <el-col v-for="m of meta">
+          <meta-field :meta="m" />
         </el-col>
       </el-row>
       <el-row>

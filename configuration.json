@@ -183,7 +183,7 @@
         },
         {
           "name": "DC.identifier",
-          "content": "@id"
+          "content": "doi"
         },
         {
           "name": "DC.type",

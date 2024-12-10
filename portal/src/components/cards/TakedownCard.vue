@@ -1,0 +1,24 @@
+<script setup lang="ts">
+import { useConfigurationStore } from '@/stores/configuration';
+
+const { ui } = useConfigurationStore();
+
+const takedownForm = ui.googleForm?.takedown;
+
+const currentUrl = encodeURIComponent(window.location.href);
+const takedownLink = `${takedownForm}${currentUrl}`;
+</script>
+
+<template>
+  <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="takedownForm">
+    <h5 class="text-2xl font-medium">Takedown Request</h5>
+    <hr class="divider divider-gray pt-2" />
+    <h4 class="text-1xl font-medium">
+      If you see an item on this page that you think should not be made public, you can request that it be taken
+      down:
+      <el-link :underline="true" type="primary" :href="takedownLink" target="_blank" class="mx-1">
+        Takedown Request Form
+      </el-link>
+    </h4>
+  </el-card>
+</template>

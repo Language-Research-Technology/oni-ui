@@ -48,7 +48,6 @@
 </template>
 <script>
 import { getLocalStorage } from '@/storage';
-import convertSize from 'convert-size';
 import { first } from 'lodash';
 
 export default {

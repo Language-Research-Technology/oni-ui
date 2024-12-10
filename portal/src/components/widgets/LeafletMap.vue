@@ -1,27 +1,31 @@
 <script setup>
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import * as L from 'leaflet';
 import 'leaflet.path.drag';
 import 'leaflet-editable';
 import { GestureHandling } from 'leaflet-gesture-handling';
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+
+import transformer from '@/components/widgets/geo';
+
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 L.Icon.Default.prototype._getIconUrl = undefined;
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
 });
 
 const mapRef = ref();
-//const tooltipRef = ref();
 
 const props = defineProps({
   modelValue: { type: Object },
-  //controls: { type: [String, Array], default: ['point', 'line', 'box', 'circle', 'polygon'] },
-  transformer: { type: Function },
   enableDrawing: { type: Boolean, default: true },
   current: {},
 });
@@ -62,7 +66,7 @@ const allShapes = {
   },
 };
 
-const transform = computed(() => props.transformer(L, props.modelValue));
+const transform = computed(() => transformer(L, props.modelValue));
 const enabledShapes = computed(() =>
   transform.value.shapes
     .filter((s) => allShapes[s])
@@ -71,38 +75,20 @@ const enabledShapes = computed(() =>
       return allShapes[s];
     }),
 );
-// const fromModel = computed(() => props.transformer(L));
-// const toModel = computed(() => props.transformer(L, props.modelValue));
 
-function update(shapes) {
-  emit('update:modelValue', transform.value.toEntity(shapes));
-}
+const update = (shapes) => emit('update:modelValue', transform.value.toEntity(shapes));
 
-// function updateLayer(layer, data, options) {
-//   return ({
-//     box(bounds) { layer.setBounds(bounds); },
-//     circle(latlng, { radius }) { layer.setLatLng(latlng); layer.setRadius(radius); },
-//     line(latlngs) { layer.setLatLngs(latlngs); },
-//     point(latlng) { layer.setLatLng(latlng); },
-//     polygon(latlngs) { layer.setLatLngs(latlngs); }
-//   })[layer.kind]?.(data, options);
-// }
 let map;
+
 onMounted(async () => {
-  // wait so that leaflet div has a size because otherwise the tiles won't load
+  // NOTE: wait so that leaflet div has a size because otherwise the tiles won't load
   await new Promise((r) => setTimeout(r, 100));
-  //setTimeout(initMap, 100);
   initMap();
 });
 
-onBeforeUnmount(() => {
-  if (map) map.remove();
-});
+onBeforeUnmount(() => map?.remove());
 
-function initMap() {
-  //console.log(mapRef.value);
-
-  const layerById = {};
+const initMap = () => {
   L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
   const featuresLayer = L.featureGroup();
   map = L.map(mapRef.value, {
@@ -120,63 +106,57 @@ function initMap() {
   featuresLayer.addTo(map);
   initControls(map, featuresLayer);
 
-  watch(
-    props.modelValue,
-    (val) => {
-      //todo: compare new values to existing values, only update when there is difference
+  // NOTE: JF I don'[t think this is needed as a full rerender will happen if the props change (and I don't think they can change in our app)
+  // watch(
+  //   props.modelValue,
+  //   (val) => {
+  //     //todo: compare new values to existing values, only update when there is difference
+  //
+  //     featuresLayer.clearLayers();
+  //     if (!val) return;
+  //     const shape = transform.value.fromEntity();
+  //     if (shape) {
+  //       try {
+  //         shape.addTo(featuresLayer);
+  //       } catch (error) {
+  //         console.log(error);
+  //         console.log(shape);
+  //       }
+  //     }
+  //     const bounds = featuresLayer.getBounds();
+  //     if (bounds.isValid()) map.flyToBounds(bounds, { maxZoom: 7 });
+  //   },
+  //   { immediate: true },
+  // );
+};
 
-      featuresLayer.clearLayers();
-      if (!val) return;
-      const shape = transform.value.fromEntity();
-      if (shape) {
-        try {
-          shape.addTo(featuresLayer);
-        } catch (error) {
-          console.log(error);
-          console.log(shape);
-        }
-      }
-      const bounds = featuresLayer.getBounds();
-      if (bounds.isValid()) map.flyToBounds(bounds, { maxZoom: 7 });
-    },
-    { immediate: true },
-  );
-}
-
-function initControls(map, featuresLayer) {
+const initControls = (map, featuresLayer) => {
   //const controls = typeof props.controls === 'string' ? props.controls.split(' ') : props.controls;
   let selectedShape;
-  let newShape;
   let actionLink;
   let isModified = false;
   const tooltip = L.DomUtil.create('div', 'leaflet-draw-tooltip', map.getContainer());
 
-  function deactivateAction() {
-    if (actionLink) {
-      L.DomUtil.removeClass(actionLink, 'active');
-      actionLink = null;
-    }
-  }
-  function moveTooltip(e) {
+  const moveTooltip = (e) => {
     tooltip.style.left = `${e.containerPoint.x + 5}px`;
     tooltip.style.top = `${e.containerPoint.y - tooltip.offsetHeight - 5}px`;
-  }
+  };
   // show tooltip
   map.on('mousemove', moveTooltip);
-  function startAction(link, tooltipText) {
+  const startAction = (link, tooltipText) => {
     if (actionLink) L.DomUtil.removeClass(actionLink, 'active');
     tooltip.innerHTML = tooltipText;
     tooltip.style.display = 'block';
     actionLink = link;
     L.DomUtil.addClass(actionLink, 'active');
-  }
-  function stopAction() {
+  };
+  const stopAction = () => {
     tooltip.innerHTML = '';
     tooltip.style.display = 'none';
     //map.off('mousemove', moveTooltip);
     if (actionLink) L.DomUtil.removeClass(actionLink, 'active');
     actionLink = null;
-  }
+  };
 
   if (props.enableDrawing) {
     L.Control.DrawControl = L.Control.extend({
@@ -310,22 +290,11 @@ function initControls(map, featuresLayer) {
 
   map.on(
     'editable:dragend editable:vertex:dragend editable:vertex:new editable:vertex:deleted editable:drawing:commit',
-    (e) => {
-      // console.log(e.type);
-      // console.log(e.layer._leaflet_id);
+    () => {
       isModified = true;
     },
   );
-
-  // map.on('editable:drawing:click', (e) => console.log('editable:drawing:click', e));
-  //map.on('editable:editing', (e) => console.log('editable:editing', e));
-  // map.on('editable:edited', (e) => console.log('edited', e));
-  // map.on('editable:shape:new', (e) => console.log('editable:shape:new', e));
-  // map.on('editable:vertex:deleted', (e) => console.log('vertex:deleted', e));
-
-  // map.on('editable:vertex:new', (e) => { console.log('vertex:new', e); console.log('vertex:new', e.editTools.drawing()); });
-  // map.on('editable:vertex:dragend', (e) => console.log('vertex:dragend', e));
-}
+};
 </script>
 
 <template>

@@ -1,0 +1,159 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+
+import type { GetObjectsResponse, ObjectType } from '@/api.service';
+
+import { useConfigurationStore } from '@/stores/configuration';
+
+import { v4 as v4uuid } from 'uuid';
+
+import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
+import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
+import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
+
+import { initSnip } from '../tools';
+
+const { ui } = useConfigurationStore();
+
+const { object } = defineProps<{ object: GetObjectsResponse['objects'][0] }>();
+
+const uuid = v4uuid();
+// TODO: Rename this
+const searchDetails = ui.search.searchDetails || [];
+const descriptionSnipped = ref(false);
+
+const getSearchDetailUrl = () => {
+  // TODO: this is not good, maybe do it with a ConformsTo to specify link.
+  // But have to think about it because not all files have conformsTo!
+  const { recordType } = object;
+  const repoType = recordType.find((t) => t === 'RepositoryCollection');
+  // const fileType = recordType.find((t) => t === 'File');
+  const itemType = recordType.find((t) => t === 'RepositoryObject');
+
+  const id = encodeURIComponent(object.id);
+
+  if (repoType) {
+    return `/collection?id=${id}`;
+  }
+
+  if (itemType) {
+    return `/object?id=${id}`;
+  }
+
+  // FIXME: Deal with files
+  // if (fileType) {
+  //   let isNotebook;
+  //   if (item._source?.['conformsTo']) {
+  //     isNotebook = item._source['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
+  //   }
+  //
+  //   if (isNotebook) {
+  //     id = encodeURIComponent(item._id);
+  //     return `/object?_id=${id}`;
+  //   } else {
+  //     const fileId = id;
+  //     id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
+  //     return `/object?id=${id}&_id=${id}&fileId=${fileId}`
+  //   }
+  // }
+
+  // Defaults to object if it doesnt know what it is
+  return `/object?id=${id}`;
+};
+
+// const doSnip = (selector: string) => {
+//   toggleSnip(selector);
+//   descriptionSnipped.value = true;
+// };
+
+onMounted(() => {
+  if (!descriptionSnipped) {
+    initSnip({ selector: `#desc_${uuid}`, lines: 3 });
+  }
+});
+</script>
+
+<template>
+  <div><!-- Wrapping an empty div because of multiple roots with v-for-->
+    <el-row>
+      <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20">
+        <el-row :align="'middle'">
+          <h5 class="text-2xl font-medium dark:text-white">
+            <router-link :to="getSearchDetailUrl()"
+              class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
+              {{ object.name || object.id }}
+            </router-link>
+          </h5>
+        </el-row>
+
+        <el-row :align="'middle'">
+          <p class="font-normal text-gray-700 dark:text-gray-400">
+            Type:
+          </p>
+          <div class="flex flex-wrap">
+            <span class="m-2" v-for="type of object.recordType">{{ type }}</span>
+          </div>
+        </el-row>
+
+        <template v-for="special of searchDetails">
+          <el-row v-if="object.extra?.[special.field as keyof ObjectType['extra']]">
+            <p class="font-normal text-gray-700 dark:text-gray-400">
+              {{ special.label }}:&nbsp;
+            </p>
+            <p>{{ (object.extra[special.field as keyof ObjectType['extra']] as
+              string[]).join(', ') }}</p>
+          </el-row>
+        </template>
+
+        <el-row align="middle" v-if="object.memberOf">
+          <p class="font-normal text-gray-700 dark:text-gray-400">
+            Member of:&nbsp;
+          </p>
+          <router-link class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
+            :to="'/collection?id=' + encodeURIComponent(object.memberOf)">
+            {{ object.memberOf }}
+          </router-link>
+        </el-row>
+
+        <el-row align="middle" v-if="object.root && object.root !== object.memberOf" class="pt-2">
+          <p class="font-normal text-gray-700 dark:text-gray-400">
+            &nbsp;In:&nbsp;
+          </p>
+          <router-link :to="'/collection?id=' + encodeURIComponent(object.root)">
+            <el-button>{{ object.root }}</el-button>
+          </router-link>
+        </el-row>
+
+        <el-row align="middle">
+          <p class="font-normal text-gray-700 dark:text-gray-400">
+            {{ object.conformsTo }}
+          </p>
+        </el-row>
+
+        <el-row class="py-4 pr-4" v-if="object.description">
+          <p :id="'desc_' + uuid">{{ object.description }}</p>
+        </el-row>
+
+        <el-row class="gap-2 flex">
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.collectionCount">Collections: {{
+            object.extra.collectionCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.objectCount">Objects: {{
+            object.extra.objectCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.fileCount">Files: {{
+            object.extra.fileCount }}</span>
+        </el-row>
+      </el-col>
+
+      <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
+        <AccessControlIcon :accessControl="object.extra?.accessControl" />
+        <CommunicationModeIcon :communicationMode="object.extra?.communicationMode" />
+        <el-row :span="24" class="flex justify-center">
+          <template v-for="mediaType of object.extra?.mediaType">
+            <MediaTypeIcon :mediaType="mediaType" />
+          </template>
+        </el-row>
+      </el-col>
+    </el-row>
+    <hr class="divide-y divide-gray-500" />
+  </div>
+</template>

@@ -50,12 +50,6 @@
                         href="https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/">help</el-link></span>
                 page for more detail on this topic.
             </p>
-            <p class="spaced">Collection citations can also be retrieved with the <span
-                    style="display: inline-flex; align-items: center;"><el-link type="primary" target="_blank"
-                        href="https://www.zotero.org/download/">Zotero extension</el-link></span> by clicking the
-                dataset icon in the browser toolbar. For further support, see the <span
-                    style="display: inline-flex; align-items: center;"><el-link type="primary" target="_blank"
-                        href="https://www.zotero.org/support/">Zotero documentation</el-link></span>.</p>
         </el-dialog>
     </el-card>
 </template>

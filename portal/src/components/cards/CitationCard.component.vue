@@ -18,7 +18,7 @@
                 <p class="spaced"></p>
             </div>
             <h4 class="text-1xl font-medium">
-                Bibliography Entry
+                Elements for a Bibliographic Reference
             </h4>
             <p class="spaced">
             <div v-html="bibliography"></div>
@@ -52,7 +52,10 @@
             </p>
             <p class="spaced">Collection citations can also be retrieved with the <span
                     style="display: inline-flex; align-items: center;"><el-link type="primary" target="_blank"
-                        href="https://www.zotero.org/download/">Zotero extension.</el-link></span></p>
+                        href="https://www.zotero.org/download/">Zotero extension</el-link></span> by clicking the
+                dataset icon in the browser toolbar. For further support, see the <span
+                    style="display: inline-flex; align-items: center;"><el-link type="primary" target="_blank"
+                        href="https://www.zotero.org/support/">Zotero documentation</el-link></span>.</p>
         </el-dialog>
     </el-card>
 </template>
@@ -100,9 +103,17 @@ export default {
             return result
         },
         getBibliographyEntry() {
-            let author = `<b>Author:</b> ${Array.isArray(this.author) && this.author.length > 0 ? this.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
-                : (Array.isArray(this.creator) && this.creator.length > 0 ? this.creator.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
-                    : 'undefined')}`;
+            // let author = `<b>Author:</b> ${Array.isArray(this.author) && this.author.length > 0 ? this.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
+            //     : (Array.isArray(this.creator) && this.creator.length > 0 ? this.creator.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
+            //         : 'undefined')}`;
+            let author = '';
+            if (Array.isArray(this.author) && this.author.length > 0) {
+                author = `<b>Author:</b> ${this.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')}`;
+            } else if (Array.isArray(this.creator) && this.creator.length > 0) {
+                author = `<b>Creator:</b> ${this.creator.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')}`;
+            } else {
+                author = `<b>Author:</b> undefined`;
+            }
             let title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
             let publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;
             let publisher = `<b>Publisher:</b> ${this.$store.state.configuration.ui.title}`;

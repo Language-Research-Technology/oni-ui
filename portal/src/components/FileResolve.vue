@@ -13,8 +13,18 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const { id, resolve, encodingFormat, hideOpenLink = false, previewText, isPreview, access, license } = defineProps<{
+const {
+  id,
+  resolve,
+  encodingFormat,
+  hideOpenLink = false,
+  previewText,
+  isPreview,
+  access,
+  license,
+} = defineProps<{
   id: string;
+  path: string;
   resolve: boolean;
   encodingFormat: string[];
   hideOpenLink?: boolean;
@@ -31,7 +41,6 @@ const title = ref('');
 const blobURL = ref('');
 const data = ref();
 const sourceType = ref('');
-const parentId = ref('');
 const path = ref('');
 const parent = ref('');
 const parentTitle = ref('');
@@ -46,7 +55,6 @@ const hidePreviewText = ref(true);
 const forbidden = ref(false);
 
 const resolveFile = async () => {
-  parentId.value = id;
   path.value = id;
   apiRoute.value = `/object/open?id=${encodeURIComponent(id)}`;
   if (path.value !== '') {
@@ -96,28 +104,16 @@ const tryDownloadBlob = async () => {
     return;
   }
 
-  if (route.query.title) {
-    title.value = decodeURIComponent(route.query.title.toString());
-  }
-  if (route.query.parent) {
-    parent.value = decodeURIComponent(route.query.parent.toString());
-  }
-
-  if (route.query.parentTitle) {
-    parentTitle.value = decodeURIComponent(route.query.parentTitle.toString());
-  }
-
   //TODO: get encodingFormat directly from the API and merge these two ifs
   //TODO: issue https://github.com/Language-Research-Technology/oni-ui/issues/46
   if (!encodingFormat) {
     if (
-      path.value &&
-      (path.value.endsWith('.txt') ||
-        path.value.endsWith('.csv') ||
-        path.value.endsWith('.eaf') ||
-        path.value.endsWith('.html') ||
-        path.value.endsWith('.xml') ||
-        path.value.endsWith('.flab'))
+      path?.value.endsWith('.txt') ||
+      path?.value.endsWith('.csv') ||
+      path?.value.endsWith('.eaf') ||
+      path?.value.endsWith('.html') ||
+      path?.value.endsWith('.xml') ||
+      path?.value.endsWith('.flab')
     ) {
       await loadTxt(responseBlob);
       isLoading.value = false;
@@ -207,13 +203,6 @@ const downloadFileUrl = async () => {
   }
 };
 
-const setFileUrl = () => {
-  parentId.value = id;
-  path.value = id;
-  const url = `/object/open?id=${encodeURIComponent(path.value)}`;
-  fileUrl.value = url;
-};
-
 const loadTxt = async (responseBlob: Response) => {
   type.value = 'txt';
   data.value = await responseBlob.text(); // { type: 'text/plain', endings: 'native' });
@@ -233,7 +222,6 @@ watch(
 );
 
 onMounted(async () => {
-  setFileUrl();
   if (resolve) {
     await resolveFile();
   }

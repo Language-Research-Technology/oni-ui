@@ -68,8 +68,9 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
       </ul>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
-      <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="part.encodingFormat"
-        previewText="Click 'View File' to see more" :isPreview="true" :access="access" :license="license" />
+      <FileResolve class="flex justify-center" :id="id" :path="path.part" :resolve="resolve"
+        :encodingFormat="part.encodingFormat" previewText="Click 'View File' to see more" :isPreview="true"
+        :access="access" :license="license" />
     </el-col>
   </el-row>
   <el-row>

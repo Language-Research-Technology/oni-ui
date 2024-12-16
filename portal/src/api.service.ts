@@ -1,9 +1,7 @@
 import { ROCrate } from 'ro-crate';
 
-import configuration from '@/../configuration.json';
+import { configuration } from '@/configuration';
 import { useAuthStore } from './stores/auth';
-
-// import { apiTokenAccessKey, getLocalStorage, putLocalStorage } from '@/storage';
 
 // TODO: Can we get the types from the API?
 export type GetObjectsParams = {
@@ -42,17 +40,23 @@ export type GetObjectsResponse = {
   objects: Array<ObjectType>;
 };
 
+export type RoCrate = {
+  memberOf?: {
+    '@id': string;
+  };
+};
+
 // FIXME: This current implemenation means the client and secret are client side
 // so we need to ensure the scope is public only
 export class ApiService {
   #apiUri: string;
-  #clientId: string;
-  #clientSecret: string;
+  #clientId: string | undefined;
+  #clientSecret: string | undefined;
   #endpoint: string;
   #store: ReturnType<typeof useAuthStore>;
 
   constructor() {
-    const { endpoint, path, clientId, clientSecret } = configuration.api.structural;
+    const { endpoint, path, clientId, clientSecret } = configuration.api.rocrate;
     this.#apiUri = `${endpoint}${path}`;
     this.#clientId = clientId;
     this.#clientSecret = clientSecret;
@@ -95,8 +99,16 @@ export class ApiService {
 
     const crate = new ROCrate(json, { array: false, link: true });
 
-    return { metadata: crate.rootDataset };
+    return { metadata: crate.rootDataset as RoCrate };
   }
+
+  // async getFileUrl(id: string, path: string, downloadable = false) {
+  //   const json = await this.#get('/object/meta', { id });
+  //
+  //   const crate = new ROCrate(json, { array: false, link: true });
+  //
+  //   return { metadata: crate.rootDataset };
+  // }
 
   async #getHeaders() {
     const headers: Record<string, string> = {
@@ -175,7 +187,7 @@ export class ApiService {
         throw new Error(data.errors.join(', '));
       }
 
-      throw new Error(await response.text() || 'No body present in response');
+      throw new Error((await response.text()) || 'No body present in response');
     }
 
     return data;

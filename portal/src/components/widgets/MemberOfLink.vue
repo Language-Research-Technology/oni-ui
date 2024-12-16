@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { memberOf } = defineProps<{ memberOf: { '@id': string, name?: string } }>();
+const { memberOf } = defineProps<{ memberOf: { '@id': string; name?: string } }>();
 
 const id = memberOf?.['@id'];
 const link = `/collection?id=${encodeURIComponent(id)}`;

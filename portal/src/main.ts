@@ -19,11 +19,10 @@ import { MankuIcon } from 'manku-icon-lib';
 
 import { createGtm } from '@gtm-support/vue-gtm';
 
-import configuration from '@/../configuration.json';
+import { configuration } from '@/configuration';
 
 import App from './App.vue';
 import router from './router';
-
 
 import { ApiService } from './api.service';
 // import HTTPService from './http.service';
@@ -49,7 +48,7 @@ app.use(ElementPlus);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.component('manku-icon', MankuIcon);
 
-if (configuration.ui?.analytics?.gaMeasurementId) {
+if (configuration.ui?.analytics) {
   const gtm = createGtm({
     id: configuration.ui.analytics.gaMeasurementId,
     vueRouter: router,

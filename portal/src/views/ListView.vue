@@ -3,11 +3,11 @@ import { inject } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { ref } from 'vue';
-import ObjectSummary from '@/components/ObjectSummary.vue';
+import EntitySummary from '@/components/EntitySummary.vue';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute } from 'vue-router';
-import type { ApiService, GetObjectsParams, GetObjectsResponse } from '@/api.service';
+import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/api.service';
 const { ui } = useConfigurationStore();
 const router = useRouter();
 
@@ -28,14 +28,14 @@ const pageSize = ref(10);
 const total = ref(0);
 const loading = ref(false);
 const errorDialogText = ref<string | undefined>(undefined);
-const objects = ref<GetObjectsResponse['objects']>([]);
+const entities = ref<GetEntitiesResponse['entities']>([]);
 const selectedSorting = ref(sorting[0]);
 const selectedOrder = ref(ordering[0]);
 
-const fetchObjects = async () => {
+const fetchEntities = async () => {
   loading.value = true;
 
-  const params: GetObjectsParams = {
+  const params: GetEntitiesParams = {
     limit: pageSize.value,
     sort: selectedSorting.value.value,
     order: selectedOrder.value.value,
@@ -49,10 +49,10 @@ const fetchObjects = async () => {
   }
 
   try {
-    const response = await api.getObjects(params);
+    const response = await api.getEntities(params);
 
     total.value = response.total;
-    objects.value = response.objects;
+    entities.value = response.entities;
   } catch (e) {
     const err = e as Error;
     errorDialogText.value = err.message;
@@ -65,19 +65,19 @@ const sortResults = (sort: string) => {
   currentPage.value = 1;
   selectedSorting.value = sorting.find((s) => s.value === sort) || sorting[0];
 
-  fetchObjects();
+  fetchEntities();
 };
 
 const orderResults = (order: string) => {
   currentPage.value = 1;
   selectedOrder.value = ordering.find((s) => s.value === order) || ordering[0];
 
-  fetchObjects();
+  fetchEntities();
 };
 
 const updatePages = async (page: number, scrollTo: string) => {
   currentPage.value = page;
-  await fetchObjects();
+  await fetchEntities();
   document.querySelector(`#${scrollTo}`)?.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -85,7 +85,7 @@ const showMap = () => {
   router.push('/map');
 };
 
-fetchObjects();
+fetchEntities();
 </script>
 
 <template>
@@ -128,14 +128,14 @@ fetchObjects();
           v-model:page-size="pageSize" @update:page-size="pageSize" v-model:currentPage="currentPage"
           @current-change="updatePages($event, 'top_menu')" />
       </div>
-      <div v-for="object of objects" :key="object.id" class="z-0 mt-0 mb-4 w-full" v-loading="loading">
-        <ObjectSummary :object="object" />
+      <div v-for="entity of entities" :key="entity.id" class="z-0 mt-0 mb-4 w-full" v-loading="loading">
+        <EntitySummary :entity="entity" />
       </div>
 
-      <div v-loading="loading" v-if="!objects.length">
+      <div v-loading="loading" v-if="!entities.length">
         <el-row class="pb-4 items-center">
           <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
-            <span v-if="!loading">No objects found</span>
+            <span v-if="!loading">No entities found</span>
           </h5>
         </el-row>
       </div>

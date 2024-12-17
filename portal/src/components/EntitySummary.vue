@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import type { GetObjectsResponse, ObjectType } from '@/api.service';
+import type { GetEntitiesResponse, EntityType } from '@/api.service';
 
 import { useConfigurationStore } from '@/stores/configuration';
 
@@ -15,22 +15,22 @@ import { initSnip } from '../tools';
 
 const { ui } = useConfigurationStore();
 
-const { object } = defineProps<{ object: GetObjectsResponse['objects'][0] }>();
+const { entity } = defineProps<{ entity: GetEntitiesResponse['entities'][0] }>();
 
 const uuid = v4uuid();
 // TODO: Rename this
-const searchDetails = ui.search.searchDetails || [];
+const searchDetails = ui.search?.searchDetails || [];
 const descriptionSnipped = ref(false);
 
 const getSearchDetailUrl = () => {
   // TODO: this is not good, maybe do it with a ConformsTo to specify link.
   // But have to think about it because not all files have conformsTo!
-  const { recordType } = object;
+  const { recordType } = entity;
   const repoType = recordType.find((t) => t === 'RepositoryCollection');
   // const fileType = recordType.find((t) => t === 'File');
   const itemType = recordType.find((t) => t === 'RepositoryObject');
 
-  const id = encodeURIComponent(object.id);
+  const id = encodeURIComponent(entity.id);
 
   if (repoType) {
     return `/collection?id=${id}`;
@@ -81,7 +81,7 @@ onMounted(() => {
           <h5 class="text-2xl font-medium dark:text-white">
             <router-link :to="getSearchDetailUrl()"
               class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
-              {{ object.name || object.id }}
+              {{ entity.name || entity.id }}
             </router-link>
           </h5>
         </el-row>
@@ -91,64 +91,64 @@ onMounted(() => {
             Type:
           </p>
           <div class="flex flex-wrap">
-            <span class="m-2" v-for="type of object.recordType">{{ type }}</span>
+            <span class="m-2" v-for="type of entity.recordType">{{ type }}</span>
           </div>
         </el-row>
 
         <template v-for="special of searchDetails">
-          <el-row v-if="object.extra?.[special.field as keyof ObjectType['extra']]">
+          <el-row v-if="entity.extra?.[special.field as keyof EntityType['extra']]">
             <p class="font-normal text-gray-700 dark:text-gray-400">
               {{ special.label }}:&nbsp;
             </p>
-            <p>{{ (object.extra[special.field as keyof ObjectType['extra']] as
+            <p>{{ (entity.extra[special.field as keyof EntityType['extra']] as
               string[]).join(', ') }}</p>
           </el-row>
         </template>
 
-        <el-row align="middle" v-if="object.memberOf">
+        <el-row align="middle" v-if="entity.memberOf">
           <p class="font-normal text-gray-700 dark:text-gray-400">
             Member of:&nbsp;
           </p>
           <router-link class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
-            :to="'/collection?id=' + encodeURIComponent(object.memberOf)">
-            {{ object.memberOf }}
+            :to="'/collection?id=' + encodeURIComponent(entity.memberOf)">
+            {{ entity.memberOf }}
           </router-link>
         </el-row>
 
-        <el-row align="middle" v-if="object.root && object.root !== object.memberOf" class="pt-2">
+        <el-row align="middle" v-if="entity.root && entity.root !== entity.memberOf" class="pt-2">
           <p class="font-normal text-gray-700 dark:text-gray-400">
             &nbsp;In:&nbsp;
           </p>
-          <router-link :to="'/collection?id=' + encodeURIComponent(object.root)">
-            <el-button>{{ object.root }}</el-button>
+          <router-link :to="'/collection?id=' + encodeURIComponent(entity.root)">
+            <el-button>{{ entity.root }}</el-button>
           </router-link>
         </el-row>
 
         <el-row align="middle">
           <p class="font-normal text-gray-700 dark:text-gray-400">
-            {{ object.conformsTo }}
+            {{ entity.conformsTo }}
           </p>
         </el-row>
 
-        <el-row class="py-4 pr-4" v-if="object.description">
-          <p :id="'desc_' + uuid">{{ object.description }}</p>
+        <el-row class="py-4 pr-4" v-if="entity.description">
+          <p :id="'desc_' + uuid">{{ entity.description }}</p>
         </el-row>
 
         <el-row class="gap-2 flex">
-          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.collectionCount">Collections: {{
-            object.extra.collectionCount }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.objectCount">Objects: {{
-            object.extra.objectCount }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="object.extra?.fileCount">Files: {{
-            object.extra.fileCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.collectionCount">Collections: {{
+            entity.extra.collectionCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.objectCount">Objects: {{
+            entity.extra.objectCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.fileCount">Files: {{
+            entity.extra.fileCount }}</span>
         </el-row>
       </el-col>
 
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
-        <AccessControlIcon :accessControl="object.extra?.accessControl" />
-        <CommunicationModeIcon :communicationMode="object.extra?.communicationMode" />
+        <AccessControlIcon :accessControl="entity.extra?.accessControl" />
+        <CommunicationModeIcon :communicationMode="entity.extra?.communicationMode" />
         <el-row :span="24" class="flex justify-center">
-          <template v-for="mediaType of object.extra?.mediaType">
+          <template v-for="mediaType of entity.extra?.mediaType">
             <MediaTypeIcon :mediaType="mediaType" />
           </template>
         </el-row>

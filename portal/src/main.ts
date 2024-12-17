@@ -21,8 +21,8 @@ import { createGtm } from '@gtm-support/vue-gtm';
 
 import { configuration } from '@/configuration';
 
-import App from './App.vue';
-import router from './router';
+import App from '@/App.vue';
+import router from '@/router';
 
 import { ApiService } from './api.service';
 // import HTTPService from './http.service';

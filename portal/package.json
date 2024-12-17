@@ -48,11 +48,13 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@tsconfig/node22": "^22.0.0",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.1",
     "@types/papaparse": "^5.3.15",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.20",
+    "express": "^4.21.2",
     "knip": "^5.39.2",
     "npm-run-all2": "^7.0.1",
     "postcss": "^8.4.49",

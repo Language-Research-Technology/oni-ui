@@ -4,7 +4,7 @@ import { configuration } from '@/configuration';
 import { useAuthStore } from './stores/auth';
 
 // TODO: Can we get the types from the API?
-export type GetObjectsParams = {
+export type GetEntitiesParams = {
   limit: number;
   offset?: number;
   sort: string;
@@ -13,7 +13,7 @@ export type GetObjectsParams = {
   memberOf?: string;
 };
 
-export type ObjectType = {
+export type EntityType = {
   id: string;
   name: string;
   description: string;
@@ -35,9 +35,9 @@ export type ObjectType = {
   };
 };
 
-export type GetObjectsResponse = {
+export type GetEntitiesResponse = {
   total: number;
-  objects: Array<ObjectType>;
+  entities: Array<EntityType>;
 };
 
 export type RoCrate = {
@@ -72,31 +72,14 @@ export class ApiService {
     this.#store = useAuthStore();
   }
 
-  async getObjects(params: GetObjectsParams) {
-    const objects = (await this.#get('/objects', params as unknown as Record<string, string>)) as GetObjectsResponse;
+  async getEntities(params: GetEntitiesParams) {
+    const entities = (await this.#get('/entities', params as unknown as Record<string, string>)) as GetEntitiesResponse;
 
-    // NOTE: Temp so we can test agains old LDACA API
-    if (this.#apiUri.includes('ldaca')) {
-      // @ts-expect-error: We need to map the old API to the new API
-      const { total, data } = objects;
-      // @ts-expect-error: We need to map the old API to the new API
-      const newData = data.map(({ crateId, locked, objectRoot, record, url, ...rest }) => ({
-        id: crateId,
-        ...rest,
-      }));
-      const newObjects = {
-        total,
-        objects: newData,
-      };
-
-      return newObjects;
-    }
-
-    return objects;
+    return entities;
   }
 
   async getRoCrate(id: string) {
-    const json = await this.#get('/object/meta', { id });
+    const json = await this.#get(`/entity/${encodeURIComponent(id)}`);
     if (!json) {
       return {};
     }
@@ -175,11 +158,12 @@ export class ApiService {
     }
   }
 
-  async #get(route: string, params: Record<string, string>) {
+  async #get(route: string, params?: Record<string, string>) {
     const headers = await this.#getHeaders();
     const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`${this.#apiUri}${route}${queryString ? `?${queryString}` : ''}`, {
+    const url = `${this.#apiUri}${route}${queryString ? `?${queryString}` : ''}`;
+    const response = await fetch(url, {
       method: 'GET',
       headers,
     });

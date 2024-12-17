@@ -12,7 +12,7 @@ import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import { initSnip } from '../tools';
-import type { ApiService } from '@/api.service';
+import type { ApiService, RoCrate } from '@/api.service';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute, useRouter } from 'vue-router';
@@ -21,7 +21,7 @@ const { ui /*, api: apiConfig */ } = useConfigurationStore();
 
 const {
   object: config,
-  main: { fields },
+  // main: { fields },
   helpers,
 } = ui;
 // const { conformsTo: { object: conformsToObject } } = apiConfig;
@@ -42,9 +42,9 @@ const license = ref<{ '@id': string; description: string }>();
 const licenseText = ref('');
 const parts = ref<{ encodingFormat: string }[]>([]);
 const uniqueParts = ref<string[]>([]);
-const access = ref<{ hasAccess: boolean }>();
+const access = ref<{ hasAccess: boolean; group?: string }>();
 const isLoading = ref(false);
-const metadata = ref({});
+const metadata = ref<RoCrate | undefined>();
 
 const id = route.query.id?.toString();
 
@@ -67,7 +67,6 @@ const populateMeta = (md: Record<string, string>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    // @ts-expect-error Need types on config
     const helper = helpers.find((h) => h.id === filter) || {
       id: filter,
       display: filter,
@@ -100,14 +99,13 @@ const populateParts = (md: { hasPart: { encodingFormat: string }[] }) => {
   }
 };
 
-const populateAccess = () => {
-  // FIXME: Use real data
+const populateAccess = (md) => {
+  // FIXME: TODO where is this going to come from
   // access.value = md._access;
   access.value = { hasAccess: true };
 };
 
-const populate = (md: Record<string, string>) => {
-  // @ts-expect-error Need types on config
+const populate = (md: RoCrate) => {
   populateAccess(md);
   populateLicense(md);
   populateName(md);
@@ -219,10 +217,10 @@ onMounted(fetchdata);
 </script>
 
 <template>
-  <div v-if="metadata?.memberOf" class="px-10 pt-10 pb-7 bg-white">
+  <div class="px-10 pt-10 pb-7 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <member-of-link :memberOf="metadata.memberOf" />
+        <MemberOfLink v-if="metadata?.memberOf" :memberOf="metadata.memberOf" />
         {{ name }}
       </h5>
     </el-row>

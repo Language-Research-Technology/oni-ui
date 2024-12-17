@@ -13,7 +13,7 @@ import TakedownCard from '@/components/cards/TakedownCard.vue';
 // import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
 // import SummariesCard from '@/components/cards/SummariesCard.vue';
 
-import type { ApiService } from '@/api.service';
+import type { ApiService, RoCrate } from '@/api.service';
 
 const router = useRouter();
 const route = useRoute();
@@ -31,7 +31,7 @@ const {
 
 const {
   collection: config,
-  main: { fields },
+  // main: { fields },
   helpers,
   head: configTag,
 } = ui;
@@ -40,9 +40,9 @@ const id = route.query.id as string;
 
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
-const metadata = ref<Record<string, object> | undefined>();
+const metadata = ref<RoCrate | undefined>();
 
-//       license: undefined,
+// license: undefined,
 const conformsToCollection = conformsTo.collection;
 const conformsToObject = conformsTo.object;
 // const findObjectByRelationship = ui.collection.relationships;
@@ -50,9 +50,9 @@ const conformsToObject = conformsTo.object;
 
 let name: string;
 let nameDisplay: string;
-const tops: { name: string; value: object; help: object }[] = [];
-const meta: { name: string; data: object; help: object }[] = [];
-const metaTags: { name: string; value: object; help: object }[] = [];
+const tops: { name: string; value: string; help?: { id: string; display?: string | undefined } }[] = [];
+const meta: { name: string; data: Record<string, string>; help: { id: string; display?: string | undefined } }[] = [];
+const metaTags: { name: string; value: object; help: { id: string; display?: string | undefined } }[] = [];
 
 const populateName = (md: Record<string, object>) => {
   name = md[config.name.name] as unknown as string;
@@ -60,10 +60,9 @@ const populateName = (md: Record<string, object>) => {
 };
 
 // TODO: Remove the duplication in the populate functions
-const populateTop = (md: Record<string, object>) => {
+const populateTop = (md: Record<string, string>) => {
   const { top } = config;
   for (const field of top) {
-    // @ts-expect-error Need types on config
     const helper = helpers.find((h) => h.id === field.name) || {
       id: field.name,
       display: field.display,
@@ -80,11 +79,10 @@ const populateTop = (md: Record<string, object>) => {
   }
 };
 
-const populateMeta = (md: Record<string, object>) => {
+const populateMeta = (md: Record<string, Record<string, string>>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    // @ts-expect-error Need types on config
     const helper = helpers.find((h) => h.id === filter) || {
       id: filter,
       display: filter,
@@ -98,7 +96,6 @@ const populateMeta = (md: Record<string, object>) => {
 
 const populateMetaTags = (md: Record<string, object>) => {
   for (const field of configTag.meta) {
-    // @ts-expect-error Need types on config
     const helper = helpers.find((h) => h.id === field.name) || {
       id: field.content,
       display: field.name,
@@ -170,7 +167,9 @@ useHead({
 });
 const populate = (md: Record<string, object>) => {
   populateName(md);
+  // @ts-expect-error This type is complicated ignore for now
   populateTop(md);
+  // @ts-expect-error This type is complicated ignore for now
   populateMeta(md);
   populateMetaTags(md);
   setMeta();
@@ -225,7 +224,7 @@ onMounted(fetchData);
   <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <MemberOfLink :memberOf="metadata?.memberOf as { '@id': string }" />
+        <MemberOfLink v-if="metadata?.memberOf" :memberOf="metadata.memberOf" />
         {{ name }}
       </h5>
     </el-row>
@@ -274,7 +273,7 @@ onMounted(fetchData);
 
       <el-row :gutter="20" class="pb-5" v-if="metadata.memberOf">
         <el-col>
-          <MemberOfCard :routePath="'collection'" :memberOf="metadata.memberOf" />
+          <MemberOfCard v-if="metadata.memberOf" :routePath="'collection'" :memberOf="metadata.memberOf" />
         </el-col>
       </el-row>
 

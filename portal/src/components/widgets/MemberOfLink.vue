@@ -1,10 +1,11 @@
 <script setup lang="ts">
-const { memberOf } = defineProps<{ memberOf: { '@id': string; name?: string } }>();
+import type { RoCrate } from '@/api.service';
 
-const id = memberOf?.['@id'];
+const { memberOf } = defineProps<{ memberOf: NonNullable<RoCrate['memberOf']> }>();
+
+const id = memberOf['@id'];
 const link = `/collection?id=${encodeURIComponent(id)}`;
-// TODO: Should rocrates add a name to memberOf? Eslastic search had this
-const value = memberOf?.name || id;
+const value = memberOf.name || id;
 </script>
 
 <template>

@@ -43,6 +43,14 @@ export type GetObjectsResponse = {
 export type RoCrate = {
   memberOf?: {
     '@id': string;
+    name?: string;
+  };
+  license?: {
+    name: string;
+  };
+  metadataLicense?: {
+    id: string;
+    name: string;
   };
 };
 

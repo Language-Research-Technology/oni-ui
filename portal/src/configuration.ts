@@ -13,38 +13,38 @@ const subHelpLinkSchema = z.object({
   target: z.string(),
 });
 
-// const googleFormSchema = z.object({
-//   takedown: z.string().url(),
-// });
-//
+const googleFormSchema = z.object({
+  takedown: z.string().url(),
+});
+
 // const binderhubRegistrySchema = z.object({
 //   registryJson: z.string().url(),
 // });
-//
-// const termsSchema = z.object({
-//   text: z.string(),
-//   href: z.string().url(),
-//   title: z.string(),
-// });
-//
-// const privacySchema = z.object({
-//   text: z.string(),
-//   href: z.string().url(),
-//   title: z.string(),
-// });
-//
+
+const termsSchema = z.object({
+  text: z.string(),
+  href: z.string(),
+  title: z.string(),
+});
+
+const privacySchema = z.object({
+  text: z.string(),
+  href: z.string(),
+  title: z.string(),
+});
+
 // const emailSchema = z.object({
 //   help: z.string().email(),
 // });
-//
-// const footerSchema = z.object({
-//   copyright: z.string(),
-//   link: z.object({
-//     href: z.string().url(),
-//     text: z.string(),
-//   }),
-// });
-//
+
+const footerSchema = z.object({
+  copyright: z.string(),
+  link: z.object({
+    href: z.string().url(),
+    text: z.string(),
+  }),
+});
+
 // const loginProviderSchema = z.object({
 //   name: z.string(),
 //   text: z.string(),
@@ -58,22 +58,22 @@ const topNavItemSchema = z.object({
   display: z.string(),
 });
 
-// const searchSortingSchema = z.object({
-//   value: z.string(),
-//   label: z.string(),
-// });
-//
-// const searchOrderingSchema = z.object({
-//   value: z.string(),
-//   label: z.string(),
-// });
-//
-// const searchDetailsSchema = z.object({
-//   field: z.string(),
-//   label: z.string(),
-//   name: z.string(),
-// });
-//
+const searchSortingSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+});
+
+const searchOrderingSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+});
+
+const searchDetailsSchema = z.object({
+  field: z.string(),
+  label: z.string(),
+  name: z.string(),
+});
+
 // const mainFieldSchema = z.object({
 //   display: z.string(),
 //   name: z.string(),
@@ -82,6 +82,13 @@ const topNavItemSchema = z.object({
 const headMetaSchema = z.object({
   name: z.string(),
   content: z.string(),
+});
+
+const helpersSchema = z.object({
+  id: z.string(),
+  display: z.string(),
+  url: z.string().url(),
+  definition: z.string(),
 });
 
 const collectionSchema = z.object({
@@ -97,8 +104,6 @@ const collectionSchema = z.object({
   ),
   meta: z.object({
     hide: z.array(z.string()),
-    displayHasMember: z.boolean(),
-    displayHasPart: z.boolean(),
   }),
   // relationships: z.array(
   //   z.object({
@@ -110,19 +115,19 @@ const collectionSchema = z.object({
 });
 
 const objectSchema = z.object({
-  // name: z.object({
-  //   display: z.string(),
-  //   name: z.string(),
-  // }),
-  // top: z.array(
-  //   z.object({
-  //     display: z.string(),
-  //     name: z.string(),
-  //   }),
-  // ),
-  // meta: z.object({
-  //   hide: z.array(z.string()),
-  // }),
+  name: z.object({
+    display: z.string(),
+    name: z.string(),
+  }),
+  top: z.array(
+    z.object({
+      display: z.string(),
+      name: z.string(),
+    }),
+  ),
+  meta: z.object({
+    hide: z.array(z.string()),
+  }),
 });
 
 const fileSchema = z.object({
@@ -159,18 +164,18 @@ const uiSchema = z.object({
   // splashTextClass: z.string(),
   // splashImage: z.string(),
   // splashEnabled: z.boolean(),
-  // splashLauncher: z.string(),
+  splashLauncher: z.string(),
   showLogo: z.boolean().optional(),
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),
   // help: helpSchema,
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
-  // googleForm: googleFormSchema,
+  googleForm: googleFormSchema,
   // binderhubRegistry: binderhubRegistrySchema,
-  // terms: termsSchema,
-  // privacy: privacySchema,
+  terms: termsSchema,
+  privacy: privacySchema,
   // email: emailSchema,
-  // footer: footerSchema,
+  footer: footerSchema,
   login: z.object({
     enabled: z.boolean(),
   }),
@@ -185,26 +190,28 @@ const uiSchema = z.object({
   // }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
-  // search: z.object({
-  //   sorting: z.array(searchSortingSchema),
-  //   searchSorting: searchSortingSchema,
-  //   ordering: z.array(searchOrderingSchema),
-  //   defaultOrder: searchOrderingSchema,
-  //   searchDetails: z.array(searchDetailsSchema),
-  // }),
-  // main: z.object({
-  //   fields: z.array(mainFieldSchema),
-  //   byteFields: z.array(z.string()),
-  //   expand: z.array(z.string()),
-  // }),
+  search: z
+    .object({
+      sorting: z.array(searchSortingSchema),
+      searchSorting: searchSortingSchema,
+      ordering: z.array(searchOrderingSchema),
+      defaultOrder: searchOrderingSchema,
+      searchDetails: z.array(searchDetailsSchema),
+    })
+    .optional(),
+  main: z.object({
+    //   fields: z.array(mainFieldSchema),
+    //   byteFields: z.array(z.string()),
+    expand: z.array(z.string()),
+  }),
   head: z.object({
     meta: z.array(headMetaSchema),
   }),
   collection: collectionSchema,
   object: objectSchema,
-  // file: fileSchema,
+  file: fileSchema,
   // notebook: notebookSchema,
-  // helpers: z.array(z.unknown()),
+  helpers: z.array(helpersSchema),
   // baseVocab: z.string().url(),
   analytics: z
     .object({
@@ -273,20 +280,20 @@ const apiSchema = z.object({
   //     username: z.string(),
   //   }),
   // }),
-  // licenses: z.array(
-  //   z.object({
-  //     license: z.string(),
-  //     group: z.string(),
-  //     access: z.string(),
-  //     enrollment: z
-  //       .object({
-  //         url: z.string().url().optional(),
-  //         label: z.string().optional(),
-  //         class: z.string().optional(),
-  //       })
-  //       .optional(),
-  //   }),
-  // ),
+  licenses: z.array(
+    z.object({
+      license: z.string(),
+      group: z.string(),
+      access: z.string(),
+      enrollment: z
+        .object({
+          url: z.string().url().optional(),
+          label: z.string().optional(),
+          class: z.string().optional(),
+        })
+        .optional(),
+    }),
+  ),
   // licenseGroup: z.string(),
   // license: z.object({
   //   default: z.object({

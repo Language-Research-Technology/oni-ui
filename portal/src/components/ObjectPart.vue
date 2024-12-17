@@ -10,11 +10,9 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const { part, active, parentName, parentId, access, license } = defineProps<{
+const { part, active, access, license } = defineProps<{
   part: { '@id': string; name: string; encodingFormat: string[] };
   active: boolean;
-  parentName: string;
-  parentId: string;
   access: { hasAccess: boolean };
   license: { '@id': string; description: string };
 }>();
@@ -68,7 +66,7 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
       </ul>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
-      <FileResolve class="flex justify-center" :id="id" :path="path.part" :resolve="resolve"
+      <FileResolve class="flex justify-center" :id="id" :path="part.name" :resolve="resolve"
         :encodingFormat="part.encodingFormat" previewText="Click 'View File' to see more" :isPreview="true"
         :access="access" :license="license" />
     </el-col>

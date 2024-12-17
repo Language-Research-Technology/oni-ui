@@ -256,9 +256,7 @@
           "_mainCollection",
           "_subCollection",
           "_isOCFL"
-        ],
-        "displayHasMember": false,
-        "displayHasPart": true
+        ]
       },
       "relationships": [
         {

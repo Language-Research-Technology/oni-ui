@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { memberOf, routePath } = defineProps<{
-  memberOf: { name: string; '@id': string };
+  memberOf: { name?: string; '@id': string };
   routePath: string;
 }>();
 

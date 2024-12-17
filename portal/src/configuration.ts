@@ -71,7 +71,6 @@ const searchOrderingSchema = z.object({
 const searchDetailsSchema = z.object({
   field: z.string(),
   label: z.string(),
-  name: z.string(),
 });
 
 // const mainFieldSchema = z.object({

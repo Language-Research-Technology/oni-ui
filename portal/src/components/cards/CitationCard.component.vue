@@ -48,7 +48,7 @@
                 essential citation elements for a minimal bibliographic reference (Tromsø Recommendations 2019).
                 See our <span style="display: inline-flex; align-items: center;"><el-link type="primary" target="_blank"
                         href="https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/">help</el-link></span>
-                page for more detail on this topic.
+                page for more detail on this topic and additional ways to retrieve collection citations.
             </p>
         </el-dialog>
     </el-card>

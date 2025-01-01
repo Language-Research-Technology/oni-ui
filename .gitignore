@@ -5,3 +5,13 @@ configuration.json
 .env
 .DS_Store
 binderhubconfiguration.json
+
+ # Yarn v4
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+**/.yarn/install-state.gz

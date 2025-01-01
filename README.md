@@ -4,7 +4,7 @@
 
 ### How to Run
 
-Pre: To run this first you need an [OCFL repository](https://ocfl.io) following [rrkive.org]() 
+Pre: To run this first you need an [OCFL repository](https://ocfl.io) following [rrkive.org]()
 
 Current guide applies to Mac and Linux:
 
@@ -17,7 +17,7 @@ Current guide applies to Mac and Linux:
    1. `docker compose up`
    2. Wait for oni to be ready
 5. Create a structural index and an opensearch index by running:
-   1. `npm install`
+   1. `yarn`
    2. `node structural-index.js`
    3. `node elastic-ocfl-oni-index.js` (Note: running this will delete all the 'items' index, so if working with notebooks for example, `node elastic-notebook-index.js` would need to be re-run).
    4. GitHub iPython Notebooks
@@ -26,16 +26,17 @@ Current guide applies to Mac and Linux:
       2. `node elastic-notebook-index.js` (Note: this will add notebooks to the items index)
    5. Vocabs
       1. To add graph like vocabs run `node vocabs-index.js` this will add a second index called vocabs
-      2. Vocabs are searched with exact match first trying https://w3id.org/ldac/terms#<<ID>> and then http://schema.org/<<ID>>
+      2. Vocabs are searched with exact match first trying <https://w3id.org/ldac/terms#><<ID>> and then <http://schema.org/><<ID>>
 6. Develop Portal:
    1. `cd portal`
-   2. `npm install`
-   3. `npm run dev`
+   2. `yarn`
+   3. `yarn dev`
 7. Open a browser to [http://localhost:8000]() : This will use nginx features to use the site without nginx features point to [http://localhost:11000]()
 
 ## Helper Scripts
 
 Delete the structural index
+
 ```bash
 node structural-delete-index.js
 ```

@@ -52,7 +52,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d oni" ]
+      test: ["CMD-SHELL", "pg_isready -d oni"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -87,11 +87,11 @@ services:
     ports:
       - "0.0.0.0:8080:8080"
     healthcheck:
-      test: [ "CMD-SHELL", "node -v || exit 1" ]
+      test: ["CMD-SHELL", "node -v || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-    command: [ "npm", "run", "prod" ]
+    command: ["npm", "run", "prod"]
     networks:
       - oni
 
@@ -114,7 +114,11 @@ services:
       - "9200:9200"
       - "9300:9300"
     healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail localhost:9200/_cluster/health || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5

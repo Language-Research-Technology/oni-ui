@@ -31,7 +31,7 @@
     "@unhead/vue": "^1.11.14",
     "convert-size": "^1.2.1",
     "element-plus": "^2.9.1",
-    "ipynb2html": "^0.3.0",
+    "ipynb2html": "^0.4.0-rc.1",
     "js-snip": "^1.2.0",
     "latlon-geohash": "^2.0.0",
     "leaflet": "^1.9.4",

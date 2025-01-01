@@ -1,5 +1,4 @@
 const configuration = require('./configuration.json');
-const fetch = require('node-fetch');
 
 (async () => {
   const host = configuration.api.host || 'localhost:8080';

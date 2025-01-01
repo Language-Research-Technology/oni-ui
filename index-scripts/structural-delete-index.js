@@ -1,5 +1,4 @@
 const configuration = require('./configuration.json');
-const fetch = require('node-fetch');
 const readline = require('node:readline');
 
 const rl = readline.createInterface({

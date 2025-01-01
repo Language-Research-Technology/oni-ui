@@ -5,7 +5,6 @@ const configuration = require('./configuration.json');
 const ocfl = require('@ocfl/ocfl-fs');
 const fs = require('fs-extra');
 const assert = require('node:assert');
-const fetch = require('node-fetch');
 let stop = undefined;
 
 (async () => {

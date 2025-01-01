@@ -1,6 +1,5 @@
 const path = require('node:path');
 const fs = require('fs-extra');
-const fetch = require('node-fetch');
 const { first, isEmpty, remove, isEqual, clone } = require('lodash');
 const sanitize = require('sanitize-filename');
 const turf = require('@turf/turf');

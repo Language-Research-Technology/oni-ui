@@ -24,7 +24,6 @@
     "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "manku-icon-lib": "^1.1.5",
-    "node-fetch": "^2.7.0",
     "octokit": "^2.1.0",
     "ro-crate": "^3.4.2",
     "sanitize-filename": "^1.6.3",

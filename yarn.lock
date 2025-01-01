@@ -6692,7 +6692,6 @@ __metadata:
     fs-extra: "npm:^10.1.0"
     lodash: "npm:^4.17.21"
     manku-icon-lib: "npm:^1.1.5"
-    node-fetch: "npm:^2.7.0"
     octokit: "npm:^2.1.0"
     ro-crate: "npm:^3.4.2"
     sanitize-filename: "npm:^1.6.3"

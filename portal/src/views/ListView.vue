@@ -78,7 +78,7 @@ const orderResults = (order: string) => {
 const updatePages = async (page: number, scrollTo: string) => {
   currentPage.value = page;
   await fetchEntities();
-  document.querySelector(`#${scrollTo}`)?.scrollIntoView({ behavior: 'smooth' });
+  document.querySelector(`#${scrollTo}`)?.scrollIntoView();
 };
 
 const showMap = () => {

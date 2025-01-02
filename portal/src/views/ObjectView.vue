@@ -201,7 +201,7 @@ onMounted(fetchdata);
 // if (fileId) {
 //   setTimeout(function () {
 //     const fileElement = document.getElementById('part-' + encodeURIComponent(fileId));
-//     fileElement.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'start'});
+//     fileElement.scrollIntoView({block: 'start', inline: 'start'});
 //   }, 200);
 // }
 // if (id) {

@@ -322,25 +322,25 @@
 //     },
 //     scrollToId(id) {
 //       setTimeout(() => {
-//         // window.scroll({top: 0, left:0, behavior: 'smooth'});
+//         // window.scroll({top: 0, left:0 });
 //         document.body.scrollTop = 0; // For Safari
 //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 //         document.body.scrollTop = 0; // For Safari
 //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 //         window.scrollTo(0, 0);
 //         const element = document.getElementById(id);
-//         element.scrollIntoView({ behavior: 'smooth' });
+//         element.scrollIntoView();
 //         element.scrollTop = 0;
 //       }, 100);
 //     },
 //     scrollToSelector(selector) {
 //       setTimeout(() => {
-//         // window.scroll({top: 0, left:0, behavior: 'smooth'});
+//         // window.scroll({top: 0, left:0 });
 //         document.body.scrollTop = 0; // For Safari
 //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 //         window.scrollTo(0, 0);
 //         const element = document.querySelector(selector);
-//         element.scrollIntoView({ behavior: 'smooth' });
+//         element.scrollIntoView();
 //         element.scrollTop = 0;
 //       }, 100);
 //     },
@@ -724,10 +724,3 @@
   <!-- </el-row> -->
   <!-- <el-row></el-row> -->
 </template>
-
-
-<style>
-html {
-  scroll-behavior: smooth;
-}
-</style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, inject } from 'vue';
 
-import type { EntityType, ApiService, GetEntitiesParams } from '@/api.service';
+import type { EntityType, ApiService, GetEntitiesParams } from '@/services/api';
 
 import CollectionItem from '@/components/CollectionItem.vue';
 

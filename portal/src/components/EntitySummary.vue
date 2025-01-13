@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import type { GetEntitiesResponse, EntityType } from '@/api.service';
+import type { GetEntitiesResponse, EntityType } from '@/services/api';
 
 import { useConfigurationStore } from '@/stores/configuration';
 

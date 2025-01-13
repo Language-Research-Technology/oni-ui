@@ -8,6 +8,7 @@ let content: string;
 
 switch (accessControl) {
   case 'Public':
+  case 'public':
     iconName = 'public';
     content =
       'You can access this data immediately and by doing so you accept the licence terms specified on the record.';

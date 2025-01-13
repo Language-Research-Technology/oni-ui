@@ -13,7 +13,7 @@ import TakedownCard from '@/components/cards/TakedownCard.vue';
 // import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
 // import SummariesCard from '@/components/cards/SummariesCard.vue';
 
-import type { ApiService, RoCrate } from '@/api.service';
+import type { ApiService, RoCrate } from '@/services/api';
 
 const router = useRouter();
 const route = useRoute();

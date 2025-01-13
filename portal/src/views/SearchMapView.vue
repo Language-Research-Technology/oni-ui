@@ -1,15 +1,13 @@
 <template>
   <el-row>
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-            class="h-full max-h-screen overflow-y-auto flex flex-col p-2">
-      <div v-show="!advancedSearch"
-           class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-        <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput"
-                    @search="search" :clearSearch="clear" :filters="this.filters" :fields="searchFields"
-                    class="grow justify-items-center items-center m-4"
-                    @advanced-search="enableAdvancedSearch" :enableAdvancedSearch="advancedSearch"
-                    @updateSearchInput="onInputChange"
-                    @basicSearch="updateRoutes" :searchPath="'map'"/>
+      class="h-full max-h-screen overflow-y-auto flex flex-col p-2">
+      <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+        <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput" @search="search"
+          :clearSearch="clear" :filters="this.filters" :fields="searchFields"
+          class="grow justify-items-center items-center m-4" @advanced-search="enableAdvancedSearch"
+          :enableAdvancedSearch="advancedSearch" @updateSearchInput="onInputChange" @basicSearch="updateRoutes"
+          :searchPath="'map'" />
       </div>
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
         <div class="py-3 px-2">
@@ -22,61 +20,54 @@
       </div>
       <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
         <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide'] && aggs['name'] !== '_geohash'"
-            class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
+          class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
           <li @click="aggs.active = !aggs.active"
-              class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
-                <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
-                  {{ aggs.display }}
-                      <el-tooltip v-if="aggs.help"
-                                  class="box-item"
-                                  effect="light"
-                                  trigger="hover"
-                                  :content="aggs.help"
-                                  placement="top"
-                      >
-                      <el-button link>
-                        <font-awesome-icon icon="fa-solid fa-circle-info"/>
-                      </el-button>
-                    </el-tooltip>
-                </span>
+            class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
+            <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+              {{ aggs.display }}
+              <el-tooltip v-if="aggs.help" class="box-item" effect="light" trigger="hover" :content="aggs.help"
+                placement="top">
+                <el-button link>
+                  <font-awesome-icon icon="fa-solid fa-circle-info" />
+                </el-button>
+              </el-tooltip>
+            </span>
             <span class="py-1 px-2">
-                    <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down"/>
-                  <span v-else>
-                    <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                        aggs?.buckets?.length
-                      }}</span>&nbsp;
-                    <font-awesome-icon icon="fa fa-chevron-right"/>
-                    </span>
-                </span>
+              <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down" />
+              <span v-else>
+                <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
+                  aggs?.buckets?.length
+                }}</span>&nbsp;
+                <font-awesome-icon icon="fa fa-chevron-right" />
+              </span>
+            </span>
           </li>
           <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
-          <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name"
-                       v-show="aggs.active" @is-active="aggs.active = true"
-                       @changed-aggs="newAggs"/>
+          <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name" v-show="aggs.active"
+            @is-active="aggs.active = true" @changed-aggs="newAggs" />
         </ul>
       </div>
     </el-col>
     <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
-            class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3">
+      class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3">
       <div class="pr-0">
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
               <el-button-group class="">
-                <el-button type="warning" v-show="changedFilters" @click="updateRoutes({updateFilters: true})">Apply
+                <el-button type="warning" v-show="changedFilters" @click="updateRoutes({ updateFilters: true })">Apply
                   Filters
                 </el-button>
               </el-button-group>
               <span class="my-1 mr-1" v-show="!changedFilters" v-if="!isEmpty(this.filters)">Filtering by:</span>
-              <el-button-group v-show="!changedFilters"
-                               class="my-1 mr-2" v-for="(filter, filterKey) of this.filters" :key="filterKey"
-                               v-model="this.filters">
+              <el-button-group v-show="!changedFilters" class="my-1 mr-2" v-for="(filter, filterKey) of this.filters"
+                :key="filterKey" v-model="this.filters">
                 <el-button plain>{{ clean(filterKey) }}</el-button>
                 <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                           @click="this.updateFilters({clear: {f, filterKey }})" class="text-2xl">
+                  @click="this.updateFilters({ clear: { f, filterKey } })" class="text-2xl">
                   {{ clean(f) }}
                   <el-icon class="el-icon--right">
-                    <CloseBold/>
+                    <CloseBold />
                   </el-icon>
                 </el-button>
               </el-button-group>
@@ -85,26 +76,27 @@
               </el-button-group>
               <span id="total_results" class="my-1 mr-2">
                 <span>{{ total }} Index entries (Collections, Objects, Files and Notebooks)</span>
-              <span v-if="outOfBounds > 0" class="my-1" v-show="total">, some ({{ outOfBounds }}) result(s) are out of bounds; move your map to see them.
-              </span>
+                <span v-if="outOfBounds > 0" class="my-1" v-show="total">, some ({{ outOfBounds }}) result(s) are out of
+                  bounds; move your map to see them.
+                </span>
               </span>
               <span v-if="errorText">error: {{ errorText }}</span>
             </el-col>
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
               <el-button size="large" @click="showList()">
-                               <span>
-                  <font-awesome-icon icon="fa-solid fa-list"/>&nbsp;List View
-                <el-tooltip
+                <span>
+                  <font-awesome-icon icon="fa-solid fa-list" />&nbsp;List View
+                  <el-tooltip
                     content="View the results as a list. Note that current search and filter options will be reset."
                     placement="bottom-end" effect="light">
-                  <font-awesome-icon icon="fa fa-circle-question"/>
-                </el-tooltip>
+                    <font-awesome-icon icon="fa fa-circle-question" />
+                  </el-tooltip>
                 </span>
               </el-button>
             </el-col>
             <el-col>
               <p class="text-sm">
-                <font-awesome-icon icon="fa fa-triangle-exclamation"/>
+                <font-awesome-icon icon="fa fa-triangle-exclamation" />
                 Filter and Search results will only show results on the current map view, move or resize the map
                 to view other results.
               </p>
@@ -122,20 +114,18 @@
       <p class="break-normal">{{ this.errorDialogText }}</p>
     </el-alert>
     <template #footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
-        </span>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+      </span>
     </template>
   </el-dialog>
-  <el-row v-show="changedFilters"
-          class="bg-white rounded m-4 p-4 px-8 shadow-md border"
-          role="alert"
-          style="bottom: 16px; z-index: 2044; position: fixed">
+  <el-row v-show="changedFilters" class="bg-white rounded m-4 p-4 px-8 shadow-md border" role="alert"
+    style="bottom: 16px; z-index: 2044; position: fixed">
     <el-row class="p-2">
       <div class="w-full">
         <el-button-group class="self-center">
           <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes({updateFilters: true})">Apply Filters</el-button>
+          <el-button type="warning" @click="updateRoutes({ updateFilters: true })">Apply Filters</el-button>
         </el-button-group>
       </div>
     </el-row>
@@ -302,9 +292,9 @@ L.CountDivIcon = L.Icon.extend({
 export default {
   name: 'SearchMap',
   components: {
-    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.component.vue')),
+    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.vue
     SearchAggs,
-    CloseBold,
+      CloseBold,
   },
   props: {},
   data() {
@@ -355,7 +345,7 @@ export default {
       currentPage: 0,
     };
   },
-  setup() {},
+  setup() { },
   created() {
     if (this.$route.query.q) {
       this.searchInput = this.$route.query.q;
@@ -1179,5 +1169,4 @@ export default {
 /*  border-color: #3388FF;*/
 /*  color: white;*/
 /*}*/
-
 </style>

@@ -1,16 +1,46 @@
 import esb from 'elastic-builder';
 import { first, isEmpty } from 'lodash';
-import HTTPService from './http.service';
 
-export default class ElasticService {
-  constructor({ router, configuration }) {
-    this.router = router;
-    this.searchRoute = '/search/index';
-    this.indexRoute = '/items';
-    this.aggs = this.prepareAggregations(configuration.ui.aggregations);
-    this.highlightFields = configuration.ui.searchHighlights;
-    this.highlighConfig = configuration.ui.hightlight || {};
-    this.fields = configuration.ui.searchFields;
+import { HTTPService } from '@/services/http';
+import { configuration } from '@/configuration';
+
+type MultiSearch<T> = {
+  hits: {
+    hits: T[];
+    total: { value: number };
+  };
+  aggregations: Record<string, { key: string; doc_count: number }>;
+};
+
+type MultiProps = {
+  multi?: string;
+  filters?: Record<string, string[]>;
+  aggs?: Record<string, object>;
+  searchFields?: Record<string, { checked: boolean }>;
+  sort?: string;
+  order?: string;
+  operation?: string;
+  pageSize?: number;
+  searchFrom?: number;
+  queries?: Record<string, string>;
+  sortField?: string;
+};
+
+export class ElasticService {
+  #searchRoute: string;
+  #indexRoute: string;
+  #aggs: object;
+  #highlightFields: object;
+  #highlightConfig: object;
+  #fields: object;
+
+  constructor() {
+    this.#searchRoute = '/search/index';
+    this.#indexRoute = '/items';
+    this.#aggs = this.prepareAggregations(configuration.ui.aggregations);
+    this.#highlightFields = configuration.ui.searchHighlights;
+    this.#highlightConfig = configuration.ui.highlight || {};
+    this.#fields = configuration.ui.searchFields;
   }
 
   prepareAggregations(aggregations) {
@@ -21,7 +51,7 @@ export default class ElasticService {
     return a;
   }
 
-  async multi({
+  async multi<T>({
     multi,
     filters,
     aggs,
@@ -33,11 +63,12 @@ export default class ElasticService {
     searchFrom,
     queries,
     sortField,
-  }) {
+  }: MultiProps) {
     try {
-      const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
-      const route = this.searchRoute + this.indexRoute;
-      let sorting;
+      const httpService = new HTTPService();
+      const route = this.#searchRoute + this.#indexRoute;
+
+      let sorting: object;
       if (sort === 'relevance') {
         sorting = [
           {
@@ -47,7 +78,7 @@ export default class ElasticService {
           },
         ];
       } else if (sortField) {
-        const sortByKeyword = {};
+        const sortByKeyword: Record<string, object> = {};
         sortByKeyword[sortField] = { order: order };
         sorting = [sortByKeyword];
       } else {
@@ -63,64 +94,57 @@ export default class ElasticService {
             },
           },
         ];
-        // const sortField = {};
-        // sortField[`${sort}.@value.keyword`] = {order};
-        // sorting.push(sortField);
       }
+
+      const query = queries
+        ? this.disMaxQuery({ queries, filters })
+        : this.boolQuery({
+            searchQuery: multi,
+            fields: searchFields,
+            filters,
+            operation,
+          });
+
       const body = {
-        query: {},
+        query,
         sort: sorting,
+        size: pageSize,
+        from: searchFrom,
+        track_total_hits: true,
+        highlight: this.highlights(this.#highlightFields),
+        aggs: aggs || this.#aggs,
       };
-      // console.log('sorting');
-      // console.log(JSON.stringify(sorting));
-      let query;
-      if (queries) {
-        query = this.disMaxQuery({ queries, filters });
-      } else {
-        query = this.boolQuery({
-          searchQuery: multi,
-          fields: searchFields,
-          filters,
-          operation,
-        });
-      }
-      //console.log(query);
-      body.highlight = this.highlights(this.highlightFields);
-      body.query = query;
-      if (aggs) {
-        body.aggs = aggs;
-      } else {
-        body.aggs = this.aggs;
-      }
-      body.size = pageSize;
-      body.from = searchFrom;
-      body.track_total_hits = true;
-      // console.log('multi query')
-      // console.log(JSON.stringify(body));
-      const response = await httpService.post({ route, body });
+
+      const response = await httpService.post(route, body);
+
       if (response.status !== 200) {
-        //httpService.checkAuthorised({status: response.status});
-        //TODO: Return an exact error from the API.
         const error = await response.json();
         const msg = `Query Error: ${error?.message}` || 'There was an error with your query';
         throw new Error(msg);
       }
-      const results = await response.json();
-      //console.log(results);
-      return results;
+
+      const results = (await response.json()) as MultiSearch<T>;
+      // console.log('🪚 results:', JSON.stringify(results, null, 2));
+
+      return {
+        hits: results.hits.hits,
+        total: results.hits.total.value,
+        aggregations: results.aggregations,
+      };
     } catch (e) {
-      throw new Error(e.message);
+      const err = e as Error;
+      throw new Error(err.message);
     }
   }
 
   async single({ index, id, _crateId, _id }) {
     const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
-    let route = this.searchRoute + this.indexRoute;
+    let route = this.#searchRoute + this.#indexRoute;
     if (index) {
-      route = `${this.searchRoute}/${index}`;
+      route = `${this.#searchRoute}/${index}`;
     }
     const body = {
-      aggs: this.aggs, // maybe we dont need to send aggregations
+      aggs: this.#aggs, // maybe we dont need to send aggregations
       query: {},
     };
     if (_id) {
@@ -140,23 +164,15 @@ export default class ElasticService {
       };
     }
 
-    // const query = this.boolQuery({ fields: this.fields, filters:[] });
-    //console.log(JSON.stringify(body.query));
-    // body.highlight = this.highlights(this.highlightFields);
-    // body.query.bool.must.push(query);
-
     const response = await httpService.post({ route, body });
     if (response.status !== 200) {
-      //httpService.checkAuthorised({status: response.status});
       throw new Error(response.statusText);
     }
     const results = await response.json();
-    //console.log(first(results?.hits?.hits));
     return first(results?.hits?.hits);
   }
 
   boolQuery({ searchQuery, fields, filters, operation }) {
-    //console.log('bool query');
     const filterTerms = this.termsQuery(filters);
     let boolQueryObj = {};
     if (isEmpty(searchQuery) && filterTerms.length > 0) {
@@ -184,7 +200,6 @@ export default class ElasticService {
     }
     const esbQuery = esb.requestBodySearch().query(boolQueryObj);
     const query = esbQuery.toJSON().query;
-    //console.log(JSON.stringify({query: query}))
     return query;
   }
 
@@ -203,7 +218,7 @@ export default class ElasticService {
       );
 
     let highlight = esbQuery.toJSON().highlight;
-    highlight = { ...highlight, ...this.highlighConfig };
+    highlight = { ...highlight, ...this.#highlightConfig };
     return highlight;
   }
 
@@ -218,8 +233,6 @@ export default class ElasticService {
     const boolQuery = esb.boolQuery();
     if (queries.queryString) {
       boolQuery.must(esb.queryStringQuery(queries.queryString));
-      // boolQuery.must(esb.queryStringQuery(queries.queryString).escape(true));
-      //boolQuery.must(esb.simpleQueryStringQuery(queries.queryString));
     } else {
       //Note: this code below is never used. Delete
       for (const q of queries) {
@@ -298,14 +311,12 @@ export default class ElasticService {
     boolQuery.minimumShouldMatch(0);
     const esbQuery = esb.requestBodySearch().query(boolQuery);
     const query = esbQuery.toJSON().query;
-    //console.log(JSON.stringify({query: query}))
     return query;
   }
 
   termsQuery(filters) {
     const filterTerms = [];
     if (!isEmpty(filters)) {
-      //console.log(JSON.stringify(filters));
       for (const bucket of Object.keys(filters)) {
         if (filters[bucket].length > 0 || (filters[bucket]?.v && filters[bucket].v.length > 0)) {
           //TODO: send the type of field in the filters
@@ -318,7 +329,6 @@ export default class ElasticService {
             field = bucket.concat(`.${type}`);
           }
           const values = filters[bucket]?.v || filters[bucket];
-          //console.log(values)
           filterTerms.push(esb.termsQuery(field, values));
         }
       }
@@ -338,7 +348,7 @@ export default class ElasticService {
       }
       if (sg.field === 'all_fields') {
         let qqq = '( ';
-        Object.keys(this.fields).map((f, index, keys) => {
+        Object.keys(this.#fields).map((f, index, keys) => {
           let lastOne = false;
           if (index + 1 === keys.length) {
             lastOne = true;
@@ -366,11 +376,9 @@ export default class ElasticService {
     pageSize,
     searchFrom,
   }) {
-    const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
-    const route = this.searchRoute + this.indexRoute;
+    const httpService = new HTTPService();
+    const route = this.#searchRoute + this.#indexRoute;
     const body = {};
-    // const fields = ['_centroid'];
-    // const geoAggs = esb.geoHashGridAggregation('viewport', fields[0]);
     const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
     let topRight = {};
     let bottomLeft = {};
@@ -395,7 +403,7 @@ export default class ElasticService {
     }
     const aggs = geoAggs.toJSON();
 
-    body.aggs = { ...aggs, ...this.aggs };
+    body.aggs = { ...aggs, ...this.#aggs };
     const geoQueryJson = geoQuery.toJSON();
     const geoBoundingBox = geoQueryJson.geo_bounding_box;
     const boolQuery = this.boolQuery({
@@ -416,16 +424,12 @@ export default class ElasticService {
     body.size = pageSize;
     body.from = searchFrom;
     body.track_total_hits = true;
-    //console.log("body", JSON.stringify(body));
-    //console.log(body);
     console.log(JSON.stringify(body));
     const response = await httpService.post({ route, body });
     if (response.status !== 200) {
-      //httpService.checkAuthorised({status: response.status});
       throw new Error(response.statusText);
     }
     const results = await response.json();
-    //console.log(results);
     return results;
   }
 }

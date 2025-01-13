@@ -11,7 +11,7 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.10.3",
+    "@types/node": "^22.10.5",
     "typescript": "^5.7.2"
   },
   "packageManager": "yarn@4.6.0",

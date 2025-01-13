@@ -23,7 +23,8 @@ const {
 </script>
 
 <template>
-  <el-menu id="top_menu" mode="horizontal" :ellipsis="showEllipsis" :default-active="route.path" :router="true">
+  <el-menu id="top_menu" mode="horizontal" :ellipsis="showEllipsis" :default-active="route.name" :router="true"
+    :style="{ height: navHeight }">
     <el-menu-item index="home" :route="topNavHome + Date.now()">
       <router-view :key="topNavHome">
         <el-row :gutter="10" class="flex items-center justify-center min-w-md">
@@ -57,7 +58,7 @@ const {
       </router-view>
     </el-menu-item>
 
-    <el-menu-item index="search" :route="'/search'">
+    <el-menu-item index="search" route="/search">
       <router-link to="/search">
         <el-row :gutter="10" class="flex items-center justify-center">
           <el-col :span="24">

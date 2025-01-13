@@ -3427,12 +3427,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.10.3":
-  version: 22.10.3
-  resolution: "@types/node@npm:22.10.3"
+"@types/node@npm:*, @types/node@npm:^22.10.5":
+  version: 22.10.5
+  resolution: "@types/node@npm:22.10.5"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10c0/0471a73c8672c803b1f2b912c2c466d00a217186933e8ff38ec7779b4a3f88a0eea3b513a59f2abf9de17cc8bbca688a3c6643c6513ac8dd1c3e45d25fab93b1
+  checksum: 10c0/6a0e7d1fe6a86ef6ee19c3c6af4c15542e61aea2f4cee655b6252efb356795f1f228bc8299921e82924e80ff8eca29b74d9dd0dd5cc1a90983f892f740b480df
   languageName: node
   linkType: hard
 
@@ -4757,6 +4757,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"elastic-builder@npm:^2.31.0":
+  version: 2.31.0
+  resolution: "elastic-builder@npm:2.31.0"
+  dependencies:
+    lodash.has: "npm:^4.5.2"
+    lodash.hasin: "npm:^4.5.2"
+    lodash.head: "npm:^4.0.1"
+    lodash.isempty: "npm:^4.4.0"
+    lodash.isnil: "npm:^4.0.0"
+    lodash.isobject: "npm:^3.0.2"
+    lodash.isstring: "npm:^4.0.1"
+    lodash.omit: "npm:^4.5.0"
+  checksum: 10c0/eee0d3355067fea8ecbdc7647faa87548dfab8d8a331e10b9d2662e50a858006799ba0f0de62c5a2534c27af086f13ff48bc5513201a861c7a7cd9a69270a5b1
+  languageName: node
+  linkType: hard
+
 "electron-to-chromium@npm:^1.5.73":
   version: 1.5.76
   resolution: "electron-to-chromium@npm:1.5.76"
@@ -4764,9 +4780,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"element-plus@npm:^2.9.1":
-  version: 2.9.1
-  resolution: "element-plus@npm:2.9.1"
+"element-plus@npm:^2.9.2":
+  version: 2.9.2
+  resolution: "element-plus@npm:2.9.2"
   dependencies:
     "@ctrl/tinycolor": "npm:^3.4.1"
     "@element-plus/icons-vue": "npm:^2.3.1"
@@ -4785,7 +4801,7 @@ __metadata:
     normalize-wheel-es: "npm:^1.2.0"
   peerDependencies:
     vue: ^3.2.0
-  checksum: 10c0/c5ff16de1790da376934b7d515ddee00fbbc8ea40230884659464ed1e4d700af5e42b12b5c7c22eb391296dc05bcd1eb918ad415412be87721f0288546860187
+  checksum: 10c0/497143aca3a737229d9fb122c165f0dd30e3bd5c542a0c9406cb610d32864b30f260bf41cb74e3c2083988a007d20cb4a81b6e7dc388722224c97d5668a97d4e
   languageName: node
   linkType: hard
 
@@ -6076,6 +6092,62 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.has@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "lodash.has@npm:4.5.2"
+  checksum: 10c0/3ffa9e549f321996a5fdf6204494c035ff550b2df703f936a448c553131bbb55492b4e7995bb13500648b50b268ed8afc974a7a0c0a43744d28d61cc95cb1ffe
+  languageName: node
+  linkType: hard
+
+"lodash.hasin@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "lodash.hasin@npm:4.5.2"
+  checksum: 10c0/8b7c8bb3d3c94bf36c891177b513cc2a1efe13bf90a67edc64af5252a3ab205f7ed642d6d857e82b233817e05348ead55dbeef27772063855a23e62ae242d6e2
+  languageName: node
+  linkType: hard
+
+"lodash.head@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "lodash.head@npm:4.0.1"
+  checksum: 10c0/e0f9cf3412d96ed051232605bf15018b1cf3faacb6541cdeeca3f375fd13453d0fe76a0b301b79c7d2f0d418e3ac5f386be893c9cf454a0e41091681a1d4245f
+  languageName: node
+  linkType: hard
+
+"lodash.isempty@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "lodash.isempty@npm:4.4.0"
+  checksum: 10c0/6c7eaa0802398736809b9e8aed8b8ac1abca9be71788fd719ba9d7f5b4c23e8dc63b7f049df4131713dda30a2fdedc2f655268e9deb8cd5a985dfc934afca194
+  languageName: node
+  linkType: hard
+
+"lodash.isnil@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "lodash.isnil@npm:4.0.0"
+  checksum: 10c0/1a410a62eb2e797f077d038c11cbf1ea18ab36f713982849f086f86e050234d69988c76fa18d00278c0947daec67e9ecbc666326b8a06b43e36d3ece813a8120
+  languageName: node
+  linkType: hard
+
+"lodash.isobject@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "lodash.isobject@npm:3.0.2"
+  checksum: 10c0/da4c8480d98b16835b59380b2fbd43c54081acd9466febb788ba77c434384349e0bec162d1c4e89f613f21687b2b6d8384d8a112b80da00c78d28d9915a5cdde
+  languageName: node
+  linkType: hard
+
+"lodash.isstring@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "lodash.isstring@npm:4.0.1"
+  checksum: 10c0/09eaf980a283f9eef58ef95b30ec7fee61df4d6bf4aba3b5f096869cc58f24c9da17900febc8ffd67819b4e29de29793190e88dc96983db92d84c95fa85d1c92
+  languageName: node
+  linkType: hard
+
+"lodash.omit@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.omit@npm:4.5.0"
+  checksum: 10c0/3808b9b6faae35177174b6ab327f1177e29c91f1e98dcbccf13a72a6767bba337306449d537a4e0d8a33d2673f10d39bc732e30c4b803274ea0c1168ea60e549
+  languageName: node
+  linkType: hard
+
 "lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
@@ -6734,14 +6806,15 @@ __metadata:
     "@gtm-support/vue-gtm": "npm:^3.1.0"
     "@tsconfig/node22": "npm:^22.0.0"
     "@types/express": "npm:^5.0.0"
-    "@types/node": "npm:^22.10.3"
+    "@types/node": "npm:^22.10.5"
     "@types/papaparse": "npm:^5.3.15"
     "@unhead/vue": "npm:^1.11.14"
     "@vitejs/plugin-vue": "npm:^5.2.1"
     "@vue/tsconfig": "npm:^0.7.0"
     autoprefixer: "npm:^10.4.20"
     convert-size: "npm:^1.2.1"
-    element-plus: "npm:^2.9.1"
+    elastic-builder: "npm:^2.31.0"
+    element-plus: "npm:^2.9.2"
     express: "npm:^4.21.2"
     ipynb2html: "npm:^0.4.0-rc.1"
     js-snip: "npm:^1.2.0"
@@ -6761,8 +6834,8 @@ __metadata:
     ro-crate: "npm:^3.4.2"
     tailwindcss: "npm:^3.4.17"
     typescript: "npm:^5.7.2"
-    uuid: "npm:^11.0.3"
-    vite: "npm:^6.0.6"
+    uuid: "npm:^11.0.4"
+    vite: "npm:^6.0.7"
     vite-plugin-vue-devtools: "npm:^7.6.8"
     vue: "npm:^3.5.13"
     vue-cookies: "npm:^1.8.5"
@@ -6777,7 +6850,7 @@ __metadata:
   resolution: "oni-ui@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
-    "@types/node": "npm:^22.10.3"
+    "@types/node": "npm:^22.10.5"
     typescript: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -8386,12 +8459,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "uuid@npm:11.0.3"
+"uuid@npm:^11.0.4":
+  version: 11.0.4
+  resolution: "uuid@npm:11.0.4"
   bin:
     uuid: dist/esm/bin/uuid
-  checksum: 10c0/cee762fc76d949a2ff9205770334699e0043d52bb766472593a25f150077c9deed821230251ea3d6ab3943a5ea137d2826678797f1d5f6754c7ce5ce27e9f7a6
+  checksum: 10c0/3c13591c4dedaa3741f925e284df5974e3d6e0b1cb0f6f75f98c36f9c01d2a414350364fd067613ef600a21c6973dab0506530d4f499ff878f32a06f84569ead
   languageName: node
   linkType: hard
 
@@ -8469,9 +8542,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.6":
-  version: 6.0.6
-  resolution: "vite@npm:6.0.6"
+"vite@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "vite@npm:6.0.7"
   dependencies:
     esbuild: "npm:^0.24.2"
     fsevents: "npm:~2.3.3"
@@ -8517,7 +8590,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/144c3f80a7920a4b2fa14f00f99b58ece246455ca9313561a67a227b45dadac3343e406d3c1dbfafa79992ac88f54cb2b040b229997e432daf47594fe8cacec2
+  checksum: 10c0/ae81047b4290a7206b9394a39a782d509e9610462e7946422ba22d5bc615b5a322c07e33d7bf9dd0b3312ec3f5c63353b725913d1519324bfdf539b4f1e03f52
   languageName: node
   linkType: hard
 

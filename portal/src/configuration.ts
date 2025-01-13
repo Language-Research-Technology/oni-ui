@@ -27,12 +27,6 @@ const termsSchema = z.object({
   title: z.string(),
 });
 
-const privacySchema = z.object({
-  text: z.string(),
-  href: z.string(),
-  title: z.string(),
-});
-
 // const emailSchema = z.object({
 //   help: z.string().email(),
 // });
@@ -58,20 +52,28 @@ const topNavItemSchema = z.object({
   display: z.string(),
 });
 
-const searchSortingSchema = z.object({
+const valueLabelSchema = z.object({
   value: z.string(),
   label: z.string(),
 });
 
-const searchOrderingSchema = z.object({
-  value: z.string(),
-  label: z.string(),
-});
-
-const searchDetailsSchema = z.object({
+const fieldLabelNameSchema = z.object({
   field: z.string(),
   label: z.string(),
+  name: z.string(),
 });
+
+const searchSchema = z
+  .object({
+    sorting: z.array(valueLabelSchema),
+    searchSorting: valueLabelSchema,
+    startSorting: valueLabelSchema,
+    defaultSorting: valueLabelSchema,
+    ordering: z.array(valueLabelSchema),
+    defaultOrder: valueLabelSchema,
+    searchDetails: z.array(fieldLabelNameSchema),
+  })
+  .optional();
 
 // const mainFieldSchema = z.object({
 //   display: z.string(),
@@ -172,7 +174,6 @@ const uiSchema = z.object({
   googleForm: googleFormSchema,
   // binderhubRegistry: binderhubRegistrySchema,
   terms: termsSchema,
-  privacy: privacySchema,
   // email: emailSchema,
   footer: footerSchema,
   login: z.object({
@@ -189,29 +190,62 @@ const uiSchema = z.object({
   // }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
-  search: z
-    .object({
-      sorting: z.array(searchSortingSchema),
-      searchSorting: searchSortingSchema,
-      ordering: z.array(searchOrderingSchema),
-      defaultOrder: searchOrderingSchema,
-      searchDetails: z.array(searchDetailsSchema),
-    })
-    .optional(),
+  search: searchSchema,
   main: z.object({
     //   fields: z.array(mainFieldSchema),
     //   byteFields: z.array(z.string()),
     expand: z.array(z.string()),
   }),
-  head: z.object({
-    meta: z.array(headMetaSchema),
-  }),
+  // head: z.object({
+  //   meta: z.array(headMetaSchema),
+  // }),
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
   // notebook: notebookSchema,
   helpers: z.array(helpersSchema),
   // baseVocab: z.string().url(),
+  conformsTo: z.object({
+    collection: z.string().url(),
+    object: z.string().url(),
+    notebook: z.string().url(),
+  }),
+  licenses: z.array(
+    z.object({
+      license: z.string(),
+      group: z.string(),
+      access: z.string(),
+      enrollment: z
+        .object({
+          url: z.string().url().optional(),
+          label: z.string().optional(),
+          class: z.string().optional(),
+        })
+        .optional(),
+    }),
+  ),
+  aggregations: z.array(
+    z.object({
+      display: z.string(),
+      order: z.number(),
+      name: z.string(),
+      field: z.string(),
+      active: z.boolean().optional(),
+      help: z.string().optional(),
+      hide: z.boolean().optional(),
+      icons: z.boolean().optional(),
+    }),
+  ),
+  searchFields: z.record(
+    z.object({
+      label: z.string(),
+      checked: z.boolean(),
+    }),
+  ),
+  searchHighlights: z.array(z.string()),
+  highlight: z.object({
+    max_analyzer_offset: z.number(),
+  }),
   analytics: z
     .object({
       gaMeasurementId: z.string(),
@@ -279,20 +313,6 @@ const apiSchema = z.object({
   //     username: z.string(),
   //   }),
   // }),
-  licenses: z.array(
-    z.object({
-      license: z.string(),
-      group: z.string(),
-      access: z.string(),
-      enrollment: z
-        .object({
-          url: z.string().url().optional(),
-          label: z.string().optional(),
-          class: z.string().optional(),
-        })
-        .optional(),
-    }),
-  ),
   // licenseGroup: z.string(),
   // license: z.object({
   //   default: z.object({
@@ -361,18 +381,6 @@ const apiSchema = z.object({
   //       checked: z.boolean(),
   //     }),
   //   }),
-  //   aggregations: z.array(
-  //     z.object({
-  //       display: z.string(),
-  //       order: z.number(),
-  //       name: z.string(),
-  //       field: z.string(),
-  //       active: z.boolean().optional(),
-  //       help: z.string().optional(),
-  //       hide: z.boolean().optional(),
-  //       icons: z.boolean().optional(),
-  //     }),
-  //   ),
   //   highlightFields: z.array(z.string()),
   //   test: z.object({
   //     filters: z.object({
@@ -417,11 +425,6 @@ const apiSchema = z.object({
   // admin: z.object({
   //   indexRoutes: z.boolean(),
   // }),
-  conformsTo: z.object({
-    collection: z.string().url(),
-    object: z.string().url(),
-    notebook: z.string().url(),
-  }),
   // skipByMatch: z.array(z.unknown()),
 });
 

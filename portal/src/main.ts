@@ -24,7 +24,9 @@ import { configuration } from '@/configuration';
 import App from '@/App.vue';
 import router from '@/router';
 
-import { ApiService } from './api.service';
+import { ApiService } from '@/services/api';
+import { ElasticService } from '@/services/elastic';
+
 // import HTTPService from './http.service';
 // import MembershipService from './membership.service';
 
@@ -58,6 +60,9 @@ if (configuration.ui?.analytics) {
 
 const api = new ApiService();
 app.provide('api', api);
+
+const es = new ElasticService();
+app.provide('es', es);
 
 // app.config.globalProperties.$http = new HTTPService({ router, loginPath: '/login' });
 // app.config.globalProperties.$membership = new MembershipService({ router });

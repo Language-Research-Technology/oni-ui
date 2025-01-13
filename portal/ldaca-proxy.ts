@@ -37,4 +37,26 @@ app.get('/ldaca/entity/:id', async (req, res) => {
   res.status(response.status).send(body);
 });
 
+app.post('/api/search/index/items', async (req, res) => {
+  const url = 'https://data.ldaca.edu.au/api/search/index/items';
+
+  let data = '';
+  req.setEncoding('utf8');
+  req.on('data', (chunk) => {
+    data += chunk;
+  });
+
+  req.on('end', async () => {
+    const response = await fetch(url, {
+      method: 'POST',
+      // @ts-expect-error Ignore type errors
+      headers: req.headers,
+      body: data,
+    });
+
+    const body = await response.text();
+    res.status(response.status).send(body);
+  });
+});
+
 export const ldacaProxy = app;

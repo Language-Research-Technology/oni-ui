@@ -1,7 +1,7 @@
 import { ROCrate } from 'ro-crate';
 
 import { configuration } from '@/configuration';
-import { useAuthStore } from './stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 // TODO: Can we get the types from the API?
 export type GetEntitiesParams = {

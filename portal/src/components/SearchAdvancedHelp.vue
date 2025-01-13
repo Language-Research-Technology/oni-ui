@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <el-row>
     <p>
@@ -7,15 +10,18 @@
       The information entered in the Advanced Search text field is treated as part of a 'mini-language':
     </p>
     <p>
-      - Your query specifications across multiple lines will be compiled as a single query string consisting of a series of search terms and operators which can be viewed by clicking the <i>Show Query</i> button.
+      - Your query specifications across multiple lines will be compiled as a single query string consisting of a series
+      of search terms and operators which can be viewed by clicking the <i>Show Query</i> button.
     </p>
     <p>
       - In general, the search text is not case-sensitive. Exceptions to this are Boolean operators (see below).<br />
     </p>
   </el-row>
+
   <el-row>
     <p class="py-2 font-bold">Boolean Operators</p>
   </el-row>
+
   <el-row>
     <p>
       The standard Boolean operators <code class="literal backdrop-blur">AND</code>, <code
@@ -25,17 +31,20 @@
       using parentheses around the full query, e.g. <code class="literal backdrop-blur">(koala AND kangaroo)</code>.
     </p>
   </el-row>
+
   <el-row>
     <p>
       For instance, to search for items that contain both 'rainbow' and 'lorikeet' or 'pink' and 'cockatoo' but not
       'galah', the query should be:
     </p>
   </el-row>
+
   <el-row>
     <p>
       <code class="literal backdrop-blur">(((rainbow AND lorikeet) OR (pink AND cockatoo)) NOT galah)</code>
     </p>
   </el-row>
+
   <el-row>
     <p>
       To search for the literal words AND, OR and NOT, add a backward slash (<code
@@ -47,6 +56,7 @@
       case-sensitive matches; it will just prevent its use as a Boolean operator.
     </p>
   </el-row>
+
   <el-row>
     <p class="py-2 font-bold">Query String Syntax</p>
     <table class="table-auto w-full">
@@ -86,7 +96,9 @@
         <tr>
           <td><code>*</code></td>
           <td>Wildcard to replace zero or more characters. Wildcards cannot be included in a phrasal search. e.g. <code
-              class="literal backdrop-blur">gre*</code> will find instances of 'green', 'grew', 'greater', etc. This wildcard can also be used to find related word forms e.g. <code>ask*</code> will find instances of 'ask', 'asks', 'asked' and 'asking'.
+              class="literal backdrop-blur">gre*</code> will find instances of 'green', 'grew', 'greater', etc. This
+            wildcard can also be used to find related word forms e.g. <code>ask*</code> will find instances of 'ask',
+            'asks', 'asked' and 'asking'.
           </td>
         </tr>
         <tr>
@@ -96,11 +108,13 @@
       </tbody>
     </table>
   </el-row>
+
   <el-row>
     <p class="py-2 font-bold">
       Regular Expressions
     </p>
   </el-row>
+
   <el-row>
     <p>
       Some regular expression patterns can be used within the query string by surrounding the pattern in forward
@@ -114,35 +128,39 @@
         RegExp Syntax</a>.
     </p>
   </el-row>
+
   <el-row>
     <p class="py-2 font-bold">
       Reserved Characters
     </p>
   </el-row>
+
   <el-row>
     <p class="py-2">
-    <p></p>
-    The following are reserved characters (i.e. part of the 'mini-language') that can have specific search functions and
-    may need 'escaping' with \ if you want to search for the literal characters.<br />
-    <code>
-      &plus;&#x20;&minus;&#x20;&equals;&#x20;&amp;&amp;&#x20;&semi;&#x20;&vert;&vert;&#x20;&gt;&#x20;&lt;&#x20;&excl;&#x20;&lpar;&#x20;&rpar;&#x20;&lcub;&#x20;&rcub;&#x20;&lsqb;&#x20;&rsqb;&#x20;&Hat;&#x20;&quot;&#x20;&#x7E;&#x20;&ast;&#x20;&quest;&#x20;&colon;&#x20;&bsol;&#x20;&sol;
-    </code>
+      <br />
+      The following are reserved characters (i.e. part of the 'mini-language') that can have specific search functions
+      and may need 'escaping' with \ if you want to search for the literal characters.
+      <br />
+      <code>
+        &plus;&#x20;&minus;&#x20;&equals;&#x20;&amp;&amp;&#x20;&semi;&#x20;&vert;&vert;&#x20;&gt;&#x20;&lt;&#x20;&excl;&#x20;&lpar;&#x20;&rpar;&#x20;&lcub;&#x20;&rcub;&#x20;&lsqb;&#x20;&rsqb;&#x20;&Hat;&#x20;&quot;&#x20;&#x7E;&#x20;&ast;&#x20;&quest;&#x20;&colon;&#x20;&bsol;&#x20;&sol;
+      </code>
     </p>
   </el-row>
+
   <el-row>
     <p class="py-2 font-bold">
       Show Query
     </p>
     <p class="py-2">
-    <p></p>
-    If you need to check your search query against what it actually sent to the back-end search engine, select Show
-    Query.
-    For example, setting the search field to Language and searching for Danish has the following query string:
-    <code>
-      ( language.name.@value: Danish )
-    </code>
+      If you need to check your search query against what it actually sent to the back-end search engine, select Show
+      Query.
+      For example, setting the search field to Language and searching for Danish has the following query string:
+      <code>
+        ( language.name.@value: Danish )
+      </code>
     </p>
   </el-row>
+
   <!--
   <li class="px-3 py-1">A term can be a single word -- 'quick' or 'brown' -- or a phrase, surrounded by double
     quotes -- "quick brown" -- which searches for all the words in the phrase, in the same order. NB: In the
@@ -162,7 +180,7 @@
     special characters correctly could lead to a syntax error which prevents your query from running. For
     example, to search for 'LGBTQ+', you would need to enter the string 'LGBTQ\+'.
   </li>
-<li class="px-3 py-1">The familiar boolean operators AND, OR and NOT (also written &&, || and !) are also-->
+  <li class="px-3 py-1">The familiar boolean operators AND, OR and NOT (also written &&, || and !) are also-->
   <!--            supported but beware that they do not honor the usual precedence rules, so parentheses should be used-->
   <!--            whenever multiple operators are used together. For instance, to search for files which contain both 'public'-->
   <!--            and 'house' or 'government' and 'house' or 'house' but not 'cottage', the query should be ((public AND-->
@@ -175,7 +193,3 @@
   <!--          <li class="px-3 py-1">Clicking on "Use Query String" will show you the actual search string used for your search. You can update your search string however it will not convert back to the search box</li>-->
   <!--</ul>-->
 </template>
-
-<script>
-export default {};
-</script>

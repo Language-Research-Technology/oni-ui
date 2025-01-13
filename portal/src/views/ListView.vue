@@ -7,7 +7,7 @@ import EntitySummary from '@/components/EntitySummary.vue';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute } from 'vue-router';
-import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/api.service';
+import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 const { ui } = useConfigurationStore();
 const router = useRouter();
 

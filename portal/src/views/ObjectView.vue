@@ -12,7 +12,7 @@ import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import { initSnip } from '../tools';
-import type { ApiService, RoCrate } from '@/api.service';
+import type { ApiService, RoCrate } from '@/services/api';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute, useRouter } from 'vue-router';

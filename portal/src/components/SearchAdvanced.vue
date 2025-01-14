@@ -32,7 +32,15 @@ const initialFieldAdvancedSearch = [{ label: 'All Fields', value: 'all_fields' }
 Object.keys(fields).map((f) => {
   initialFieldAdvancedSearch.push({ label: fields[f].label, value: f });
 });
-const searchGroup = ref([
+
+export type SearchGroup = {
+  field: string;
+  operation: string;
+  operator: string;
+  type: string;
+  searchInput: string;
+};
+const searchGroup = ref<SearchGroup[]>([
   {
     field: 'all_fields',
     operation: 'AND',
@@ -124,19 +132,6 @@ if (route.query.a) {
             </el-option>
           </el-select>
         </el-col>
-        <!--        <el-col :xs="24" :sm="24" :md="5" :lg="5" :xl="5" class="h-auto">-->
-        <!--          <el-select class="w-full m-2"-->
-        <!--                     v-model="sg.type"-->
-        <!--                     :default-first-option="true">-->
-        <!--            <el-option label="match" value="phrase"/>-->
-        <!--            <el-option label="prefix" value="phrase_prefix"-->
-        <!--                       :disabled="sg.field === 'all_fields' || sg.field === '@id' "/>-->
-        <!--            <el-option label="wildcard" value="wildcard"-->
-        <!--                       :disabled="sg.field === 'all_fields' || sg.field === '@id' "/>-->
-        <!--            <el-option label="regex" value="regex"-->
-        <!--                       :disabled="sg.field === 'all_fields' || sg.field === '@id' "/>-->
-        <!--          </el-select>-->
-        <!--        </el-col>-->
         <el-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14" class="h-auto">
           <el-input class="w-full m-2" v-model="sg.searchInput" />
         </el-col>

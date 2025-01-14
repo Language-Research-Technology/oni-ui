@@ -3,13 +3,14 @@ import { first, isEmpty } from 'lodash';
 
 import { HTTPService } from '@/services/http';
 import { configuration } from '@/configuration';
+import type { SearchGroup } from '@/components/SearchAdvanced.vue';
 
 type MultiSearch<T> = {
   hits: {
     hits: T[];
     total: { value: number };
   };
-  aggregations: Record<string, { key: string; doc_count: number }>;
+  aggregations: Record<string, { buckets: { key: string; doc_count: number }[] }>;
 };
 
 type MultiProps = {
@@ -22,7 +23,7 @@ type MultiProps = {
   operation?: string;
   pageSize?: number;
   searchFrom?: number;
-  queries?: Record<string, string>;
+  queries?: { queryString: string };
   sortField?: string;
 };
 
@@ -43,8 +44,8 @@ export class ElasticService {
     this.#fields = configuration.ui.searchFields;
   }
 
-  prepareAggregations(aggregations) {
-    const a = {};
+  prepareAggregations(aggregations: typeof configuration.ui.aggregations) {
+    const a: Record<string, { terms: { field: string; size: number } }> = {};
     for (const agg of aggregations) {
       a[agg.name] = { terms: { field: agg.field, size: 1000 } };
     }
@@ -137,40 +138,40 @@ export class ElasticService {
     }
   }
 
-  async single({ index, id, _crateId, _id }) {
-    const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
-    let route = this.#searchRoute + this.#indexRoute;
-    if (index) {
-      route = `${this.#searchRoute}/${index}`;
-    }
-    const body = {
-      aggs: this.#aggs, // maybe we dont need to send aggregations
-      query: {},
-    };
-    if (_id) {
-      body.query = {
-        match: {
-          _id: decodeURIComponent(_id),
-        },
-      };
-    } else {
-      body.query = {
-        dis_max: {
-          queries: [
-            { match: { '@id': decodeURIComponent(id) } },
-            { match: { _crateId: decodeURIComponent(_crateId) } },
-          ],
-        },
-      };
-    }
-
-    const response = await httpService.post({ route, body });
-    if (response.status !== 200) {
-      throw new Error(response.statusText);
-    }
-    const results = await response.json();
-    return first(results?.hits?.hits);
-  }
+  // async single({ index, id, _crateId, _id }) {
+  //   const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
+  //   let route = this.#searchRoute + this.#indexRoute;
+  //   if (index) {
+  //     route = `${this.#searchRoute}/${index}`;
+  //   }
+  //   const body = {
+  //     aggs: this.#aggs, // maybe we dont need to send aggregations
+  //     query: {},
+  //   };
+  //   if (_id) {
+  //     body.query = {
+  //       match: {
+  //         _id: decodeURIComponent(_id),
+  //       },
+  //     };
+  //   } else {
+  //     body.query = {
+  //       dis_max: {
+  //         queries: [
+  //           { match: { '@id': decodeURIComponent(id) } },
+  //           { match: { _crateId: decodeURIComponent(_crateId) } },
+  //         ],
+  //       },
+  //     };
+  //   }
+  //
+  //   const response = await httpService.post({ route, body });
+  //   if (response.status !== 200) {
+  //     throw new Error(response.statusText);
+  //   }
+  //   const results = await response.json();
+  //   return first(results?.hits?.hits);
+  // }
 
   boolQuery({ searchQuery, fields, filters, operation }) {
     const filterTerms = this.termsQuery(filters);
@@ -424,7 +425,6 @@ export class ElasticService {
     body.size = pageSize;
     body.from = searchFrom;
     body.track_total_hits = true;
-    console.log(JSON.stringify(body));
     const response = await httpService.post({ route, body });
     if (response.status !== 200) {
       throw new Error(response.statusText);

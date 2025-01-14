@@ -50,11 +50,9 @@ if (!es) {
 
 const { ui } = useConfigurationStore();
 
-const fields = ref(ui.main.fields || []);
-const conformsToCollection = ref(ui.conformsTo?.collection);
-const conformsToObject = ref(ui.conformsTo?.object);
-const parentId = ref('');
-const parentName = ref('');
+const conformsToCollection = ui.conformsTo?.collection;
+const conformsToObject = ui.conformsTo?.object;
+const conformsToNotebook = ui.conformsTo?.notebook;
 const aggregations = ref({});
 const total = ref(0);
 const members = ref([]);
@@ -155,20 +153,18 @@ const getSearchDetailUrl = (item: ItemType) => {
   const itemType = types.find((t) => t === 'RepositoryObject');
 
   let id = encodeURIComponent(item._source['@id']);
-  const crateId = encodeURIComponent(item._source._crateId[0]?.['@value']);
+  const crateId = encodeURIComponent(item._source._crateId?.[0]?.['@value']);
   if (repoType) {
     url = `/collection?id=${id}&_crateId=${crateId}`;
   } else if (itemType) {
     url = `/object?id=${id}&_crateId=${crateId}`;
   } else if (fileType) {
-    let isNotebook = false;
-    if (item._source.conformsTo) {
-      isNotebook = !!item._source.conformsTo.find((c) => c['@id'] === conformsToNotebook);
-    }
+    const isNotebook = !!item._source.conformsTo?.find((c) => c['@id'] === conformsToNotebook);
+    console.log('🪚 isNotebook:', isNotebook);
 
     if (isNotebook) {
       id = encodeURIComponent(item._id);
-      url = `/object?_id=${id}`;
+      url = `/object?id=${id}`;
     } else {
       const fileId = id;
       id = encodeURIComponent(item._source._parent[0]?.['@id']);

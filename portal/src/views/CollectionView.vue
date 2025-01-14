@@ -24,15 +24,13 @@ if (!api) {
 }
 
 import { useConfigurationStore } from '@/stores/configuration';
-const {
-  ui,
-  api: { conformsTo },
-} = useConfigurationStore();
+const { ui } = useConfigurationStore();
 
 const {
   collection: config,
   // main: { fields },
   helpers,
+  conformsTo,
   head: configTag,
 } = ui;
 
@@ -208,7 +206,7 @@ const fetchData = async () => {
     }
 
     metadata.value = md;
-    await populate(md);
+    populate(md);
 
     // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
     // this.aggregations = summaries.aggregations;

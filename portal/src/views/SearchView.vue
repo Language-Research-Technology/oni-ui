@@ -2,7 +2,6 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { v4 as uuid } from 'uuid';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import type { ElasticService } from '@/services/elastic';
@@ -14,7 +13,7 @@ import SearchAggs from '@/components/SearchAggs.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchDetailElement, { type ItemType } from '@/components/SearchDetailElement.vue';
 
-type Aggregations = {
+type Aggregation = {
   buckets: Array<{ key: string; doc_count: number }>;
   display: string;
   order: number;
@@ -36,9 +35,9 @@ if (!es) {
 const { ui } = useConfigurationStore();
 const { searchFields } = ui;
 
-const searchInput = ref('');
+const searchInput = ref(route.query.q || '');
 const advancedSearchEnabled = ref(false);
-const aggregations = ref<Aggregations>({});
+const aggregations = ref<Aggregation[]>();
 const isStart = ref(false);
 const isLoading = ref(false);
 const selectedSorting = ref();
@@ -49,24 +48,16 @@ const filters = ref<Record<string, string[]>>({});
 const selectedOperation = ref(route.query.o || 'must');
 const pageSize = ref(10);
 const currentPage = ref(1);
-const advancedQueries = ref(null);
+const advancedQueries = ref<{ queryString: string; searchGroup: string }>();
 const selectedOrder = ref(ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' });
 const totals = ref(0);
 const resetAdvancedSearch = ref(false);
 
 const more = ref(false);
-const memberOfBuckets = ref([]);
 const clear = ref(false);
 const filterButton = ref([]);
-const top = ref({});
-const showTopCollections = ref(false);
-const showRepositoryCollections = ref(false);
-const collections = ref([]);
-const collectionTotals = ref(0);
 const isBrowse = ref(false);
-const searchFrom = ref(0);
 
-const conformsToNotebook = ui.conformsTo?.notebook;
 const defaultOrder = ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' };
 const ordering = ui.search?.ordering || [
   { value: 'asc', label: 'Ascending' },
@@ -110,45 +101,44 @@ watch(
   },
 );
 
-const updateFilters = async ({ clear, empty } = {}) => {
+const updateFilters = async ({ clear }: { clear?: { f: string; filterKey: string } } = {}) => {
   // updating filters from command
   if (clear?.f && clear?.filterKey) {
     if (filters.value[clear.filterKey]) {
       filters.value[clear.filterKey].splice(filters.value[clear.filterKey].indexOf(clear.f), 1);
-      if (isEmpty(filters.value[clear.filterKey])) {
+      if (filters.value[clear.filterKey].length === 0) {
         delete filters.value[clear.filterKey];
       }
+
       //if there is an update on the filter the site will do another search.
       await updateRoutes({ updateFilters: true });
     }
-  } else {
-    // or updating filters from routes
-    if (!route.query.f) {
-      filters.value = {};
-    } else {
-      const filterQuery = JSON.parse(decodeURIComponent(route.query.f?.toString() || '')) as Record<string, string[]>;
-      filters.value = {};
-      for (const [key, val] of Object.entries(filterQuery)) {
-        filters.value[key] = val;
-        if (filters.value[key].length === 0) {
-          delete filters.value[key];
-        }
-      }
+
+    return;
+  }
+
+  // or updating filters from routes
+  if (!route.query.f) {
+    filters.value = {};
+    return;
+  }
+
+  const filterQuery = JSON.parse(decodeURIComponent(route.query.f?.toString() || '')) as Record<string, string[]>;
+  filters.value = {};
+  for (const [key, val] of Object.entries(filterQuery)) {
+    filters.value[key] = val;
+    if (filters.value[key].length === 0) {
+      delete filters.value[key];
     }
   }
 };
 
 const updateAdvancedQueries = () => {
   advancedSearchEnabled.value = true;
-  let searchGroup: object;
-  try {
-    searchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || ''));
-  } catch (e) {
-    throw new Error('There was a problem with your advanced query please try again');
-  }
-
+  const searchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || ''));
   const queryString = es.queryString(searchGroup);
   advancedQueries.value = { queryString, searchGroup };
+  console.log('🪚 advancedQueries:', JSON.stringify(advancedQueries.value, null, 2));
 };
 
 const search = async () => {
@@ -171,7 +161,7 @@ const search = async () => {
   isLoading.value = true;
   try {
     const results = await es.multi<ItemType>({
-      multi: searchInput.value,
+      multi: searchInput.value.toString(),
       filters: filters.value,
       searchFields,
       sort: selectedSorting.value.value,
@@ -199,7 +189,6 @@ const search = async () => {
 
     if (results.aggregations) {
       aggregations.value = populateAggregations(results.aggregations);
-      memberOfBuckets.value = results.aggregations['_memberOf.name.@value'];
     }
 
     isLoading.value = false;
@@ -216,8 +205,8 @@ const search = async () => {
   }
 };
 
-const populateAggregations = (aggregations: object) => {
-  const a: Aggregations[] = [];
+const populateAggregations = (aggregations: Record<string, { buckets: { key: string; doc_count: number }[] }>) => {
+  const a: Aggregation[] = [];
   // NOTE: below is converted to an ordered array not an object.
   const aggInfo = ui.aggregations;
 
@@ -230,7 +219,7 @@ const populateAggregations = (aggregations: object) => {
     const active = info?.active;
     const help = info?.help;
     a.push({
-      buckets: aggregations[agg]?.buckets || aggregations[agg]?.values?.buckets,
+      buckets: aggregations[agg]?.buckets,
       display: display || agg,
       order: order || 0,
       name: name || agg,
@@ -240,33 +229,14 @@ const populateAggregations = (aggregations: object) => {
     });
   }
 
-  console.log('🪚 a:', JSON.stringify(a, null, 2));
   return a.sort((a, b) => a.order - b.order);
-};
-
-const doWork = async () => {
-  isStart.value = true;
-  await updateFilters();
-
-  if (route.query.q) {
-    searchInput.value = route.query.q.toString();
-  }
-
-  if (route.query.a) {
-    updateAdvancedQueries();
-  } else {
-    advancedSearchEnabled.value = false;
-    // TODO: JF do we need this?
-    // removeLocalStorage({ key: 'advancedQueries' });
-  }
-
-  search();
 };
 
 const updateRoutes = async ({
   queries,
-  updateFilters,
-}: { queries?: { searchGroup: string }; updateFilters: boolean }) => {
+  updateFilters = false,
+}: { queries?: { queryString: string; searchGroup: string }; updateFilters?: boolean } = {}) => {
+  console.log('🪚 💜');
   const query: { q?: string; f?: string; a?: string; r?: string } = {};
 
   let localFilterUpdate = false;
@@ -277,7 +247,6 @@ const updateRoutes = async ({
   } else {
     query.f = undefined;
   }
-
   if (route.query.f && !localFilterUpdate) {
     query.f = route.query.f.toString();
   }
@@ -285,20 +254,21 @@ const updateRoutes = async ({
   let localSearchGroupUpdate = false;
   if (queries?.searchGroup) {
     advancedQueries.value = queries;
+    console.log('🪚 value:', JSON.stringify(advancedQueries.value, null, 2));
+
     query.q = undefined;
     query.a = queries.searchGroup;
     currentPage.value = 1;
     localSearchGroupUpdate = true;
   }
-  if (route.query.a && !localSearchGroupUpdate) {
+  if (route.query.a) {
     query.a = route.query.a.toString();
     query.q = undefined;
     updateAdvancedQueries();
   } else {
-    advancedQueries.value = null; //clear advanced search
-    query.q = searchInput.value;
+    advancedQueries.value = undefined; //clear advanced search
+    query.q = searchInput.value ? searchInput.value?.toString() : undefined;
   }
-  query.r = uuid();
 
   await router.push({ path: 'search', query, replace: true });
 };
@@ -317,11 +287,11 @@ const resetSearch = async () => {
   if (resetAdvancedSearch.value) {
     advancedSearchEnabled.value = false;
   } else {
-    advancedSearchEnabled.value = route.query.a || false;
+    advancedSearchEnabled.value = !!route.query.a;
   }
-  advancedQueries.value = null;
+  advancedQueries.value = undefined;
   resetAdvancedSearch.value = true;
-  route.query.sf = encodeURIComponent(searchFields.value);
+  route.query.sf = encodeURIComponent(searchFields.value.toString());
   route.query.o = selectedOperation.value;
   selectedOrder.value = defaultOrder;
   filterButton.value = [];
@@ -349,19 +319,19 @@ const scrollToTop = () => {
 };
 
 const clearAggregations = async () => {
-  if (aggregations.value) {
-    for (const agg of aggregations.value) {
-      //TODO: ask cos this may be silly?!?
-      //this.$refs[agg][0].clear();
-      const name = agg?.name;
-      // TODO: JF Put this back
-      // if (this.$refs[name]) {
-      //   for (const r of this.$refs[name]) {
-      //     r.clear();
-      //   }
-      // }
-    }
-  }
+  // if (aggregations.value) {
+  // for (const agg of aggregations.value) {
+  //TODO: ask cos this may be silly?!?
+  //this.$refs[agg][0].clear();
+  // const name = agg?.name;
+  // TODO: JF Put this back
+  // if (this.$refs[name]) {
+  //   for (const r of this.$refs[name]) {
+  //     r.clear();
+  //   }
+  // }
+  // }
+  // }
   filters.value = {};
 };
 
@@ -383,7 +353,7 @@ const sortResults = (sort: string) => {
 
 const orderResults = (order: string) => {
   currentPage.value = 1;
-  selectedOrder.value = ordering.find(({ value }) => value === order);
+  selectedOrder.value = ordering.find(({ value }) => value === order) || defaultOrder;
   search();
 };
 
@@ -440,6 +410,25 @@ const showMap = () => {
   router.push({ path: '/map' });
 };
 
+const doWork = async () => {
+  isStart.value = true;
+  await updateFilters();
+
+  if (route.query.q) {
+    searchInput.value = route.query.q.toString();
+  }
+
+  if (route.query.a) {
+    updateAdvancedQueries();
+  } else {
+    advancedSearchEnabled.value = false;
+    // TODO: JF do we need this?
+    // removeLocalStorage({ key: 'advancedQueries' });
+  }
+
+  search();
+};
+
 doWork();
 
 //   async mounted() {
@@ -470,9 +459,9 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
       class="h-full max-h-screen overflow-y-auto flex flex-col p-2" id="search_aggregation">
       <div v-show="!advancedSearchEnabled" class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-        <SearchBar ref='searchBar' :searchInput="searchInput" class="grow justify-items-center items-center m-4"
-          @enable-advanced="enableAdvancedSearch" @update-search-input="onInputChange" @do-search="updateRoutes"
-          :searchPath="'search'" />
+        <SearchBar ref='searchBar' :searchInput="searchInput.toString()"
+          class="grow justify-items-center items-center m-4" @enable-advanced="enableAdvancedSearch"
+          @update-search-input="onInputChange" @do-search="updateRoutes" :searchPath="'search'" />
       </div>
 
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
@@ -505,7 +494,7 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     aggs?.buckets?.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -520,13 +509,14 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
 
     <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
       class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3" id="search_results">
-      <div v-show="advancedSearchEnabled" id="advanced_search_box"
-        class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-        <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
-          @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
-      </div>
 
       <div class="pr-0">
+
+        <div v-show="advancedSearchEnabled" id="advanced_search_box"
+          class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
+            @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
+        </div>
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
@@ -599,7 +589,7 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
           <SearchDetailElement :item="item" />
         </div>
 
-        <div v-loading="isLoading" v-if="!items.length > 0">
+        <div v-loading="isLoading" v-if="!items.length">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
               <span v-if="!isLoading">No items found</span>

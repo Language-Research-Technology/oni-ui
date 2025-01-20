@@ -2,13 +2,13 @@
   <!-- TODO: remove this asTableRow -->
   <el-row class="py-2">
     <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24">
+      :xl="asTableRow ? 8 : 24">
       <p v-if="zip?.numberOfFiles && zip?.expandedSize">
         Files: {{ zip.numberOfFiles }}, Size: {{ zip.expandedSize }}
       </p>
     </el-col>
     <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24">
+      :xl="asTableRow ? 8 : 24">
       <p v-if="zip.noAccess">
         You do not have permission to download these files.
         <el-link :underline="false" type="primary">
@@ -18,30 +18,24 @@
         </el-link>
       </p>
       <p v-else>
-        <el-link ref="linkElement"
-                 :underline="true"
-                 type="primary"
-                 :href="zip.url"
-                 :download="zip.name"
-                 :onClick="trackEvent"
-        >
+        <el-link ref="linkElement" :underline="true" type="primary" :href="zip.url" :download="zip.name"
+          :onClick="trackEvent">
           {{ zip.name }}
-          <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message"
-                      placement="top">
+          <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message" placement="top">
             <el-button size="small" link>
-              <font-awesome-icon icon="fa-solid fa-circle-info"/>
+              <font-awesome-icon icon="fa-solid fa-circle-info" />
             </el-button>
           </el-tooltip>
         </el-link>
       </p>
     </el-col>
     <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24">
+      :xl="asTableRow ? 8 : 24">
       <p v-for="license of licenses">
-      <span class="justify-self-center">
-        <a class="underline" :href="license['@id']">
-        {{ first(license.name)?.['@value'] }}</a>
-      </span>
+        <span class="justify-self-center">
+          <a class="underline" :href="license['@id']">
+            {{ first(license.name)?.['@value'] }}</a>
+        </span>
       </p>
     </el-col>
   </el-row>
@@ -77,6 +71,18 @@ export default {
   async mounted() {
     this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
     this.zip = await this.$zip.get(this.id, this.name);
+    const group = first(this.licenses)?.['@id'];
+    const access = { hasAccess: this.zip.hasAccess, group };
+    const accessDetails = { access, license: first(this.license) }
+    this.$emit('accessDetails', accessDetails);
+  },
+  async updated() {
+    this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
+    this.zip = await this.$zip.get(this.id, this.name);
+    const group = first(this.licenses)?.['@id'];
+    const access = { hasAccess: this.zip.hasAccess, group };
+    const accessDetails = { access, license: first(this.license) };
+    this.$emit('accessDetails', accessDetails)
   },
   methods: {
     first,

@@ -89,7 +89,7 @@ watch(
       isStart.value = true;
       resetSearch();
     } else {
-      await updateFilters({});
+      await updateFilters();
       onInputChange(route.query.q?.toString() || '');
       currentPage.value = 1;
       if (route.query.a) {
@@ -101,30 +101,26 @@ watch(
   },
 );
 
-const updateFilters = async ({ clear }: { clear?: { f: string; filterKey: string } } = {}) => {
-  // updating filters from command
-  if (clear?.f && clear?.filterKey) {
-    if (filters.value[clear.filterKey]) {
-      filters.value[clear.filterKey].splice(filters.value[clear.filterKey].indexOf(clear.f), 1);
-      if (filters.value[clear.filterKey].length === 0) {
-        delete filters.value[clear.filterKey];
-      }
-
-      //if there is an update on the filter the site will do another search.
-      await updateRoutes({ updateFilters: true });
+const clearFilter = async (f: string, filterKey: string) => {
+  if (filters.value[filterKey]) {
+    filters.value[filterKey].splice(filters.value[filterKey].indexOf(f), 1);
+    if (filters.value[filterKey].length === 0) {
+      delete filters.value[filterKey];
     }
 
-    return;
+    //if there is an update on the filter the site will do another search.
+    await updateRoutes({ updateFilters: true });
   }
+};
 
-  // or updating filters from routes
-  if (!route.query.f) {
-    filters.value = {};
-    return;
-  }
-
-  const filterQuery = JSON.parse(decodeURIComponent(route.query.f?.toString() || '')) as Record<string, string[]>;
+const updateFilters = async () => {
   filters.value = {};
+
+  if (!route.query.f) {
+    return;
+  }
+
+  const filterQuery = JSON.parse(decodeURIComponent(route.query.f.toString())) as Record<string, string[]>;
   for (const [key, val] of Object.entries(filterQuery)) {
     filters.value[key] = val;
     if (filters.value[key].length === 0) {
@@ -138,7 +134,6 @@ const updateAdvancedQueries = () => {
   const searchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || ''));
   const queryString = es.queryString(searchGroup);
   advancedQueries.value = { queryString, searchGroup };
-  console.log('🪚 advancedQueries:', JSON.stringify(advancedQueries.value, null, 2));
 };
 
 const search = async () => {
@@ -236,7 +231,6 @@ const updateRoutes = async ({
   queries,
   updateFilters = false,
 }: { queries?: { queryString: string; searchGroup: string }; updateFilters?: boolean } = {}) => {
-  console.log('🪚 💜');
   const query: { q?: string; f?: string; a?: string; r?: string } = {};
 
   let localFilterUpdate = false;
@@ -247,6 +241,7 @@ const updateRoutes = async ({
   } else {
     query.f = undefined;
   }
+
   if (route.query.f && !localFilterUpdate) {
     query.f = route.query.f.toString();
   }
@@ -254,7 +249,6 @@ const updateRoutes = async ({
   let localSearchGroupUpdate = false;
   if (queries?.searchGroup) {
     advancedQueries.value = queries;
-    console.log('🪚 value:', JSON.stringify(advancedQueries.value, null, 2));
 
     query.q = undefined;
     query.a = queries.searchGroup;
@@ -450,8 +444,6 @@ doWork();
 //     }
 //     // await this.updateFilters({});
 //   },
-
-console.log('🪚 ', filters.value, isEmpty(filters.value));
 </script>
 
 <template>
@@ -494,7 +486,7 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     aggs?.buckets?.length
-                    }}</span>&nbsp;
+                  }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -532,7 +524,7 @@ console.log('🪚 ', filters.value, isEmpty(filters.value));
                 :key="filterKey" v-model="filters">
                 <el-button plain>{{ clean(filterKey) }}</el-button>
                 <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                  @click="updateFilters({ clear: { f, filterKey } })" class="text-2xl">
+                  @click="clearFilter(f, filterKey)" class="text-2xl">
                   {{ clean(f) }}
                   <el-icon class="el-icon--right">
                     <CloseBold />

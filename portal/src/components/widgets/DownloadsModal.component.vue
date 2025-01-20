@@ -1,15 +1,7 @@
 <template>
-  <el-dialog
-      v-model="visible"
-      title="Downloads for this collection"
-      width="50%">
-    <el-pagination class="items-center w-full"
-                   background layout="prev, pager, next"
-                   :total="objectTotals || 0"
-                   v-model:page-size="pageSize"
-                   v-model:currentPage="currentPage"
-                   @current-change="updatePages($event)"
-                   @update:page-size="pageSize"/>
+  <el-dialog v-model="visible" title="Downloads for this collection" width="50%">
+    <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="objectTotals || 0"
+      v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)" />
     <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
@@ -23,9 +15,8 @@
         </el-col>
       </el-row>
       <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license"
-                 :message="obj.message" :asTableRow="true"
-                 v-if="obj.name"/>
+        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="true"
+          v-if="obj.name" />
       </template>
     </div>
     <template v-else>
@@ -41,6 +32,7 @@
 <script>
 import { first } from 'lodash';
 import ZipLink from '../ZipLink.component.vue';
+import { getLocalStorage } from '@/storage';
 
 export default {
   components: {
@@ -71,6 +63,13 @@ export default {
     },
   },
   watch: {
+    '$store.state.user': {
+      async handler() {
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
+      },
+      flush: 'post',
+      immediate: true,
+    },
     visible: {
       handler(newValue, oldValue) {
         if (newValue) {

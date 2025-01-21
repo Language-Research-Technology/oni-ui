@@ -1,16 +1,16 @@
-import { useAuthStore } from '@/stores/auth';
+// import { useAuthStore } from '@/stores/auth';
 
 export class HTTPService {
-  #store: ReturnType<typeof useAuthStore>;
-
-  constructor() {
-    this.#store = useAuthStore();
-  }
+  // #store: ReturnType<typeof useAuthStore>;
+  //
+  // constructor() {
+  //   this.#store = useAuthStore();
+  // }
 
   #getHeaders() {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.#store.token}`,
+      // Authorization: `Bearer ${this.#store.token}`,
     };
 
     return headers;

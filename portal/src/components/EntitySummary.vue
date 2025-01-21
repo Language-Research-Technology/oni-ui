@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import type { GetEntitiesResponse, EntityType } from '@/services/api';
+import type { EntityType } from '@/services/api';
 
 import { useConfigurationStore } from '@/stores/configuration';
 
@@ -11,16 +11,14 @@ import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
 import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 
-import { initSnip } from '../tools';
-
 const { ui } = useConfigurationStore();
 
-const { entity } = defineProps<{ entity: GetEntitiesResponse['entities'][0] }>();
+const { entity } = defineProps<{ entity: EntityType }>();
+console.log('🪚 defineProps:', JSON.stringify(entity, null, 2));
 
 const uuid = v4uuid();
 // TODO: Rename this
 const searchDetails = ui.search?.searchDetails || [];
-const descriptionSnipped = ref(false);
 
 const getSearchDetailUrl = () => {
   // TODO: this is not good, maybe do it with a ConformsTo to specify link.
@@ -60,17 +58,6 @@ const getSearchDetailUrl = () => {
   // Defaults to object if it doesnt know what it is
   return `/object?id=${id}`;
 };
-
-// const doSnip = (selector: string) => {
-//   toggleSnip(selector);
-//   descriptionSnipped.value = true;
-// };
-
-onMounted(() => {
-  if (!descriptionSnipped) {
-    initSnip({ selector: `#desc_${uuid}`, lines: 3 });
-  }
-});
 </script>
 
 <template>
@@ -142,11 +129,29 @@ onMounted(() => {
           <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.fileCount">Files: {{
             entity.extra.fileCount }}</span>
         </el-row>
+
+        <el-row align="middle" v-if="entity.searchExtra?.highlight">
+          <ul>
+            <li v-for="hl of entity.searchExtra.highlight" v-html="'...' + hl[0] + '...'" class="p-2"></li>
+          </ul>
+        </el-row>
+
+        <el-row v-if="entity.searchExtra?.score" class="pt-2">
+          <div>
+            <font-awesome-icon icon="fa-solid fa-5x fa-award" />
+            Relevance Score: {{ entity.searchExtra.score }}
+          </div>
+        </el-row>
+
       </el-col>
 
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
         <AccessControlIcon :accessControl="entity.extra?.accessControl" />
-        <CommunicationModeIcon :communicationMode="entity.extra?.communicationMode" />
+        <el-row :span="24" class="flex justify-center">
+          <template v-for="communicationMode of entity.extra?.communicationMode">
+            <CommunicationModeIcon :communication-mode="communicationMode" />
+          </template>
+        </el-row>
         <el-row :span="24" class="flex justify-center">
           <template v-for="mediaType of entity.extra?.mediaType">
             <MediaTypeIcon :mediaType="mediaType" />

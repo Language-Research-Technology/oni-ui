@@ -3,14 +3,25 @@ import { ROCrate } from 'ro-crate';
 import { configuration } from '@/configuration';
 import { useAuthStore } from '@/stores/auth';
 
+// TODO: use zod to validate the response we get back
+
 // TODO: Can we get the types from the API?
 export type GetEntitiesParams = {
-  limit: number;
+  limit?: number;
   offset?: number;
-  sort: string;
-  order: string;
+  sort?: string;
+  order?: string;
   conformsTo?: string;
   memberOf?: string;
+};
+
+export type SearchParams = GetEntitiesParams & {
+  query: string;
+  // filters: filters.value,
+  // searchFields,
+  // sortField: selectedSorting.value?.field, //This is not mandatory but if field exists in sorting it will sort by this field
+  // operation: selectedOperation.value.toString(),
+  // queries: advancedQueries.value,
 };
 
 export type EntityType = {
@@ -28,16 +39,24 @@ export type EntityType = {
     objectCount: number;
     subCollectionCount: number;
     fileCount: number;
-    language: Array<string>;
     accessControl: 'Public' | 'Restricted';
     communicationMode: 'Song' | 'Spoken';
+    language: Array<string>;
     mediaType: Array<string>;
   };
+  searchExtra?: { score: number; highlight: string[] };
 };
 
 export type GetEntitiesResponse = {
   total: number;
   entities: Array<EntityType>;
+};
+
+export type GetSearchResponse = {
+  total: number;
+  searchTime: number;
+  entities: Array<EntityType>;
+  facets: Record<string, Record<string, number>>;
 };
 
 export type RoCrate = {
@@ -76,6 +95,12 @@ export class ApiService {
     const entities = (await this.#get('/entities', params as unknown as Record<string, string>)) as GetEntitiesResponse;
 
     return entities;
+  }
+
+  async search(params: SearchParams) {
+    const response = (await this.#post('/search', params as unknown as Record<string, string>)) as GetSearchResponse;
+
+    return response;
   }
 
   async getRoCrate(id: string) {
@@ -185,41 +210,28 @@ export class ApiService {
     return data;
   }
 
-  // async #post(route, body) {
-  //   const headers = await this.#getHeaders();
-  //   const response = await fetch(`${this.#apiUri}${route}`, {
-  //     method: 'POST',
-  //     headers,
-  //     body: JSON.stringify(body),
-  //   });
-  //
-  //   const data = response.json();
-  //
-  //   return data;
-  // }
-  //
-  // async #put(route, body) {
-  //   const headers = await this.#getHeaders();
-  //   const response = await fetch(`${this.#apiUri}${route}`, {
-  //     method: 'PUT',
-  //     headers,
-  //     body: JSON.stringify(body),
-  //   });
-  //
-  //   const data = response.json();
-  //
-  //   return data;
-  // }
-  //
-  // async #delete(route) {
-  //   const headers = await this.#getHeaders();
-  //   const response = await fetch(`${this.#apiUri}${route}`, {
-  //     method: 'DELETE',
-  //     headers,
-  //   });
-  //
-  //   const data = response.json();
-  //
-  //   return data;
-  // }
+  async #post(route: string, body: object) {
+    const headers = await this.#getHeaders();
+    const response = await fetch(`${this.#apiUri}${route}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      if (data.errors) {
+        throw new Error(data.errors.join(', '));
+      }
+
+      throw new Error((await response.text()) || 'No body present in response');
+    }
+
+    return data;
+  }
 }

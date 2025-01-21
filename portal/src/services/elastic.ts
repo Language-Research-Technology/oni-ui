@@ -1,9 +1,7 @@
 import esb from 'elastic-builder';
-import { first, isEmpty } from 'lodash';
 
-import { HTTPService } from '@/services/http';
-import { configuration } from '@/configuration';
-import type { SearchGroup } from '@/components/SearchAdvanced.vue';
+import { HTTPService } from './http';
+import configuration from '../../configuration.json';
 
 type MultiSearch<T> = {
   hits: {
@@ -56,7 +54,6 @@ export class ElasticService {
     multi,
     filters,
     aggs,
-    searchFields,
     sort,
     order,
     operation,
@@ -65,77 +62,55 @@ export class ElasticService {
     queries,
     sortField,
   }: MultiProps) {
-    try {
-      const httpService = new HTTPService();
-      const route = this.#searchRoute + this.#indexRoute;
-
-      let sorting: object;
-      if (sort === 'relevance') {
-        sorting = [
-          {
-            _score: {
-              order: order,
-            },
+    const searchFields = this.#fields;
+    let sorting: object;
+    if (sort === 'relevance') {
+      sorting = [
+        {
+          _score: {
+            order: order,
           },
-        ];
-      } else if (sortField) {
-        const sortByKeyword: Record<string, object> = {};
-        sortByKeyword[sortField] = { order: order };
-        sorting = [sortByKeyword];
-      } else {
-        sorting = [
-          {
-            _script: {
-              type: 'number',
-              order: order,
-              script: {
-                lang: 'painless',
-                source: `doc['${sort}'].size() > 0 ? 1 : 0`,
-              },
-            },
-          },
-        ];
-      }
-
-      const query = queries
-        ? this.disMaxQuery({ queries, filters })
-        : this.boolQuery({
-            searchQuery: multi,
-            fields: searchFields,
-            filters,
-            operation,
-          });
-
-      const body = {
-        query,
-        sort: sorting,
-        size: pageSize,
-        from: searchFrom,
-        track_total_hits: true,
-        highlight: this.highlights(this.#highlightFields),
-        aggs: aggs || this.#aggs,
-      };
-
-      const response = await httpService.post(route, body);
-
-      if (response.status !== 200) {
-        const error = await response.json();
-        const msg = `Query Error: ${error?.message}` || 'There was an error with your query';
-        throw new Error(msg);
-      }
-
-      const results = (await response.json()) as MultiSearch<T>;
-      // console.log('🪚 results:', JSON.stringify(results, null, 2));
-
-      return {
-        hits: results.hits.hits,
-        total: results.hits.total.value,
-        aggregations: results.aggregations,
-      };
-    } catch (e) {
-      const err = e as Error;
-      throw new Error(err.message);
+        },
+      ];
+    } else if (sortField) {
+      const sortByKeyword: Record<string, object> = {};
+      sortByKeyword[sortField] = { order: order };
+      sorting = [sortByKeyword];
+    } else {
+      // sorting = [
+      //   {
+      //     _script: {
+      //       type: 'number',
+      //       order: order,
+      //       script: {
+      //         lang: 'painless',
+      //         source: `doc['${sort || '_isTopLevel.@value.keyword'}'].size() > 0 ? 1 : 0`,
+      //       },
+      //     },
+      //   },
+      // ];
     }
+
+    const query = queries
+      ? this.disMaxQuery({ queries, filters })
+      : this.boolQuery({
+          searchQuery: multi,
+          fields: searchFields,
+          filters,
+          operation,
+        });
+
+    const body = {
+      query,
+      sort: sorting,
+      size: pageSize,
+      from: searchFrom,
+      track_total_hits: true,
+      highlight: this.highlights(this.#highlightFields),
+      aggs: aggs || this.#aggs,
+    };
+
+    return body;
   }
 
   // async single({ index, id, _crateId, _id }) {
@@ -173,12 +148,13 @@ export class ElasticService {
   //   return first(results?.hits?.hits);
   // }
 
-  boolQuery({ searchQuery, fields, filters, operation }) {
+  boolQuery({ searchQuery, fields = {}, filters, operation }) {
     const filterTerms = this.termsQuery(filters);
+    const searchQueryIsEmpty = !searchQuery;
     let boolQueryObj = {};
-    if (isEmpty(searchQuery) && filterTerms.length > 0) {
+    if (searchQueryIsEmpty && filterTerms.length > 0) {
       boolQueryObj = esb.boolQuery().filter(filterTerms);
-    } else if (!isEmpty(searchQuery) && filterTerms.length > 0) {
+    } else if (!searchQueryIsEmpty && filterTerms.length > 0) {
       const multiFields = [];
       for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
@@ -187,7 +163,7 @@ export class ElasticService {
       }
       const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
       boolQueryObj = switchFilter(operation, boolQueryObj, phraseQuery, filterTerms);
-    } else if (!isEmpty(searchQuery) && filterTerms.length <= 0) {
+    } else if (!searchQueryIsEmpty && filterTerms.length <= 0) {
       const multiFields = [];
       for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
@@ -196,7 +172,7 @@ export class ElasticService {
       }
       const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
       boolQueryObj = switchFilter(operation, boolQueryObj, phraseQuery, filterTerms);
-    } else if (isEmpty(searchQuery) && filterTerms.length <= 0) {
+    } else if (searchQueryIsEmpty && filterTerms.length <= 0) {
       boolQueryObj = esb.boolQuery().must(esb.matchAllQuery());
     }
     const esbQuery = esb.requestBodySearch().query(boolQueryObj);
@@ -315,9 +291,9 @@ export class ElasticService {
     return query;
   }
 
-  termsQuery(filters) {
+  termsQuery(filters = {}) {
     const filterTerms = [];
-    if (!isEmpty(filters)) {
+    if (Object.keys(filters).length !== 0) {
       for (const bucket of Object.keys(filters)) {
         if (filters[bucket].length > 0 || (filters[bucket]?.v && filters[bucket].v.length > 0)) {
           //TODO: send the type of field in the filters
@@ -344,7 +320,7 @@ export class ElasticService {
       if (i + 1 === searchGroup.length) {
         lastOneSG = true;
       }
-      if (isEmpty(sg.searchInput)) {
+      if (sg.searchInput.length === 0) {
         sg.searchInput = '*';
       }
       if (sg.field === 'all_fields') {

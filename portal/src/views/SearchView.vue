@@ -4,14 +4,14 @@ import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useConfigurationStore } from '@/stores/configuration';
-import type { ElasticService } from '@/services/elastic';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
 import SearchBar from '@/components/SearchBar.vue';
 import SearchAggs from '@/components/SearchAggs.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
-import SearchDetailElement, { type ItemType } from '@/components/SearchDetailElement.vue';
+import EntitySummary from '@/components/EntitySummary.vue';
+import type { ApiService, EntityType, SearchParams } from '@/services/api';
 
 type Aggregation = {
   buckets: Array<{ key: string; doc_count: number }>;
@@ -27,9 +27,9 @@ const router = useRouter();
 const route = useRoute();
 const gtm = useGtm();
 
-const es = inject<ElasticService>('es');
-if (!es) {
-  throw new Error('ES instance not provided');
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
 }
 
 const { ui } = useConfigurationStore();
@@ -43,7 +43,7 @@ const isLoading = ref(false);
 const selectedSorting = ref();
 const filtersChanged = ref(false);
 const errorDialogText = ref<string | undefined>();
-const items = ref<ItemType[]>([]);
+const entities = ref<EntityType[]>([]);
 const filters = ref<Record<string, string[]>>({});
 const selectedOperation = ref(route.query.o || 'must');
 const pageSize = ref(10);
@@ -132,8 +132,12 @@ const updateFilters = async () => {
 const updateAdvancedQueries = () => {
   advancedSearchEnabled.value = true;
   const searchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || ''));
-  const queryString = es.queryString(searchGroup);
-  advancedQueries.value = { queryString, searchGroup };
+  // FIXME
+  // FIXME
+  // FIXME
+  // FIXME
+  //   const queryString = es.queryString(searchGroup);
+  //   advancedQueries.value = { queryString, searchGroup };
 };
 
 const search = async () => {
@@ -154,27 +158,22 @@ const search = async () => {
   filtersChanged.value = false;
 
   isLoading.value = true;
+
   try {
-    const results = await es.multi<ItemType>({
-      multi: searchInput.value.toString(),
-      filters: filters.value,
-      searchFields,
-      sort: selectedSorting.value.value,
-      order: selectedOrder.value.value,
-      sortField: selectedSorting.value?.field, //This is not mandatory but if field exists in sorting it will sort by this field
-      operation: selectedOperation.value.toString(),
-      pageSize: pageSize.value,
-      searchFrom: (currentPage.value - 1) * pageSize.value,
-      queries: advancedQueries.value,
-    });
+    const params: SearchParams = {
+      query: searchInput.value.toString(),
+      limit: pageSize.value,
+      offset: (currentPage.value - 1) * pageSize.value,
+    };
+    const results = await api.search(params);
 
-    items.value = [];
+    entities.value = [];
 
-    if (results.hits) {
+    if (results.entities) {
       totals.value = results.total;
 
-      for (const hit of results.hits) {
-        items.value.push(hit);
+      for (const entity of results.entities) {
+        entities.value.push(entity);
       }
 
       more.value = true;
@@ -182,9 +181,9 @@ const search = async () => {
       more.value = false;
     }
 
-    if (results.aggregations) {
-      aggregations.value = populateAggregations(results.aggregations);
-    }
+    // if (results.aggregations) {
+    //   aggregations.value = populateAggregations(results.aggregations);
+    // }
 
     isLoading.value = false;
 
@@ -486,7 +485,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     aggs?.buckets?.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -577,11 +576,12 @@ doWork();
             @current-change="updatePages($event)" />
         </div>
 
-        <div v-for="item of items" :key="item._id" class="z-0 mt-0 mb-4 w-full" v-loading="isLoading">
-          <SearchDetailElement :item="item" />
+        <div v-for="entity of entities" :key="entity.id" class="z-0 mt-0 mb-4 w-full" v-loading="isLoading">
+          <!-- <SearchDetailElement :item="item" /> -->
+          <EntitySummary :entity="entity" />
         </div>
 
-        <div v-loading="isLoading" v-if="!items.length">
+        <div v-loading="isLoading" v-if="!entities.length">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
               <span v-if="!isLoading">No items found</span>

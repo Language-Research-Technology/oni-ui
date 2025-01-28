@@ -68,7 +68,30 @@ export type GetSearchResponse = {
   total: number;
   searchTime: number;
   entities: Array<EntityType & { searchExtra: { score: number; highlight: string[] } }>;
-  facets: Record<string, Record<string, number>>;
+  facets: Record<string, { name: string; count: number }[]>;
+};
+
+const aggMap: Record<string, string> = {
+  '_geohash.@id': 'geohash',
+  '_memberOf.name.@value': 'memberOf',
+  '_root.name.@value': 'root',
+  '_mainCollection.name.@value': 'mainCollection',
+  '_subCollection.name.@value': 'subCollection',
+  'license.@id': 'licenseId',
+  'license.name.@value': 'licenseName',
+  '@type': 'type',
+  'inLanguage.name.@value': 'inLanguage',
+  'communicationMode.name.@value': 'communicationMode',
+  'linguisticGenre.name.@value': 'linguisticGenre',
+  'encodingFormat.@value': 'encodingFormat',
+  'annotationType.@value': 'annotationType',
+  '_parent.@id': 'parent',
+  '_collectionStack.@id': 'collectionStack',
+  'conformsTo.@id': 'conformsTo',
+  '_isTopLevel.@value': 'isTopLevel',
+  'description.@value': 'description',
+  'name.@value': 'name',
+  _text: 'text',
 };
 
 const url = 'https://data.ldaca.edu.au/api/search/index/items';
@@ -106,18 +129,17 @@ app.post('/ldaca/search', async (req, res) => {
 
   req.on('end', async () => {
     const params = JSON.parse(data);
+    console.log('🪚 params:', JSON.stringify(params, null, 2));
     const body = await es.multi({
       multi: params.query,
-      //   filters: filters.value,
-      //   searchFields,
-      //   sort: selectedSorting.value.value,
-      //   order: selectedOrder.value.value,
-      //   sortField: selectedSorting.value?.field, //This is not mandatory but if field exists in sorting it will sort by this field
-      //   operation: selectedOperation.value.toString(),
+      searchType: params.searchType,
+      filters: params.filters,
+      sort: params.sort,
+      order: params.order,
       pageSize: params.limit,
       searchFrom: params.offset,
-      //   queries: advancedQueries.value,
     });
+    console.log('🪚 body:', JSON.stringify(body, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -140,19 +162,19 @@ app.post('/ldaca/search', async (req, res) => {
         const typem = hit._source?.['@type'];
 
         if (typem.includes('RepositoryCollection')) {
-          subCollections = await filter({ 'memberOf.@id': [id], 'conformsTo.@id': [conformsTo.collection] });
+          subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
 
-          members = await filter({ '_collectionStack.@id': [id], 'conformsTo.@id': [conformsTo.object] });
+          members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
 
-          summaries = await filter({ '_collectionStack.@id': [id] });
+          summaries = await filter({ collectionStack: [id] });
         }
 
         if (typem.includes('RepositoryObject')) {
-          summaries = await filter({ '_parent.@id': [id] });
+          summaries = await filter({ parent: [id] });
         }
 
         // Get the buckets to extract one value: File counts
-        let fileCount;
+        let fileCount: { doc_count: number } | undefined;
         const buckets: Array<any> = summaries?.aggregations?.['@type']?.buckets;
         if (buckets) {
           fileCount = buckets.find((obj) => obj.key === 'File');
@@ -186,11 +208,24 @@ app.post('/ldaca/search', async (req, res) => {
       }),
     );
 
+    const facets: Record<string, { name: string; count: number }[]> = {};
+
+    for (const key in result.aggregations) {
+      const values = result.aggregations[key].buckets.map((bucket: { key: string; doc_count: number }) => ({
+        name: bucket.key,
+        count: bucket.doc_count,
+      }));
+
+      const name = aggMap[key];
+
+      facets[name] = values;
+    }
+
     const converted: GetSearchResponse = {
       total: result.hits.total.value,
       searchTime: result.took,
       entities,
-      facets: result.aggregations,
+      facets,
     };
 
     res.status(response.status).send(JSON.stringify(converted, null, 2));

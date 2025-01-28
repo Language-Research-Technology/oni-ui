@@ -17,9 +17,8 @@ export type GetEntitiesParams = {
 
 export type SearchParams = GetEntitiesParams & {
   query: string;
-  // filters: filters.value,
-  // searchFields,
-  // sortField: selectedSorting.value?.field, //This is not mandatory but if field exists in sorting it will sort by this field
+  filters?: Record<string, string[]>;
+  searchType?: 'basic' | 'advanced';
   // operation: selectedOperation.value.toString(),
   // queries: advancedQueries.value,
 };
@@ -56,7 +55,7 @@ export type GetSearchResponse = {
   total: number;
   searchTime: number;
   entities: Array<EntityType>;
-  facets: Record<string, Record<string, number>>;
+  facets: Record<string, { name: string; count: number }[]>;
 };
 
 export type RoCrate = {

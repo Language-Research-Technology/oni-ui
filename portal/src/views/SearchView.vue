@@ -11,10 +11,10 @@ import SearchBar from '@/components/SearchBar.vue';
 import SearchAggs from '@/components/SearchAggs.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import EntitySummary from '@/components/EntitySummary.vue';
-import type { ApiService, EntityType, SearchParams } from '@/services/api';
+import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
 
 type Aggregation = {
-  buckets: Array<{ key: string; doc_count: number }>;
+  buckets: Array<{ name: string; count: number }>;
   display: string;
   order: number;
   name: string;
@@ -36,8 +36,8 @@ const { ui } = useConfigurationStore();
 const { searchFields } = ui;
 
 const searchInput = ref(route.query.q || '');
-const advancedSearchEnabled = ref(false);
-const aggregations = ref<Aggregation[]>();
+const advancedSearchEnabled = ref(!!route.query.a);
+const facets = ref<Aggregation[]>();
 const isStart = ref(false);
 const isLoading = ref(false);
 const selectedSorting = ref();
@@ -48,7 +48,6 @@ const filters = ref<Record<string, string[]>>({});
 const selectedOperation = ref(route.query.o || 'must');
 const pageSize = ref(10);
 const currentPage = ref(1);
-const advancedQueries = ref<{ queryString: string; searchGroup: string }>();
 const selectedOrder = ref(ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' });
 const totals = ref(0);
 const resetAdvancedSearch = ref(false);
@@ -92,9 +91,6 @@ watch(
       await updateFilters();
       onInputChange(route.query.q?.toString() || '');
       currentPage.value = 1;
-      if (route.query.a) {
-        updateAdvancedQueries();
-      }
       await search();
     }
     isLoading.value = false;
@@ -104,6 +100,7 @@ watch(
 const clearFilter = async (f: string, filterKey: string) => {
   if (filters.value[filterKey]) {
     filters.value[filterKey].splice(filters.value[filterKey].indexOf(f), 1);
+
     if (filters.value[filterKey].length === 0) {
       delete filters.value[filterKey];
     }
@@ -129,17 +126,6 @@ const updateFilters = async () => {
   }
 };
 
-const updateAdvancedQueries = () => {
-  advancedSearchEnabled.value = true;
-  const searchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || ''));
-  // FIXME
-  // FIXME
-  // FIXME
-  // FIXME
-  //   const queryString = es.queryString(searchGroup);
-  //   advancedQueries.value = { queryString, searchGroup };
-};
-
 const search = async () => {
   if (isStart.value) {
     //Revert start to sorting by the startSorting
@@ -161,10 +147,15 @@ const search = async () => {
 
   try {
     const params: SearchParams = {
-      query: searchInput.value.toString(),
+      query: route.query.a ? generateQueryString(route.query.a.toString()) : searchInput.value.toString(),
+      searchType: route.query.a ? 'advanced' : 'basic',
+      filters: filters.value,
       limit: pageSize.value,
       offset: (currentPage.value - 1) * pageSize.value,
+      sort: selectedSorting.value?.value,
+      order: selectedOrder.value?.value,
     };
+    console.log('🪚 params:', JSON.stringify(params, null, 2));
     const results = await api.search(params);
 
     entities.value = [];
@@ -181,9 +172,9 @@ const search = async () => {
       more.value = false;
     }
 
-    // if (results.aggregations) {
-    //   aggregations.value = populateAggregations(results.aggregations);
-    // }
+    if (results.facets) {
+      facets.value = populateFacets(results.facets);
+    }
 
     isLoading.value = false;
 
@@ -199,13 +190,44 @@ const search = async () => {
   }
 };
 
-const populateAggregations = (aggregations: Record<string, { buckets: { key: string; doc_count: number }[] }>) => {
+const generateQueryString = (rawSearchGroup: string) => {
+  let qS = '';
+  const searchGroup = JSON.parse(decodeURIComponent(rawSearchGroup));
+  console.log('🪚 generate:', searchGroup, typeof searchGroup);
+  searchGroup.forEach((sg, i) => {
+    let lastOneSG = false;
+    if (i + 1 === searchGroup.length) {
+      lastOneSG = true;
+    }
+    if (sg.searchInput.length === 0) {
+      sg.searchInput = '*';
+    }
+    if (sg.field === 'all_fields') {
+      let qqq = '( ';
+      Object.keys(searchFields).map((f, index, keys) => {
+        let lastOne = false;
+        if (index + 1 === keys.length) {
+          lastOne = true;
+        }
+        let qq = '';
+        qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+        qqq += qq;
+      });
+      qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+    } else {
+      qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+    }
+  });
+  return qS;
+};
+
+const populateFacets = (facets: GetSearchResponse['facets']) => {
   const a: Aggregation[] = [];
   // NOTE: below is converted to an ordered array not an object.
   const aggInfo = ui.aggregations;
 
-  for (const agg of Object.keys(aggregations)) {
-    const info = aggInfo.find((a) => a.name === agg);
+  for (const facet of Object.keys(facets)) {
+    const info = aggInfo.find((a) => a.name === facet);
     const display = info?.display;
     const order = info?.order;
     const name = info?.name;
@@ -213,10 +235,10 @@ const populateAggregations = (aggregations: Record<string, { buckets: { key: str
     const active = info?.active;
     const help = info?.help;
     a.push({
-      buckets: aggregations[agg]?.buckets,
-      display: display || agg,
+      buckets: facets[facet],
+      display: display || facet,
       order: order || 0,
-      name: name || agg,
+      name: name || facet,
       hide: hide,
       active: active,
       help: help || '',
@@ -226,41 +248,27 @@ const populateAggregations = (aggregations: Record<string, { buckets: { key: str
   return a.sort((a, b) => a.order - b.order);
 };
 
-const updateRoutes = async ({
-  queries,
-  updateFilters = false,
-}: { queries?: { queryString: string; searchGroup: string }; updateFilters?: boolean } = {}) => {
-  const query: { q?: string; f?: string; a?: string; r?: string } = {};
+const updateRoutes = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
+  console.log('🪚 ⭕');
+  const query: { q?: string; f?: string; a?: string } = {};
 
-  let localFilterUpdate = false;
-
-  if (!isEmpty(filters.value) || updateFilters) {
+  if (Object.keys(filters.value).length > 0) {
     query.f = encodeURIComponent(JSON.stringify(filters.value));
-    localFilterUpdate = true;
   } else {
     query.f = undefined;
   }
 
-  if (route.query.f && !localFilterUpdate) {
-    query.f = route.query.f.toString();
-  }
-
-  let localSearchGroupUpdate = false;
-  if (queries?.searchGroup) {
-    advancedQueries.value = queries;
-
+  if (searchGroup) {
     query.q = undefined;
-    query.a = queries.searchGroup;
+    query.a = encodeURIComponent(JSON.stringify(searchGroup));
     currentPage.value = 1;
-    localSearchGroupUpdate = true;
-  }
-  if (route.query.a) {
-    query.a = route.query.a.toString();
-    query.q = undefined;
-    updateAdvancedQueries();
   } else {
-    advancedQueries.value = undefined; //clear advanced search
-    query.q = searchInput.value ? searchInput.value?.toString() : undefined;
+    if (route.query.a) {
+      query.a = route.query.a.toString();
+      query.q = undefined;
+    } else {
+      query.q = searchInput.value ? searchInput.value.toString() : undefined;
+    }
   }
 
   await router.push({ path: 'search', query, replace: true });
@@ -282,9 +290,7 @@ const resetSearch = async () => {
   } else {
     advancedSearchEnabled.value = !!route.query.a;
   }
-  advancedQueries.value = undefined;
   resetAdvancedSearch.value = true;
-  route.query.sf = encodeURIComponent(searchFields.value.toString());
   route.query.o = selectedOperation.value;
   selectedOrder.value = defaultOrder;
   filterButton.value = [];
@@ -358,13 +364,11 @@ const updatePages = async (page: number) => {
 
 const clearFilters = async () => {
   filters.value = {};
-  await updateRoutes({ updateFilters: true });
+  await updateRoutes();
 };
 
-const isEmpty = (obj: Record<string, unknown>) => Object.keys(obj).length === 0;
-
 const mergeFilters = (newFilters: Record<string, string[]>, aggsName: string) => {
-  if (isEmpty(filters.value)) {
+  if (Object.keys(filters.value).length > 0) {
     filters.value = newFilters;
   } else {
     filters.value[aggsName] = newFilters[aggsName] || [];
@@ -411,38 +415,10 @@ const doWork = async () => {
     searchInput.value = route.query.q.toString();
   }
 
-  if (route.query.a) {
-    updateAdvancedQueries();
-  } else {
-    advancedSearchEnabled.value = false;
-    // TODO: JF do we need this?
-    // removeLocalStorage({ key: 'advancedQueries' });
-  }
-
   search();
 };
 
 doWork();
-
-//   async mounted() {
-//     console.log('mounted');
-//     await this.updateFilters({});
-//     if (this.$route.query.o) {
-//       this.selectedOperation = this.$route.query.o;
-//     }
-//     if (this.$route.query.a) {
-//       this.updateAdvancedQueries();
-//     } else {
-//       this.advancedSearchEnabled = false;
-//     }
-//   },
-//   async updated() {
-//     console.log('updated');
-//     if (this.$route.query.q) {
-//       this.advancedSearchEnabled = false;
-//     }
-//     // await this.updateFilters({});
-//   },
 </script>
 
 <template>
@@ -458,7 +434,7 @@ doWork();
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
         <div class="py-3 px-2">
           <div class="">
-            <p class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+            <p class="text-xl text-gray-600 font-semibold py-1 px-2">
               Filters
             </p>
           </div>
@@ -466,14 +442,14 @@ doWork();
       </div>
 
       <div class="pt-2">
-        <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
-          <ul v-if="aggs.buckets?.length > 0 && !aggs['hide']"
+        <div class="flex w-full" v-for="facet of facets" :key="facet.name">
+          <ul v-if="facet.buckets.length > 0 && !facet.hide"
             class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
-            <li @click="aggs.active = !aggs.active"
+            <li @click="facet.active = !facet.active"
               class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
-              <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
-                {{ aggs.display }}
-                <el-tooltip v-if="aggs.help" class="box-item" effect="light" trigger="hover" :content="aggs.help"
+              <span class="text-xl text-gray-600 font-semibold py-1 px-2">
+                {{ facet.display }}
+                <el-tooltip v-if="facet.help" class="box-item" effect="light" trigger="hover" :content="facet.help"
                   placement="top">
                   <el-button link>
                     <font-awesome-icon icon="fa-solid fa-circle-info" />
@@ -481,18 +457,18 @@ doWork();
                 </el-tooltip>
               </span>
               <span class="py-1 px-2">
-                <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down" />
+                <font-awesome-icon v-if="facet.active" icon="fa fa-chevron-down" />
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                    aggs?.buckets?.length
+                    facet.buckets.length
                     }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
             </li>
-            <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
-            <SearchAggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name" v-show="aggs.active"
-              @is-active="aggs.active = true" @changed-aggs="newAggs" />
+            <li v-if="facet.buckets.length <= 0" class="w-full min-w-full">&nbsp;</li>
+            <SearchAggs :buckets="facet.buckets" :aggsName="facet.name" :ref="facet.name" v-show="facet.active"
+              @is-active="facet.active = true" @changed-aggs="newAggs" />
           </ul>
         </div>
       </div>
@@ -517,7 +493,8 @@ doWork();
                 </el-button>
               </el-button-group>
 
-              <span class="my-1 mr-1" v-show="!filtersChanged" v-if="!isEmpty(filters)">Filtering by:</span>
+              <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">Filtering
+                by:</span>
 
               <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
                 :key="filterKey" v-model="filters">
@@ -531,7 +508,7 @@ doWork();
                 </el-button>
               </el-button-group>
 
-              <el-button-group v-show="!isEmpty(filters)" class="mr-1">
+              <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
                 <el-button @click="clearFilters()">Clear Filters</el-button>
               </el-button-group>
 
@@ -583,7 +560,7 @@ doWork();
 
         <div v-loading="isLoading" v-if="!entities.length">
           <el-row class="pb-4 items-center">
-            <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+            <h5 class="mb-2 text-2xl tracking-tight">
               <span v-if="!isLoading">No items found</span>
             </h5>
           </el-row>

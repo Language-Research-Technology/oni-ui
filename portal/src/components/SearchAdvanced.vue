@@ -4,15 +4,11 @@ import { useRoute } from 'vue-router';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
 import type { ElasticService } from '@/services/elastic';
+import { isArray } from 'element-plus/es/utils/types.mjs';
 
 const route = useRoute();
 
 const emit = defineEmits(['doAdvancedSearch', 'basicSearch']);
-
-const es = inject<ElasticService>('es');
-if (!es) {
-  throw new Error('ES instance not provided');
-}
 
 const { fields, resetAdvancedSearch } = defineProps<{
   fields: Record<string, { label: string }>;
@@ -40,24 +36,27 @@ export type SearchGroup = {
   type: string;
   searchInput: string;
 };
-const searchGroup = ref<SearchGroup[]>([
-  {
-    field: 'all_fields',
-    operation: 'AND',
-    operator: 'AND',
-    type: 'phrase',
-    searchInput: '',
-  },
-]);
+
+const initialSearchGroup = JSON.parse(decodeURIComponent(route.query.a?.toString() || '') || 'null');
+const searchGroup = ref<SearchGroup[]>(
+  initialSearchGroup || [
+    {
+      field: 'all_fields',
+      operation: 'AND',
+      operator: 'AND',
+      type: 'phrase',
+      searchInput: '',
+    },
+  ],
+);
 const fieldAdvancedSearch = ref(initialFieldAdvancedSearch);
-const useQueryString = ref(false);
-const queries = ref();
+const showQueryString = ref(false);
 const textQueryString = ref('');
 const showHelp = ref(false);
 
 const advancedSearch = () => {
   setQueryString();
-  emit('doAdvancedSearch', { queries: queries.value });
+  emit('doAdvancedSearch', { searchGroup: searchGroup.value });
 };
 
 const addNewLine = () => {
@@ -91,23 +90,53 @@ const showBasicSearch = () => {
   emit('basicSearch');
 };
 
-const doUseQueryString = () => {
-  useQueryString.value = !useQueryString.value;
+const toggleShowQueryString = () => {
   setQueryString();
+  showQueryString.value = !showQueryString.value;
+};
+
+const queryString = (searchGroup) => {
+  console.log('🪚 searchGroup:', JSON.stringify(searchGroup, null, 2));
+  let qS = '';
+
+  console.log('🪚 ⭕', typeof searchGroup, isArray(searchGroup));
+
+  (searchGroup || []).forEach((sg, i) => {
+    let lastOneSG = false;
+    if (i + 1 === searchGroup.length) {
+      lastOneSG = true;
+    }
+    if (sg.searchInput.length === 0) {
+      sg.searchInput = '*';
+    }
+    if (sg.field === 'all_fields') {
+      let qqq = '( ';
+      Object.keys(fields).map((f, index, keys) => {
+        let lastOne = false;
+        if (index + 1 === keys.length) {
+          lastOne = true;
+        }
+        let qq = '';
+        qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+        qqq += qq;
+      });
+      qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+    } else {
+      qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+    }
+  });
+
+  console.log('🪚 qS:', JSON.stringify(qS, null, 2));
+  return qS;
 };
 
 const setQueryString = () => {
-  textQueryString.value = es.queryString(searchGroup.value);
-  queries.value = {
-    queryString: textQueryString.value,
-    searchGroup: encodeURIComponent(JSON.stringify(searchGroup.value)),
-  };
+  textQueryString.value = queryString(searchGroup.value || []);
 };
 
 if (route.query.a) {
   advancedSearch.value = true;
-  const searchGroup = JSON.parse(decodeURIComponent(route.query.a.toString()));
-  searchGroup.value = searchGroup;
+  searchGroup.value = JSON.parse(decodeURIComponent(route.query.a.toString()));
 }
 </script>
 
@@ -149,7 +178,7 @@ if (route.query.a) {
           </el-select>
         </el-col>
       </el-row>
-      <el-row v-if="useQueryString" class="p-2" :gutter="10" :justify="'start'">
+      <el-row v-if="showQueryString" class="p-2" :gutter="10" :justify="'start'">
         <el-input v-model="textQueryString" :rows="2" type="textarea" :autosize="true" disabled />
       </el-row>
       <el-row class="p-2" :gutter="10" :justify="'space-between'">
@@ -164,8 +193,8 @@ if (route.query.a) {
         <el-tooltip class="box-item" effect="light" trigger="hover"
           content="This query string is what it is actually sent to the search engine, click search to update it"
           placement="bottom-end">
-          <el-button @click="doUseQueryString()">
-            {{ useQueryString ? 'Hide Query' : 'Show Query' }}&nbsp;
+          <el-button @click="toggleShowQueryString()">
+            {{ showQueryString ? 'Hide Query' : 'Show Query' }}&nbsp;
             <font-awesome-icon icon="fa-solid fa-circle-info" />
           </el-button>
         </el-tooltip>

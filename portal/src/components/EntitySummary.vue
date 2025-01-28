@@ -14,7 +14,6 @@ import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 const { ui } = useConfigurationStore();
 
 const { entity } = defineProps<{ entity: EntityType }>();
-console.log('🪚 defineProps:', JSON.stringify(entity, null, 2));
 
 const uuid = v4uuid();
 // TODO: Rename this
@@ -118,7 +117,7 @@ const getSearchDetailUrl = () => {
         </el-row>
 
         <el-row class="py-4 pr-4" v-if="entity.description">
-          <p :id="'desc_' + uuid">{{ entity.description }}</p>
+          <p className="line-clamp-3">{{ entity.description }}</p>
         </el-row>
 
         <el-row class="gap-2 flex">

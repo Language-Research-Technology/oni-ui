@@ -3,27 +3,42 @@ import esb from 'elastic-builder';
 import { HTTPService } from './http';
 import configuration from '../../configuration.json';
 
-type MultiSearch<T> = {
-  hits: {
-    hits: T[];
-    total: { value: number };
-  };
-  aggregations: Record<string, { buckets: { key: string; doc_count: number }[] }>;
-};
-
 type MultiProps = {
   multi?: string;
   filters?: Record<string, string[]>;
   aggs?: Record<string, object>;
-  searchFields?: Record<string, { checked: boolean }>;
   sort?: string;
   order?: string;
   operation?: string;
   pageSize?: number;
   searchFrom?: number;
-  queries?: { queryString: string };
-  sortField?: string;
+  searchType?: 'basic' | 'advanced';
 };
+
+const aggMap = {
+  '_geohash.@id': 'geohash',
+  '_memberOf.name.@value': 'memberOf',
+  '_root.name.@value': 'root',
+  '_mainCollection.name.@value': 'mainCollection',
+  '_subCollection.name.@value': 'subCollection',
+  'license.@id': 'licenseId',
+  'license.name.@value': 'licenseName',
+  '@type': 'type',
+  'inLanguage.name.@value': 'inLanguage',
+  'communicationMode.name.@value': 'communicationMode',
+  'linguisticGenre.name.@value': 'linguisticGenre',
+  'encodingFormat.@value': 'encodingFormat',
+  'annotationType.@value': 'annotationType',
+  '_parent.@id': 'parent',
+  '_collectionStack.@id': 'collectionStack',
+  'conformsTo.@id': 'conformsTo',
+  '_isTopLevel.@value': 'isTopLevel',
+  'description.@value': 'description',
+  'name.@value': 'name',
+  _text: 'text',
+};
+
+const aggMapReverse = Object.fromEntries(Object.entries(aggMap).map(([key, value]) => [value, key]));
 
 export class ElasticService {
   #searchRoute: string;
@@ -45,23 +60,13 @@ export class ElasticService {
   prepareAggregations(aggregations: typeof configuration.ui.aggregations) {
     const a: Record<string, { terms: { field: string; size: number } }> = {};
     for (const agg of aggregations) {
-      a[agg.name] = { terms: { field: agg.field, size: 1000 } };
+      const aggName = aggMapReverse[agg.name];
+      a[aggName] = { terms: { field: `${aggName}.keyword`, size: 1000 } };
     }
     return a;
   }
 
-  async multi<T>({
-    multi,
-    filters,
-    aggs,
-    sort,
-    order,
-    operation,
-    pageSize,
-    searchFrom,
-    queries,
-    sortField,
-  }: MultiProps) {
+  async multi<T>({ multi, searchType, filters, sort, order, operation, pageSize, searchFrom }: MultiProps) {
     const searchFields = this.#fields;
     let sorting: object;
     if (sort === 'relevance') {
@@ -72,33 +77,30 @@ export class ElasticService {
           },
         },
       ];
-    } else if (sortField) {
-      const sortByKeyword: Record<string, object> = {};
-      sortByKeyword[sortField] = { order: order };
-      sorting = [sortByKeyword];
     } else {
-      // sorting = [
-      //   {
-      //     _script: {
-      //       type: 'number',
-      //       order: order,
-      //       script: {
-      //         lang: 'painless',
-      //         source: `doc['${sort || '_isTopLevel.@value.keyword'}'].size() > 0 ? 1 : 0`,
-      //       },
-      //     },
-      //   },
-      // ];
+      sorting = [
+        {
+          _script: {
+            type: 'number',
+            order: order,
+            script: {
+              lang: 'painless',
+              source: `doc['${sort ? aggMapReverse[sort] : '_isTopLevel.@value'}.keyword'].size() > 0 ? 1 : 0`,
+            },
+          },
+        },
+      ];
     }
 
-    const query = queries
-      ? this.disMaxQuery({ queries, filters })
-      : this.boolQuery({
-          searchQuery: multi,
-          fields: searchFields,
-          filters,
-          operation,
-        });
+    const query =
+      searchType === 'advanced'
+        ? this.disMaxQuery({ queryString: multi, filters })
+        : this.boolQuery({
+            searchQuery: multi,
+            fields: searchFields,
+            filters,
+            operation,
+          });
 
     const body = {
       query,
@@ -107,46 +109,11 @@ export class ElasticService {
       from: searchFrom,
       track_total_hits: true,
       highlight: this.highlights(this.#highlightFields),
-      aggs: aggs || this.#aggs,
+      aggs: this.#aggs,
     };
 
     return body;
   }
-
-  // async single({ index, id, _crateId, _id }) {
-  //   const httpService = new HTTPService({ router: this.router, loginPath: '/login' });
-  //   let route = this.#searchRoute + this.#indexRoute;
-  //   if (index) {
-  //     route = `${this.#searchRoute}/${index}`;
-  //   }
-  //   const body = {
-  //     aggs: this.#aggs, // maybe we dont need to send aggregations
-  //     query: {},
-  //   };
-  //   if (_id) {
-  //     body.query = {
-  //       match: {
-  //         _id: decodeURIComponent(_id),
-  //       },
-  //     };
-  //   } else {
-  //     body.query = {
-  //       dis_max: {
-  //         queries: [
-  //           { match: { '@id': decodeURIComponent(id) } },
-  //           { match: { _crateId: decodeURIComponent(_crateId) } },
-  //         ],
-  //       },
-  //     };
-  //   }
-  //
-  //   const response = await httpService.post({ route, body });
-  //   if (response.status !== 200) {
-  //     throw new Error(response.statusText);
-  //   }
-  //   const results = await response.json();
-  //   return first(results?.hits?.hits);
-  // }
 
   boolQuery({ searchQuery, fields = {}, filters, operation }) {
     const filterTerms = this.termsQuery(filters);
@@ -199,95 +166,22 @@ export class ElasticService {
     return highlight;
   }
 
-  disMaxQuery({ queries, filters }) {
+  disMaxQuery({ queryString, filters }) {
     const filterTerms = this.termsQuery(filters);
-    const mustDMQueries = [];
-    const mustBoolQueries = [];
-    const shouldDMQueries = [];
-    const shouldBoolQueries = [];
-    const mustNotDMQueries = [];
-    const mustNotBoolQueries = [];
     const boolQuery = esb.boolQuery();
-    if (queries.queryString) {
-      boolQuery.must(esb.queryStringQuery(queries.queryString));
-    } else {
-      //Note: this code below is never used. Delete
-      for (const q of queries) {
-        if (q.operation === 'must') {
-          if (q.multiField) {
-            mustDMQueries.push(esb.multiMatchQuery(q.fields, q.query).operator('or').type(q.type));
-          } else {
-            let b = esb.matchQuery(q.fields, q.query);
-            if (q.type === 'phrase_prefix') {
-              b = esb.matchPhrasePrefixQuery(q.fields, q.query);
-            }
-            if (q.type === 'wildcard') {
-              b = esb.wildcardQuery(q.fields, q.query);
-            }
-            if (q.type === 'regex') {
-              b = esb.regexpQuery(q.fields, q.query).caseInsensitive(true);
-            }
-            mustBoolQueries.push(esb.boolQuery().must(b));
-          }
-        }
-        if (q.operation === 'should') {
-          if (q.multiField) {
-            shouldDMQueries.push(esb.multiMatchQuery(q.fields, q.query).operator('or').type(q.type));
-          } else {
-            let b = esb.matchQuery(q.fields, q.query);
-            if (q.type === 'phrase_prefix') {
-              b = esb.matchPhrasePrefixQuery(q.fields, q.query);
-            }
-            if (q.type === 'wildcard') {
-              b = esb.wildcardQuery(q.fields, q.query);
-            }
-            if (q.type === 'regex') {
-              b = esb.regexpQuery(q.fields, q.query).caseInsensitive(true);
-            }
-            shouldBoolQueries.push(esb.boolQuery().must(b));
-          }
-        }
-        if (q.operation === 'must_not') {
-          if (q.multiField) {
-            mustNotDMQueries.push(esb.multiMatchQuery(q.fields, q.query).operator('or').type(q.type));
-          } else {
-            let b = esb.matchQuery(q.fields, q.query);
-            if (q.type === 'phrase_prefix') {
-              b = esb.matchPhrasePrefixQuery(q.fields, q.query);
-            }
-            if (q.type === 'wildcard') {
-              b = esb.wildcardQuery(q.fields, q.query);
-            }
-            if (q.type === 'regex') {
-              b = esb.regexpQuery(q.fields, q.query).caseInsensitive(true);
-            }
-            mustNotBoolQueries.push(esb.boolQuery().must(b));
-          }
-        }
-      }
-      if (mustDMQueries.length > 0) {
-        boolQuery.must(esb.disMaxQuery().queries(mustDMQueries));
-      }
-      if (mustBoolQueries.length > 0) {
-        boolQuery.must(mustBoolQueries);
-      }
-      if (shouldDMQueries.length > 0) {
-        boolQuery.should(esb.disMaxQuery().queries(shouldDMQueries));
-      }
-      if (shouldBoolQueries.length > 0) {
-        boolQuery.should(shouldBoolQueries);
-      }
-      if (mustNotDMQueries.length > 0) {
-        boolQuery.mustNot(esb.disMaxQuery().queries(mustNotDMQueries));
-      }
-      if (mustNotBoolQueries.length > 0) {
-        boolQuery.mustNot(mustNotBoolQueries);
-      }
-    }
+
+    let convertedQueryString = queryString;
+    // biome-ignore lint/complexity/noForEach: moo
+    Object.entries(aggMapReverse).forEach(([key, value]) => {
+      convertedQueryString = convertedQueryString.replace(new RegExp(key, 'g'), value);
+    });
+    boolQuery.must(esb.queryStringQuery(convertedQueryString));
     boolQuery.filter(filterTerms);
     boolQuery.minimumShouldMatch(0);
+
     const esbQuery = esb.requestBodySearch().query(boolQuery);
     const query = esbQuery.toJSON().query;
+
     return query;
   }
 
@@ -300,10 +194,10 @@ export class ElasticService {
           let field = '';
           let type;
           if (!filters[bucket]?.t) {
-            field = bucket.concat('.keyword');
+            field = `${aggMapReverse[bucket]}.keyword`;
           } else {
             type = filters[bucket]?.t;
-            field = bucket.concat(`.${type}`);
+            field = `${aggMapReverse[bucket]}.${type}`;
           }
           const values = filters[bucket]?.v || filters[bucket];
           filterTerms.push(esb.termsQuery(field, values));
@@ -313,34 +207,34 @@ export class ElasticService {
     return filterTerms;
   }
 
-  queryString(searchGroup) {
-    let qS = '';
-    searchGroup.forEach((sg, i) => {
-      let lastOneSG = false;
-      if (i + 1 === searchGroup.length) {
-        lastOneSG = true;
-      }
-      if (sg.searchInput.length === 0) {
-        sg.searchInput = '*';
-      }
-      if (sg.field === 'all_fields') {
-        let qqq = '( ';
-        Object.keys(this.#fields).map((f, index, keys) => {
-          let lastOne = false;
-          if (index + 1 === keys.length) {
-            lastOne = true;
-          }
-          let qq = '';
-          qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
-          qqq += qq;
-        });
-        qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
-      } else {
-        qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
-      }
-    });
-    return qS;
-  }
+  // queryString(searchGroup) {
+  //   let qS = '';
+  //   searchGroup.forEach((sg, i) => {
+  //     let lastOneSG = false;
+  //     if (i + 1 === searchGroup.length) {
+  //       lastOneSG = true;
+  //     }
+  //     if (sg.searchInput.length === 0) {
+  //       sg.searchInput = '*';
+  //     }
+  //     if (sg.field === 'all_fields') {
+  //       let qqq = '( ';
+  //       Object.keys(this.#fields).map((f, index, keys) => {
+  //         let lastOne = false;
+  //         if (index + 1 === keys.length) {
+  //           lastOne = true;
+  //         }
+  //         let qq = '';
+  //         qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+  //         qqq += qq;
+  //       });
+  //       qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+  //     } else {
+  //       qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+  //     }
+  //   });
+  //   return qS;
+  // }
 
   async map({
     init = true,

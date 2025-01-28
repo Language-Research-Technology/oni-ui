@@ -10,7 +10,7 @@ const filter = ref<string | undefined>(undefined);
 const currentPage = ref(1);
 const pageSize = ref(5);
 
-const { aggsName, buckets } = defineProps<{ aggsName: string; buckets: Array<{ key: string; doc_count: number }> }>();
+const { aggsName, buckets } = defineProps<{ aggsName: string; buckets: Array<{ name: string; count: number }> }>();
 
 const emit = defineEmits(['isActive', 'changedAggs']);
 
@@ -99,7 +99,7 @@ const updatePages = (page: number) => {
   pageStartIndex.value = (page - 1) * pageSize.value;
 };
 
-const filteredValues = computed(() => buckets.filter((v) => v.key.match(new RegExp(filter.value as string, 'i'))));
+const filteredValues = computed(() => buckets.filter((v) => v.name.match(new RegExp(filter.value as string, 'i'))));
 
 updateFilters();
 </script>
@@ -112,12 +112,12 @@ updateFilters();
     <el-input class="pt-1" v-model="filter" placeholder="Filter" clearable @input="updatePages(1)" />
     <li class="m-2 mt-4 cursor-pointer" v-for="ag in filteredValues?.slice(pageStartIndex, pageStartIndex + pageSize)">
       <div class="form-check form-check-inline cursor-pointer">
-        <input :id="aggsName + '_' + ag.key" :name="aggsName + '_' + ag.key" v-model="checkedBuckets"
+        <input :id="aggsName + '_' + ag.name" :name="aggsName + '_' + ag.name" v-model="checkedBuckets"
           v-on:change="onChange"
           class="cursor-pointer form-check-input h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2"
-          type="checkbox" :value="ag.key">
-        <label class="cursor-pointer form-check-label text-gray-800" :for="aggsName + '_' + ag.key">
-          {{ ag.key }} <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{ ag['doc_count']
+          type="checkbox" :value="ag.name">
+        <label class="cursor-pointer form-check-label text-gray-800" :for="aggsName + '_' + ag.name">
+          {{ ag.name }} <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{ ag['count']
             }}</span>
         </label>
       </div>

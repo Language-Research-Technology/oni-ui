@@ -57,10 +57,9 @@ const valueLabelSchema = z.object({
   label: z.string(),
 });
 
-const fieldLabelNameSchema = z.object({
+const fieldLabelSchema = z.object({
   field: z.string(),
   label: z.string(),
-  name: z.string(),
 });
 
 const searchSchema = z
@@ -71,7 +70,7 @@ const searchSchema = z
     defaultSorting: valueLabelSchema,
     ordering: z.array(valueLabelSchema),
     defaultOrder: valueLabelSchema,
-    searchDetails: z.array(fieldLabelNameSchema),
+    searchDetails: z.array(fieldLabelSchema),
   })
   .optional();
 
@@ -229,7 +228,6 @@ const uiSchema = z.object({
       display: z.string(),
       order: z.number(),
       name: z.string(),
-      field: z.string(),
       active: z.boolean().optional(),
       help: z.string().optional(),
       hide: z.boolean().optional(),

@@ -13,15 +13,17 @@
   "author": "Moises Sacal Bonequi",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4"
+    "@biomejs/biome": "^1.9.4",
+    "@tsconfig/node-lts": "^22.0.1",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.0",
     "@ocfl/ocfl-fs": "^0.2.2",
     "@octokit/rest": "^21.1.0",
-    "@opensearch-project/opensearch": "^3.1.0",
+    "@opensearch-project/opensearch": "^3.2.0",
     "@turf/turf": "^7.2.0",
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "lodash": "^4.17.21",
     "manku-icon-lib": "^1.1.5",
     "octokit": "^4.1.0",

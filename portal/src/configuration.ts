@@ -79,11 +79,6 @@ const searchSchema = z
 //   name: z.string(),
 // });
 
-const headMetaSchema = z.object({
-  name: z.string(),
-  content: z.string(),
-});
-
 const helpersSchema = z.object({
   id: z.string(),
   display: z.string(),
@@ -195,9 +190,6 @@ const uiSchema = z.object({
     //   byteFields: z.array(z.string()),
     expand: z.array(z.string()),
   }),
-  // head: z.object({
-  //   meta: z.array(headMetaSchema),
-  // }),
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
@@ -240,10 +232,6 @@ const uiSchema = z.object({
       checked: z.boolean(),
     }),
   ),
-  searchHighlights: z.array(z.string()),
-  highlight: z.object({
-    max_analyzer_offset: z.number(),
-  }),
   analytics: z
     .object({
       gaMeasurementId: z.string(),

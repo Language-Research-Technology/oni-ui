@@ -52,8 +52,8 @@ export class ElasticService {
     this.#searchRoute = '/search/index';
     this.#indexRoute = '/items';
     this.#aggs = this.prepareAggregations(configuration.ui.aggregations);
-    this.#highlightFields = configuration.ui.searchHighlights;
-    this.#highlightConfig = configuration.ui.highlight || {};
+    this.#highlightFields = ['_text'];
+    this.#highlightConfig = { max_analyzer_offset: 1000000 };
     this.#fields = configuration.ui.searchFields;
   }
 

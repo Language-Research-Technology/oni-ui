@@ -1,5 +1,8 @@
-const { VocabsIndexer } = require('./lib/VocabsIndexer.js');
-const host = 'http://localhost:9200';
+#!/usr/bin/env -S node --experimental-strip-types
+
+import { existsSync } from 'node:fs';
+
+import { VocabsIndexer } from './lib/VocabsIndexer.ts';
 
 const vocabs = {
   austalk:
@@ -9,8 +12,12 @@ const vocabs = {
   schemaDotOrg: 'https://schema.org/version/latest/schemaorg-current-https.jsonld',
 };
 
-(async () => {
-  const index = new VocabsIndexer({ elasticUrl: host, log: true });
-  await index.delete();
-  await index.load({ vocabs });
-})();
+const path = process.argv[2];
+if (!path) {
+  console.error('Output path not provided');
+  process.exit(1);
+}
+
+const index = new VocabsIndexer();
+await index.load(vocabs);
+await index.save(path);

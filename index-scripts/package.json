@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "description": "Scripts to create structural and elastic indexes for an Oni",
   "main": "structural-index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome check --write .",

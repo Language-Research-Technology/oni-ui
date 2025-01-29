@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useHead } from '@unhead/vue';
 
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
@@ -31,7 +30,6 @@ const {
   // main: { fields },
   helpers,
   conformsTo,
-  head: configTag,
 } = ui;
 
 const id = route.query.id as string;
@@ -50,7 +48,6 @@ let name: string;
 let nameDisplay: string;
 const tops: { name: string; value: string; help?: { id: string; display?: string | undefined } }[] = [];
 const meta: { name: string; data: Record<string, string>; help: { id: string; display?: string | undefined } }[] = [];
-const metaTags: { name: string; value: object; help: { id: string; display?: string | undefined } }[] = [];
 
 const populateName = (md: Record<string, object>) => {
   name = md[config.name.name] as unknown as string;
@@ -92,85 +89,12 @@ const populateMeta = (md: Record<string, Record<string, string>>) => {
   meta.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-const populateMetaTags = (md: Record<string, object>) => {
-  for (const field of configTag.meta) {
-    const helper = helpers.find((h) => h.id === field.name) || {
-      id: field.content,
-      display: field.name,
-      url: '',
-      definition: 'TODO: Add definition',
-    };
-
-    let value: string;
-    switch (field.content) {
-      case 'license':
-        // @ts-expect-error Need types on config
-        value = md.license?.name;
-        break;
-      case 'publisher':
-        // @ts-expect-error Need types on config
-        value = md.publisher?.['@id'];
-        break;
-      default:
-        // @ts-expect-error Need types on config
-        value = md[field.content];
-    }
-
-    metaTags.push({
-      name: field.name,
-      // @ts-expect-error Need types on config
-      value: value,
-      help: helper,
-    });
-  }
-};
-
-const setMeta = () => {
-  const metaArr = [];
-  for (const meta of metaTags) {
-    if (Array.isArray(meta.value)) {
-      for (const item of meta.value) {
-        if (item.name) {
-          for (const name of item.name) {
-            const obj = {
-              name: meta.name,
-              content: name.trim() || name,
-            };
-            metaArr.push(obj);
-          }
-        } else {
-          const obj = {
-            name: meta.name,
-            content: item || item,
-          };
-          metaArr.push(obj);
-        }
-      }
-    } else {
-      const obj = {
-        name: meta.name,
-        content: meta.value,
-      };
-      metaArr.push(obj);
-    }
-  }
-
-  // useHead({
-  //   meta: metaArr,
-  // });
-};
-
-useHead({
-  title: 'My awesome site',
-});
 const populate = (md: Record<string, object>) => {
   populateName(md);
   // @ts-expect-error This type is complicated ignore for now
   populateTop(md);
   // @ts-expect-error This type is complicated ignore for now
   populateMeta(md);
-  populateMetaTags(md);
-  setMeta();
 };
 
 const fetchData = async () => {

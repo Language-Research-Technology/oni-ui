@@ -22,7 +22,6 @@ const { ui /*, api: apiConfig */ } = useConfigurationStore();
 const {
   object: config,
   // main: { fields },
-  helpers,
 } = ui;
 // const { conformsTo: { object: conformsToObject } } = apiConfig;
 
@@ -67,7 +66,7 @@ const populateMeta = (md: Record<string, string>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    const helper = helpers.find((h) => h.id === filter) || {
+    const helper = {
       id: filter,
       display: filter,
       url: '',

@@ -79,13 +79,6 @@ const searchSchema = z
 //   name: z.string(),
 // });
 
-const helpersSchema = z.object({
-  id: z.string(),
-  display: z.string(),
-  url: z.string().url(),
-  definition: z.string(),
-});
-
 const collectionSchema = z.object({
   name: z.object({
     display: z.string(),
@@ -194,7 +187,6 @@ const uiSchema = z.object({
   object: objectSchema,
   file: fileSchema,
   // notebook: notebookSchema,
-  helpers: z.array(helpersSchema),
   // baseVocab: z.string().url(),
   conformsTo: z.object({
     collection: z.string().url(),

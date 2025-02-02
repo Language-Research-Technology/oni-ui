@@ -28,7 +28,6 @@ const { ui } = useConfigurationStore();
 const {
   collection: config,
   // main: { fields },
-  helpers,
   conformsTo,
 } = ui;
 
@@ -58,7 +57,7 @@ const populateName = (md: Record<string, object>) => {
 const populateTop = (md: Record<string, string>) => {
   const { top } = config;
   for (const field of top) {
-    const helper = helpers.find((h) => h.id === field.name) || {
+    const helper = {
       id: field.name,
       display: field.display,
       url: '',
@@ -78,7 +77,7 @@ const populateMeta = (md: Record<string, Record<string, string>>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    const helper = helpers.find((h) => h.id === filter) || {
+    const helper = {
       id: filter,
       display: filter,
       url: '',

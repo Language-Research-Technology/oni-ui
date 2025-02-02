@@ -21,14 +21,14 @@ const id = part['@id'];
 const resolve = ref(active);
 
 const { ui } = useConfigurationStore();
-const { helpers = [], file: config } = ui;
+const { file: config } = ui;
 
 const meta: { name: string; data: string; help: object }[] = [];
 
 const keys = Object.keys(part);
 const filtered = keys.filter((key) => !config.meta.hide.includes(key));
 for (const filter of filtered) {
-  const helper = helpers.find((h) => h.id === filter) || {
+  const helper = {
     id: filter,
     display: filter,
     url: '',

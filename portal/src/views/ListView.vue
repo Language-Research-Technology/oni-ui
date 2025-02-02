@@ -17,7 +17,7 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
+const sorting = ui.search?.sorting?.filter(({ value }) => value !== 'relevance') || [{ value: 'id', label: 'Id' }];
 const ordering = ui.search?.ordering || [
   { value: 'asc', label: 'Ascending' },
   { value: 'desc', label: 'Descending' },

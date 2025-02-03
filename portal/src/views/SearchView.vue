@@ -38,9 +38,7 @@ const { searchFields } = ui;
 const searchInput = ref(route.query.q || '');
 const advancedSearchEnabled = ref(!!route.query.a);
 const facets = ref<Aggregation[]>();
-const isStart = ref(false);
 const isLoading = ref(false);
-const selectedSorting = ref();
 const filtersChanged = ref(false);
 const errorDialogText = ref<string | undefined>();
 const entities = ref<EntityType[]>([]);
@@ -48,7 +46,6 @@ const filters = ref<Record<string, string[]>>({});
 const selectedOperation = ref(route.query.o || 'must');
 const pageSize = ref(10);
 const currentPage = ref(1);
-const selectedOrder = ref(ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' });
 const totals = ref(0);
 const resetAdvancedSearch = ref(false);
 
@@ -57,27 +54,16 @@ const clear = ref(false);
 const filterButton = ref([]);
 const isBrowse = ref(false);
 
-const defaultOrder = ui.search?.defaultOrder || { value: 'asc', label: 'Ascending' };
 const ordering = ui.search?.ordering || [
   { value: 'asc', label: 'Ascending' },
   { value: 'desc', label: 'Descending' },
 ];
+const defaultOrder = ordering[0];
+const selectedOrder = ref(defaultOrder);
 
-const startSorting = ui.search?.startSorting || {
-  value: '_isTopLevel.@value.keyword',
-  label: 'Collections',
-};
-
-const searchSorting = ui.search?.searchSorting || {
-  value: 'relevance',
-  label: 'Relevance',
-};
-
-const defaultSorting = ui.search?.defaultSorting || {
-  value: 'relevance',
-  label: 'Relevance',
-};
 const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
+const defaultSorting = ui.search?.searchSorting || sorting[0];
+const selectedSorting = ref(defaultSorting);
 
 watch(
   () => route.query,
@@ -85,7 +71,6 @@ watch(
     isLoading.value = true;
 
     if (route.query.s) {
-      isStart.value = true;
       resetSearch();
     } else {
       await updateFilters();
@@ -105,8 +90,7 @@ const clearFilter = async (f: string, filterKey: string) => {
       delete filters.value[filterKey];
     }
 
-    //if there is an update on the filter the site will do another search.
-    await updateRoutes({ updateFilters: true });
+    await updateRoutes();
   }
 };
 
@@ -127,20 +111,6 @@ const updateFilters = async () => {
 };
 
 const search = async () => {
-  if (isStart.value) {
-    //Revert start to sorting by the startSorting
-    selectedSorting.value = startSorting;
-    isStart.value = false;
-  } else if (searchInput.value) {
-    // If there is a query sort by relevance
-    selectedSorting.value = searchSorting;
-  } else if (advancedSearchEnabled.value) {
-    // If advanced search is enabled sort by relevance
-    selectedSorting.value = searchSorting;
-  } else if (!selectedSorting.value) {
-    // If there is one selected sorting do that
-    selectedSorting.value = defaultSorting;
-  }
   filtersChanged.value = false;
 
   isLoading.value = true;
@@ -155,7 +125,6 @@ const search = async () => {
       sort: selectedSorting.value?.value,
       order: selectedOrder.value?.value,
     };
-    console.log('🪚 params:', JSON.stringify(params, null, 2));
     const results = await api.search(params);
 
     entities.value = [];
@@ -294,7 +263,6 @@ const resetSearch = async () => {
   route.query.o = selectedOperation.value;
   selectedOrder.value = defaultOrder;
   filterButton.value = [];
-  isStart.value = true;
   isBrowse.value = false;
   currentPage.value = 1;
   filters.value = {};
@@ -346,7 +314,7 @@ const clean = (value: string) => {
 
 const sortResults = (sort: string) => {
   currentPage.value = 1;
-  selectedSorting.value = sorting.find(({ value }) => value === sort);
+  selectedSorting.value = sorting.find(({ value }) => value === sort) || defaultSorting;
   search();
 };
 
@@ -408,7 +376,6 @@ const showMap = () => {
 };
 
 const doWork = async () => {
-  isStart.value = true;
   await updateFilters();
 
   if (route.query.q) {
@@ -488,7 +455,7 @@ doWork();
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
               <el-button-group class="mr-1" v-show="filtersChanged">
-                <el-button type="warning" @click="updateRoutes({ updateFilters: true })">Apply
+                <el-button type="warning" @click="updateRoutes()">Apply
                   Filters
                 </el-button>
               </el-button-group>
@@ -597,7 +564,7 @@ doWork();
       <div class="w-full">
         <el-button-group class="self-center">
           <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes({ updateFilters: true })">Apply Filters</el-button>
+          <el-button type="warning" @click="updateRoutes()">Apply Filters</el-button>
         </el-button-group>
       </div>
     </el-row>

@@ -66,10 +66,7 @@ const searchSchema = z
   .object({
     sorting: z.array(valueLabelSchema),
     searchSorting: valueLabelSchema,
-    startSorting: valueLabelSchema,
-    defaultSorting: valueLabelSchema,
     ordering: z.array(valueLabelSchema),
-    defaultOrder: valueLabelSchema,
     searchDetails: z.array(fieldLabelSchema),
   })
   .optional();

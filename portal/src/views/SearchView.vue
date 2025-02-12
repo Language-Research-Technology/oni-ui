@@ -47,6 +47,7 @@ const selectedOperation = ref(route.query.o || 'must');
 const pageSize = ref(10);
 const currentPage = ref(1);
 const totals = ref(0);
+const searchTime = ref(0);
 const resetAdvancedSearch = ref(false);
 
 const more = ref(false);
@@ -126,6 +127,9 @@ const search = async () => {
       order: selectedOrder.value?.value,
     };
     const results = await api.search(params);
+    console.log('🪚 results:', JSON.stringify(results, null, 2));
+
+    searchTime.value = results.searchTime;
 
     entities.value = [];
 
@@ -218,7 +222,7 @@ const populateFacets = (facets: GetSearchResponse['facets']) => {
 };
 
 const updateRoutes = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
-  console.log('🪚 ⭕');
+  console.log('🪚 ⭕', filters.value);
   const query: { q?: string; f?: string; a?: string } = {};
 
   if (Object.keys(filters.value).length > 0) {
@@ -428,7 +432,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                    }}</span>&nbsp;
+                  }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -480,7 +484,8 @@ doWork();
               </el-button-group>
 
               <span id="total_results" class="my-1 mr-2" v-show="totals">
-                Total: <span>{{ totals }} Index entries (Collections, Objects, Files and Notebooks)</span>
+                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects, Files and
+                  Notebooks)</span>
               </span>
             </el-col>
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">

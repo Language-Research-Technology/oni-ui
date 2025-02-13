@@ -66,23 +66,6 @@ const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' 
 const defaultSorting = ui.search?.searchSorting || sorting[0];
 const selectedSorting = ref(defaultSorting);
 
-watch(
-  () => route.query,
-  async () => {
-    isLoading.value = true;
-
-    if (route.query.s) {
-      resetSearch();
-    } else {
-      await updateFilters();
-      onInputChange(route.query.q?.toString() || '');
-      currentPage.value = 1;
-      await search();
-    }
-    isLoading.value = false;
-  },
-);
-
 const clearFilter = async (f: string, filterKey: string) => {
   if (filters.value[filterKey]) {
     filters.value[filterKey].splice(filters.value[filterKey].indexOf(f), 1);
@@ -127,7 +110,6 @@ const search = async () => {
       order: selectedOrder.value?.value,
     };
     const results = await api.search(params);
-    console.log('🪚 results:', JSON.stringify(results, null, 2));
 
     searchTime.value = results.searchTime;
 
@@ -166,7 +148,6 @@ const search = async () => {
 const generateQueryString = (rawSearchGroup: string) => {
   let qS = '';
   const searchGroup = JSON.parse(decodeURIComponent(rawSearchGroup));
-  console.log('🪚 generate:', searchGroup, typeof searchGroup);
   searchGroup.forEach((sg, i) => {
     let lastOneSG = false;
     if (i + 1 === searchGroup.length) {
@@ -194,21 +175,21 @@ const generateQueryString = (rawSearchGroup: string) => {
   return qS;
 };
 
-const populateFacets = (facets: GetSearchResponse['facets']) => {
+const populateFacets = (newFacets: GetSearchResponse['facets']) => {
   const a: Aggregation[] = [];
   // NOTE: below is converted to an ordered array not an object.
   const aggInfo = ui.aggregations;
 
-  for (const facet of Object.keys(facets)) {
+  for (const facet of Object.keys(newFacets)) {
     const info = aggInfo.find((a) => a.name === facet);
     const display = info?.display;
     const order = info?.order;
     const name = info?.name;
     const hide = info?.hide;
-    const active = info?.active;
+    const active = facets?.value?.find((a) => a.name === facet)?.active || info?.active;
     const help = info?.help;
     a.push({
-      buckets: facets[facet],
+      buckets: newFacets[facet],
       display: display || facet,
       order: order || 0,
       name: name || facet,
@@ -222,7 +203,6 @@ const populateFacets = (facets: GetSearchResponse['facets']) => {
 };
 
 const updateRoutes = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
-  console.log('🪚 ⭕', filters.value);
   const query: { q?: string; f?: string; a?: string } = {};
 
   if (Object.keys(filters.value).length > 0) {
@@ -383,11 +363,20 @@ const doWork = async () => {
   await updateFilters();
 
   if (route.query.q) {
-    searchInput.value = route.query.q.toString();
+    searchInput.value = route.query.q?.toString();
   }
 
   search();
 };
+
+watch(
+  () => route.query,
+  async () => {
+    currentPage.value = 1;
+
+    doWork();
+  },
+);
 
 doWork();
 </script>
@@ -432,7 +421,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -459,8 +448,8 @@ doWork();
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
               <el-button-group class="mr-1" v-show="filtersChanged">
-                <el-button type="warning" @click="updateRoutes()">Apply
-                  Filters
+                <el-button type="warning" @click="updateRoutes()">
+                  Apply Filters
                 </el-button>
               </el-button-group>
 

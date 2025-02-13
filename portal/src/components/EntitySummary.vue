@@ -131,7 +131,8 @@ const getSearchDetailUrl = () => {
 
         <el-row align="middle" v-if="entity.searchExtra?.highlight">
           <ul>
-            <li v-for="hl of entity.searchExtra.highlight" v-html="'...' + hl[0] + '...'" class="p-2"></li>
+            <li v-for="hl of Object.values(entity.searchExtra.highlight || {})" v-html="'...' + hl + '...'" class="p-2">
+            </li>
           </ul>
         </el-row>
 

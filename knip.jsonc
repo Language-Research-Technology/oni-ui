@@ -1,0 +1,15 @@
+{
+  "paths": {
+    // Knip doesn't support the references syntax vue 3 uses in tsconfig.json
+    "@/*": ["./src/*"]
+  },
+  "entry:": [
+    "{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
+    "src/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
+    "scripts/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"
+  ],
+  "ignore": [
+    // https://github.com/webpro-nl/knip/issues/504#issuecomment-2532321511
+    "env.d.ts"
+  ]
+}

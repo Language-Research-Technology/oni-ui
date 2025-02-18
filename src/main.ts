@@ -27,9 +27,6 @@ import router from '@/router';
 import { ApiService } from '@/services/api';
 import { ElasticService } from '@/services/elastic';
 
-// import HTTPService from './http.service';
-// import MembershipService from './membership.service';
-
 import '@/assets/main.css';
 
 library.add(fas, far, fab);
@@ -63,8 +60,5 @@ app.provide('api', api);
 
 const es = new ElasticService();
 app.provide('es', es);
-
-// app.config.globalProperties.$http = new HTTPService({ router, loginPath: '/login' });
-// app.config.globalProperties.$membership = new MembershipService({ router });
 
 app.mount('#app');

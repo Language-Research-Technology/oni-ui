@@ -308,102 +308,13 @@ const apiSchema = z.object({
   // identifier: z.object({
   //   main: z.string(),
   // }),
-  // elastic: z.object({
-  //   bootstrap: z.boolean(),
-  //   node: z.string().url(),
-  //   maxScroll: z.number(),
-  //   scrollTimeout: z.string(),
-  //   log: z.string(),
-  //   index: z.string(),
-  //   indexConfiguration: z.object({
-  //     mapping: z.object({
-  //       total_fields: z.object({
-  //         limit: z.number(),
-  //       }),
-  //     }),
-  //     max_result_window: z.number(),
-  //     highlight: z.object({
-  //       max_analyzer_offset: z.number(),
-  //     }),
-  //   }),
-  //   fields: z.object({
-  //     'name.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     'description.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     'language.name.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     'language.alternateName.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     'contributor.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     'creator.@value': z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //     _text: z.object({
-  //       label: z.string(),
-  //       checked: z.boolean(),
-  //     }),
-  //   }),
-  //   highlightFields: z.array(z.string()),
-  //   test: z.object({
-  //     filters: z.object({
-  //       'hasFile.language.name': z.array(z.string()),
-  //     }),
-  //     '@type': z.array(z.string()),
-  //   }),
-  //   mappingFieldLimit: z.number(),
-  //   mappings: z.object({
-  //     date_detection: z.boolean(),
-  //     properties: z.object({
-  //       _contentLocation: z.object({
-  //         type: z.string(),
-  //       }),
-  //       _centroid: z.object({
-  //         type: z.string(),
-  //       }),
-  //       '@id': z.object({
-  //         type: z.string(),
-  //       }),
-  //       hasFile: z.object({
-  //         type: z.string(),
-  //         properties: z.object({
-  //           language: z.object({
-  //             type: z.string(),
-  //             properties: z.object({
-  //               name: z.object({
-  //                 type: z.string(),
-  //                 properties: z.object({
-  //                   '@value': z.object({
-  //                     type: z.string(),
-  //                   }),
-  //                 }),
-  //               }),
-  //             }),
-  //           }),
-  //         }),
-  //       }),
-  //     }),
-  //   }),
-  // }),
   // admin: z.object({
   //   indexRoutes: z.boolean(),
   // }),
   // skipByMatch: z.array(z.unknown()),
 });
 
-export type ConfigurationSchema = z.infer<typeof configurationSchema>;
+// type ConfigurationSchema = z.infer<typeof configurationSchema>;
 
 const configurationSchema = z.object({
   ui: uiSchema,

@@ -91,7 +91,7 @@ app.get('/ldaca/entity/:id', async (req, res) => {
   res.status(response.status).send(body);
 });
 
-export type EntityType = {
+type EntityType = {
   id: string;
   name: string;
   description: string;
@@ -113,7 +113,7 @@ export type EntityType = {
   };
 };
 
-export type GetSearchResponse = {
+type GetSearchResponse = {
   total: number;
   searchTime: number;
   entities: Array<EntityType & { searchExtra: { score: number; highlight: string[] } }>;

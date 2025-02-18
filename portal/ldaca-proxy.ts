@@ -33,10 +33,59 @@ app.get('/ldaca/entities', async (req, res) => {
   res.json(result);
 });
 
+const synthesise = async (id: string) => {
+  const body = await es.multi({
+    multi: '*',
+    searchType: 'advanced',
+    filters: { '@id': [id] },
+    pageSize: 10,
+    searchFrom: 0,
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+
+  // biome-ignore lint/suspicious/noExplicitAny: foo
+  const result = (await response.json()) as any;
+  if (result.hits.hits.length !== 1) {
+    console.error('Synthesise failed: more than 1 hit');
+    return [404, null];
+  }
+
+  const hit = result.hits.hits[0];
+
+  const memberOf = hit._source._memberOf[0]['@id'];
+
+  const parentUrl = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(memberOf)}`;
+  const response2 = await fetch(parentUrl);
+
+  if (response2.status === 404) {
+    console.error('Synthesise failed: no parent crate');
+    return [404, null];
+  }
+
+  const rocrateRaw = await response2.text();
+  const rocrate = JSON.parse(rocrateRaw);
+
+  const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
+  metadata.about['@id'] = id;
+
+  return [200, rocrate];
+};
+
 app.get('/ldaca/entity/:id', async (req, res) => {
   const queryString = (URL.parse(`http://dummy${req.url}`)?.search || '').replace(/^\?/, '&');
   const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(req.params.id)}${queryString}`;
   const response = await fetch(url);
+
+  if (response.status === 404) {
+    const [status, body] = await synthesise(req.params.id);
+    res.status(status).send(body);
+
+    return;
+  }
 
   const body = await response.text();
   res.status(response.status).send(body);
@@ -129,7 +178,6 @@ app.post('/ldaca/search', async (req, res) => {
 
   req.on('end', async () => {
     const params = JSON.parse(data);
-    console.log('🪚 params:', JSON.stringify(params, null, 2));
     const body = await es.multi({
       multi: params.query,
       searchType: params.searchType,
@@ -139,7 +187,6 @@ app.post('/ldaca/search', async (req, res) => {
       pageSize: params.limit,
       searchFrom: params.offset,
     });
-    console.log('🪚 body:', JSON.stringify(body, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',

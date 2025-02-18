@@ -30,6 +30,7 @@ const aggMap = {
   'encodingFormat.@value': 'encodingFormat',
   'annotationType.@value': 'annotationType',
   '_parent.@id': 'parent',
+  '@id': '@id',
   '_collectionStack.@id': 'collectionStack',
   'conformsTo.@id': 'conformsTo',
   '_isTopLevel.@value': 'isTopLevel',
@@ -194,7 +195,11 @@ export class ElasticService {
           let field = '';
           let type;
           if (!filters[bucket]?.t) {
-            field = `${aggMapReverse[bucket]}.keyword`;
+            if (bucket === '@id') {
+              field = bucket;
+            } else {
+              field = `${aggMapReverse[bucket]}.keyword`;
+            }
           } else {
             type = filters[bucket]?.t;
             field = `${aggMapReverse[bucket]}.${type}`;

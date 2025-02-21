@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import * as L from 'leaflet';
-import 'leaflet.path.drag';
 import 'leaflet-editable';
 import { GestureHandling } from 'leaflet-gesture-handling';
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+import 'leaflet.path.drag';
+import 'leaflet/dist/leaflet.css';
 
 import transformer from '@/components/widgets/geo';
 

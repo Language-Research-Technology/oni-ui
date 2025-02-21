@@ -1,7 +1,7 @@
 <script>
+import EnrollmentCard from '@/components/cards/EnrollmentCard.component.vue';
 import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
 import { event as gaEvent } from 'vue-gtag';
-import EnrollmentCard from '@/components/cards/EnrollmentCard.component.vue';
 
 export default {
   components: { EnrollmentCard },
@@ -106,17 +106,17 @@ export default {
         </el-col>
         <el-col class="flex flex-col items-center" :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
           <p>{{ loadingText }}</p>
-          <br/>
+          <br />
           <p v-if="goHome">
             <el-link href="/login">Login</el-link>
           </p>
         </el-col>
       </el-row>
-      <br/>
+      <br />
       <el-row v-if="showEnrollment" class="h-32 items-center p-2" align="middle">
         <p>Enrollment is required to access some datasets</p>
-        <br/>
-        <enrollment-card/>
+        <br />
+        <enrollment-card />
       </el-row>
       <el-row v-if="showEnrollment" class="p-5" align="middle">
         <p>
@@ -126,4 +126,3 @@ export default {
     </div>
   </div>
 </template>
-

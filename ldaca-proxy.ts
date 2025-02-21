@@ -2,8 +2,8 @@ import express from 'express';
 
 const app = express();
 
-import { ElasticService } from './src/services/elastic';
 import configuration from './configuration.json';
+import { ElasticService } from './src/services/elastic';
 
 const es = new ElasticService();
 

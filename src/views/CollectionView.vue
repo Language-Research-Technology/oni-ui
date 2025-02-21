@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, inject } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
-import MetaTopCard from '@/components/cards/MetaTopCard.vue';
-import MetaField from '@/components/MetaField.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
+import MetaField from '@/components/MetaField.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
+import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
+import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 // import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
 // import SummariesCard from '@/components/cards/SummariesCard.vue';
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const { data, limitText } = defineProps<{
   data: string;
   limitText?: number;

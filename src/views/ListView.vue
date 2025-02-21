@@ -2,12 +2,12 @@
 import { inject } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { ref } from 'vue';
 import EntitySummary from '@/components/EntitySummary.vue';
+import { ref } from 'vue';
 
+import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute } from 'vue-router';
-import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 const { ui } = useConfigurationStore();
 const router = useRouter();
 

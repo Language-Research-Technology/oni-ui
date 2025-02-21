@@ -7,7 +7,7 @@ const spaceDelimitedToLatLng = (text: string) => {
   }
 
   return result;
-}
+};
 
 const toSchemaOrg = {
   box: (shape) => {
@@ -113,4 +113,4 @@ export const GeoShape = (L) => {
       return entity;
     },
   };
-}
+};

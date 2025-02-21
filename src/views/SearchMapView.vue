@@ -138,7 +138,7 @@ import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import * as L from 'leaflet';
 import 'leaflet.path.drag';
 import 'leaflet-editable';
-import { getLocalStorage, putLocalStorage, removeLocalStorage } from '@/storage';
+import { removeLocalStorage } from '@/storage';
 import { CloseBold } from '@element-plus/icons-vue';
 import Geohash from 'latlon-geohash';
 import { GestureHandling } from 'leaflet-gesture-handling';

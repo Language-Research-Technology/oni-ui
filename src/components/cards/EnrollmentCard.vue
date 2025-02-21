@@ -3,10 +3,7 @@ import { useConfigurationStore } from '@/stores/configuration';
 
 const { ui } = useConfigurationStore();
 
-const {
-  shortTitle = 'Oni',
-  enrollment,
-} = ui;
+const { shortTitle = 'Oni', enrollment } = ui;
 </script>
 
 <template>

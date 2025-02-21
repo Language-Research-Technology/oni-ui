@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 
 // import AggregationAsIcon from '@/components/widgets/AggregationAsIcon.vue';
 import AccessHelper from '@/components/AccessHelper.vue';
+import MetaField from '@/components/MetaField.vue';
 // import BinderHubCard from '@/components/cards/BinderHubCard.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
-import MetaField from '@/components/MetaField.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
-import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
-import { initSnip } from '../tools';
+import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import type { ApiService, RoCrate } from '@/services/api';
+import { initSnip } from '../tools';
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useRoute, useRouter } from 'vue-router';

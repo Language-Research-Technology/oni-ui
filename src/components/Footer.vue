@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useConfigurationStore } from '@/stores/configuration';
+import { ref } from 'vue';
 
 import SplashScreen from '@/components/SplashScreen.vue';
 
@@ -34,7 +34,8 @@ const splash = ref(false);
         }}
         </el-link>
 
-        <el-link v-if="splashLauncher" class="text-gray-600 font-semibold" href="#" @click="splash = true" :underline="false">
+        <el-link v-if="splashLauncher" class="text-gray-600 font-semibold" href="#" @click="splash = true"
+          :underline="false">
           {{ splashLauncher || 'Splash' }}
         </el-link>
 

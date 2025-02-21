@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-
 import type { EntityType } from '@/services/api';
 
 import { useConfigurationStore } from '@/stores/configuration';
 
-import { v4 as v4uuid } from 'uuid';
-
+import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
-import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 
 const { ui } = useConfigurationStore();
 
 const { entity } = defineProps<{ entity: EntityType }>();
 
-const uuid = v4uuid();
 // TODO: Rename this
 const searchDetails = ui.search?.searchDetails || [];
 

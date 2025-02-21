@@ -7,10 +7,10 @@ import { useConfigurationStore } from '@/stores/configuration';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
-import SearchBar from '@/components/SearchBar.vue';
-import SearchAggs from '@/components/SearchAggs.vue';
-import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import EntitySummary from '@/components/EntitySummary.vue';
+import SearchAdvanced from '@/components/SearchAdvanced.vue';
+import SearchAggs from '@/components/SearchAggs.vue';
+import SearchBar from '@/components/SearchBar.vue';
 import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
 
 type Aggregation = {

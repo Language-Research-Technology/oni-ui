@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { useConfigurationStore } from '@/stores/configuration';
 import { useAuthStore } from '@/stores/auth';
+import { useConfigurationStore } from '@/stores/configuration';
 
 const { ui } = useConfigurationStore();
 const { isLoggedIn, user } = useAuthStore();

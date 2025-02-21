@@ -8,5 +8,16 @@
     "formatter": {
       "quoteStyle": "single"
     }
+  },
+  "files": {
+    "ignore": [
+      // Ignore temp files
+      "ldaca-proxy.ts",
+      "src/services/elastic.ts",
+
+      // Ignore generated files
+      "package.json",
+      "vocab.json"
+    ]
   }
 }

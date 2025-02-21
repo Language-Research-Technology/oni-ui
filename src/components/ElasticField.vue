@@ -31,7 +31,27 @@ const testURL = (url: string) => {
   }
 };
 
+const formatFileSize = (bytes: number, locales = 'en') => {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const threshold = 1024;
+
+  if (bytes < threshold) return `${bytes} B`;
+
+  const i = Math.floor(Math.log(bytes) / Math.log(threshold));
+  const value = bytes / threshold ** i;
+
+  const formatter = new Intl.NumberFormat(locales, { maximumFractionDigits: 2 });
+
+  return `${formatter.format(value)} ${units[i]}`;
+};
+
 const extractData = () => {
+  if (title === 'size') {
+    name = formatFileSize(field);
+
+    return;
+  }
+
   if (['string', 'number'].includes(typeof field)) {
     name = String(field);
 

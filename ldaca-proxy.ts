@@ -9,7 +9,8 @@ const es = new ElasticService();
 
 app.get('/ldaca/entities', async (req, res) => {
   const queryString = URL.parse(`http://dummy${req.url}`)?.search || '';
-  const response = await fetch(`https://data.ldaca.edu.au/api/objects${queryString}`, { redirect: 'follow' });
+  const url = 'https://data.ldaca.edu.au/api/objects' + queryString;
+  const response = await fetch(url, { redirect: 'follow' });
   if (!response.ok) {
     const body = response.text();
     res.status(response.status).send(body);

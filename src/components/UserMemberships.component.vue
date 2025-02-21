@@ -1,6 +1,6 @@
 <template>
   <!-- component -->
-  <div class="bg-gray-100 rounded shadow-lg p-4 px-4 md:p-8 mb-6">
+  <div class="bg-gray-100 rounded-sm shadow-lg p-4 px-4 md:p-8 mb-6">
     <div class="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-3">
       <div class="text-gray-600">
         <p class="font-medium text-lg">User Memberships</p>
@@ -22,9 +22,9 @@
 
         <div class="md:col-span-2">
           <label for="key">&nbsp;</label>
-          <div class="h-10 flex rounded items-center mt-1">
+          <div class="h-10 flex rounded-sm items-center mt-1">
             <input type="button" value="Check Memberships" id="key" name="key"
-                   class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                   class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-sm"
                    @click="this.getUserMemberships()"/>
           </div>
           <div class="h-10 flex mt-2">
@@ -32,7 +32,7 @@
           </div>
         </div>
       </div>
-      <div class="h-10 flex rounded items-center">
+      <div class="h-10 flex rounded-sm items-center">
         <el-link underline="underline" :href="authorizationProvider?.url" target="_blank" class="mx-1"
                  title="Will open in a new tab">
           Verify your access in {{ authorizationProvider?.label }}&nbsp;<font-awesome-icon

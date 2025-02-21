@@ -385,7 +385,8 @@ doWork();
   <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
       class="h-full max-h-screen overflow-y-auto flex flex-col p-2" id="search_aggregation">
-      <div v-show="!advancedSearchEnabled" class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+      <div v-show="!advancedSearchEnabled"
+        class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
         <SearchBar ref='searchBar' :searchInput="searchInput.toString()"
           class="grow justify-items-center items-center m-4" @enable-advanced="enableAdvancedSearch"
           @update-search-input="onInputChange" @do-search="updateRoutes" :searchPath="'search'" />
@@ -404,7 +405,7 @@ doWork();
       <div class="pt-2">
         <div class="flex w-full" v-for="facet of facets" :key="facet.name">
           <ul v-if="facet.buckets.length > 0 && !facet.hide"
-            class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
+            class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
             <li @click="facet.active = !facet.active"
               class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
               <span class="text-xl text-gray-600 font-semibold py-1 px-2">
@@ -440,7 +441,7 @@ doWork();
       <div class="pr-0">
 
         <div v-show="advancedSearchEnabled" id="advanced_search_box"
-          class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+          class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
           <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
             @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
         </div>
@@ -492,20 +493,18 @@ doWork();
           </el-row>
         </div>
 
-        <el-row class="pt-2">
-          <el-col :span="24" class="flex space-x-4 pb-2">
-            <el-button-group class="my-1">
-              <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
-            </el-button-group>
-            <el-select v-model="selectedSorting" @change="sortResults" class="my-1">
-              <template #prefix>Sort by:</template>
-              <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-            <el-select v-model="selectedOrder" @change="orderResults" class="my-1">
-              <template #prefix>Order by:</template>
-              <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </el-col>
+        <el-row :span="24" class="pt-2 flex gap-4 pb-2">
+          <el-button-group class="my-1">
+            <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
+          </el-button-group>
+          <el-select v-model="selectedSorting" @change="sortResults" class="my-1 !w-sm">
+            <template #prefix>Sort by:</template>
+            <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-select v-model="selectedOrder" @change="orderResults" class="my-1 !w-sm">
+            <template #prefix>Order by:</template>
+            <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-row>
 
         <div class="py-0 w-full pb-2">
@@ -552,7 +551,7 @@ doWork();
     </template>
   </el-dialog>
 
-  <el-row v-show="filtersChanged" class="bg-white rounded m-4 p-4 px-8 shadow-md border" role="alert"
+  <el-row v-show="filtersChanged" class="bg-white rounded-sm m-4 p-4 px-8 shadow-md border" role="alert"
     style="bottom: 16px; z-index: 2044; position: fixed">
     <el-row class="p-2">
       <div class="w-full">

@@ -24,11 +24,11 @@
 
   <el-row>
     <p>
-      The standard Boolean operators <code class="literal backdrop-blur">AND</code>, <code
-        class="literal backdrop-blur">OR</code>
-      and <code class="literal backdrop-blur">NOT</code> are supported in Advanced Search. These can either be added in
+      The standard Boolean operators <code class="literal backdrop-blur-sm">AND</code>, <code
+        class="literal backdrop-blur-sm">OR</code>
+      and <code class="literal backdrop-blur-sm">NOT</code> are supported in Advanced Search. These can either be added in
       the dropdown menu between fields when <i>Add New Line</i> is selected, or included within the search text field,
-      using parentheses around the full query, e.g. <code class="literal backdrop-blur">(koala AND kangaroo)</code>.
+      using parentheses around the full query, e.g. <code class="literal backdrop-blur-sm">(koala AND kangaroo)</code>.
     </p>
   </el-row>
 
@@ -41,15 +41,15 @@
 
   <el-row>
     <p>
-      <code class="literal backdrop-blur">(((rainbow AND lorikeet) OR (pink AND cockatoo)) NOT galah)</code>
+      <code class="literal backdrop-blur-sm">(((rainbow AND lorikeet) OR (pink AND cockatoo)) NOT galah)</code>
     </p>
   </el-row>
 
   <el-row>
     <p>
       To search for the literal words AND, OR and NOT, add a backward slash (<code
-        class="literal backdrop-blur">\</code>)
-      before that word to 'escape' it, e.g. <code class="literal backdrop-blur">\OR</code>. Note that this is a
+        class="literal backdrop-blur-sm">\</code>)
+      before that word to 'escape' it, e.g. <code class="literal backdrop-blur-sm">\OR</code>. Note that this is a
       situation
       where the search text is case-sensitive; 'and' does not need to be escaped, but 'AND' does. Escaping will not
       return
@@ -70,7 +70,7 @@
         <tr>
           <td><code>" "</code></td>
           <td>Use double quotation marks before and after a phrase to search for that exact phrase, e.g. <code
-              class="literal backdrop-blur">"public house"</code>. Entries where a hyphen occurs in the text instead of
+              class="literal backdrop-blur-sm">"public house"</code>. Entries where a hyphen occurs in the text instead of
             a
             space will also be returned in a phrasal search.
           </td>
@@ -80,23 +80,23 @@
           <td>Creates a fuzzy query to return results similar to the search term by changing, removing, inserting or
             transposing one or more characters. Add a number following this operator to increase the number of
             variations,
-            e.g. <code class="literal backdrop-blur">brwn~2</code> will find instances of 'brown', 'been', 'own', etc.
+            e.g. <code class="literal backdrop-blur-sm">brwn~2</code> will find instances of 'brown', 'been', 'own', etc.
             Fuzzy queries can also be applied to phrasal searches, allowing the specified words to be further apart or
             in
-            a different order, e.g. <code class="literal backdrop-blur">"house home"~3</code> will find instances of
+            a different order, e.g. <code class="literal backdrop-blur-sm">"house home"~3</code> will find instances of
             'house and home', 'house is my home', 'home, the house', etc.
           </td>
         </tr>
         <tr class="bg-gray-50">
           <td><code>?</code></td>
           <td>Wildcard to replace a single character. Wildcards cannot be included in a phrasal search. e.g. <code
-              class="literal backdrop-blur">qu?ck</code> will find instances of 'quick' and 'quack'.
+              class="literal backdrop-blur-sm">qu?ck</code> will find instances of 'quick' and 'quack'.
           </td>
         </tr>
         <tr>
           <td><code>*</code></td>
           <td>Wildcard to replace zero or more characters. Wildcards cannot be included in a phrasal search. e.g. <code
-              class="literal backdrop-blur">gre*</code> will find instances of 'green', 'grew', 'greater', etc. This
+              class="literal backdrop-blur-sm">gre*</code> will find instances of 'green', 'grew', 'greater', etc. This
             wildcard can also be used to find related word forms e.g. <code>ask*</code> will find instances of 'ask',
             'asks', 'asked' and 'asking'.
           </td>
@@ -119,7 +119,7 @@
     <p>
       Some regular expression patterns can be used within the query string by surrounding the pattern in forward
       slashes,
-      e.g. <code class="literal backdrop-blur">/gr[ae]y/</code> or <code class="literal backdrop-blur">/honou*r/</code>.
+      e.g. <code class="literal backdrop-blur-sm">/gr[ae]y/</code> or <code class="literal backdrop-blur-sm">/honou*r/</code>.
       Currently, regular expressions can only be used for complete word searches and not for partial words or phrases.
       This search function does not
       support full Perl-compatible regex syntax. For more information see:
@@ -174,7 +174,7 @@
     forward-slashes ("/"). This search engine does not support full Perl-compatible regex syntax, for more see:
     <a target="_blank" rel="noopener noreferrer" class="underline text-blue-300" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html">RegExp Syntax</a>.
   </li>
-  <li class="px-3 py-1">The reserved characters are: <code class="literal backdrop-blur">+ - = && || > &lt; ! (
+  <li class="px-3 py-1">The reserved characters are: <code class="literal backdrop-blur-sm">+ - = && || > &lt; ! (
     ) { } [ ] ^ " ~ * ? : \ /</code></li>
   <li class="px-3 py-1">Reserved characters should be escaped using a back-slash ("\"). Failing to escape these
     special characters correctly could lead to a syntax error which prevents your query from running. For

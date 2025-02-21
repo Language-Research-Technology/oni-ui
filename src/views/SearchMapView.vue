@@ -2,7 +2,7 @@
   <el-row>
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
       class="h-full max-h-screen overflow-y-auto flex flex-col p-2">
-      <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+      <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
         <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput" @search="search"
           :clearSearch="clear" :filters="this.filters" :fields="searchFields"
           class="grow justify-items-center items-center m-4" @advanced-search="enableAdvancedSearch"
@@ -20,7 +20,7 @@
       </div>
       <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
         <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide'] && aggs['name'] !== '_geohash'"
-          class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
+          class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
           <li @click="aggs.active = !aggs.active"
             class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
             <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
@@ -119,7 +119,7 @@
       </span>
     </template>
   </el-dialog>
-  <el-row v-show="changedFilters" class="bg-white rounded m-4 p-4 px-8 shadow-md border" role="alert"
+  <el-row v-show="changedFilters" class="bg-white rounded-sm m-4 p-4 px-8 shadow-md border" role="alert"
     style="bottom: 16px; z-index: 2044; position: fixed">
     <el-row class="p-2">
       <div class="w-full">
@@ -629,7 +629,7 @@ export default {
             const pages = Math.ceil((total?.value || 0) / this.pageSize);
             const moreResultsDiv = document.createElement('div');
             if (total?.value > this.pageSize) {
-              moreResultsDiv.className = 'inline-flex rounded-md shadow-sm';
+              moreResultsDiv.className = 'inline-flex rounded-md shadow-xs';
               for (let i = 0; i < pages; i++) {
                 moreResultsDiv.innerHTML += `<a class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white cursor-pointer" onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${this.pageSize}, currentPage: ${i}, nextPage: ${i + 1}})">${i + 1}</a>`;
               }

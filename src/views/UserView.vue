@@ -1,7 +1,7 @@
 <template>
   <!-- component -->
   <div class="min-h-screen p-6flex justify-center">
-    <div class="container max-w-screen-lg mx-auto">
+    <div class="container max-w-(--breakpoint-lg) mx-auto">
       <div>
         <h2 class="font-semibold text-xl text-gray-600">User Info</h2>
         <p class="text-gray-500 mb-6"></p>

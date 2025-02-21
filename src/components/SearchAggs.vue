@@ -114,7 +114,7 @@ updateFilters();
       <div class="form-check form-check-inline cursor-pointer">
         <input :id="aggsName + '_' + ag.name" :name="aggsName + '_' + ag.name" v-model="checkedBuckets"
           v-on:change="onChange"
-          class="cursor-pointer form-check-input h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2"
+          class="cursor-pointer form-check-input h-4 w-4 border border-gray-300 rounded-xs bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-hidden transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2"
           type="checkbox" :value="ag.name">
         <label class="cursor-pointer form-check-label text-gray-800" :for="aggsName + '_' + ag.name">
           {{ ag.name }} <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{ ag['count']

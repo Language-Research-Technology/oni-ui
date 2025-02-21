@@ -30,7 +30,7 @@ const updateSearchInput = (text: string) => {
                 <font-awesome-icon icon="fa-solid fa-xmark" />
               </button>
 
-              <button @click="emit('doSearch')" class="flex items-center justify-center rounded hover:text-red-600">
+              <button @click="emit('doSearch')" class="flex items-center justify-center rounded-sm hover:text-red-600">
                 <font-awesome-icon icon="fa-solid fa-magnifying-glass" size="2xl" />
               </button>
             </template>
@@ -42,7 +42,7 @@ const updateSearchInput = (text: string) => {
       <el-row justify="center" :gutter="20" align="middle" class="pt-2">
         <el-button @click="emit('enableAdvanced')" class="cursor-pointer">
           Advanced Search&nbsp;
-          <span class="text-xs text-gray-400 shadow rounded-2xl px-2">beta</span>
+          <span class="text-xs text-gray-400 shadow-sm rounded-2xl px-2">beta</span>
         </el-button>
       </el-row>
     </el-col>

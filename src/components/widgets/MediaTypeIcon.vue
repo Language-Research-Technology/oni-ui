@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { mediaType } = defineProps<{ mediaType?: string }>();
+const { mediaType } = defineProps<{ mediaType: string }>();
 
 const detectIconName = () => {
   if (!mediaType) {

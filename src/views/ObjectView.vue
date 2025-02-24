@@ -7,6 +7,7 @@ import MetaField from '@/components/MetaField.vue';
 // import BinderHubCard from '@/components/cards/BinderHubCard.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
+import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
@@ -40,7 +41,7 @@ const meta = ref<{ name: string; data: string | { '@value': string }; help: obje
 const license = ref<{ '@id': string; description: string }>();
 const licenseText = ref('');
 const parts = ref<{ encodingFormat: string[] }[]>([]);
-const uniqueParts = ref<string[]>([]);
+const mediaTypes = ref<string[]>([]);
 const access = ref<{ hasAccess: boolean; group?: string }>();
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
@@ -103,7 +104,7 @@ const populateParts = (md: {
 
   if (parts.value.length) {
     const up = parts.value.flatMap((p) => p.encodingFormat);
-    uniqueParts.value = [...new Set(up)];
+    mediaTypes.value = [...new Set(up)];
   }
 };
 
@@ -237,7 +238,7 @@ onMounted(fetchdata);
 
   <el-row :justify="'center'" v-if="metadata" class="m-5 px-10" v-loading="isLoading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
-      <AccessHelper v-if="access" :access="access" :license="license" />
+      <AccessHelper v-if="access && license" :access="access" :license="license" />
 
       <div class="px-5 pb-5">
         <MetaTopCard :tops="tops" :className="'py-5'" />
@@ -305,10 +306,9 @@ onMounted(fetchdata);
     <el-row class="m-5 pl-10 pr-12">
       <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
         <div class="grid-content p-2 m-2">
-          <h2 class="text-2xl tracking-tight dark:text-white">
+          <h2 class="text-2xl tracking-tight">
             Files: {{ parts.length }}
-            <!-- <AggregationAsIcon v-for="part of uniqueParts" :item="part" -->
-            <!-- :field="{ 'name': 'File', 'display': 'File' }" :id="id" /> -->
+            <MediaTypeIcon v-for="mediaType of mediaTypes" :mediaType="mediaType" />
           </h2>
         </div>
         <div></div>

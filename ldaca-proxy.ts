@@ -71,7 +71,12 @@ const synthesise = async (id: string) => {
   const rocrate = JSON.parse(rocrateRaw);
 
   const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
+  const parentId = metadata.about['@id'];
   metadata.about['@id'] = id;
+
+  const parent = rocrate['@graph'].find((item: any) => item['@id'] === parentId);
+  const child = rocrate['@graph'].find((item: any) => item['@id'] === id);
+  child['license'] = parent['license'];
 
   return [200, rocrate];
 };

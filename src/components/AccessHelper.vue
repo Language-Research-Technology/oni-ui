@@ -4,20 +4,20 @@ import { onMounted, onUpdated, ref } from 'vue';
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
 
 const { access, license } = defineProps<{
-  access: { hasAccess: boolean; group: string };
-  license: { '@id': string; name: string };
+  access: { hasAccess: boolean; group?: string };
+  license: { '@id': string; name?: string };
 }>();
 
 import { useConfigurationStore } from '@/stores/configuration';
 import { useUserStore } from '@/stores/user';
 
-const { ui, api } = useConfigurationStore();
+const { ui } = useConfigurationStore();
 const { isLoggedIn, user } = useUserStore();
 
 const {
   login: { enabled: isLoginEnabled },
+  licenses,
 } = ui;
-const { licenses } = api;
 
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -69,7 +69,7 @@ onMounted(doWork);
       <div>
         <p>Access to <a :href="license['@id']" class="font-bold">{{
           license['name'] || license['@id']
-        }}</a> granted
+            }}</a> granted
           to {{ user?.['name'] || user?.['email'] }}
         </p>
       </div>

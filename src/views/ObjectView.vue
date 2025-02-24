@@ -150,7 +150,7 @@ const fetchdata = async () => {
   }
 
   metadata.value = md;
-  await populate(md);
+  populate(md);
 
   isLoading.value = false;
 

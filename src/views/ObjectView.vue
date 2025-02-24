@@ -39,7 +39,7 @@ const tops = ref<{ name: string; value: string | { '@value': string } }[]>([]);
 const meta = ref<{ name: string; data: string | { '@value': string }; help: object }[]>([]);
 const license = ref<{ '@id': string; description: string }>();
 const licenseText = ref('');
-const parts = ref<{ encodingFormat: string }[]>([]);
+const parts = ref<{ encodingFormat: string[] }[]>([]);
 const uniqueParts = ref<string[]>([]);
 const access = ref<{ hasAccess: boolean; group?: string }>();
 const isLoading = ref(false);
@@ -88,24 +88,33 @@ const populateLicense = (md: { license?: { '@id': string; description: string } 
   licenseText.value = md.license.description;
 };
 
-const populateParts = (md: { hasPart: { encodingFormat: string }[] }) => {
+const populateParts = (md: {
+  hasPart: { encodingFormat: string | string[] }[] | { encodingFormat: string | string[] };
+}) => {
   // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
-  parts.value = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];
+  const newParts = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];
+
+  const newParts2 = newParts.map((part) => ({
+    ...part,
+    encodingFormat: Array.isArray(part.encodingFormat) ? part.encodingFormat : [part.encodingFormat],
+  }));
+
+  parts.value = newParts2;
 
   if (parts.value.length) {
-    const up = parts.value.map((p) => p.encodingFormat);
+    const up = parts.value.flatMap((p) => p.encodingFormat);
     uniqueParts.value = [...new Set(up)];
   }
 };
 
-const populateAccess = (md) => {
+const populateAccess = () => {
   // FIXME: TODO where is this going to come from
   // access.value = md._access;
   access.value = { hasAccess: true };
 };
 
 const populate = (md: RoCrate) => {
-  populateAccess(md);
+  populateAccess();
   populateLicense(md);
   populateName(md);
   populateTop(md);

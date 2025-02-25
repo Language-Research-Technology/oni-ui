@@ -59,7 +59,7 @@ const getSearchDetailUrl = () => {
     <el-row>
       <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20">
         <el-row :align="'middle'">
-          <h5 class="text-2xl font-medium dark:text-white">
+          <h5 class="text-2xl font-medium">
             <router-link :to="getSearchDetailUrl()"
               class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
               {{ entity.name || entity.id }}
@@ -68,7 +68,7 @@ const getSearchDetailUrl = () => {
         </el-row>
 
         <el-row :align="'middle'">
-          <p class="font-normal text-gray-700 dark:text-gray-400">
+          <p class="font-normal text-gray-700">
             Type:
           </p>
           <div class="flex flex-wrap">
@@ -78,7 +78,7 @@ const getSearchDetailUrl = () => {
 
         <template v-for="special of searchDetails">
           <el-row v-if="entity.extra?.[special.field as keyof EntityType['extra']]">
-            <p class="font-normal text-gray-700 dark:text-gray-400">
+            <p class="font-normal text-gray-700">
               {{ special.label }}:&nbsp;
             </p>
             <p>{{ (entity.extra[special.field as keyof EntityType['extra']] as
@@ -87,17 +87,17 @@ const getSearchDetailUrl = () => {
         </template>
 
         <el-row align="middle" v-if="entity.memberOf">
-          <p class="font-normal text-gray-700 dark:text-gray-400">
+          <p class="font-normal text-gray-700">
             Member of:&nbsp;
           </p>
-          <router-link class="text-sm m-2 text-gray-700 dark:text-gray-300 underline"
+          <router-link class="text-sm m-2 text-gray-700 underline"
             :to="'/collection?id=' + encodeURIComponent(entity.memberOf)">
             {{ entity.memberOf }}
           </router-link>
         </el-row>
 
         <el-row align="middle" v-if="entity.root && entity.root !== entity.memberOf" class="pt-2">
-          <p class="font-normal text-gray-700 dark:text-gray-400">
+          <p class="font-normal text-gray-700">
             &nbsp;In:&nbsp;
           </p>
           <router-link :to="'/collection?id=' + encodeURIComponent(entity.root)">
@@ -106,7 +106,7 @@ const getSearchDetailUrl = () => {
         </el-row>
 
         <el-row align="middle">
-          <p class="font-normal text-gray-700 dark:text-gray-400">
+          <p class="font-normal text-gray-700">
             {{ entity.conformsTo }}
           </p>
         </el-row>

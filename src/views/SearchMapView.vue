@@ -12,7 +12,7 @@
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
         <div class="py-3 px-2">
           <div class="">
-            <p class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+            <p class="text-xl text-gray-600 font-semibold py-1 px-2">
               Filters
             </p>
           </div>
@@ -23,7 +23,7 @@
           class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
           <li @click="aggs.active = !aggs.active"
             class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
-            <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+            <span class="text-xl text-gray-600 font-semibold py-1 px-2">
               {{ aggs.display }}
               <el-tooltip v-if="aggs.help" class="box-item" effect="light" trigger="hover" :content="aggs.help"
                 placement="top">
@@ -631,7 +631,7 @@ export default {
             if (total?.value > this.pageSize) {
               moreResultsDiv.className = 'inline-flex rounded-md shadow-xs';
               for (let i = 0; i < pages; i++) {
-                moreResultsDiv.innerHTML += `<a class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white cursor-pointer" onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${this.pageSize}, currentPage: ${i}, nextPage: ${i + 1}})">${i + 1}</a>`;
+                moreResultsDiv.innerHTML += `<a class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 cursor-pointer" onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${this.pageSize}, currentPage: ${i}, nextPage: ${i + 1}})">${i + 1}</a>`;
               }
               tooltipView.appendChild(moreResultsDiv);
             }
@@ -701,7 +701,7 @@ export default {
       if (Array.isArray(_memberOf) && _memberOf.length > 0) {
         for (const mO of _memberOf) {
           innerHTMLMemberOf += `
-        <a class="text-sm m-1 text-gray-700 dark:text-gray-300 underline"
+        <a class="text-sm m-1 text-gray-700 underline"
                href="/collection?id=${encodeURIComponent(mO?.['@id'])}&_crateId=${encodeURIComponent(mO?.['@id'])}">
         ${first(mO?.name)?.['@value'] || mO?.['@id']}
         </a>

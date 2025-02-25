@@ -59,7 +59,7 @@ onMounted(setMembers);
     <el-row>
       <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
         <div class="grid-content p-6">
-          <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+          <h5 class="mb-2 text-2xl tracking-tight">
             {{ title }}: {{ total }}
           </h5>
         </div>

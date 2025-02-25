@@ -134,7 +134,7 @@ fetchEntities();
 
       <div v-loading="loading" v-if="!entities.length">
         <el-row class="pb-4 items-center">
-          <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+          <h5 class="mb-2 text-2xl tracking-tight">
             <span v-if="!loading">No entities found</span>
           </h5>
         </el-row>

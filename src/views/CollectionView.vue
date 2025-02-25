@@ -45,8 +45,8 @@ const conformsToObject = conformsTo.object;
 
 let name: string;
 let nameDisplay: string;
-const tops: { name: string; value: string; help?: { id: string; display?: string | undefined } }[] = [];
-const meta: { name: string; data: Record<string, string>; help: { id: string; display?: string | undefined } }[] = [];
+const tops: { name: string; value: string; display?: string }[] = [];
+const meta: { name: string; data: Record<string, string> }[] = [];
 
 const populateName = (md: Record<string, object>) => {
   name = md[config.name.name] as unknown as string;
@@ -57,18 +57,11 @@ const populateName = (md: Record<string, object>) => {
 const populateTop = (md: Record<string, string>) => {
   const { top } = config;
   for (const field of top) {
-    const helper = {
-      id: field.name,
-      display: field.display,
-      url: '',
-      definition: 'TODO: Add definition',
-    };
-
     const value = md[field.name] || 'Not Defined';
     tops.push({
-      name: field.display,
+      name: field.name,
+      display: field.display,
       value: value,
-      help: helper,
     });
   }
 };
@@ -77,13 +70,7 @@ const populateMeta = (md: Record<string, Record<string, string>>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    const helper = {
-      id: filter,
-      display: filter,
-      url: '',
-      definition: 'TODO: Add definition',
-    };
-    meta.push({ name: filter, data: md[filter], help: helper });
+    meta.push({ name: filter, data: md[filter] });
   }
   meta.sort((a, b) => a.name.localeCompare(b.name));
 };

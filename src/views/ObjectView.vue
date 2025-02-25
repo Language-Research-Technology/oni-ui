@@ -37,12 +37,15 @@ const router = useRouter();
 const name = ref('');
 const nameDisplay = ref('');
 const tops = ref<{ name: string; value: string | { '@value': string } }[]>([]);
-const meta = ref<{ name: string; data: string | { '@value': string }; help: object }[]>([]);
-const license = ref<{ '@id': string; description: string }>();
-const licenseText = ref('');
-const parts = ref<{ encodingFormat: string[] }[]>([]);
+const meta = ref<{ name: string; data: string | { '@value': string } }[]>([]);
+const license = ref<{ '@id': string; description: string }>({
+  '@id': 'unknown',
+  description: 'No license was provided',
+});
+const licenseText = ref('No license was provided');
+const parts = ref<{ '@id': string; name: string; encodingFormat: string[] }[]>([]);
 const mediaTypes = ref<string[]>([]);
-const access = ref<{ hasAccess: boolean; group?: string }>();
+const access = ref<{ hasAccess: boolean; group?: string }>({ hasAccess: false });
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
 
@@ -67,19 +70,13 @@ const populateMeta = (md: Record<string, string>) => {
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    const helper = {
-      id: filter,
-      display: filter,
-      url: '',
-      definition: 'TODO: Add definition',
-    };
-    meta.value.push({ name: filter, data: md[filter], help: helper });
+    meta.value.push({ name: filter, data: md[filter] });
   }
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const populateLicense = (md: { license?: { '@id': string; description: string } }) => {
-  license.value = md.license;
+  license.value = md.license || license.value;
   if (!md.license?.['@id']) {
     console.log('show alert! no license no!no!');
 
@@ -90,7 +87,9 @@ const populateLicense = (md: { license?: { '@id': string; description: string } 
 };
 
 const populateParts = (md: {
-  hasPart: { encodingFormat: string | string[] }[] | { encodingFormat: string | string[] };
+  hasPart:
+    | { '@id': string; name: string; encodingFormat: string | string[] }[]
+    | { '@id': string; name: string; encodingFormat: string | string[] };
 }) => {
   // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
   const newParts = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];

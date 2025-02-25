@@ -2,12 +2,12 @@
 import vocabs from '../../../vocab.json';
 
 const { meta } = defineProps<{
-  meta: { id: string; display?: string };
+  meta: { name: string; display?: string };
 }>();
 
-const type = `https://w3id.org/ldac/terms#${meta.id}` in vocabs ? 'w3id' : 'schema';
-const url = type === 'w3id' ? `https://w3id.org/ldac/terms#${meta.id}` : `http://schema.org/${meta.id}`;
-const id = type === 'w3id' ? `https://w3id.org/ldac/terms#${meta.id}` : `schema:${meta.id}`;
+const type = `https://w3id.org/ldac/terms#${meta.name}` in vocabs ? 'w3id' : 'schema';
+const url = type === 'w3id' ? `https://w3id.org/ldac/terms#${meta.name}` : `http://schema.org/${meta.name}`;
+const id = type === 'w3id' ? `https://w3id.org/ldac/terms#${meta.name}` : `schema:${meta.name}`;
 const definition = (vocabs as unknown as Record<string, string>)[id];
 </script>
 
@@ -23,7 +23,7 @@ const definition = (vocabs as unknown as Record<string, string>)[id];
 
     <template #default>
       <div :body-style="{ padding: '0px' }" class="grid">
-        <h4 class="text-3xl font-normal leading-normal mt-0">{{ meta?.display || meta?.id }}</h4>
+        <h4 class="text-3xl font-normal leading-normal mt-0">{{ meta?.display || meta?.name }}</h4>
         <el-divider />
         <div>
           <p>{{ definition }}</p>

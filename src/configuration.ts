@@ -1,11 +1,11 @@
 import configurationJSON from '@/../configuration.json';
 import { z } from 'zod';
 
-// const helpSchema = z.object({
-//   aboutText: z.string(),
-//   helpUrl: z.string().url(),
-//   citationText: z.string(),
-// });
+const helpSchema = z.object({
+  aboutText: z.string(),
+  helpUrl: z.string().url(),
+  citationText: z.string(),
+});
 
 const subHelpLinkSchema = z.object({
   name: z.string(),
@@ -153,7 +153,7 @@ const uiSchema = z.object({
   showLogo: z.boolean().optional(),
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),
-  // help: helpSchema,
+  help: helpSchema,
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
   googleForm: googleFormSchema,
   // binderhubRegistry: binderhubRegistrySchema,

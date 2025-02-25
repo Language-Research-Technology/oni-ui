@@ -6,35 +6,25 @@ import { useConfigurationStore } from '@/stores/configuration';
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
 
-defineOptions({
-  inheritAttrs: false,
-});
-
 const { part, active, access, license } = defineProps<{
-  part: { '@id': string; name: string; encodingFormat: string[] };
+  part: { '@id': string; name: string; encodingFormat: string[] } & Record<string, string>;
   active: boolean;
   access: { hasAccess: boolean };
   license: { '@id': string; description: string };
 }>();
 
-const id = part['@id'];
-const resolve = ref(active);
-
 const { ui } = useConfigurationStore();
 const { file: config } = ui;
 
-const meta: { name: string; data: string; help: object }[] = [];
+const id = part['@id'];
+const resolve = ref(active);
+
+const meta: { name: string; data: string }[] = [];
 
 const keys = Object.keys(part);
 const filtered = keys.filter((key) => !config.meta.hide.includes(key));
 for (const filter of filtered) {
-  const helper = {
-    id: filter,
-    display: filter,
-    url: '',
-    definition: 'TODO: Add definition',
-  };
-  meta.push({ name: filter, data: part[filter], help: helper });
+  meta.push({ name: filter, data: part[filter] });
 }
 meta.sort((a, b) => a.name.localeCompare(b.name));
 </script>
@@ -61,7 +51,7 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
     <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
       <ul>
         <li v-for="m of meta">
-          <meta-field :meta="m" />
+          <MetaField :meta="m" />
         </li>
       </ul>
     </el-col>

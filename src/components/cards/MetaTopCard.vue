@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { tops, className } = defineProps<{
-  tops: { name: string; value: string; help?: object }[];
+  tops: { name: string; value: string }[];
   className: string;
 }>();
 </script>

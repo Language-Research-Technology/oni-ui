@@ -5,7 +5,7 @@ import ElasticField from '@/components/ElasticField.vue';
 import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
 
 const { meta, isExpand } = defineProps<{
-  meta: { name: string; data: Record<string, string>; help?: { id: string; display?: string } };
+  meta: { name: string; data: Record<string, string> | string[] | string };
   isExpand?: boolean;
 }>();
 </script>
@@ -25,9 +25,7 @@ const { meta, isExpand } = defineProps<{
     <template v-else>
       <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7" class="mt-1">
         <span class="font-bold break-words">{{ startCase(meta.name) }}</span>
-        <span v-if="meta.help">
-          <FieldHelperCard :meta="meta.help" />
-        </span>
+        <FieldHelperCard :meta="meta" />
       </el-col>
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
         <template v-if="Array.isArray(meta.data)">

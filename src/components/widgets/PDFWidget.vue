@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import VuePdfEmbed from 'vue-pdf-embed';
 
-defineOptions({
-  inheritAttrs: false,
-});
-
-const { blobURL, numPages } = defineProps<{
-  blobURL: string;
-  numPages: number;
+const { src, numPages } = defineProps<{
+  src: string;
+  numPages?: number;
 }>();
 </script>
+
 <template>
-  <vue-pdf-embed
-      ref="pdfRef"
-      :source="blobURL"
-      :page="numPages">
+  <vue-pdf-embed ref="pdfRef" :source="src" :page="numPages">
   </vue-pdf-embed>
 </template>
 

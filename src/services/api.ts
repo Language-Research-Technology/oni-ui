@@ -118,6 +118,7 @@ export class ApiService {
   }
 
   async getFileUrl(id: string, path: string, downloadable = false) {
+    console.log('getFileUrl', id, path, downloadable);
     const params = {
       disposition: downloadable ? 'attachment' : 'inline',
       filename: path,
@@ -126,7 +127,10 @@ export class ApiService {
     // TODO: deal with auth and redirects
     const queryString = new URLSearchParams(params).toString();
 
-    return `${this.#apiUri}/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
+    const url = `${this.#apiUri}/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
+    console.log('🪚 url:', JSON.stringify(url, null, 2));
+
+    return url;
   }
 
   async #getHeaders() {

@@ -1,39 +1,52 @@
 <script setup lang="ts">
 import Papa from 'papaparse';
 
-const { data, limitText } = defineProps<{ data: string; limitText?: number }>();
+import { ref } from 'vue';
 
-const csv = {
-  cols: [] as string[],
-  data: [] as Record<string, string>[],
+const isLoading = ref(true);
+
+const { src, limitRows } = defineProps<{ src: string; limitRows?: number }>();
+
+type CsvData = {
+  cols: string[];
+  data: Record<string, string>[];
 };
-let loadedCsv = false;
+const csv = ref<CsvData>({ cols: [], data: [] });
 
-const content = limitText ? data.slice(0, limitText) : data;
+const doWork = async () => {
+  isLoading.value = true;
 
-const parsedCsv = Papa.parse<string[]>(content);
-if (parsedCsv?.data?.length > 1) {
-  //Guess that the first elements are the headers. Then shift the array.
-  csv.cols = parsedCsv.data[0];
-  parsedCsv.data.shift();
-  csv.data = parsedCsv.data.map((r) => {
-    const row: Record<string, string> = {};
-    for (let [index, col] of csv.cols.entries()) {
-      if (typeof col === 'undefined' || col === '') {
-        col = '__nocolumn__';
-      }
-      row[col] = r[index];
-    }
-    return row;
+  Papa.parse<string[]>(src, {
+    download: true,
+    complete: (results) => {
+      //Guess that the first elements are the headers. Then shift the array.
+      csv.value.cols = results.data.shift() || [];
+
+      const data = limitRows ? results.data.slice(0, limitRows) : results.data;
+
+      csv.value.data = data.map((r) => {
+        const row: Record<string, string> = {};
+        for (let [index, col] of csv.value.cols.entries()) {
+          if (typeof col === 'undefined' || col === '') {
+            col = '__nocolumn__';
+          }
+          row[col] = r[index];
+        }
+        return row;
+      });
+    },
   });
 
-  loadedCsv = true;
-}
+  console.log('🪚 💜', csv);
+
+  isLoading.value = false;
+};
+
+doWork();
 </script>
 
 <template>
-  <el-table v-if="loadedCsv" :data="csv.data" style="width: 100%">
+  <el-table v-loading="isLoading" :data="csv.data" style="width: 100%">
     <el-table-column v-for="guessedColumn of csv.cols" :prop="guessedColumn" :label="guessedColumn"></el-table-column>
   </el-table>
-  <div v-else>{{ content }}</div>
 </template>

@@ -1,10 +1,25 @@
 <script setup lang="ts">
-const { data, limitText } = defineProps<{
-  data: string;
+import { inject, onMounted, ref, watch } from 'vue';
+
+const { src, limitText } = defineProps<{
+  src: string;
   limitText?: number;
 }>();
 
-const content = limitText ? data.slice(0, limitText) : data;
+const content = ref('');
+
+const download = async () => {
+  const response = await fetch(src);
+  if (!response.ok) {
+    content.value = "Fetch failed"
+  }
+
+  const data = await response.text();
+
+ content.value = limitText ? data.slice(0, limitText) : data;
+}
+
+download();
 </script>
 
 <template>

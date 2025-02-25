@@ -77,6 +77,7 @@ const synthesise = async (id: string) => {
   const parent = rocrate['@graph'].find((item: any) => item['@id'] === parentId);
   const child = rocrate['@graph'].find((item: any) => item['@id'] === id);
   child['license'] = parent['license'];
+  child['memberOf'] = { '@id': parentId, name: parent['name']};
 
   return [200, rocrate];
 };

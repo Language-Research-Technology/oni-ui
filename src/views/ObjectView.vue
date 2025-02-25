@@ -36,20 +36,20 @@ const router = useRouter();
 
 const name = ref('');
 const nameDisplay = ref('');
-const tops = ref<{ name: string; value: string | { '@value': string } }[]>([]);
-const meta = ref<{ name: string; data: string | { '@value': string } }[]>([]);
+const tops = ref<{ name: string; value: string }[]>([]);
+const meta = ref<{ name: string; data: string }[]>([]);
 const license = ref<{ '@id': string; description: string }>({
   '@id': 'unknown',
   description: 'No license was provided',
 });
 const licenseText = ref('No license was provided');
-const parts = ref<{ '@id': string; name: string; encodingFormat: string[] }[]>([]);
+const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
 const access = ref<{ hasAccess: boolean; group?: string }>({ hasAccess: false });
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
 
-const id = route.query.id?.toString();
+const id = route.query.id?.toString() as string;
 
 const activePart = ref(false);
 // const membersFiltered = {};
@@ -61,7 +61,7 @@ const populateName = (md: Record<string, string>) => {
 
 const populateTop = (md: Record<string, string>) => {
   for (const field of config.top) {
-    const value = md[field.name] || { '@value': 'Not Defined' };
+    const value = md[field.name] || 'Not Defined';
     tops.value.push({ name: field.display, value: value });
   }
 };
@@ -319,8 +319,7 @@ onMounted(fetchdata);
         <ul>
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
-            <ObjectPart :part="part" :active="isPartActive(part['@id'], index)" :parentName="name" :parentId="id"
-              :license="license" :access="access" />
+            <ObjectPart :parentId="id" :part="part" :active="isPartActive(part['@id'], index)" :license="license" :access="access" />
           </li>
         </ul>
       </el-col>

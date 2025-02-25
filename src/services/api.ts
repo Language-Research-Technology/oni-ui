@@ -117,13 +117,17 @@ export class ApiService {
     return { metadata: crate.rootDataset as RoCrate };
   }
 
-  // async getFileUrl(id: string, path: string, downloadable = false) {
-  //   const json = await this.#get('/object/meta', { id });
-  //
-  //   const crate = new ROCrate(json, { array: false, link: true });
-  //
-  //   return { metadata: crate.rootDataset };
-  // }
+  async getFileUrl(id: string, path: string, downloadable = false) {
+    const params = {
+      disposition: downloadable ? 'attachment' : 'inline',
+      filename: path,
+    };
+
+    // TODO: deal with auth and redirects
+    const queryString = new URLSearchParams(params).toString();
+
+    return `${this.#apiUri}/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
+  }
 
   async #getHeaders() {
     const headers: Record<string, string> = {

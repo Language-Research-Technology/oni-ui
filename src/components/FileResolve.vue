@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { inject, onMounted, ref, watch } from 'vue';
 
 import { useGtm } from '@gtm-support/vue-gtm';
+
+import type { ApiService } from '@/services/api';
 
 import AccessHelper from '@/components/AccessHelper.vue';
 import CSVWidget from '@/components/widgets/CSVWidget.vue';
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
 import PlainTextWidget from '@/components/widgets/PlainTextWidget.vue';
 
-defineOptions({
-  inheritAttrs: false,
-});
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
 
 const {
-  id,
+  parentId,
+  filename,
   resolve,
   encodingFormat,
   hideOpenLink = false,
@@ -23,8 +26,8 @@ const {
   access,
   license,
 } = defineProps<{
-  id: string;
-  path: string;
+  parentId: string;
+  filename: string;
   resolve: boolean;
   encodingFormat: string[];
   hideOpenLink?: boolean;
@@ -33,17 +36,12 @@ const {
   access: { hasAccess: boolean };
   license: { '@id': string; description: string };
 }>();
-
-const route = useRoute();
 const gtm = useGtm();
 
-const title = ref('');
 const blobURL = ref('');
 const data = ref();
 const sourceType = ref('');
-const path = ref('');
-const parent = ref('');
-const parentTitle = ref('');
+const downloadUrl = ref('');
 const tryCSV = ref(false);
 const isLoading = ref(true);
 const error = ref('');
@@ -55,29 +53,28 @@ const hidePreviewText = ref(true);
 const forbidden = ref(false);
 
 const resolveFile = async () => {
-  path.value = id;
-  apiRoute.value = `/object/open?id=${encodeURIComponent(id)}`;
-  if (path.value !== '') {
-    apiRoute.value += `&path=${encodeURIComponent(path.value)}`;
-  }
+  downloadUrl.value = await api.getFileUrl(parentId, filename, true);
+  console.log('🪚 downloadUrl.value:', JSON.stringify(downloadUrl.value, null, 2));
 
   // Try to display only text and pdfs by default if there is an encodingFormat
   if (encodingFormat.some((format) => String(format).match(/text\/|pdf/))) {
+    // path.value = id;
     togglePreview.value = true;
   }
+
   if (!isPreview) {
     togglePreview.value = true;
   }
 
-  if (togglePreview) {
-    await tryDownloadBlob();
-  }
+  // if (togglePreview.value) {
+  //   await tryDownloadBlob();
+  // }
 };
 
 const tryDownloadBlob = async () => {
   isLoading.value = true;
 
-  // FIXME: dix type
+  // FIXME: fix type
   let responseBlob: Response;
 
   try {
@@ -107,18 +104,22 @@ const tryDownloadBlob = async () => {
   //TODO: get encodingFormat directly from the API and merge these two ifs
   //TODO: issue https://github.com/Language-Research-Technology/oni-ui/issues/46
   if (!encodingFormat) {
-    if (
-      path?.value.endsWith('.txt') ||
-      path?.value.endsWith('.csv') ||
-      path?.value.endsWith('.eaf') ||
-      path?.value.endsWith('.html') ||
-      path?.value.endsWith('.xml') ||
-      path?.value.endsWith('.flab')
-    ) {
-      await loadTxt(responseBlob);
-      isLoading.value = false;
-    }
-
+    console.log('No encoding format');
+    console.log('No encoding format');
+    console.log('No encoding format');
+    console.log('No encoding format');
+    // if (
+    //   path?.value.endsWith('.txt') ||
+    //   path?.value.endsWith('.csv') ||
+    //   path?.value.endsWith('.eaf') ||
+    //   path?.value.endsWith('.html') ||
+    //   path?.value.endsWith('.xml') ||
+    //   path?.value.endsWith('.flab')
+    // ) {
+    //   await loadTxt(responseBlob);
+    //   isLoading.value = false;
+    // }
+    //
     return;
   }
 
@@ -212,14 +213,14 @@ const loadTxt = async (responseBlob: Response) => {
   hidePreviewText.value = false;
 };
 
-watch(
-  () => resolve,
-  async () => {
-    if (resolve) {
-      await resolveFile();
-    }
-  },
-);
+// watch(
+//   () => resolve,
+//   async () => {
+//     if (resolve) {
+//       await resolveFile();
+//     }
+//   },
+// );
 
 onMounted(async () => {
   if (resolve) {
@@ -229,42 +230,63 @@ onMounted(async () => {
 </script>
 
 <template>
-  <el-row justify="center">
-    <el-col>
-      <div class="container max-screen-lg mx-auto">
-        <div v-if="!togglePreview" class="flex justify-center w-full">
-          <el-button size="large" round @click="tryDownloadBlob(); togglePreview = true">Preview File
-          </el-button>
-        </div>
+  <el-col>
+    <el-row justify="center">
+      <el-col>
+        <div class="container max-screen-lg mx-auto">
+          <div v-if="!togglePreview" class="flex justify-center w-full">
+            <el-button size="large" round @click="tryDownloadBlob(); togglePreview = true">Preview File
+            </el-button>
+          </div>
 
-        <div v-loading="isLoading" v-if="togglePreview">
-          <div>
-            <div v-if="type === 'pdf'" class="flex justify-center w-full">
-              <el-row :span="24">
-                <PDFWidget :blobURL="blobURL" :numPages="isPreview ? 1 : null" />
-              </el-row>
+          <div v-loading="isLoading" v-if="togglePreview">
+            <div>
+              <div v-if="type === 'pdf'" class="flex justify-center w-full">
+                <el-row :span="24">
+                  <PDFWidget :blobURL="blobURL" :numPages="isPreview ? 1 : null" />
+                </el-row>
+              </div>
+
+              <div class="p-4 break-words" v-else-if="type === 'txt'">
+                <CSVWidget v-if="tryCSV" :data="data" :limitText="isPreview ? 500 : undefined" />
+                <PlainTextWidget v-else :data="data" :limitText="isPreview ? 700 : undefined" />
+              </div>
+
+              <div class="flex justify-center" v-else-if="type === 'audio'">
+                <audio controls preload="none">
+                  <source :src="data" :type="encodingFormat[0]?.['@value'] || ''">
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+
+              <div class="flex justify-center" v-else-if="type === 'video'">
+                <video controls>
+                  <source :src="data" :type="sourceType">
+                  Your browser does not support the video element.
+                </video>
+              </div>
+
+              <div class="p-4" v-else>
+                <img height="500px" :src="data" />
+              </div>
             </div>
-            <div class="p-4 break-words" v-else-if="type === 'txt'">
-              <CSVWidget v-if="tryCSV" :data="data" :limitText="isPreview ? 500 : undefined" />
-              <PlainTextWidget v-else :data="data" :limitText="isPreview ? 700 : undefined" />
+
+            <div>
+              <div v-show="!isLoading" class="flex justify-center" v-if="forbidden && !access['hasAccess']">
+                <AccessHelper :access="access" :license="license" />
+              </div>
+
+              <div v-show="!isLoading" class="flex justify-center" v-if="error">
+                <p class="break-normal text-xl">{{ error }}</p>
+              </div>
             </div>
-            <div class="flex justify-center" v-else-if="type === 'audio'">
-              <audio controls preload="none">
-                <source :src="data" :type="encodingFormat[0]?.['@value'] || ''">
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-            <div class="flex justify-center" v-else-if="type === 'video'">
-              <video controls>
-                <source :src="data" :type="sourceType">
-                Your browser does not support the video element.
-              </video>
-            </div>
-            <div class="p-4" v-else>
-              <img height="500px" :src="data" />
+
+            <div class="flex justify-center">
+              <el-alert v-if="previewText && !hidePreviewText" :closable="false">{{
+                previewText }}</el-alert>
             </div>
           </div>
-          <div>
+          <div v-else class="p-2">
             <div v-show="!isLoading" class="flex justify-center" v-if="forbidden && !access['hasAccess']">
               <AccessHelper :access="access" :license="license" />
             </div>
@@ -272,32 +294,20 @@ onMounted(async () => {
               <p class="break-normal text-xl">{{ error }}</p>
             </div>
           </div>
-          <div class="flex justify-center">
-            <el-alert v-if="previewText && !hidePreviewText" :closable="false">{{
-              previewText }}</el-alert>
-          </div>
         </div>
-        <div v-else class="p-2">
-          <div v-show="!isLoading" class="flex justify-center" v-if="forbidden && !access['hasAccess']">
-            <AccessHelper :access="access" :license="license" />
-          </div>
-          <div v-show="!isLoading" class="flex justify-center" v-if="error">
-            <p class="break-normal text-xl">{{ error }}</p>
-          </div>
-        </div>
-      </div>
-    </el-col>
-  </el-row>
+      </el-col>
+    </el-row>
 
-  <el-row class="flex justify-center" v-show="!isLoading" v-if="access['hasAccess']">
-    <el-button-group class="m-2">
-      <el-link v-if="!hideOpenLink" class="mr-2" :href="fileUrl" :underline="false">
-        <el-button type="default" class="px-2">View File</el-button>
-      </el-link>
-      <el-link class="mr-2" :underline="false" v-on:click="downloadFileUrl()">
-        <el-button type="default">Download&nbsp;File&nbsp;<font-awesome-icon icon="fa fa-download" />
-        </el-button>
-      </el-link>
-    </el-button-group>
-  </el-row>
+    <el-row class="flex justify-center" v-show="!isLoading" v-if="access['hasAccess']">
+      <el-button-group class="m-2">
+        <el-link v-if="!hideOpenLink" class="mr-2" :href="fileUrl" :underline="false">
+          <el-button type="default" class="px-2">View File</el-button>
+        </el-link>
+        <el-link class="mr-2" :underline="false" :href="downloadUrl">
+          <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
+          </el-button>
+        </el-link>
+      </el-button-group>
+    </el-row>
+  </el-col>
 </template>

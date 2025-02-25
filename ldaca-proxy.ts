@@ -1,3 +1,5 @@
+import { pipeline } from "node:stream/promises";
+
 import express from 'express';
 
 const app = express();
@@ -82,21 +84,60 @@ const synthesise = async (id: string) => {
   return [200, rocrate];
 };
 
+app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
+  const idUrl = new URL(req.params.id);
+  idUrl.pathname = '';
+  const url = `https://data.ldaca.edu.au/api/object/${encodeURIComponent(idUrl.toString())}/${encodeURIComponent(req.params.path)}`;
+  const response = await fetch(url);
+
+  // response.headers.forEach((value, name) => {
+  //   res.setHeader(name, value);
+  // });
+
+  res.status(response.status);
+
+  if (!response.body) {
+    res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+
+    return;
+  }
+
+  await pipeline(response.body, res);
+});
+
 app.get('/ldaca/entity/:id', async (req, res) => {
   const queryString = (URL.parse(`http://dummy${req.url}`)?.search || '').replace(/^\?/, '&');
   const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(req.params.id)}${queryString}`;
   const response = await fetch(url);
 
-  if (response.status === 404) {
-    const [status, body] = await synthesise(req.params.id);
-    res.status(status).send(body);
+  let rocrate: any;
+  let status = response.status;
 
-    return;
+  if (response.status === 404) {
+    const result = await synthesise(req.params.id);
+    status = result[0];
+    rocrate = result[1];
+  } else {
+    rocrate = JSON.parse(await response.text());
   }
 
-  const body = await response.text();
-  res.status(response.status).send(body);
+
+  const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
+  const object = rocrate['@graph'].find((item: any) => item['@id'] === metadata.about['@id']);
+  if (object.hasOwnProperty('hasPart')) {
+    for (const partId of object.hasPart) {
+      const part = rocrate['@graph'].find((item: any) => item['@id'] === partId['@id']);
+      const query = partId['@id'].split('?')[1];
+      const searchParams = new URLSearchParams(query);
+      part.filename = searchParams.get('path'); // ?.replace(/\//g, '_');
+      part['@id'] = searchParams.get('id') + '/' + searchParams.get('path');
+      partId['@id'] = part['@id'];
+    }
+  }
+
+  res.status(status).send(rocrate);
 });
+
 
 type EntityType = {
   id: string;

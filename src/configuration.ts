@@ -39,13 +39,12 @@ const footerSchema = z.object({
   }),
 });
 
-// const loginProviderSchema = z.object({
-//   name: z.string(),
-//   text: z.string(),
-//   disabled: z.boolean(),
-//   loginRoute: z.string().url(),
-//   buttonStyle: z.string(),
-// });
+const loginProviderSchema = z.object({
+  name: z.string(),
+  text: z.string(),
+  disabled: z.boolean().optional(),
+  buttonStyle: z.string().optional(),
+});
 
 const topNavItemSchema = z.object({
   route: z.string(),
@@ -143,7 +142,7 @@ const uiSchema = z.object({
   // siteName: z.string(),
   // siteNameX: z.string(),
   // publicPath: z.string().url(),
-  // title: z.string(),
+  title: z.string(),
   shortTitle: z.string().optional(),
   // splashText: z.string(),
   // splashTextClass: z.string(),
@@ -167,11 +166,11 @@ const uiSchema = z.object({
   //   label: z.string(),
   //   url: z.string().url(),
   // }),
-  // loginProviders: z.array(loginProviderSchema),
-  // enrollment: z.object({
-  //   enforced: z.boolean(),
-  //   URL: z.string().url(),
-  // }),
+  loginProviders: z.array(loginProviderSchema),
+  enrollment: z.object({
+    enforced: z.boolean(),
+    URL: z.string().url(),
+  }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
   search: searchSchema,
@@ -235,83 +234,6 @@ const apiSchema = z.object({
     clientId: z.string().optional(),
     clientSecret: z.string().optional(),
   }),
-  // authorization: z.object({
-  //   provider: z.string(),
-  //   enrollment: z.object({
-  //     enforced: z.boolean(),
-  //     groups: z.array(z.string()),
-  //     URL: z.string().url(),
-  //   }),
-  //   rems: z.object({
-  //     apiUser: z.string(),
-  //     apiKey: z.string(),
-  //     apiHost: z.string().url(),
-  //   }),
-  // }),
-  // authentication: z.object({
-  //   cilogon: z.object({
-  //     clientID: z.string(),
-  //     clientSecret: z.string(),
-  //     redirect_uri: z.string().url(),
-  //     authorizeHost: z.string().url(),
-  //     authorizePath: z.string(),
-  //     tokenHost: z.string().url(),
-  //     tokenPath: z.string(),
-  //     user: z.string().url(),
-  //     bearer: z.string(),
-  //     scope: z.string(),
-  //     use_refresh_token: z.boolean(),
-  //     expirationWindowSeconds: z.number(),
-  //     prompt: z.string(),
-  //     state: z.string(),
-  //     oauthType: z.string(),
-  //     useFormData: z.boolean(),
-  //     memberOf: z.string(),
-  //     userid: z.string(),
-  //     username: z.string(),
-  //   }),
-  //   github: z.object({
-  //     clientID: z.string(),
-  //     clientSecret: z.string(),
-  //     redirect_uri: z.string().url(),
-  //     authorizeHost: z.string().url(),
-  //     authorizePath: z.string(),
-  //     tokenHost: z.string().url(),
-  //     tokenPath: z.string(),
-  //     user: z.string().url(),
-  //     bearer: z.string(),
-  //     scope: z.string(),
-  //     state: z.string(),
-  //     oauthType: z.string(),
-  //     useHeaders: z.boolean(),
-  //     userid: z.string(),
-  //     username: z.string(),
-  //   }),
-  // }),
-  // licenseGroup: z.string(),
-  // license: z.object({
-  //   default: z.object({
-  //     '@id': z.string().url(),
-  //     '@type': z.string(),
-  //     metadataIsPublic: z.boolean(),
-  //     allowTextIndex: z.boolean(),
-  //     name: z.string(),
-  //     description: z.string(),
-  //   }),
-  //   defaultMetadata: z.object({
-  //     id: z.string().url(),
-  //     name: z.string(),
-  //     description: z.string(),
-  //     isPublic: z.boolean(),
-  //   }),
-  // }),
-  // identifier: z.object({
-  //   main: z.string(),
-  // }),
-  // admin: z.object({
-  //   indexRoutes: z.boolean(),
-  // }),
-  // skipByMatch: z.array(z.unknown()),
 });
 
 // type ConfigurationSchema = z.infer<typeof configurationSchema>;

@@ -1,100 +1,146 @@
-<script>
-import EnrollmentCard from '@/components/cards/EnrollmentCard.component.vue';
-import { getLocalStorage, loginSessionKey, putLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
-import { event as gaEvent } from 'vue-gtag';
+<script setup lang="ts">
+import { inject, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
 
-export default {
-  components: { EnrollmentCard },
-  data() {
-    return {
-      error: false,
-      loading: true,
-      loadingText: 'Loading...',
-      goHome: false,
-      showEnrollment: false,
-    };
-  },
-  mounted() {
-    this.login();
-  },
-  methods: {
-    async login() {
-      try {
-        this.loadingText = 'Logging you in';
-        const { code_verifier } = getLocalStorage({ key: loginSessionKey }) || {};
-        removeLocalStorage({ key: loginSessionKey });
-        const response = await this.$http.post({
-          route: `/oauth/${this.$route.query.state}/code`,
-          body: { code: this.$route.query.code, state: this.$route.query.state, code_verifier },
-        });
-        if (response.status !== 200) {
-          this.error = true;
-          this.$store.commit('setIsLoggedIn', false);
-          console.log(response.statusText);
-          this.loadingText = 'There was an error trying to login, try again';
-          this.loading = false;
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          await this.$router.push('/login');
-          this.$gtag.event('/oauth-callback', {
-            event_category: 'login',
-            event_label: 'error-login-in',
-            value: response.status,
-          });
-        } else {
-          try {
-            this.loadingText = 'Checking memberships';
-            const { token } = await response.json();
-            const user = JSON.parse(atob(token.split('.')[1]));
-            this.$store.commit('setUserData', user);
-            this.$store.commit('setIsLoggedIn', true);
-            putLocalStorage({ key: tokenSessionKey, data: { token } });
-            this.$cookies.set('session', token);
-            const membershipsStatus = await this.$membership.set();
-            const memberships = membershipsStatus?.memberships;
-            //TODO: do smarter membership checks
-            //If user is not enrolled need to send it to enrollmentURL if configured
-            if (
-              Array.isArray(memberships) === true &&
-              memberships.length === 0 &&
-              this.$store.state.configuration.ui.enrollment.enforced
-            ) {
-              this.loadingText = 'Please enroll first';
-              this.showEnrollment = true;
-            } else {
-              const lastRoute = getLocalStorage({ key: 'lastRoute' });
-              removeLocalStorage({ key: 'lastRoute' });
-              if (lastRoute) {
-                await this.$router.push(lastRoute);
-              } else {
-                await this.$router.push('/');
-              }
-            }
-            this.$gtag.event('/oauth-callback', {
-              event_category: 'login',
-              event_label: 'log-in',
-              value: this.$route.query.state,
-            });
-            this.loading = false;
-          } catch (e) {
-            this.loading = false;
-            this.loadingText = e.message;
-            console.log(e);
-          }
-        }
-      } catch (e) {
-        this.loadingText = 'there was an error login you in, please try again';
-        this.goHome = true;
-        this.loading = false;
-        this.$gtag.event('/oauth-callback', {
-          event_category: 'login',
-          event_label: 'error-login-in',
-          value: e,
-        });
-        console.error(e);
-      }
-    },
-  },
+import { useGtm } from '@gtm-support/vue-gtm';
+
+import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
+
+import { useAuthStore } from '@/stores/auth';
+
+import type { ApiService } from '@/services/api';
+
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
+
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const gtm = useGtm();
+
+const { codeVerifier, isLoggedIn, user, token } = storeToRefs(authStore);
+
+const error = ref(false);
+const isLoading = ref(true);
+const loadingText = ref('Loading...');
+const goHome = ref(false);
+const showEnrollment = ref(false);
+
+const setError = (text: string) => {
+  console.error(text);
+  error.value = true;
+  isLoggedIn.value = false;
+  loadingText.value = text;
+  isLoading.value = false;
 };
+
+const getMemberships = async () => {
+  try {
+    loadingText.value = 'Checking memberships';
+
+    // const membershipsStatus = await this.$membership.set();
+    // const memberships = membershipsStatus?.memberships;
+    // //TODO: do smarter membership checks
+    //If user is not enrolled need to send it to enrollmentURL if configured
+    // if (
+    //   Array.isArray(memberships) === true &&
+    //   memberships.length === 0 &&
+    //   this.$store.state.configuration.ui.enrollment.enforced
+    // ) {
+    //   loadingText.value = 'Please enroll first';
+    //   this.showEnrollment = true;
+    // } else {
+    //   const lastRoute = getLocalStorage({ key: 'lastRoute' });
+    //   removeLocalStorage({ key: 'lastRoute' });
+    //   if (lastRoute) {
+    //     await this.$router.push(lastRoute);
+    //   } else {
+    //     await this.$router.push('/');
+    //   }
+    // }
+    gtm?.trackEvent({
+      event: '/oauth-callback',
+      category: 'login',
+      label: 'log-in',
+      value: route.query.state,
+    });
+  } catch (e) {
+    const err = e as Error;
+    setError(err.message);
+  }
+};
+
+const login = async () => {
+  const { provider } = route.params;
+  const { code } = route.query;
+
+  if (!code) {
+    console.error('No code provided');
+    setError('There was an error trying to login, try again');
+
+    return;
+  }
+
+  if (!codeVerifier.value) {
+    console.error('No code verifier provided');
+    setError('There was an error trying to login, try again');
+
+    return;
+  }
+
+  try {
+    loadingText.value = 'Logging you in';
+    const { errors, token: newToken } = await api.getOAuthToken(
+      provider as string,
+      code?.toString(),
+      codeVerifier.value,
+    );
+
+    if (errors) {
+      setError('There was an error trying to login, try again');
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      await router.push('/login');
+
+      gtm?.trackEvent({
+        event: '/oauth-callback',
+        category: 'login',
+        label: 'error-login-in',
+        value: errors,
+      });
+
+      return;
+    }
+
+    isLoggedIn.value = true;
+    token.value = newToken;
+
+    const tokenUser = JSON.parse(atob(newToken.split('.')[1]));
+    user.value = tokenUser;
+
+    getMemberships();
+
+    isLoading.value = false;
+  } catch (e) {
+    console.error(e);
+
+    setError('There was an error trying to login, try again');
+    goHome.value = true;
+
+    gtm?.trackEvent({
+      event: '/oauth-callback',
+      category: 'login',
+      label: 'error-login-in',
+      value: e,
+    });
+  }
+};
+
+login();
 </script>
 
 <template>
@@ -102,7 +148,7 @@ export default {
     <div class="bg-gray-200 w-96 rounded-lg py-8 flex flex-col items-center">
       <el-row class="h-32 items-center" align="middle">
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-          <p v-loading="loading"></p>
+          <p v-loading="isLoading"></p>
         </el-col>
         <el-col class="flex flex-col items-center" :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
           <p>{{ loadingText }}</p>
@@ -116,7 +162,7 @@ export default {
       <el-row v-if="showEnrollment" class="h-32 items-center p-2" align="middle">
         <p>Enrollment is required to access some datasets</p>
         <br />
-        <enrollment-card />
+        <EnrollmentCard />
       </el-row>
       <el-row v-if="showEnrollment" class="p-5" align="middle">
         <p>

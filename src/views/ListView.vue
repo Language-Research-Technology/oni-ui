@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
-import { ref } from 'vue';
 
 import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 import { useConfigurationStore } from '@/stores/configuration';

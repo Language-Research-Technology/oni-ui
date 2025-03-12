@@ -133,6 +133,36 @@ export class ApiService {
     return url;
   }
 
+  async getOAuthDetails(name: string) {
+    const json = await this.#get(`/oauth/${name}/login`);
+    if (!json) {
+      return { errors: ['Provider not found'] };
+    }
+
+    if (json.errors) {
+      return { errors: json.errors };
+    }
+
+    const { url, code_verifier: codeVerifier } = json;
+
+    return { url, codeVerifier };
+  }
+
+  async getOAuthToken(name: string, code: string, codeVerifier: string) {
+    const json = await this.#post(`/oauth/${name}/code`, { code, state: name, code_verifier: codeVerifier });
+    if (!json) {
+      return { errors: ['Provider not found'] };
+    }
+
+    if (json.errors) {
+      return { errors: json.errors };
+    }
+
+    const { token } = json;
+
+    return { token };
+  }
+
   async #getHeaders() {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

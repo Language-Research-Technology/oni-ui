@@ -138,6 +138,50 @@ app.get('/ldaca/entity/:id', async (req, res) => {
   res.status(status).send(rocrate);
 });
 
+app.get('/ldaca/oauth/:provider/login', async (req, res) => {
+  const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/login`;
+  console.log("🪚 url:", JSON.stringify(url, null, 2))
+  const response = await fetch(url);
+
+  res.status(response.status);
+
+  if (!response.body) {
+    res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+
+    return;
+  }
+
+  const body = await response.text();
+
+  res.status(response.status).send(body);
+});
+
+app.post('/ldaca/oauth/:provider/code', async (req, res) => {
+  const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/code`;
+
+  let data = '';
+  req.setEncoding('utf8');
+  req.on('data', (chunk) => {
+    data += chunk;
+  });
+
+  req.on('end', async () => {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: data,
+    });
+
+    if (!response.body) {
+      res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+
+      return;
+    }
+
+    res.status(response.status);
+    await pipeline(response.body, res);
+  });
+});
+
 
 type EntityType = {
   id: string;

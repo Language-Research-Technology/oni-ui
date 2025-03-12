@@ -4,7 +4,7 @@ import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
 import List from '@/views/ListView.vue';
 import NotFound from '@/views/NotFoundView.vue';
-// import Login from '@/views/LoginView.vue';
+import Login from '@/views/LoginView.vue';
 // import Logout from '@/views/LogoutView.vue';
 // import NotFound from '@/views/NotFoundView.vue';
 import ObjectView from '@/views/ObjectView.vue';
@@ -14,8 +14,8 @@ import Search from '@/views/SearchView.vue';
 // import SearchMap from '@/views/SearchMapView.vue';
 import Shell from '@/views/ShellView.vue';
 import Terms from '@/views/TermsView.vue';
-// import User from '@/views/UserView.vue';
-// import CallbackOauth from '@/views/OauthCallbackView.vue';
+import User from '@/views/UserView.vue';
+import CallbackOauth from '@/views/OauthCallbackView.vue';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -69,19 +69,19 @@ const routes: RouterOptions['routes'] = [
         name: 'privacy',
         component: Privacy,
       },
-      // {
-      //   path: '/user',
-      //   name: 'user',
-      //   component: User,
-      //   meta: {
-      //     requiresAuth: true,
-      //   },
-      // },
-      // {
-      //   path: '/login',
-      //   name: 'login',
-      //   component: Login,
-      // },
+      {
+        path: '/user',
+        name: 'user',
+        component: User,
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: Login,
+      },
       // {
       //   path: '/logout',
       //   name: 'logout',
@@ -90,16 +90,10 @@ const routes: RouterOptions['routes'] = [
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     ],
   },
-  // {
-  //   name: 'callback-github-login',
-  //   path: '/auth/github/callback',
-  //   component: CallbackOauthView,
-  // },
-  // {
-  //   name: 'callback-ci-login',
-  //   path: '/auth/cilogon/callback',
-  //   component: CallbackOauthView,
-  // },
+  {
+    path: '/auth/:provider/callback',
+    component: CallbackOauth,
+  },
 ];
 
 const router = createRouter({

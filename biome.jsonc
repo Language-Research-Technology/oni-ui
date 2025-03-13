@@ -12,8 +12,7 @@
   "files": {
     "ignore": [
       // Ignore temp files
-      "ldaca-proxy.ts",
-      "src/services/elastic.ts",
+      "ldaca-proxy/*",
 
       // Ignore generated files
       "package.json",

@@ -3478,6 +3478,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 10c0/de75bbf89220746c388cf6a7b71e56080437b77d2edb29bae1c2155048b02c6b8c59a3e5e8d6ccdfd54f0b8bda25226e491a4f1b55ac5f8da04cfbadec4e546c
+  languageName: node
+  linkType: hard
+
 "katex@npm:^0.16.3":
   version: 0.16.21
   resolution: "katex@npm:0.16.21"
@@ -4263,6 +4270,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oidc-client-ts@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "oidc-client-ts@npm:3.2.0"
+  dependencies:
+    jwt-decode: "npm:^4.0.0"
+  checksum: 10c0/d42d9d870ec352df2818acaace20c8be05c39ba2dd2bbd63ac7dc52ecbef408f3f1faa810e3e2e8844ab18476ff824f41db835315e5472f3e455165aa14c8ed9
+  languageName: node
+  linkType: hard
+
 "on-finished@npm:2.4.1":
   version: 2.4.1
   resolution: "on-finished@npm:2.4.1"
@@ -4306,6 +4322,7 @@ __metadata:
     leaflet.path.drag: "npm:^0.0.6"
     manku-icon-lib: "npm:^1.1.5"
     npm-run-all2: "npm:^7.0.2"
+    oidc-client-ts: "npm:^3.2.0"
     papaparse: "npm:^5.5.2"
     pinia: "npm:^3.0.1"
     pinia-plugin-persistedstate: "npm:^4.2.0"

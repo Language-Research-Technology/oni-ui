@@ -162,10 +162,10 @@ const uiSchema = z.object({
   login: z.object({
     enabled: z.boolean(),
   }),
-  // authorizationProvider: z.object({
-  //   label: z.string(),
-  //   url: z.string().url(),
-  // }),
+  authorizationProvider: z.object({
+    label: z.string(),
+    url: z.string().url(),
+  }),
   loginProviders: z.array(loginProviderSchema),
   enrollment: z.object({
     enforced: z.boolean(),

@@ -1,11 +1,11 @@
-import { pipeline } from "node:stream/promises";
+import { pipeline } from 'node:stream/promises';
 
 import express from 'express';
 
 const app = express();
 
-import configuration from './configuration.json';
-import { ElasticService } from './src/services/elastic';
+import configuration from '../configuration.json';
+import { ElasticService } from './elastic';
 
 const es = new ElasticService();
 
@@ -79,7 +79,7 @@ const synthesise = async (id: string) => {
   const parent = rocrate['@graph'].find((item: any) => item['@id'] === parentId);
   const child = rocrate['@graph'].find((item: any) => item['@id'] === id);
   child['license'] = parent['license'];
-  child['memberOf'] = { '@id': parentId, name: parent['name']};
+  child['memberOf'] = { '@id': parentId, name: parent['name'] };
 
   return [200, rocrate];
 };
@@ -121,7 +121,6 @@ app.get('/ldaca/entity/:id', async (req, res) => {
     rocrate = JSON.parse(await response.text());
   }
 
-
   const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
   const object = rocrate['@graph'].find((item: any) => item['@id'] === metadata.about['@id']);
   if (object.hasOwnProperty('hasPart')) {
@@ -140,7 +139,7 @@ app.get('/ldaca/entity/:id', async (req, res) => {
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
   const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/login`;
-  console.log("🪚 url:", JSON.stringify(url, null, 2))
+  console.log('🪚 url:', JSON.stringify(url, null, 2));
   const response = await fetch(url);
 
   res.status(response.status);
@@ -181,7 +180,6 @@ app.post('/ldaca/oauth/:provider/code', async (req, res) => {
     await pipeline(response.body, res);
   });
 });
-
 
 type EntityType = {
   id: string;

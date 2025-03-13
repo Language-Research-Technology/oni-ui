@@ -41,6 +41,7 @@
     "leaflet-gesture-handling": "^1.2.2",
     "leaflet.path.drag": "^0.0.6",
     "manku-icon-lib": "^1.1.5",
+    "oidc-client-ts": "^3.2.0",
     "papaparse": "^5.5.2",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",

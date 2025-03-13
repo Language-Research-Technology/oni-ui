@@ -1,6 +1,6 @@
 import esb from 'elastic-builder';
 
-import configuration from '../../configuration.json';
+import configuration from '../configuration.json';
 import { HTTPService } from './http';
 
 type MultiProps = {

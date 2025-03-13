@@ -25,7 +25,6 @@ import App from '@/App.vue';
 import router from '@/router';
 
 import { ApiService } from '@/services/api';
-import { ElasticService } from '@/services/elastic';
 
 import '@/assets/main.css';
 
@@ -57,8 +56,5 @@ if (configuration.ui?.analytics) {
 
 const api = new ApiService();
 app.provide('api', api);
-
-const es = new ElasticService();
-app.provide('es', es);
 
 app.mount('#app');

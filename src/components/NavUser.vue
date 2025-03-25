@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-
 import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
 
-const { isLoggedIn, user } = useAuthStore();
-
-const userName = ref(user?.name || user?.email);
-
-watch(
-  () => user,
-  (u) => {
-    userName.value = u?.name || u?.email;
-  },
-);
+const { isLoggedIn, user } = storeToRefs(useAuthStore());
 </script>
 
 <template>
@@ -27,7 +17,7 @@ watch(
   <el-sub-menu v-if="isLoggedIn" index="login-sub">
     <template #title class="flex flex-col justify-center items-center">
       <font-awesome-icon icon="fa-solid fa-1x fa-user" />&nbsp;
-      <span class="items-center text-base">{{ userName }}&nbsp;</span>
+      <span class="items-center text-base">{{ user?.name || user?.email }}&nbsp;</span>
     </template>
 
     <el-menu-item index="login-sub-user" route="/user">

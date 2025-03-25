@@ -1,3 +1,23 @@
+<script setup lang="ts">
+import { logout } from '@/services/auth';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+
+const authStore = useAuthStore();
+
+const { isLoggedIn, user, lastRoute } = storeToRefs(authStore);
+
+const doLogout = async () => {
+  logout();
+
+  user.value = undefined;
+  isLoggedIn.value = false;
+  lastRoute.value = undefined;
+};
+
+doLogout();
+</script>
+
 <template>
   <div class="flex items-center justify-center py-32">
     <div class="bg-gray-200 w-96 h-auto rounded-lg pt-8 pb-8 px-8 flex flex-col items-center">
@@ -5,28 +25,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import { getLocalStorage, removeLocalStorage, tokenSessionKey } from '@/storage';
-
-export default {
-  data() {
-    return {};
-  },
-  mounted() {
-    this.$nextTick(async function () {
-      await this.logout();
-    });
-  },
-  methods: {
-    async logout() {
-      console.log('Logout:');
-      this.$store.state.user = undefined;
-      removeLocalStorage({ key: tokenSessionKey });
-      this.$cookies.remove('session', '/');
-      removeLocalStorage({ key: 'isLoggedIn' });
-      await this.$http.get({ route: '/logout' });
-    },
-  },
-};
-</script>

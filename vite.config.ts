@@ -11,8 +11,8 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
-    // NOTE: Temp so we can transform the old LDaCA API
     {
+      // NOTE: Temp so we can transform the old LDaCA API
       name: 'ldaca-proxy',
       configureServer(server) {
         server.middlewares.use(ldacaProxy);

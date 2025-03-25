@@ -6,10 +6,10 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*",
+    "src/configuration.ts",
     "ldaca-proxy/index.ts",
     "ldaca-proxy/elastic.ts",
-    "ldaca-proxy/http.ts",
-    "src/configuration.ts"
+    "ldaca-proxy/http.ts"
   ],
   "compilerOptions": {
     "composite": true,

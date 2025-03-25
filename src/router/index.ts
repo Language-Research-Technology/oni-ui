@@ -1,12 +1,13 @@
-import { type RouterOptions, createRouter, createWebHistory } from 'vue-router';
+import { type NavigationGuardWithThis, type RouterOptions, createRouter, createWebHistory } from 'vue-router';
 
+import { getUser } from '@/services/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
 import List from '@/views/ListView.vue';
-import NotFound from '@/views/NotFoundView.vue';
 import Login from '@/views/LoginView.vue';
-// import Logout from '@/views/LogoutView.vue';
-// import NotFound from '@/views/NotFoundView.vue';
+import NotFound from '@/views/NotFoundView.vue';
+import CallbackOauth from '@/views/OauthCallbackView.vue';
+import Logout from '@/views/LogoutView.vue';
 import ObjectView from '@/views/ObjectView.vue';
 // import ObjectOpen from '@/views/ObjectOpenView.vue';
 import Privacy from '@/views/PrivacyView.vue';
@@ -15,7 +16,7 @@ import Search from '@/views/SearchView.vue';
 import Shell from '@/views/ShellView.vue';
 import Terms from '@/views/TermsView.vue';
 import User from '@/views/UserView.vue';
-import CallbackOauth from '@/views/OauthCallbackView.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -82,16 +83,16 @@ const routes: RouterOptions['routes'] = [
         name: 'login',
         component: Login,
       },
-      // {
-      //   path: '/logout',
-      //   name: 'logout',
-      //   component: Logout,
-      // },
+      {
+        path: '/logout',
+        name: 'logout',
+        component: Logout,
+      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     ],
   },
   {
-    path: '/auth/:provider/callback',
+    path: '/auth/callback',
     component: CallbackOauth,
   },
 ];
@@ -101,42 +102,29 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach(onAuthRequired);
-//
-// async function onAuthRequired(to, from, next) {
-//   // const httpService = new HTTPService({ router, loginPath: '/login' });
-//   // TODO: Put auth back if needed
-//   const authData = { status: 401 }; // await httpService.get({ route: "/authenticated" });
-//   const isAuthed = authData.status === 200;
-//   putLocalStorage({ key: 'isLoggedIn', data: isAuthed });
-//
-//   if (isAuthed && to.path === '/login') {
-//     return next({ path: '/' });
-//   }
-//
-//   if (!isAuthed && to.meta.requiresAuth) {
-//     // Save the last route
-//     return next('/login');
-//   }
-//
-//   if (to.meta?.requiresAuth) {
-//     console.log(`requires Auth ${to.path}`);
-//
-//     // Store the current route for oAuth
-//     putLocalStorage({ key: 'lastRoute', data: to.fullPath });
-//
-//     try {
-//       if (isAuthed.status === 401 && from.path !== '/login') {
-//         removeLocalStorage({ key: 'user' });
-//         removeLocalStorage({ key: 'isLoggedIn' });
-//         return next({ path: '/login' });
-//       }
-//     } catch (error) {
-//       if (from.path !== '/login') return next({ path: '/login' });
-//     }
-//   }
-//
-//   next();
-// }
+const onAuthRequired: NavigationGuardWithThis<undefined> = async (to, from, next) => {
+  const authStore = useAuthStore();
+
+  const user = await getUser();
+
+  if (user && to.path === '/login') {
+    return next({ path: '/' });
+  }
+
+  if (user) {
+    return next();
+  }
+
+  if (to.meta?.requiresAuth) {
+    authStore.lastRoute = to.fullPath;
+    authStore.isLoggedIn = false;
+
+    return next({ path: '/login' });
+  }
+
+  next();
+};
+
+router.beforeEach(onAuthRequired);
 
 export default router;

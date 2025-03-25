@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { inject, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
-
-import { useGtm } from '@gtm-support/vue-gtm';
 
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
 
 import { useAuthStore } from '@/stores/auth';
 
 import type { ApiService } from '@/services/api';
+import { handleCallback } from '@/services/auth';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -17,11 +16,9 @@ if (!api) {
 }
 
 const router = useRouter();
-const route = useRoute();
 const authStore = useAuthStore();
-const gtm = useGtm();
 
-const { codeVerifier, isLoggedIn, user, token } = storeToRefs(authStore);
+const { isLoggedIn, user, lastRoute } = storeToRefs(authStore);
 
 const error = ref(false);
 const isLoading = ref(true);
@@ -61,86 +58,39 @@ const getMemberships = async () => {
     //     await this.$router.push('/');
     //   }
     // }
-    gtm?.trackEvent({
-      event: '/oauth-callback',
-      category: 'login',
-      label: 'log-in',
-      value: route.query.state,
-    });
   } catch (e) {
     const err = e as Error;
     setError(err.message);
   }
 };
 
-const login = async () => {
-  const { provider } = route.params;
-  const { code } = route.query;
-
-  if (!code) {
-    console.error('No code provided');
-    setError('There was an error trying to login, try again');
-
-    return;
-  }
-
-  if (!codeVerifier.value) {
-    console.error('No code verifier provided');
-    setError('There was an error trying to login, try again');
-
-    return;
-  }
-
+onMounted(async () => {
   try {
-    loadingText.value = 'Logging you in';
-    const { errors, token: newToken } = await api.getOAuthToken(
-      provider as string,
-      code?.toString(),
-      codeVerifier.value,
-    );
-
-    if (errors) {
+    const newUser = await handleCallback();
+    if (!newUser) {
       setError('There was an error trying to login, try again');
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      await router.push('/login');
-
-      gtm?.trackEvent({
-        event: '/oauth-callback',
-        category: 'login',
-        label: 'error-login-in',
-        value: errors,
-      });
-
+      goHome.value = true;
       return;
     }
 
+    user.value = newUser;
     isLoggedIn.value = true;
-    token.value = newToken;
-
-    const tokenUser = JSON.parse(atob(newToken.split('.')[1]));
-    user.value = tokenUser;
 
     getMemberships();
-
-    isLoading.value = false;
-  } catch (e) {
-    console.error(e);
-
+  } catch (error) {
+    console.error('Authentication error:', error);
     setError('There was an error trying to login, try again');
     goHome.value = true;
-
-    gtm?.trackEvent({
-      event: '/oauth-callback',
-      category: 'login',
-      label: 'error-login-in',
-      value: e,
-    });
   }
-};
 
-login();
+  if (lastRoute.value) {
+    const route = lastRoute.value;
+    lastRoute.value = undefined;
+    await router.push(route);
+  } else {
+    await router.push('/');
+  }
+});
 </script>
 
 <template>

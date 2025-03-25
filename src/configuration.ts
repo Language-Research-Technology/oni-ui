@@ -41,6 +41,8 @@ const footerSchema = z.object({
 
 const loginProviderSchema = z.object({
   name: z.string(),
+  url: z.string(),
+  clientId: z.string(),
   text: z.string(),
   disabled: z.boolean().optional(),
   buttonStyle: z.string().optional(),
@@ -166,7 +168,7 @@ const uiSchema = z.object({
     label: z.string(),
     url: z.string().url(),
   }),
-  loginProviders: z.array(loginProviderSchema),
+  // loginProviders: z.array(loginProviderSchema),
   enrollment: z.object({
     enforced: z.boolean(),
     URL: z.string().url(),
@@ -232,7 +234,6 @@ const apiSchema = z.object({
     endpoint: z.string().url(),
     path: z.string(),
     clientId: z.string().optional(),
-    clientSecret: z.string().optional(),
   }),
 });
 
@@ -244,3 +245,4 @@ const configurationSchema = z.object({
 });
 
 export const configuration = configurationSchema.parse(configurationJSON);
+export const ui = configuration.ui;

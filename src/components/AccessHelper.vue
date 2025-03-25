@@ -9,10 +9,10 @@ const { access, license } = defineProps<{
 }>();
 
 import { useConfigurationStore } from '@/stores/configuration';
-import { useUserStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
 
 const { ui } = useConfigurationStore();
-const { isLoggedIn, user } = useUserStore();
+const { isLoggedIn, user } = useAuthStore();
 
 const {
   login: { enabled: isLoginEnabled },

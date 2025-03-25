@@ -82,10 +82,9 @@ export class ApiService {
   #store: ReturnType<typeof useAuthStore>;
 
   constructor() {
-    const { endpoint, path, clientId, clientSecret } = configuration.api.rocrate;
+    const { endpoint, path, clientId } = configuration.api.rocrate;
     this.#apiUri = `${endpoint}${path}`;
     this.#clientId = clientId;
-    this.#clientSecret = clientSecret;
     this.#endpoint = endpoint;
     this.#store = useAuthStore();
   }
@@ -133,36 +132,6 @@ export class ApiService {
     return url;
   }
 
-  async getOAuthDetails(name: string) {
-    const json = await this.#get(`/oauth/${name}/login`);
-    if (!json) {
-      return { errors: ['Provider not found'] };
-    }
-
-    if (json.errors) {
-      return { errors: json.errors };
-    }
-
-    const { url, code_verifier: codeVerifier } = json;
-
-    return { url, codeVerifier };
-  }
-
-  async getOAuthToken(name: string, code: string, codeVerifier: string) {
-    const json = await this.#post(`/oauth/${name}/code`, { code, state: name, code_verifier: codeVerifier });
-    if (!json) {
-      return { errors: ['Provider not found'] };
-    }
-
-    if (json.errors) {
-      return { errors: json.errors };
-    }
-
-    const { token } = json;
-
-    return { token };
-  }
-
   async #getHeaders() {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -175,49 +144,9 @@ export class ApiService {
     return headers;
   }
 
-  #notExpired(expiry: number | undefined) {
-    if (!expiry) {
-      return false;
-    }
-
-    return expiry > Date.now();
-  }
-
   async #getToken() {
-    if (this.#store.token && this.#notExpired(this.#store.expiry)) {
-      return this.#store.token;
-    }
-
-    try {
-      const url = `${this.#endpoint}/oauth/token`;
-      const response = await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: this.#clientId,
-          client_secret: this.#clientSecret,
-          scope: 'read',
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.status === 200) {
-        const json = await response.json();
-        this.#store.token = json.access_token;
-        this.#store.expiry = json.expires_in * 1000 + Date.now();
-
-        return this.#store.token;
-      }
-
-      console.error(response);
-      throw new Error(`Wasn't able to get ONI access token: ${response}`);
-    } catch (e) {
-      const err = e as Error;
-      console.error(err);
-      throw new Error(`Wasn't able to get ONI access token: ${err.message}`);
-    }
+    // TODO Do we deal with expiry?
+    return this.#store.user?.accessToken;
   }
 
   async #get(route: string, params?: Record<string, string>) {
@@ -232,6 +161,10 @@ export class ApiService {
 
     if (response.status === 404) {
       return null;
+    }
+
+    if (response.status === 401) {
+      throw new Error('Not authorised');
     }
 
     const data = await response.json();

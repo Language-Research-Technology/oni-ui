@@ -141,9 +141,6 @@ const fileSchema = z.object({
 // });
 
 const uiSchema = z.object({
-  // siteName: z.string(),
-  // siteNameX: z.string(),
-  // publicPath: z.string().url(),
   title: z.string(),
   shortTitle: z.string().optional(),
   // splashText: z.string(),

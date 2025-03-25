@@ -231,6 +231,7 @@ const apiSchema = z.object({
     endpoint: z.string().url(),
     path: z.string(),
     clientId: z.string().optional(),
+    callbackPrefix: z.string().optional(),
   }),
 });
 

@@ -12,7 +12,7 @@ export type OniUser = {
 
 const {
   api: {
-    rocrate: { endpoint, clientId },
+    rocrate: { endpoint, clientId, callbackPrefix },
   },
 } = configuration;
 
@@ -23,10 +23,12 @@ const getUserManager = async () => {
     return userManager;
   }
 
+  const prefix = callbackPrefix || '';
+
   const config: UserManagerSettings = {
     authority: endpoint,
     client_id: clientId || 'TODO',
-    redirect_uri: `${window.location.origin}/auth/callback`,
+    redirect_uri: `${window.location.origin}${prefix}/auth/callback`,
     scope: 'public openid profile email',
     response_type: 'code',
   };

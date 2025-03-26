@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
@@ -83,6 +83,11 @@ const updatePages = async (page: number, scrollTo: string) => {
 const showMap = () => {
   router.push('/map');
 };
+
+watch(
+  () => route.params,
+  () => fetchEntities(),
+);
 
 fetchEntities();
 </script>

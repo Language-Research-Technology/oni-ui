@@ -97,6 +97,7 @@ const populateParts = (md: {
     encodingFormat: Array.isArray(part.encodingFormat) ? part.encodingFormat : [part.encodingFormat],
   }));
 
+  // @ts-expect-error FIX types later
   parts.value = newParts2;
 
   if (parts.value.length) {
@@ -113,11 +114,15 @@ const populateAccess = () => {
 
 const populate = (md: RoCrate) => {
   populateAccess();
+  // @ts-expect-error FIX types later
   populateLicense(md);
+  // @ts-expect-error FIX types later
   populateName(md);
+  // @ts-expect-error FIX types later
   populateTop(md);
+  // @ts-expect-error FIX types later
   populateMeta(md);
-  // @ts-expect-error Need types on config
+  // @ts-expect-error FIX types later
   populateParts(md);
 };
 
@@ -253,7 +258,7 @@ onMounted(fetchdata);
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2" />
-            <license-card v-if="license?.['@id']" :license="license" />
+            <LicenseCard v-if="license?.['@id']" :license="license" />
           </el-card>
         </el-col>
       </el-row>

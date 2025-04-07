@@ -1,3 +1,6 @@
+// @ts-nocheck
+// FIXME: fix types
+
 /** Geo format transformation utils */
 import { GeoCoordinates, GeoShape } from './geo_schema';
 import { Geometry } from './geo_wkt';

@@ -17,24 +17,23 @@ const { title, id, conformsTo, routePath } = defineProps<{
   routePath: string;
 }>();
 
-const pageSize = 10;
-
 const items = ref<EntityType[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const isLoading = ref(false);
+const pageSize = ref(10);
 
 const setMembers = async () => {
   const params: GetEntitiesParams = {
     memberOf: id,
     conformsTo,
-    limit: pageSize,
+    limit: pageSize.value,
     sort: 'title',
     order: 'asc',
   };
 
   if (currentPage.value !== 1) {
-    params.offset = (currentPage.value - 1) * pageSize;
+    params.offset = (currentPage.value - 1) * pageSize.value;
   }
 
   isLoading.value = true;

@@ -37,7 +37,7 @@
               <span v-else>
                 <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                   aggs?.buckets?.length
-                }}</span>&nbsp;
+                  }}</span>&nbsp;
                 <font-awesome-icon icon="fa fa-chevron-right" />
               </span>
             </span>
@@ -133,6 +133,8 @@
   <el-row></el-row>
 </template>
 <script>
+// @ts-nocheck
+
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import * as L from 'leaflet';
@@ -292,9 +294,9 @@ L.CountDivIcon = L.Icon.extend({
 export default {
   name: 'SearchMap',
   components: {
-    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.vue
+    SearchBar: defineAsyncComponent(() => import('@/components/SearchBar.vue')),
     SearchAggs,
-      CloseBold,
+    CloseBold,
   },
   props: {},
   data() {
@@ -345,7 +347,7 @@ export default {
       currentPage: 0,
     };
   },
-  setup() { },
+  setup() {},
   created() {
     if (this.$route.query.q) {
       this.searchInput = this.$route.query.q;

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// FIXME: fix types
+
 const reRoot = /^(<.+>\s+)?(\w+)\s*(\(.+\))$/s;
 
 /**

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RoCrate } from '@/api.service';
+import type { RoCrate } from '@/services/api';
 
 const { memberOf } = defineProps<{ memberOf: NonNullable<RoCrate['memberOf']> }>();
 

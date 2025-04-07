@@ -11,7 +11,7 @@ const {
   },
   terms,
   privacy,
-  splashLauncher,
+  splash: { launcher },
 } = configuration.ui;
 
 const splash = ref(false);
@@ -29,17 +29,16 @@ const splash = ref(false);
       <el-col :span="24" class="flex space-x-4">
         <el-link v-if="terms" class="text-gray-600 font-semibold" :href="terms?.href" :underline="false">{{
           terms?.title
-          }}
+        }}
         </el-link>
 
-        <el-link v-if="splashLauncher" class="text-gray-600 font-semibold" href="#" @click="splash = true"
-          :underline="false">
-          {{ splashLauncher || 'Splash' }}
+        <el-link v-if="launcher" class="text-gray-600 font-semibold" href="#" @click="splash = true" :underline="false">
+          {{ launcher || 'Splash' }}
         </el-link>
 
         <el-link v-if="privacy" class="text-gray-600 font-semibold" :href="privacy?.href" :underline="false">{{
           privacy?.title
-          }}
+        }}
         </el-link>
       </el-col>
     </el-row>

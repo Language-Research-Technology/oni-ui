@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { ApiService } from '@/api.service';
 import { inject } from 'vue';
+
+import type { ApiService } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {

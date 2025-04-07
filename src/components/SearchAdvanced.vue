@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { inject, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
-import type { ElasticService } from '@/services/elastic';
 import { isArray } from 'element-plus/es/utils/types.mjs';
 
 const route = useRoute();
@@ -95,12 +94,14 @@ const toggleShowQueryString = () => {
   showQueryString.value = !showQueryString.value;
 };
 
+// @ts-expect-error Ignore for now FIXME:
 const queryString = (searchGroup) => {
   console.log('🪚 searchGroup:', JSON.stringify(searchGroup, null, 2));
   let qS = '';
 
   console.log('🪚 ⭕', typeof searchGroup, isArray(searchGroup));
 
+  // @ts-expect-error Ignore for now FIXME:
   (searchGroup || []).forEach((sg, i) => {
     let lastOneSG = false;
     if (i + 1 === searchGroup.length) {

@@ -4,7 +4,7 @@ import { onUpdated, ref } from 'vue';
 import { initSnip, toggleSnip } from '@/tools';
 
 const { license } = defineProps<{
-  license: { '@id': string; name: string; description: string; metadataIsPublic: boolean; allowTextIndex: boolean };
+  license: { '@id': string; name?: string; description: string; metadataIsPublic?: boolean; allowTextIndex?: boolean };
 }>();
 
 const licenseSnipped = ref(false);

@@ -1,5 +1,6 @@
-import configurationJSON from '@/../configuration.json';
 import { z } from 'zod';
+
+import configurationJSON from './configuration.json';
 
 const helpSchema = z.object({
   aboutText: z.string(),

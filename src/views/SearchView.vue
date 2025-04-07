@@ -148,6 +148,7 @@ const search = async () => {
 const generateQueryString = (rawSearchGroup: string) => {
   let qS = '';
   const searchGroup = JSON.parse(decodeURIComponent(rawSearchGroup));
+  // @ts-expect-error FIXME:
   searchGroup.forEach((sg, i) => {
     let lastOneSG = false;
     if (i + 1 === searchGroup.length) {
@@ -422,7 +423,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                    }}</span>&nbsp;
+                  }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>

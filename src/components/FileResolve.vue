@@ -43,7 +43,7 @@ const togglePreview = ref(false);
 // TODO perform a HEAD to check for access
 const forbidden = ref(false);
 
-const fileUrl = `/object/open?id=${encodeURIComponent(id)}`;
+const fileUrl = `/file?id=${encodeURIComponent(id)}`;
 
 const resolveFile = async () => {
   downloadUrl.value = await api.getFileUrl(parentId, filename, true);

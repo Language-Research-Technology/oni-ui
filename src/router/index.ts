@@ -9,7 +9,7 @@ import NotFound from '@/views/NotFoundView.vue';
 import CallbackOauth from '@/views/OauthCallbackView.vue';
 import Logout from '@/views/LogoutView.vue';
 import ObjectView from '@/views/ObjectView.vue';
-// import ObjectOpen from '@/views/ObjectOpenView.vue';
+import File from '@/views/FileView.vue';
 import Privacy from '@/views/PrivacyView.vue';
 import Search from '@/views/SearchView.vue';
 // import SearchMap from '@/views/SearchMapView.vue';
@@ -50,11 +50,11 @@ const routes: RouterOptions['routes'] = [
         component: ObjectView,
         children: [],
       },
-      // {
-      //   path: '/object/open',
-      //   name: 'open',
-      //   component: ObjectOpen, // Why doesnt it work as a children of object... i dont know!
-      // },
+      {
+        path: '/file',
+        name: 'file',
+        component: File,
+      },
       {
         path: '/about',
         name: 'about',

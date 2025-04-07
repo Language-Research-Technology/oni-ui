@@ -21,7 +21,7 @@ const googleFormSchema = z.object({
 //   registryJson: z.string().url(),
 // });
 
-const termsSchema = z.object({
+const termsAndPrivacySchema = z.object({
   text: z.string(),
   href: z.string(),
   title: z.string(),
@@ -140,14 +140,18 @@ const fileSchema = z.object({
 //   }),
 // });
 
+const splashSchema = z.object({
+  text: z.string(),
+  textClass: z.string(),
+  image: z.string(),
+  enabled: z.boolean(),
+  launcher: z.string(),
+});
+
 const uiSchema = z.object({
   title: z.string(),
   shortTitle: z.string().optional(),
-  // splashText: z.string(),
-  // splashTextClass: z.string(),
-  // splashImage: z.string(),
-  // splashEnabled: z.boolean(),
-  splashLauncher: z.string(),
+  splash: splashSchema,
   showLogo: z.boolean().optional(),
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),
@@ -155,7 +159,8 @@ const uiSchema = z.object({
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
   googleForm: googleFormSchema,
   // binderhubRegistry: binderhubRegistrySchema,
-  terms: termsSchema,
+  terms: termsAndPrivacySchema,
+  privacy: termsAndPrivacySchema.optional(),
   // email: emailSchema,
   footer: footerSchema,
   login: z.object({

@@ -9,9 +9,9 @@ const { field, title } = defineProps<{
   title: string;
 }>();
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 
 const expand = ui.main.expand || [];
 

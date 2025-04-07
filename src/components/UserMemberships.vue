@@ -3,8 +3,8 @@ import { ref } from 'vue';
 
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
 
-import { useConfigurationStore } from '@/stores/configuration';
-const { ui } = useConfigurationStore();
+import { configuration } from '@/configuration';
+const { ui } = configuration;
 
 const isLoading = ref(false);
 const noEmrollmentDialogVisible = ref(false);

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
-const { ui } = useConfigurationStore();
-
-const { privacy } = ui;
+const { privacy } = configuration.ui;
 </script>
 
 <template>
@@ -14,9 +12,9 @@ const { privacy } = ui;
       <div class="p-4">
         <div class="text-gray-600">
           <div class="p-2">
-            <p class="font-medium text-2xl">{{ privacy.title }}</p>
+            <p class="font-medium text-2xl">{{ privacy?.title || 'Provacy Policy' }}</p>
           </div>
-          <div class="p-2" v-html="privacy.text"></div>
+          <div class="p-2" v-html="privacy?.text"></div>
         </div>
       </div>
     </el-row>

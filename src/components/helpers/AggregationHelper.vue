@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
@@ -13,7 +13,7 @@ const { aggregations, field, asIcons } = defineProps<{
   field: { name: string; display: string };
 }>();
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 const licenses = ui?.licenses || [];
 
 const findLicense = (key: string) => {

@@ -3,7 +3,7 @@ import { useGtm } from '@gtm-support/vue-gtm';
 import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
@@ -32,7 +32,7 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 const { searchFields } = ui;
 
 const searchInput = ref(route.query.q || '');
@@ -422,7 +422,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>

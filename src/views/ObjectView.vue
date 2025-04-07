@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // import AggregationAsIcon from '@/components/widgets/AggregationAsIcon.vue';
 import AccessHelper from '@/components/AccessHelper.vue';
@@ -15,15 +16,12 @@ import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import type { ApiService, RoCrate } from '@/services/api';
 import { initSnip } from '../tools';
 
-import { useConfigurationStore } from '@/stores/configuration';
-import { useRoute, useRouter } from 'vue-router';
-
-const { ui /*, api: apiConfig */ } = useConfigurationStore();
+import { configuration } from '@/configuration';
 
 const {
   object: config,
   // main: { fields },
-} = ui;
+} = configuration.ui;
 // const { conformsTo: { object: conformsToObject } } = apiConfig;
 
 const api = inject<ApiService>('api');
@@ -319,7 +317,8 @@ onMounted(fetchdata);
         <ul>
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
-            <ObjectPart :parentId="id" :part="part" :active="isPartActive(part['@id'], index)" :license="license" :access="access" />
+            <ObjectPart :parentId="id" :part="part" :active="isPartActive(part['@id'], index)" :license="license"
+              :access="access" />
           </li>
         </ul>
       </el-col>

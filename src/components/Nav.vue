@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import logo from '@/assets/logo.svg';
 
 import NavUser from '@/components/NavUser.vue';
 
 const route = useRoute();
-const { ui } = useConfigurationStore();
 
 const {
   login: { enabled: isLoginEnabled },
@@ -19,7 +18,7 @@ const {
   topNavItems = [],
   subHelpLinks = [],
   showEllipsis = false,
-} = ui;
+} = configuration.ui;
 </script>
 
 <template>

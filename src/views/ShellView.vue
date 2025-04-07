@@ -3,13 +3,13 @@ import { onMounted, watch } from 'vue';
 
 import { RouterView, useRoute, useRouter } from 'vue-router';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import FooterView from '@/components/Footer.vue';
 import MaintenacePage from '@/components/MaintenacePage.vue';
 import NavView from '@/components/Nav.vue';
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 const router = useRouter();
 const route = useRoute();
 

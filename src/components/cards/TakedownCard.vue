@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 
 const takedownForm = ui.googleForm?.takedown;
 

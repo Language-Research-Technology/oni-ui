@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
-const { ui } = useConfigurationStore();
-
-const { help } = ui;
+const { help } = configuration.ui;
 </script>
 
 <template>

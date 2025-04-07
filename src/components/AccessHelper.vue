@@ -8,16 +8,15 @@ const { access, license } = defineProps<{
   license: { '@id': string; name?: string };
 }>();
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 import { useAuthStore } from '@/stores/auth';
 
-const { ui } = useConfigurationStore();
 const { isLoggedIn, user } = useAuthStore();
 
 const {
   login: { enabled: isLoginEnabled },
   licenses,
-} = ui;
+} = configuration.ui;
 
 const isLoading = ref(false);
 const errorMessage = ref('');

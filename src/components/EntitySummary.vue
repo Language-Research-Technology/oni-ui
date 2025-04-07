@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { EntityType } from '@/services/api';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 
 const { entity } = defineProps<{ entity: EntityType }>();
 

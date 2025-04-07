@@ -22,14 +22,13 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-import { useConfigurationStore } from '@/stores/configuration';
-const { ui } = useConfigurationStore();
+import { configuration } from '@/configuration';
 
 const {
   collection: config,
   // main: { fields },
   conformsTo,
-} = ui;
+} = configuration.ui;
 
 const id = route.query.id as string;
 

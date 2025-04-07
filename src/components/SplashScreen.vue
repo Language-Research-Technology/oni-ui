@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onUpdated, ref } from 'vue';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 import { useSplashStore } from '@/stores/splash';
 
 const props = defineProps({
@@ -10,18 +10,20 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const { ui } = useConfigurationStore();
-const splash = useSplashStore();
+const {
+  ui: { splash, shortTitle },
+} = configuration;
+const splashStore = useSplashStore();
 
-const centerDialogVisible = ref(ui.splashEnabled && !splash.splashed);
+const centerDialogVisible = ref(splash.enabled && !splashStore.splashed);
 
-const textStyles = ui.splashTextClass || 'text-5xl text-[#F4EDE4] pb-10';
-const backgroundImage = ui.splashImage ? new URL(`/src/assets/${ui.splashImage}`, import.meta.url).href : undefined;
+const textStyles = splash.textClass || 'text-5xl text-[#F4EDE4] pb-10';
+const backgroundImage = splash.image ? new URL(`/src/assets/${splash.image}`, import.meta.url).href : undefined;
 const styles = backgroundImage ? `background-image: url(${backgroundImage});` : '';
-const bgClasses = ui.splashImage ? 'bg-repeat' : 'bg-sky-300';
+const bgClasses = splash.image ? 'bg-repeat' : 'bg-sky-300';
 
 const closeDialog = () => {
-  splash.splashed = true;
+  splashStore.splashed = true;
   centerDialogVisible.value = false;
   emit('close');
 };
@@ -39,8 +41,8 @@ onUpdated(() => {
     <el-row>
       <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" :span="4" :offset="0"></el-col>
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" :span="24" :offset="0">
-        <p :class="textStyles">Welcome to {{ ui.shortTitle || 'Oni' }}</p>
-        <div :class="textStyles" v-html="ui.splashText || 'Configure Slash Screen in configuration.ui.splashText'">
+        <p :class="textStyles">Welcome to {{ shortTitle || 'Oni' }}</p>
+        <div :class="textStyles" v-html="splash.text || 'Configure Slash Screen in configuration.ui.splashText'">
         </div>
       </el-col>
     </el-row>

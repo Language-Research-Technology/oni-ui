@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 import { ref } from 'vue';
 
 import SplashScreen from '@/components/SplashScreen.vue';
-
-const { ui } = useConfigurationStore();
 
 const {
   footer: {
@@ -14,7 +12,7 @@ const {
   terms,
   privacy,
   splashLauncher,
-} = ui;
+} = configuration.ui;
 
 const splash = ref(false);
 </script>
@@ -31,7 +29,7 @@ const splash = ref(false);
       <el-col :span="24" class="flex space-x-4">
         <el-link v-if="terms" class="text-gray-600 font-semibold" :href="terms?.href" :underline="false">{{
           terms?.title
-        }}
+          }}
         </el-link>
 
         <el-link v-if="splashLauncher" class="text-gray-600 font-semibold" href="#" @click="splash = true"
@@ -41,7 +39,7 @@ const splash = ref(false);
 
         <el-link v-if="privacy" class="text-gray-600 font-semibold" :href="privacy?.href" :underline="false">{{
           privacy?.title
-        }}
+          }}
         </el-link>
       </el-col>
     </el-row>

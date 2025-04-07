@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { useConfigurationStore } from '@/stores/configuration';
+import { configuration } from '@/configuration';
 
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
@@ -14,7 +14,7 @@ const { part, active, access, license, parentId } = defineProps<{
   parentId: string;
 }>();
 
-const { ui } = useConfigurationStore();
+const { ui } = configuration;
 
 const id = part['@id'];
 const resolve = ref(active);

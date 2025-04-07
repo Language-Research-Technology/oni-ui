@@ -60,8 +60,12 @@ populateBuckets();
           <li><span class="font-semibold">{{ f.field }}</span></li>
           <template v-for="bucket of f?.buckets" :key="bucket.key">
             <li v-if="bucket.doc_count > 0" class="ml-4 pl-2">
-              <el-link :underline="true" type="primary" :href="getSearchUrl(f.name, bucket.key)">{{ bucket.key }}
-                <!--: {{ bucket.doc_count }}--></el-link>
+              <el-link :underline="true" type="primary">
+                <router-link :to="getSearchUrl(f.name, bucket.key)">
+                  {{ bucket.key }}
+                  <!--: {{ bucket.doc_count }}-->
+                </router-link>
+              </el-link>
             </li>
           </template>
         </ul>

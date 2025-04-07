@@ -10,8 +10,10 @@ const link = `/${routePath}?id=${encodeURIComponent(id)}`;
 
 <template>
   <p>
-    <el-link type="primary" :href="link">
-      {{ field.name || field.id }}
+    <el-link type="primary">
+      <router-link :to="link">
+        {{ field.name || field.id }}
+      </router-link>
     </el-link>
   </p>
 </template>

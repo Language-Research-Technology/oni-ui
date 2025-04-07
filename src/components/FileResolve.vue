@@ -141,13 +141,14 @@ if (resolve) {
 
     <el-row class="flex justify-center" v-if="access['hasAccess']">
       <el-button-group class="m-2">
-        <el-link v-if="!hideOpenLink" class="mr-2" :href="fileUrl" :underline="false">
+        <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" :underline="false">
           <el-button type="default" class="px-2">View File</el-button>
-        </el-link>
-        <el-link class="mr-2" :underline="false" :href="downloadUrl">
+        </router-link>
+
+        <router-link class="mr-2" :underline="false" :to="downloadUrl">
           <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
           </el-button>
-        </el-link>
+        </router-link>
       </el-button-group>
     </el-row>
   </el-col>

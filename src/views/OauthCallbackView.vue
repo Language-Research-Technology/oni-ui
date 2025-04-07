@@ -104,7 +104,11 @@ onMounted(async () => {
           <p>{{ loadingText }}</p>
           <br />
           <p v-if="goHome">
-            <el-link href="/login">Login</el-link>
+            <el-link>
+              <router-link to="/login">
+                Login
+              </router-link>
+            </el-link>
           </p>
         </el-col>
       </el-row>
@@ -116,7 +120,9 @@ onMounted(async () => {
       </el-row>
       <el-row v-if="showEnrollment" class="p-5" align="middle">
         <p>
-          <el-link href="/">Continue without enrollment</el-link>
+          <el-link>
+            <router-link to="/">Continue without enrollment</router-link>
+          </el-link>
         </p>
       </el-row>
     </div>

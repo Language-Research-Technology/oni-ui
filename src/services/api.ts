@@ -72,21 +72,18 @@ export type RoCrate = {
   };
 };
 
-// FIXME: This current implemenation means the client and secret are client side
-// so we need to ensure the scope is public only
 export class ApiService {
   #apiUri: string;
   #clientId: string | undefined;
-  #clientSecret: string | undefined;
-  #endpoint: string;
+  #followFileUrl: boolean | undefined;
   #store: ReturnType<typeof useAuthStore>;
 
   constructor() {
-    const { endpoint, path, clientId } = configuration.api.rocrate;
+    const { endpoint, path, clientId, followFileUrl } = configuration.api.rocrate;
     this.#apiUri = `${endpoint}${path}`;
     this.#clientId = clientId;
-    this.#endpoint = endpoint;
     this.#store = useAuthStore();
+    this.#followFileUrl = followFileUrl;
   }
 
   async getEntities(params: GetEntitiesParams) {
@@ -123,13 +120,24 @@ export class ApiService {
       filename: path,
     };
 
-    // TODO: deal with auth and redirects
-    const queryString = new URLSearchParams(params).toString();
+    if (!this.#followFileUrl) {
+      const queryString = new URLSearchParams(params).toString();
 
-    const url = `${this.#apiUri}/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
-    console.log('🪚 url:', JSON.stringify(url, null, 2));
+      const filePath = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
 
-    return url;
+      const url = `${this.#apiUri}${filePath}`;
+      console.log('🪚 url:', JSON.stringify(url, null, 2));
+
+      return url;
+    }
+
+    const url = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}`;
+    console.log('🪚 location:', JSON.stringify(url, null, 2));
+
+    const json = await this.#get(url, { ...params, noRedirect: 'true' });
+    console.log('🪚 json:', JSON.stringify(json, null, 2));
+
+    return json.location;
   }
 
   async #getHeaders() {

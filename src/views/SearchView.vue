@@ -362,11 +362,13 @@ const showMap = () => {
 
 const doWork = async () => {
   await updateFilters();
+  console.log('🪚 ⭕');
 
   if (route.query.q) {
     searchInput.value = route.query.q?.toString();
   }
 
+  console.log('🪚 🔵');
   search();
 };
 
@@ -423,7 +425,7 @@ doWork();
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>

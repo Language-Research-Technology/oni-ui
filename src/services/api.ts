@@ -19,8 +19,6 @@ export type SearchParams = GetEntitiesParams & {
   query: string;
   filters?: Record<string, string[]>;
   searchType?: 'basic' | 'advanced';
-  // operation: selectedOperation.value.toString(),
-  // queries: advancedQueries.value,
 };
 
 export type EntityType = {

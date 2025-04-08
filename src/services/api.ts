@@ -75,15 +75,15 @@ export type RoCrate = {
 export class ApiService {
   #apiUri: string;
   #clientId: string | undefined;
-  #followFileUrl: boolean | undefined;
+  #usesRedirects: boolean | undefined;
   #store: ReturnType<typeof useAuthStore>;
 
   constructor() {
-    const { endpoint, path, clientId, followFileUrl } = configuration.api.rocrate;
+    const { endpoint, path, clientId, usesRedirects } = configuration.api.rocrate;
     this.#apiUri = `${endpoint}${path}`;
     this.#clientId = clientId;
     this.#store = useAuthStore();
-    this.#followFileUrl = followFileUrl;
+    this.#usesRedirects = usesRedirects;
   }
 
   async getEntities(params: GetEntitiesParams) {
@@ -120,7 +120,7 @@ export class ApiService {
       filename: path,
     };
 
-    if (!this.#followFileUrl) {
+    if (!this.#usesRedirects) {
       const queryString = new URLSearchParams(params).toString();
 
       const filePath = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;

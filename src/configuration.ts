@@ -238,7 +238,7 @@ const apiSchema = z.object({
     path: z.string(),
     clientId: z.string().optional(),
     callbackPrefix: z.string().optional(),
-    followFileUrl: z.boolean().optional(),
+    usesRedirects: z.boolean().optional(),
   }),
 });
 

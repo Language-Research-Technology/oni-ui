@@ -145,10 +145,10 @@ if (resolve) {
           <el-button type="default" class="px-2">View File</el-button>
         </router-link>
 
-        <router-link class="mr-2" :underline="false" :to="downloadUrl">
+        <el-link class="mr-2" :underline="false" :href="downloadUrl">
           <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
           </el-button>
-        </router-link>
+        </el-link>
       </el-button-group>
     </el-row>
   </el-col>

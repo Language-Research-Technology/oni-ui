@@ -70,12 +70,6 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value'] != undefined">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
-            <template v-if="zipDownload.bundledObject">
-              <ZipLink :id="zipDownload.id" :name="zipDownload.name" :message="zipDownload.message"/>
-            </template>
-            <template v-else>
-              <p>This collection cannot be downloaded in a single request:</p>
-            </template>
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
             <DownloadsModal :id="rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
@@ -123,7 +117,6 @@ import { putLocalStorage } from '@/storage';
 import { first, isEmpty, isUndefined, reject, sortBy } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import MetaField from './MetaField.component.vue';
-import ZipLink from './ZipLink.component.vue';
 import ContentCard from './cards/ContentCard.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
 import LicenseCard from './cards/LicenseCard.component.vue';
@@ -152,8 +145,7 @@ export default {
     ContentCard,
     FieldHelperCard,
     MemberOfLink,
-    TakedownCard,
-    ZipLink,
+    TakedownCard
   },
   props: [],
   head() {
@@ -212,8 +204,6 @@ export default {
       collectionMembers: [],
       limitMembers: 10,
       aggregations: [],
-      zips: [],
-      zipDownload: {},
       openDownloads: false,
       rootId: '',
     };
@@ -277,12 +267,6 @@ export default {
     }
   },
   updated() {
-    this.zips = [];
-    const isBundled = this.metadata.hasMember && this.metadata.hasMember.length > 0;
-    const name = first(this.name)?.['@value'];
-    if (name) {
-      this.zipDownload = { name: name, id: this.$route.query.id, bundledObject: isBundled };
-    }
     const id = encodeURIComponent(this.$route.query.id);
     this.$gtag.event('/collection', {
       event_category: 'collection',

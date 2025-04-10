@@ -25,7 +25,7 @@ services:
       - ./portal/dist:/var/www/oni-ui
       - /opt/storage/oni:/opt/storage/oni
       #- /etc/letsencrypt:/etc/letsencrypt
-    #- /var/log/nginx:/var/log/nginx
+      #- /var/log/nginx:/var/log/nginx
     ports:
       - "8000:80"
       - "44300:443"
@@ -82,7 +82,7 @@ services:
       DB_PASSWORD: ""
       DB_DATABASE: "oni"
     volumes:
-      - ./configuration.json:/srv/configuration.json
+      - ./development.configuration.json:/srv/configuration.json
       - /opt/storage/oni:/opt/storage/oni
     ports:
       - "0.0.0.0:8080:8080"
@@ -102,19 +102,21 @@ services:
     container_name: opensearch
     tty: true
     environment:
-      - TERM="xterm-256color"
+      - TERM=xterm-256color
       - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - _JAVA_OPTIONS=-XX:UseSVE=0 #this fixes Mac M4 bug
       #- xpack.security.enabled=false # for elasticsearch
       - plugins.security.disabled=true # for opensearch
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=ASd8asfhqu2i3r@#$1546
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=ABCDE1234!
+      - DISABLE_INSTALL_DEMO_CONFIG=true
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
     healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
+      test: [ "CMD-SHELL", "curl --silent --fail -u admin:ABCDE1234! localhost:9200/_cluster/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5

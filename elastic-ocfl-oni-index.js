@@ -31,17 +31,17 @@ const assert = require('node:assert');
   await client.indices.create({
     index: elastic?.index || 'items',
     body: {
-      max_result_window: elastic.max_result_window,
       mappings: elastic.mappings,
     },
   });
-  const elasticIndex = elastic?.indexConfiguration;
   // Put Settings
   await client.indices.putSettings({
     index: elastic?.index || 'items',
     body: {
-      mapping: elasticIndex?.mapping,
-      max_result_window: elasticIndex?.max_result_window || 100000,
+      mapping: {
+        total_fields: elastic?.total_fields || 1000,
+      },
+      max_result_window: elastic?.max_result_window || 100000,
     },
   });
   const indexConfig = await client.indices.getSettings();

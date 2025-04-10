@@ -7,16 +7,17 @@
       </template>
     </ul>
   </template>
+  <template v-if="buckets.length<=0"><p class="pl-2">{{ emptyLabel }}</p></template>
 </template>
 <script>
-import { first } from 'lodash';
+import {first} from 'lodash';
 import PropertyValue from '../PropertyValue.component.vue';
 
 export default {
   components: {
     PropertyValue,
   },
-  props: ['aggregations', 'fields', 'name', 'id', 'root', 'external', 'fieldName'],
+  props: ['aggregations', 'fields', 'name', 'id', 'root', 'external', 'fieldName', 'emptyLabel'],
   data() {
     return {
       buckets: [],
@@ -25,7 +26,7 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    const result = await this.filter({ '_collectionStack.@id': [this.id] });
+    const result = await this.filter({'_collectionStack.@id': [this.id]});
     this.buckets = result.aggregations;
     this.loading = false;
   },

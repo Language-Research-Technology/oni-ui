@@ -103,6 +103,11 @@
           "label": "Collections"
         },
         {
+          "value": "datePublished",
+          "label": "Date Published",
+          "field": "datePublished.@value"
+        },
+        {
           "value": "name",
           "label": "Name",
           "field": "name.@value.keyword"
@@ -126,7 +131,13 @@
         "value": "desc",
         "label": "Descending"
       },
-      "searchDetails": [{ "field": "inLanguage", "label": "Language", "name": "inLanguage.name.@value" }]
+      "searchDetails": [
+        {
+          "field": "inLanguage",
+          "label": "Language",
+          "name": "inLanguage.name.@value"
+        }
+      ]
     },
     "main": {
       "fields": [
@@ -151,8 +162,15 @@
           "name": "encodingFormat.@value"
         }
       ],
-      "byteFields": ["size", "contentSize"],
-      "expand": ["speaker", "author", "citation"]
+      "byteFields": [
+        "size",
+        "contentSize"
+      ],
+      "expand": [
+        "speaker",
+        "author",
+        "citation"
+      ]
     },
     "head": {
       "meta": [
@@ -234,7 +252,6 @@
           "name",
           "description",
           "datePublished",
-          "license",
           "@type",
           "_containsTypes",
           "_crateId",
@@ -249,7 +266,6 @@
           "_access",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
           "identifier",
           "_mainCollection",
           "_subCollection",
@@ -292,7 +308,6 @@
           "description",
           "datePublished",
           "identifier",
-          "license",
           "@type",
           "_containsTypes",
           "_crateId",
@@ -308,7 +323,6 @@
           "_access",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
           "_mainCollection",
           "_subCollection",
           "_isOCFL"
@@ -328,7 +342,6 @@
           "_text",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
           "_mainCollection",
           "_subCollection",
           "_isOCFL"
@@ -367,7 +380,6 @@
           "base64",
           "_access",
           "_metadataIsPublic",
-          "_metadataLicense",
           "_mainCollection",
           "_subCollection",
           "_isOCFL"
@@ -417,10 +429,14 @@
     },
     "rocrate": {
       "dataTransform": {
-        "types": ["File"]
+        "types": [
+          "File"
+        ]
       }
     },
-    "administrators": ["ephe@feko.mt"],
+    "administrators": [
+      "ephe@feko.mt"
+    ],
     "session": {
       "lifetime": {
         "hours": 5
@@ -437,7 +453,9 @@
       "provider": "rems",
       "enrollment": {
         "enforced": false,
-        "groups": ["CO:Members:all"],
+        "groups": [
+          "CO:Members:all"
+        ],
         "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
       },
       "rems": {
@@ -488,6 +506,26 @@
     },
     "licenses": [
       {
+        "license": "#PLACEHOLDER-License",
+        "group": "#PLACEHOLDER-License",
+        "access": "login",
+        "enrollment": {
+          "url": "https://rems-uat.ldaca.edu.au/application?items=XX",
+          "label": "Apply for access",
+          "class": ""
+        }
+      },
+      {
+        "license": "https://language-research-technology.github.io/qa/licenses/farms-to-freeways/all/v1/",
+        "group": "https://language-research-technology.github.io/qa/licenses/farms-to-freeways/all/v1/",
+        "access": "loginPlus",
+        "enrollment": {
+          "url": "https://rems-uat.ldaca.edu.au/application?items=XX",
+          "label": "Apply for access",
+          "class": ""
+        }
+      },
+      {
         "license": "#agreeToTerms",
         "group": "agree-to-terms",
         "access": "login",
@@ -531,16 +569,9 @@
       "scrollTimeout": "10m",
       "log": "debug",
       "index": "items",
-      "indexConfiguration": {
-        "mapping": {
-          "total_fields": {
-            "limit": 10000
-          }
-        },
-        "max_result_window": 100000,
-        "highlight": {
-          "max_analyzer_offset": 1000000
-        }
+      "max_result_window": 100000,
+      "highlight": {
+        "max_analyzer_offset": 1000000
       },
       "fields": {
         "name.@value": {
@@ -643,17 +674,41 @@
           "field": "annotationType.@value.keyword"
         }
       ],
-      "highlightFields": ["_text"],
+      "highlightFields": [
+        "_text"
+      ],
       "test": {
         "filters": {
-          "hasFile.language.name": ["Arabic, Standard", "Chinese, Mandarin", "Persian, Iranian", "Turkish", "Vietnames"]
+          "hasFile.language.name": [
+            "Arabic, Standard",
+            "Chinese, Mandarin",
+            "Persian, Iranian",
+            "Turkish",
+            "Vietnames"
+          ]
         },
-        "@type": ["TextDialogue"]
+        "@type": [
+          "TextDialogue"
+        ]
       },
       "mappingFieldLimit": 3000,
+      "total_fields": {
+        "limit": 10000
+      },
       "mappings": {
         "date_detection": false,
         "properties": {
+          "datePublished": {
+            "type": "object",
+            "properties": {
+              "@value": {
+                "type": "date"
+              },
+              "value": {
+                "type": "keyword"
+              }
+            }
+          },
           "_contentLocation": {
             "type": "geo_shape"
           },

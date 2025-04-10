@@ -38,11 +38,19 @@
             <h4 class="text-1xl font-medium">
               Content in this collection is licensed as:
             </h4>
+            <div>Metadata License:</div>
+            <ul class="list-disc my-2 mx-3 pl-2">
+              <li>{{ first(this.license?.name)?.['@value'] }}</li>
+            </ul>
+            <AccessHelper v-if="access" :access="access" :license="license"/>
+            <div>Data License(s):</div>
             <PropertySummaryCard
                 :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"
                 :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"
                 :fieldName="'license'"
-                :external="true" :id="this.$route.query.id" :root="this.metadata._root"/>
+                :external="true" :id="this.$route.query.id" :root="this.metadata._root"
+                :emptyLabel="'no Licenses'"/>
+            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>
           </el-card>
         </el-col>
       </el-row>
@@ -70,12 +78,6 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value'] != undefined">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
-            <template v-if="zipDownload.bundledObject">
-              <ZipLink :id="zipDownload.id" :name="zipDownload.name" :message="zipDownload.message"/>
-            </template>
-            <template v-else>
-              <p>This collection cannot be downloaded in a single request:</p>
-            </template>
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
             <DownloadsModal :id="rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
@@ -136,9 +138,13 @@ import SummariesCard from './cards/SummariesCard.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
+import AccessHelper from './AccessHelper.component.vue';
+import AccessInfo from './AccessInfo.component.vue';
 
 export default {
   components: {
+    AccessInfo,
+    AccessHelper,
     DownloadsModal,
     PropertySummaryCard,
     SummariesCard,
@@ -216,6 +222,7 @@ export default {
       zipDownload: {},
       openDownloads: false,
       rootId: '',
+      access: null
     };
   },
   async mounted() {
@@ -277,12 +284,6 @@ export default {
     }
   },
   updated() {
-    this.zips = [];
-    const isBundled = this.metadata.hasMember && this.metadata.hasMember.length > 0;
-    const name = first(this.name)?.['@value'];
-    if (name) {
-      this.zipDownload = { name: name, id: this.$route.query.id, bundledObject: isBundled };
-    }
     const id = encodeURIComponent(this.$route.query.id);
     this.$gtag.event('/collection', {
       event_category: 'collection',
@@ -297,6 +298,7 @@ export default {
     isEmpty,
     async populate() {
       this.rootId = first(this.metadata._root)?.['@id'];
+      this.populateAccess();
       this.populateName(this.config.name);
       this.populateTop(this.config.top);
       this.populateMeta(this.config.meta);
@@ -389,6 +391,9 @@ export default {
           this.buckets.push({ field: field.display, buckets: aggregations[field.name]?.buckets });
         }
       }
+    },
+    populateAccess() {
+      this.access = this.metadata._access;
     },
     takedownLink() {
       const currentUrl = encodeURIComponent(window.location.href);

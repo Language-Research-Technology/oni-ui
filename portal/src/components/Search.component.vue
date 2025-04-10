@@ -62,6 +62,11 @@
     <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
             class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3"
             id="search_results">
+      <div v-if="errorDialogVisible" width="100%" center class="mt-4 mb-4">
+        <el-alert title="Message" type="warning" :closable="false">
+          <p class="break-normal">{{ this.errorDialogText }}</p>
+        </el-alert>
+      </div>
       <div v-show="advancedSearch" id="advanced_search_box"
            class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
         <search-advanced :advancedSearch="advancedSearch" :fields="searchFields"
@@ -183,16 +188,6 @@
       </div>
     </el-col>
   </el-row>
-  <el-dialog v-model="errorDialogVisible" width="40%" center>
-    <el-alert title="Error" type="warning" :closable="false">
-      <p class="break-normal">{{ this.errorDialogText }}</p>
-    </el-alert>
-    <template #footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
-        </span>
-    </template>
-  </el-dialog>
   <el-row v-show="changedFilters"
           class="bg-white rounded m-4 p-4 px-8 shadow-md border"
           role="alert"

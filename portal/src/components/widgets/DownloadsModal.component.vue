@@ -28,6 +28,17 @@
       </div>
     </template>
   </el-dialog>
+  <div v-if="simpleView" v-loading="loading">
+    <div v-if="objectTotals > 0">
+      <template v-for="(obj, index) of objects" :key="index">
+        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="false"
+                 v-if="obj.name" />
+      </template>
+    </div>
+    <template v-else>
+      <p>No downloads associated with this item/collection.</p>
+    </template>
+  </div>
 </template>
 <script>
 import { first } from 'lodash';
@@ -38,7 +49,7 @@ export default {
   components: {
     ZipLink,
   },
-  props: ['id', 'modelValue', 'title'],
+  props: ['id', 'modelValue', 'title', 'simpleView'],
   data() {
     return {
       isModalVisible: false,
@@ -51,6 +62,9 @@ export default {
       pageSize: 10,
       currentPage: 1,
     };
+  },
+  mounted() {
+    this.getObjects();
   },
   computed: {
     visible: {

@@ -31,8 +31,10 @@
     "binderhubRegistry": {
       "registryJson": "https://api.github.com/repos/Language-Research-Technology/BinderHub-registry/contents/BinderHub-registry.json"
     },
-    "citeDataHelp": {
-      "citeDataHelpLink": "https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/"
+    "citeData": {
+      "help": {
+      "text": "See this <span style=\"display: inline-flex; align-items: center;\"><a class=\"el-link el-link--primary\" target=\"_blank\" href=\"https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/\">help</a></span> page for more detail."
+      }
     },
     "terms": {
       "text": "Example terms of service",

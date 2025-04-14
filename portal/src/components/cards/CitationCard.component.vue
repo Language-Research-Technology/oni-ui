@@ -45,7 +45,12 @@
             </h4>
             <p class="spaced">
                 The citation information above is not in any specific format or style, but is meant to provide the
-                essential citation elements for a minimal bibliographic reference (Tromsø Recommendations 2019).
+                essential citation elements for a minimal bibliographic reference.
+            </p>
+            <p class="spaced" v-if="this.citeDataLink">
+                See this <span style="display: inline-flex; align-items: center;"><el-link type="primary"
+                        target="_blank" :href=this.citeDataLink>help</el-link></span>
+                page for more detail.
             </p>
         </el-dialog>
     </el-card>
@@ -70,6 +75,7 @@ export default {
             suggestedCitation: this.getSuggestedCitation(),
             bibliography: this.getBibliographyEntry(),
             relatedPublishedWork: this.getRelatedPublishedWork(),
+            citeDataLink: this.$store.state.configuration.ui.citeDataHelp?.citeDataHelpLink,
         }
     },
     setup() {

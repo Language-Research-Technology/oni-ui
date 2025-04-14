@@ -20,7 +20,7 @@
       </template>
     </div>
     <template v-else>
-      <p>No downloads associated with this item/collection.</p>
+      <p>No direct downloads associated with this item/collection.</p>
     </template>
     <template #footer>
       <div class="dialog-footer">
@@ -49,7 +49,7 @@ export default {
   components: {
     ZipLink,
   },
-  props: ['id', 'modelValue', 'title', 'simpleView'],
+  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView'],
   data() {
     return {
       isModalVisible: false,
@@ -103,8 +103,10 @@ export default {
     },
     async getObjects() {
       this.loading = true;
+      const filters = {_isOCFL: 'true' };
+      filters[this.idFieldName] = [this.id];
       const items = await this.$elasticService.multi({
-        filters: { '_root.@id': [this.id], _isOCFL: 'true' },
+        filters: filters,
         sort: 'relevance',
         order: 'desc',
         pageSize: this.pageSize,

@@ -35,12 +35,9 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
-            <template v-for="z of zips">
-              <ZipLink :name="z.name" :id="z.id" :message="z.message"/>
-            </template>
-            <p v-if="zips && zips.length === 0">No direct downloads for this object</p>
+            <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'" v-model="openDownloads" :title="first(name)?.['@value']"/>
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
-            <DownloadsModal :id="this.rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
+            <DownloadsModal :id="this.rootId" :idFieldName="'_root.@id'" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>
       </el-row>
@@ -194,7 +191,7 @@ export default {
       this.$gtag.event('/object', {
         event_category: 'object',
         event_label: 'loaded-object',
-        value: id,
+        value: this.crateId,
       });
     }
     this.zips = [];
@@ -222,17 +219,18 @@ export default {
             crateId: this.crateId,
           });
         }
+        this.$gtag.event('/object', {
+          event_category: 'object',
+          event_label: 'mounted-object',
+          value: id,
+        });
       } else if (_id && _id !== 'undefined') {
         metadata = await this.$elasticService.single({ _id });
       }
       this.metadata = metadata?._source;
       await this.populate();
       initSnip({ selector: '#license', button: '#readMoreLicense' });
-      this.$gtag.event('/object', {
-        event_category: 'object',
-        event_label: 'mounted-object',
-        value: id,
-      });
+
       putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     } catch (e) {
       this.$gtag.event('/object', {

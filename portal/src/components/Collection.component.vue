@@ -70,9 +70,9 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value'] != undefined">
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
-            <DownloadsModal :simpleView="true" :id="rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
+            <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'" v-model="openDownloads" :title="first(name)?.['@value']"/>
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
-            <DownloadsModal :id="rootId" v-model="openDownloads" :title="first(name)?.['@value']"/>
+            <DownloadsModal :id="rootId" :idFieldName="'_root.@id'" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>
       </el-row>

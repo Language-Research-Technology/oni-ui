@@ -35,13 +35,14 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="acceptTerms">Accept Terms</el-button>
+        <el-button type="info" @click="logout">Logout</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script>
-import {removeLocalStorage, putLocalStorage, getLocalStorage} from '@/storage';
+import {removeLocalStorage, putLocalStorage, getLocalStorage, tokenSessionKey} from '@/storage';
 import FooterView from './Footer.component.vue';
 import MaintenacePage from './MaintenacePage.vue';
 import NavView from './Nav.component.vue';
@@ -113,6 +114,15 @@ export default {
       } catch (e) {
         console.error(e);
       }
+    },
+    async logout() {
+      console.log('Logout:');
+      this.$store.state.user = undefined;
+      removeLocalStorage({ key: tokenSessionKey });
+      this.$cookies.remove('session', '/');
+      removeLocalStorage({ key: 'isLoggedIn' });
+      await this.$http.get({ route: '/logout' });
+      this.showTerms = false;
     }
   }
 };

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, onUpdated, ref, toRaw, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
@@ -86,51 +86,49 @@ L.Icon.Default.mergeOptions({
 //     return container;
 //   },
 // });
-//
-// L.LocationDivIcon = L.Icon.extend({
-//   options: {
-//     iconRetinaUrl: require('assets/marker-circle-icon-2x.png'),
-//     iconUrl: require('assets/marker-circle-icon.png'),
-//     shadowUrl: require('assets/marker-circle-icon.png'),
-//     ref: '<a href="https://www.flaticon.com/free-icons/red" title="red icons">Red icons created by hqrloveq - Flaticon</a>',
-//     iconSize: [24, 26], // size of the icon
-//     shadowSize: null, // size of the shadow
-//     iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-//     shadowAnchor: null, // the same for the shadow
-//     popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
-//   },
-// });
-//
-// L.NumberedDivIcon = L.Icon.extend({
-//   options: {
-//     iconRetinaUrl: require('assets/marker-empty-icon.png'),
-//     iconUrl: require('assets/marker-empty-icon.png'),
-//     shadowUrl: require('assets/marker-empty-icon.png'),
-//     number: '',
-//     iconSize: new L.Point(25, 40),
-//     iconAnchor: new L.Point(12, 16),
-//     popupAnchor: new L.Point(0, -13),
-//     /*
-//     iconAnchor: (Point)
-//     popupAnchor: (Point)
-//     */
-//     className: 'leaflet-div-icon',
-//   },
-//   createIcon: function () {
-//     const div = document.createElement('div');
-//     const img = this._createImg(this.options.iconUrl);
-//     const numdiv = document.createElement('div');
-//     numdiv.setAttribute('class', 'number');
-//     numdiv.innerHTML = this.options.number || '';
-//     div.appendChild(img);
-//     div.appendChild(numdiv);
-//     this._setIconStyles(div, 'icon');
-//     return div;
-//   },
-//   //you could change this to add a shadow like in the normal marker if you really wanted
-//   createShadow: () => null,
-// });
-//
+
+const LocationDivIcon = L.Icon.extend({
+  options: {
+    iconRetinaUrl: require('assets/marker-circle-icon-2x.png'),
+    iconUrl: require('assets/marker-circle-icon.png'),
+    shadowUrl: require('assets/marker-circle-icon.png'),
+    ref: '<a href="https://www.flaticon.com/free-icons/red" title="red icons">Red icons created by hqrloveq - Flaticon</a>',
+    iconSize: [24, 26], // size of the icon
+    shadowSize: null, // size of the shadow
+    iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+    shadowAnchor: null, // the same for the shadow
+    popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
+  },
+});
+
+const NumberedDivIcon = L.Icon.extend({
+  options: {
+    iconRetinaUrl: require('assets/marker-empty-icon.png'),
+    iconUrl: require('assets/marker-empty-icon.png'),
+    shadowUrl: require('assets/marker-empty-icon.png'),
+    number: '',
+    iconSize: new L.Point(25, 40),
+    iconAnchor: new L.Point(12, 16),
+    popupAnchor: new L.Point(0, -13),
+    className: 'leaflet-div-icon',
+  },
+  createIcon: function () {
+    const div = document.createElement('div');
+    const img = this._createImg(this.options.iconUrl);
+    const numdiv = document.createElement('div');
+
+    numdiv.setAttribute('class', 'number');
+    numdiv.innerHTML = this.options.number || '';
+    div.appendChild(img);
+    div.appendChild(numdiv);
+    this._setIconStyles(div, 'icon');
+
+    return div;
+  },
+  //you could change this to add a shadow like in the normal marker if you really wanted
+  createShadow: () => null,
+});
+
 // L.CountDivIcon = L.Icon.extend({
 //   options: {
 //     number: '',
@@ -152,29 +150,19 @@ L.Icon.Default.mergeOptions({
 // });
 
 //   return {
-//     buckets: [],
 //     total: 0,
 //     totalRelation: 'eq',
 //     errorText: '',
 //     item: null,
 //     map: null,
-//     markerSelected: false,
 //     leafletAggs: [],
 //     aggregations: [],
 //     advancedSearch: false,
 //     clear: false,
-//     filters: {},
 //     newSearch: true,
-//     selectedOperation: 'must',
-//     currentPrecision: undefined,
 //     changedFilters: false,
 //     errorDialogVisible: false,
 //     errorDialogText: '',
-//     zoomLevel: 8,
-//     outOfBounds: 0,
-//     tooltip: undefined,
-//     pageSize: 10,
-//     currentPage: 0,
 //   };
 // },
 //
@@ -212,10 +200,20 @@ const map = L.map('map', {
 });
 
 const route = useRoute();
+const router = useRouter();
 
 const searchInput = ref(route.query.q || '');
-
 const boundingBox = ref(initBoundingBox);
+const outOfBounds = ref(0);
+const buckets = ref<{ key: string; doc_count: number }[]>([]);
+const zoomLevel = ref(8);
+const currentPrecision = ref<number>();
+const tooltip = ref<L.Popup>();
+const markerSelected = ref(false);
+const currentPage = ref(0);
+const filters = ref({});
+const selectedOperation = ref('must');
+const pageSize = ref(10);
 
 const initMap = () => {
   map.setView(initView, initZoom);
@@ -229,8 +227,9 @@ const initMap = () => {
   geoHashLayer.addTo(map);
   tooltipLayers.addTo(map);
 
-  const control = new L.SearchControl();
-  control.addTo(map);
+  // TODO: Is this used does it work?
+  // const control = new L.SearchControl();
+  // control.addTo(map);
 
   //Set initial bounds
   const topLeft = L.latLng(boundingBox.value.topLeft);
@@ -244,62 +243,75 @@ const initMap = () => {
   }
 };
 
-const created = async () => {
-  console.log('created');
-  this.isStart = true;
-  await this.updateFilters({});
-  if (this.$route.query.q) {
-    this.searchInput = this.$route.query.q;
-  }
-  if (this.$route.query.a) {
-    this.updateAdvancedQueries();
-  } else {
-    this.advancedSearch = false;
-  }
-  this.loading = true;
-  await this.search();
-  this.loading = false;
-};
-
-const mounted = async () => {
-  console.log('mounted');
-  await this.updateFilters({});
-  if (this.$route.query.o) {
-    this.selectedOperation = this.$route.query.o;
-  }
-  if (this.$route.query.a) {
-    this.updateAdvancedQueries();
-  } else {
-    this.advancedSearch = false;
-  }
-};
-
-const updated = async () => {
-  console.log('updated');
-  if (this.$route.query.q) {
-    this.advancedSearch = false;
-  }
-};
-
 const clearLayers = () => {
   geoHashLayer.clearLayers();
-  this.outOfBounds = 0;
+  outOfBounds.value = 0;
 };
 
-const updateLayerBuckets = (val) => {
-  this.clearLayers();
-  if (!val) return;
+const fitBounds = (position: L.LatLng) => {
+  //From: https://stackoverflow.com/a/78175342/1470833
+  //If the point does not fit the bounds try to flip the degrees
+  const visibleBounds = map.getBounds();
+  const west = visibleBounds.getWest();
+  const east = visibleBounds.getEast();
+
+  let isVisible = visibleBounds.contains(position);
+  if (isVisible) {
+    return undefined;
+  }
+
+  const initialPos = L.latLng({ lat: position.lat, lng: position.lng });
+
+  if (west < -180) {
+    const d = (west - 180) / 360;
+    position.lng += 360 * d;
+    isVisible = visibleBounds.contains(position);
+
+    if (d < -1 && !isVisible) {
+      // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
+      // biome-ignore lint/style/noParameterAssign: FIXME
+      position = initialPos;
+      position.lng += 360 * (d + 1);
+      isVisible = visibleBounds.contains(position);
+    }
+  } else if (east > 180) {
+    const d = (east + 180) / 360;
+    position.lng += 360 * d;
+    isVisible = visibleBounds.contains(position);
+
+    if (d > 1 && !isVisible) {
+      // biome-ignore lint/style/noParameterAssign: FIXME
+      position = initialPos;
+      position.lng += 360 * (d - 1);
+      isVisible = visibleBounds.contains(position);
+    }
+  }
+
+  return position;
+};
+
+const updateLayerBuckets = (val: { key: string; doc_count: number }[]) => {
+  clearLayers();
+
+  if (!val) {
+    return;
+  }
+
   for (const bucket of val) {
     try {
       const geohash = bucket.key;
-      let latlon = Geohash.decode(geohash);
-      const newPosition = this.fitBounds(L.latLng(latlon.lat, latlon.lon));
+      const decoded = Geohash.decode(geohash);
+      const latlon = L.latLng(decoded.lat, decoded.lon);
+
+      const newPosition = fitBounds(latlon);
       if (newPosition) {
-        latlon = newPosition;
+        latlon.lat = newPosition.lat;
+        latlon.lng = newPosition.lng;
       }
+
       const bounds = Geohash.bounds(geohash);
-      const newNEBounds = this.fitBounds(L.latLng(bounds.ne.lat, bounds.ne.lon));
-      const newSWBounds = this.fitBounds(L.latLng(bounds.sw.lat, bounds.sw.lon));
+      const newNEBounds = fitBounds(L.latLng(bounds.ne.lat, bounds.ne.lon));
+      const newSWBounds = fitBounds(L.latLng(bounds.sw.lat, bounds.sw.lon));
       if (newNEBounds && newSWBounds) {
         bounds.ne.lat = newNEBounds.lat;
         bounds.ne.lon = newNEBounds.lng;
@@ -307,13 +319,15 @@ const updateLayerBuckets = (val) => {
         bounds.sw.lon = newSWBounds.lng;
       }
 
-      let shape;
+      let shape: L.Rectangle | L.Marker;
       if (bucket.doc_count > 0) {
         const count = L.marker(latlon, {
-          icon: new L.NumberedDivIcon({ number: bucket.doc_count }),
+          // @ts-expect-error FIXME
+          icon: new NumberedDivIcon({ number: bucket.doc_count }),
         });
-        count._data = { docCount: bucket.doc_count, key: geohash, latlng: latlon };
+        L.setOptions(count, { customData: { docCount: bucket.doc_count, key: geohash, latlng: latlon } });
         count.addTo(geoHashLayer);
+
         let color = '#ffffff';
         const docCount = bucket.doc_count;
         if (docCount <= 1) color = '#ffea1f';
@@ -331,15 +345,15 @@ const updateLayerBuckets = (val) => {
       } else {
         //TODO decide whether to use single marker or no
         shape = L.marker(latlon, {
-          icon: new L.LocationDivIcon(),
+          icon: new LocationDivIcon(),
         });
       }
-      shape._data = { docCount: bucket.doc_count, key: geohash, latlng: latlon };
+      L.setOptions(shape, { customData: { docCount: bucket.doc_count, key: geohash, latlng: latlon } });
       shape.addTo(geoHashLayer);
 
       if (!map.getBounds().contains(latlon)) {
         console.log('shape is out of bounds', shape);
-        this.outOfBounds += Number.parseInt(bucket.doc_count || 0);
+        outOfBounds.value += bucket.doc_count || 0;
       }
     } catch (error) {
       console.log('ERROR GEOHASH BUCKET', error);
@@ -347,41 +361,246 @@ const updateLayerBuckets = (val) => {
   }
 };
 
+const calculatePrecision = (zoomLevel: number) => {
+  // This is a way to match zoom levels in leaflet vs precision levels in elastic/opensearch geoHashGridAggregation
+  let precision = Math.floor(zoomLevel / 2);
+
+  if (precision < 1) {
+    precision = 1;
+  } else if (precision > 7) {
+    precision = 7;
+  }
+
+  return precision;
+};
+
+const setMapBounds = (init = false) => {
+  if (init) {
+    boundingBox.value = { ...initBoundingBox };
+    console.log('init bounds', init);
+  }
+
+  const bounds = map.getBounds();
+  if (bounds.isValid()) {
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    // FIXME: Do we need to standardise on the corners?
+    // @ts-expect-error FIXME
+    boundingBox.value = {
+      topRight: { lat: ne.lat, lng: ne.lng },
+      bottomLeft: { lat: sw.lat, lng: sw.lng },
+    };
+  } else {
+    alert('Bounds not valid');
+  }
+};
+
+// FIXME
+const updateRoutes = async ({ queries = {}, updateFilters = false }) => {
+  // let filters;
+  // const query = {};
+  // let localFilterUpdate = false;
+  // if (!isEmpty(this.filters) || updateFilters) {
+  //   filters = toRaw(this.filters);
+  //   filters = encodeURIComponent(JSON.stringify(filters));
+  //   query.f = filters;
+  //   localFilterUpdate = true;
+  // } else {
+  //   query.f = undefined;
+  // }
+  // if (this.$route.query.f && !localFilterUpdate) {
+  //   query.f = this.$route.query.f;
+  // }
+  // let localSearchGroupUpdate = false;
+  // if (queries?.searchGroup) {
+  //   this.advancedQueries = queries;
+  //   query.q = undefined;
+  //   query.a = queries.searchGroup;
+  //   this.currentPage = 0;
+  //   //this.selectedSorting = this.sorting[0];
+  //   localSearchGroupUpdate = true;
+  // }
+  // if (this.$route.query.a && !localSearchGroupUpdate) {
+  //   query.a = this.$route.query.a;
+  //   query.q = undefined;
+  //   this.updateAdvancedQueries();
+  // } else {
+  //   this.advancedQueries = null; //clear advanced search
+  //   query.q = this.searchInput;
+  // }
+  // query.z = this.zoomLevel;
+  // query.p = this.currentPrecision;
+  // query.bb = encodeURIComponent(JSON.stringify(this.boundingBox));
+  // console.log(JSON.stringify(this.boundingBox));
+  // query.r = uuid();
+  // await router.push({ path: 'map', query, replace: false });
+};
+
+const searchEvent = async (init = false) => {
+  zoomLevel.value = map.getZoom();
+  currentPrecision.value = calculatePrecision(zoomLevel.value);
+  setMapBounds(init);
+  await updateRoutes({ updateFilters: init });
+};
+
+const searchGeoHash = async ({
+  geohash,
+  pageSize,
+  currentPage: newCurentPage,
+}: { geohash: string; pageSize: number; currentPage: number }) => {
+  // TODO: JF do we really want to reset this?
+  currentPage.value = 0;
+
+  const bounds = Geohash.bounds(geohash);
+  // FIXME: Do we need to standardise on the corners?
+  // @ts-expect-error FIXME
+  boundingBox.value = {
+    topRight: { lat: bounds.ne.lat, lng: bounds.ne.lon },
+    bottomLeft: { lat: bounds.sw.lat, lng: bounds.sw.lon },
+  };
+
+  // FIXME: Implement this
+  const searchOptions = {
+    init: false,
+    boundingBox: boundingBox.value,
+    multi: searchInput.value,
+    filters: filters.value,
+    searchFields,
+    operation: selectedOperation.value,
+    page: pageSize,
+    searchFrom: newCurentPage * pageSize,
+  };
+
+  const items = {
+    hits: {
+      total: 2,
+      hits: [] as ItemType[],
+    },
+  };
+  // const items = await this.$elasticService.map({
+  // });
+
+  return items;
+};
+
+const getSearchDetailUrl = (item: { '@id': string; '@type': string[]; conformsTo: { '@id': string }[] }) => {
+  let url: string;
+
+  const types = item['@type'] || [];
+
+  const repoType = types.find((t) => t === 'RepositoryCollection');
+  const fileType = types.find((t) => t === 'File');
+  const itemType = types.find((t) => t === 'RepositoryObject');
+  const id = encodeURIComponent(item['@id']);
+
+  if (repoType) {
+    url = `/collection?id=${id}`;
+  } else if (itemType || fileType) {
+    url = `/object?id=${id}`;
+  } else {
+    url = `/object?id=${id}`;
+  }
+
+  return url;
+};
+
+type ItemType = {
+  '@id': string;
+  '@type': string[];
+  name?: string;
+  conformsTo: { '@id': string }[];
+  memberOf?: { '@id': string; name: string }[];
+};
+
+const getInnerHTMLTooltip = (item: ItemType) => {
+  const title = item.name || item['@id'];
+  const type = item['@type'];
+  const href = getSearchDetailUrl(item);
+  const memberOf = item.memberOf || [];
+  let innerHTMLMemberOf = '';
+  if (Array.isArray(memberOf) && memberOf.length > 0) {
+    for (const mO of memberOf) {
+      innerHTMLMemberOf += `
+        <a 
+           class="text-sm m-1 text-gray-700 underline"
+           href="/collection?id=${encodeURIComponent(mO?.['@id'])}&_crateId=${encodeURIComponent(mO?.['@id'])}"
+        >
+          ${mO?.name || mO?.['@id']}
+        </a>
+      `;
+    }
+  }
+
+  let innerHTML = `
+    <div>
+      <h3 class="mb-2 mt-1 text-2xl">
+        <a href="${href}">${title}</a>
+      </h3>
+      <h4>Type: ${type}</h4>
+  `;
+
+  if (innerHTMLMemberOf) {
+    innerHTML += `
+      <div :align="'middle'" v-if="" class="">
+        <span class="font-normal text-gray-700">
+           Member of:&nbsp;
+           <span class="inline-flex flex-wrap">
+             ${innerHTMLMemberOf}
+           </span>
+        </span>
+    `;
+  }
+
+  innerHTML += `
+        <p class="justify-self-end">
+          <a href="${href}">See more</a>
+        </p>
+      </div>
+    </div>
+
+    <hr class="divide-y divide-gray-500"/>
+  `;
+
+  return innerHTML;
+};
+
 const initControls = () => {
-  map.on('load', async (e) => {
-    this.clearLayers();
-    await this.searchEvent();
+  map.on('load', async () => {
+    clearLayers();
+    await searchEvent();
   });
 
-  map.on('zoomend', async (e) => {
-    this.clearLayers();
+  map.on('zoomend', async () => {
+    clearLayers();
     tooltipLayers.clearLayers();
-    this.tooltip = undefined;
-    await this.searchEvent();
+    tooltip.value = undefined;
+    await searchEvent();
   });
 
-  map.on('dragend', async (e) => {
-    this.clearLayers();
+  map.on('dragend', async () => {
+    clearLayers();
     tooltipLayers.clearLayers();
-    this.tooltip = undefined;
-    await this.searchEvent();
+    tooltip.value = undefined;
+    await searchEvent();
   });
 
   geoHashLayer.on('click', async (e) => {
     L.DomEvent.stopPropagation(e);
-    L.DomEvent.preventDefault(e);
-    this.tooltip = new L.Popup({
-      permanent: true,
-      noWrap: true,
+    L.DomEvent.preventDefault(e as unknown as Event);
+
+    tooltip.value = new L.Popup({
+      // FIXME: suspect these are leftover from this being a ToolTip and not a PopUp
+      // permanent: true,
+      // noWrap: true,
       maxWidth: 400,
       maxHeight: 400,
     });
-    const innerHHTML = '';
-    this.markerSelected = false;
-    const data = e.layer?._data;
+
+    markerSelected.value = false;
+    const data = e.layer?.customData;
     // TODO: ask people if they like this behaviour
-    this.zoomLevel = map.getZoom();
-    if (data?.docCount > 10 && this.zoomLevel <= 10) {
+    zoomLevel.value = map.getZoom();
+    if (data?.docCount > 10 && zoomLevel.value <= 10) {
       //if there are more than X zoom in
       let nextZoom = 1;
       if (data?.docCount >= 30) {
@@ -390,131 +609,129 @@ const initControls = () => {
       if (data?.docCount >= 10) {
         nextZoom = 2;
       }
-      map.setView(e.latlng, this.zoomLevel + nextZoom);
+      map.setView(e.latlng, zoomLevel.value + nextZoom);
     } else {
-      if (e.layer?._data) {
-        const data = e.layer?._data;
-        this.currentPage = 0;
-        const result = await this.searchGeoHash({
+      if (e.layer?.customData) {
+        const data = e.layer?.customData;
+        currentPage.value = 0;
+        const result = await searchGeoHash({
           geohash: data.key,
-          pageSize: this.pageSize,
-          currentPage: this.currentPage,
+          pageSize: pageSize.value,
+          currentPage: currentPage.value,
         });
+
         const total = result.hits.total;
         const tooltipView = document.createElement('div');
         const totalDiv = document.createElement('div');
-        totalDiv.innerHTML = `<div class="m-2"><p>Total: ${total?.value}</p></div>`;
+        totalDiv.innerHTML = `<div class="m-2"><p>Total: ${total}</p></div>`;
         tooltipView.appendChild(totalDiv);
-        const pages = Math.ceil((total?.value || 0) / this.pageSize);
+
+        const pages = Math.ceil((total || 0) / pageSize.value);
         const moreResultsDiv = document.createElement('div');
-        if (total?.value > this.pageSize) {
+        if (total > pageSize.value) {
           moreResultsDiv.className = 'inline-flex rounded-md shadow-xs';
           for (let i = 0; i < pages; i++) {
-            moreResultsDiv.innerHTML += `<a class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 cursor-pointer" onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${this.pageSize}, currentPage: ${i}, nextPage: ${i + 1}})">${i + 1}</a>`;
+            moreResultsDiv.innerHTML += `
+              <a
+                class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 cursor-pointer"
+                onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${pageSize.value}, currentPage: ${i}, nextPage: ${i + 1}})"
+              >
+                ${i + 1}
+              </a>
+            `;
           }
           tooltipView.appendChild(moreResultsDiv);
         }
+
         const divider = document.createElement('div');
         divider.className = 'my-2';
         divider.innerHTML = '<hr class="divide-y divide-gray-500"/>';
         tooltipView.appendChild(divider);
         const hits = document.createElement('div');
         hits.id = 'tooltip_open';
+
         for (const hit of result.hits.hits) {
           const newDiv = document.createElement('div');
-          newDiv.innerHTML = this.getInnerHTMLTooltip(hit._source, total);
+          newDiv.innerHTML = getInnerHTMLTooltip(hit);
           hits.appendChild(newDiv);
         }
         tooltipView.appendChild(hits);
-        if (total?.value > this.pageSize) {
+
+        if (total > pageSize.value) {
           tooltipView.appendChild(moreResultsDiv.cloneNode(true));
         }
-        this.tooltip.setContent(tooltipView.outerHTML);
-        this.tooltip.setLatLng(e.latlng);
-        this.tooltip.addTo(tooltipLayers);
-        this.markerSelected = true;
+
+        tooltip.value.setContent(tooltipView.outerHTML);
+        tooltip.value.setLatLng(e.latlng);
+        tooltip.value.addTo(tooltipLayers);
+
+        markerSelected.value = true;
       }
     }
   });
 };
 
-const open = (route) => {
-  this.$router.push({ path: route });
-};
+onMounted(() => {
+  initMap();
+  // TODO: Is this necessary after init?
+  clearLayers();
+  updateLayerBuckets(buckets.value);
+  initControls();
+});
 
-const getSearchDetailUrl = (item) => {
-  let url;
-  const types = item['@type'] || [];
-  const repoType = types.find((t) => t === 'RepositoryCollection');
-  const fileType = types.find((t) => t === 'File');
-  const itemType = types.find((t) => t === 'RepositoryObject');
-  let id = encodeURIComponent(item['@id']);
-  const crateId = encodeURIComponent(first(item._crateId)?.['@value']);
-  if (repoType) {
-    url = `/collection?id=${id}&_crateId=${crateId}`;
-  } else if (itemType) {
-    url = `/object?id=${id}&_crateId=${crateId}`;
-  } else if (fileType) {
-    let isNotebook;
-    if (item?.conformsTo) {
-      isNotebook = item.conformsTo.find((c) => c['@id'] === this.conformsToNotebook);
-    }
-    if (isNotebook) {
-      id = encodeURIComponent(item._id);
-      url = `/object?_id=${id}`;
-    } else {
-      const fileId = id;
-      id = encodeURIComponent(first(item._parent)?.['@id']);
-      url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`;
-    }
-  } else {
-    //Defaults to object if it doesnt know what it is
-    url = `/object?id=${id}&_crateId=${crateId}`;
+onUpdated(() => {
+  if (map && geoHashLayer) {
+    updateLayerBuckets(buckets.value);
   }
-  return url;
-};
+});
 
-const getInnerHTMLTooltip = (item) => {
-  const title = first(item.name)['@value'] || item['@id'];
-  const type = item['@type'];
-  const href = this.getSearchDetailUrl(item);
-  const _memberOf = item._memberOf || [];
-  let innerHTMLMemberOf = '';
-  if (Array.isArray(_memberOf) && _memberOf.length > 0) {
-    for (const mO of _memberOf) {
-      innerHTMLMemberOf += `
-        <a class="text-sm m-1 text-gray-700 underline"
-               href="/collection?id=${encodeURIComponent(mO?.['@id'])}&_crateId=${encodeURIComponent(mO?.['@id'])}">
-        ${first(mO?.name)?.['@value'] || mO?.['@id']}
-        </a>
-      `;
-    }
+onBeforeUnmount(() => {
+  if (map) {
+    map.remove();
   }
-  let innerHTML = `
-        <div>
-            <h3 class="mb-2 mt-1 text-2xl">
-            <a href="${href}">${title}</a></h3>
-            <h4>Type: ${type}</h4>`;
-  if (innerHTMLMemberOf) {
-    innerHTML += `
-            <div :align="'middle'" v-if="" class="">
-            <span class="font-normal text-gray-700">
-                Member of:&nbsp;
-            <span class="inline-flex flex-wrap">
-                ${innerHTMLMemberOf}
-            </span>
-             </p>`;
-  }
-  innerHTML += `
-          <p class="justify-self-end">
-            <a href="${href}">See more</a>
-          </p>
-        </div>
-        <hr class="divide-y divide-gray-500"/>
-      `;
-  return innerHTML;
-};
+});
 
+// const created = async () => {
+//   console.log('created');
+//   this.isStart = true;
+//   await this.updateFilters({});
+//   if (this.$route.query.q) {
+//     this.searchInput = this.$route.query.q;
+//   }
+//   if (this.$route.query.a) {
+//     this.updateAdvancedQueries();
+//   } else {
+//     this.advancedSearch = false;
+//   }
+//   this.loading = true;
+//   await this.search();
+//   this.loading = false;
+// };
+//
+// const mounted = async () => {
+//   console.log('mounted');
+//   await this.updateFilters({});
+//   if (this.$route.query.o) {
+//     this.selectedOperation = this.$route.query.o;
+//   }
+//   if (this.$route.query.a) {
+//     this.updateAdvancedQueries();
+//   } else {
+//     this.advancedSearch = false;
+//   }
+// };
+//
+// const updated = async () => {
+//   console.log('updated');
+//   if (this.$route.query.q) {
+//     this.advancedSearch = false;
+//   }
+// };
+//
+// const open = (route) => {
+//   this.$router.push({ path: route });
+// };
+//
 const search = async () => {
   try {
     //console.log('search');
@@ -554,92 +771,16 @@ const search = async () => {
   }
 };
 
-const searchGeoHash = async ({ geohash, pageSize, currentPage }) => {
-  this.currentPage = 0;
-  if (geohash) {
-    const bounds = Geohash.bounds(geohash);
-    this.boundingBox = {
-      topRight: { lat: bounds.ne.lat, lon: bounds.ne.lon },
-      bottomLeft: { lat: bounds.sw.lat, lon: bounds.sw.lon },
-    };
-
-    const items = await this.$elasticService.map({
-      init: false,
-      boundingBox: this.boundingBox,
-      multi: this.searchInput,
-      filters: toRaw(this.filters),
-      searchFields,
-      operation: this.selectedOperation,
-      page: pageSize,
-      searchFrom: currentPage * pageSize,
-    });
-    return items;
-  }
-};
-
-const calculatePrecision = (zoomLevel) => {
-  // This is a way to match zoom levels in leaflet vs precision levels in elastic/opensearch geoHashGridAggregation
-  let precision = Math.floor(Number.parseInt(zoomLevel) / 2);
-  if (precision < 1) {
-    precision = 1;
-  } else if (precision > 7) {
-    precision = 7;
-  }
-  return precision;
-};
-
-const searchEvent = async (init) => {
-  this.zoomLevel = map.getZoom();
-  this.currentPrecision = this.calculatePrecision(this.zoomLevel);
-  this.setMapBounds(init);
-  await this.updateRoutes({ updateFilters: init });
-};
-
-// Approximate the radius in meters of a geohash
-const geohashRadius = (geohash) => {
-  // Length of a degree (in meters) at the equator
-  const metersPerDegree = 111319.9;
-
-  // Length of a degree (in meters) at the given latitude
-  function degToMetersLat(latitude) {
-    return metersPerDegree * (1 / Math.cos((latitude * Math.PI) / 180));
-  }
-
-  // Decode the geohash to get its bounding box
-  const bbox = Geohash.bounds(geohash);
-
-  // Calculate the center latitude and longitude of the bounding box
-  const centerLatitude = (bbox.ne.lat + bbox.sw.lat) / 2;
-  //TODO: center longitude not used?
-  const centerLongitude = (bbox.ne.lon + bbox.sw.lon) / 2;
-
-  // Calculate the width and height of the bounding box in degrees
-  const widthDeg = bbox.ne.lat - bbox.sw.lat; //bbox[1] - bbox[0];
-  const heightDeg = bbox.ne.lon - bbox.sw.lon; //bbox[3] - bbox[2];
-
-  // Convert the width and height from degrees to meters
-  const widthMeters = widthDeg * metersPerDegree;
-  const heightMeters = heightDeg * degToMetersLat(centerLatitude);
-
-  // Use the average of the width and height as the approximate radius
-  const radius = (widthMeters + heightMeters) / 2;
-  return radius;
-};
-
-const showList = () => {
-  this.$router.push({ path: '/search' });
-};
-
 const newAggs = ({ query, aggsName }) => {
   if (query.f) {
     //In here we need to merge the filters
     const decodedFilters = JSON.parse(decodeURIComponent(query.f));
-    this.mergeFilters(decodedFilters, aggsName);
+    mergeFilters(decodedFilters, aggsName);
   }
   if (query.q) {
-    this.searchInput = decodeURIComponent(query.q);
+    searchInput = decodeURIComponent(query.q);
   }
-  this.changedFilters = true;
+  changedFilters = true;
 };
 
 const populate = ({ items, newSearch, aggregations }) => {
@@ -732,46 +873,6 @@ const updateFilters = async ({ clear, empty }) => {
   }
 };
 
-const updateRoutes = async ({ queries, updateFilters }) => {
-  let filters;
-  const query = {};
-  let localFilterUpdate = false;
-  if (!isEmpty(this.filters) || updateFilters) {
-    filters = toRaw(this.filters);
-    filters = encodeURIComponent(JSON.stringify(filters));
-    query.f = filters;
-    localFilterUpdate = true;
-  } else {
-    query.f = undefined;
-  }
-  if (this.$route.query.f && !localFilterUpdate) {
-    query.f = this.$route.query.f;
-  }
-  let localSearchGroupUpdate = false;
-  if (queries?.searchGroup) {
-    this.advancedQueries = queries;
-    query.q = undefined;
-    query.a = queries.searchGroup;
-    this.currentPage = 0;
-    //this.selectedSorting = this.sorting[0];
-    localSearchGroupUpdate = true;
-  }
-  if (this.$route.query.a && !localSearchGroupUpdate) {
-    query.a = this.$route.query.a;
-    query.q = undefined;
-    this.updateAdvancedQueries();
-  } else {
-    this.advancedQueries = null; //clear advanced search
-    query.q = this.searchInput;
-  }
-  query.z = this.zoomLevel;
-  query.p = this.currentPrecision;
-  query.bb = encodeURIComponent(JSON.stringify(this.boundingBox));
-  console.log(JSON.stringify(this.boundingBox));
-  query.r = uuid();
-  await this.$router.push({ path: 'map', query, replace: false });
-};
-
 const bucketSelected = async ({ checkedBuckets, id }) => {
   this.filters[id] = checkedBuckets;
   await this.updateRoutes({ updateFilters: true });
@@ -822,59 +923,6 @@ const clean = (string) => {
   return string.replace(/@|_|(\..*)/g, '');
 };
 
-const setMapBounds = (init) => {
-  if (init) {
-    boundingBox.value = { ...initBoundingBox };
-    console.log('init bounds', init);
-  }
-  const bounds = map.getBounds();
-  if (bounds.isValid()) {
-    boundingBox.value = {
-      topRight: { lat: bounds._northEast.lat, lon: bounds._northEast.lng },
-      bottomLeft: { lat: bounds._southWest.lat, lon: bounds._southWest.lng },
-    };
-  } else {
-    alert('Bounds not valid');
-  }
-  //console.log("boundingBox", JSON.stringify(this.boundingBox))
-};
-
-const fitBounds = (position) => {
-  //From: https://stackoverflow.com/a/78175342/1470833
-  //If the point does not fit the bounds try to flip the degrees
-  const visibleBounds = map.getBounds();
-  const west = visibleBounds.getWest();
-  const east = visibleBounds.getEast();
-  let isVisible = visibleBounds.contains(position);
-  if (isVisible) {
-    return undefined;
-  }
-  const initialPos = L.latLng([position.lat, position.lng]);
-  if (west < -180) {
-    const d = Number.parseInt((west - 180) / 360);
-    position.lng += 360 * d;
-    isVisible = visibleBounds.contains(position);
-    if (d < -1 && !isVisible) {
-      // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
-      // biome-ignore lint/style/noParameterAssign: FIXME
-      position = initialPos;
-      position.lng += 360 * (d + 1);
-      isVisible = visibleBounds.contains(position);
-    }
-  } else if (east > 180) {
-    const d = Number.parseInt((east + 180) / 360);
-    position.lng += 360 * d;
-    isVisible = visibleBounds.contains(position);
-    if (d > 1 && !flag) {
-      // biome-ignore lint/style/noParameterAssign: FIXME
-      position = initialPos;
-      position.lng += 360 * (d - 1);
-      isVisible = visibleBounds.contains(position);
-    }
-  }
-  return position;
-};
-
 const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage }) => {
   if (currentPage <= 0) {
     currentPage = 0;
@@ -901,27 +949,6 @@ const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage })
     }
   }
 };
-
-onMounted(() => {
-  initMap();
-  // this.clearLayers();
-  // this.updateLayerBuckets(this.buckets);
-  // this.initControls();
-  // //The next line makes the methods availalble outsite vue
-  // window.oni_ui = this;
-});
-
-onUpdated(() => {
-  // if (map && geoHashLayer) {
-  //   this.updateLayerBuckets(this.buckets);
-  // }
-});
-
-onBeforeUnmount(() => {
-  // if (map) {
-  //   map.remove();
-  // }
-});
 
 // watch(
 //   () => '$route.query',
@@ -991,7 +1018,7 @@ onBeforeUnmount(() => {
               <span v-else>
                 <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                   aggs?.buckets?.length
-                }}</span>&nbsp;
+                  }}</span>&nbsp;
                 <font-awesome-icon icon="fa fa-chevron-right" />
               </span>
             </span>
@@ -1037,7 +1064,7 @@ onBeforeUnmount(() => {
               <span v-if="errorText">error: {{ errorText }}</span>
             </el-col>
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
-              <el-button size="large" @click="showList()">
+              <el-button size="large" @click="router.push({ path: '/search' })">
                 <span>
                   <font-awesome-icon icon="fa-solid fa-list" />&nbsp;List View
                   <el-tooltip

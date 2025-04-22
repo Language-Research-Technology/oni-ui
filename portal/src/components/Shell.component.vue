@@ -21,13 +21,17 @@
   <template v-else>
     <MaintenacePage/>
   </template>
-  <el-dialog v-model="showTerms" width="50%" center class="mt-4 mb-4">
-    <el-alert title="Terms And Conditions" type="info" :closable="false">
-      <h2 class="break-normal">{{ this.terms?.description }}</h2>
-      <p class="break-normal py-4 mt-3">{{ this.terms?.body }}</p>
+  <el-dialog v-model="showTerms" width="50%" center class="mt-4 mb-4" :show-close="false">
+    <template #header>
+      <h2 class="break-normal">Terms And Conditions</h2>
+    </template>
+    <div>
+      <p class="font-bold">{{ this.terms?.description }}</p>
+      <pre class="whitespace-pre-wrap py-4 mt-3">{{ this.terms?.body }}</pre>
       <br/>
-      <a :href="this.terms?.url" class="break-normal" target="_blank noreferer">Open Externaly</a>
-    </el-alert>
+      <a :href="this.terms?.url" class="break-normal underline text-blue-600" target="_blank noreferer">Terms &
+        Conditions</a>
+    </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="acceptTerms">Accept Terms</el-button>
@@ -37,7 +41,7 @@
 </template>
 
 <script>
-import {getLocalStorage, removeLocalStorage, tokenSessionKey} from '@/storage';
+import {removeLocalStorage, putLocalStorage, getLocalStorage} from '@/storage';
 import FooterView from './Footer.component.vue';
 import MaintenacePage from './MaintenacePage.vue';
 import NavView from './Nav.component.vue';
@@ -52,13 +56,13 @@ export default {
   },
   async updated() {
     this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
-    if (this.isLoggedIn) {
+    if (this.isLoggedIn && this.ui.login?.manageTermsAndConditions) {
       await this.manageTerms();
     }
   },
   async mounted() {
     this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
-    if (this.isLoggedIn) {
+    if (this.isLoggedIn && this.ui.login?.manageTermsAndConditions) {
       await this.manageTerms();
     }
     if (this.$route.path === '/') this.$router.push('/search');
@@ -85,20 +89,27 @@ export default {
   methods: {
     async manageTerms() {
       try {
-        const response = await this.$terms.get();
-        console.log(response.terms);
-        if(response.terms) {
+        const terms = await this.$terms.get();
+        if (terms?.agreement) {
+          this.showTerms = false;
+        } else {
           this.showTerms = true;
-          this.terms = response.terms;
+          this.terms = terms;
         }
+        putLocalStorage({ key: 'loginTermsURL', data: this.terms?.url });
       } catch (e) {
+        removeLocalStorage({ key: 'loginTermsURL' });
         console.error(e);
       }
     },
     async acceptTerms() {
       try {
         const response = await this.$terms.accept(this.terms.id);
-        console.log(response);
+        //If there is an error I dont want to alert the user.
+        this.showTerms = false;
+        if (response.error) {
+          console.error(response);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -106,4 +117,14 @@ export default {
   }
 };
 </script>
+<style>
+.el-dialog {
+  width: unset;
+  max-width: var(--el-dialog-width);
+}
 
+.el-dialog .el-dialog__body {
+  max-height: calc(100svh - 350px);
+  overflow: auto;
+}
+</style>

@@ -15,7 +15,7 @@ import Geohash from 'latlon-geohash';
 import { CloseBold } from '@element-plus/icons-vue';
 import { v4 as uuid } from 'uuid';
 
-import SearchAggs from '@/components/SearchAggs.vue';
+import SearchAggs from '@/components/Facet.vue';
 // import SearchDetailElement from './SearchDetailElement.component.vue';
 import SearchBar from '@/components/SearchBar.vue';
 
@@ -149,25 +149,15 @@ const NumberedDivIcon = L.Icon.extend({
 //   createShadow: () => null,
 // });
 
-//   return {
-//     total: 0,
-//     totalRelation: 'eq',
-//     errorText: '',
-//     item: null,
-//     map: null,
-//     leafletAggs: [],
-//     aggregations: [],
-//     advancedSearch: false,
-//     clear: false,
-//     newSearch: true,
-//     changedFilters: false,
-//     errorDialogVisible: false,
-//     errorDialogText: '',
-//   };
-// },
-//
-//
-//
+type Facet = {
+  buckets: Array<{ name: string; count: number }>;
+  display: string;
+  order: number;
+  name: string;
+  active?: boolean;
+  help: string;
+  hide?: boolean;
+};
 
 const { searchFields } = configuration.ui;
 
@@ -183,8 +173,8 @@ const initBoundingBox = {
   bottomRight: { lat: -11.523088, lng: 162.649886 },
   topLeft: { lat: -42.811522, lng: 108.64901 },
 };
-const minZoom = 3; //Why does it stop working below 3?
-const maxZoom = 18; // 18 is the max
+const minZoom = 3; // Why does it stop working below 3?
+const maxZoom = 18; // NOTE: 18 is the max
 // TODO: pass this via config. Center location and zoom level
 const initView = { lat: -25, lng: 134 };
 const initZoom = 4;
@@ -203,6 +193,7 @@ const route = useRoute();
 const router = useRouter();
 
 const searchInput = ref(route.query.q || '');
+const advancedSearchEnabled = ref(false);
 const boundingBox = ref(initBoundingBox);
 const outOfBounds = ref(0);
 const buckets = ref<{ key: string; doc_count: number }[]>([]);
@@ -211,9 +202,14 @@ const currentPrecision = ref<number>();
 const tooltip = ref<L.Popup>();
 const markerSelected = ref(false);
 const currentPage = ref(0);
-const filters = ref({});
+const filters = ref<Record<string, string[]>>({});
 const selectedOperation = ref('must');
 const pageSize = ref(10);
+const filtersChanged = ref(false);
+const leafletAggs = ref([]);
+const facets = ref<Facet[]>([]);
+const totals = ref(0);
+const errorDialogText = ref<string | undefined>();
 
 const initMap = () => {
   map.setView(initView, initZoom);
@@ -634,7 +630,7 @@ const initControls = () => {
             moreResultsDiv.innerHTML += `
               <a
                 class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 cursor-pointer"
-                onclick="oni_ui.updateGeoHashSearch({geohash: '${data.key}', pageSize: ${pageSize.value}, currentPage: ${i}, nextPage: ${i + 1}})"
+                onclick="updateGeoHashSearch({geohash: '${data.key}', pageSize: ${pageSize.value}, currentPage: ${i}, nextPage: ${i + 1}})"
               >
                 ${i + 1}
               </a>
@@ -733,42 +729,33 @@ onBeforeUnmount(() => {
 // };
 //
 const search = async () => {
-  try {
-    //console.log('search');
-    if (isEmpty(this.boundingBox)) {
-      this.setMapBounds();
-    }
-    if (map.getZoom() !== this.zoomLevel) {
-      map.setZoom(this.zoomLevel);
-    }
-    this.changedFilters = false;
-    let filters = {};
-    if (!isEmpty(this.filters)) {
-      filters = this.filters;
-    } else {
-      filters = {};
-    }
-    const items = await this.$elasticService.map({
-      init: false,
-      boundingBox: this.boundingBox,
-      precision: this.currentPrecision,
-      multi: this.searchInput,
-      filters: toRaw(this.filters),
-      searchFields,
-      operation: this.selectedOperation,
-    });
-    this.leafletAggs = items.aggregations._geohash;
-    const viewport = this.leafletAggs;
-    this.updateLayerBuckets(viewport?.buckets);
-    this.aggregations = this.populateAggregations(items.aggregations);
-    const total = items.hits?.total;
-    this.total = total?.value || 0;
-    this.totalRelation = total?.relation || 'eq';
-    return items;
-  } catch (e) {
-    console.log('error', e);
-    return [];
+  if (!boundingBox.value) {
+    setMapBounds();
   }
+
+  if (map.getZoom() !== zoomLevel.value) {
+    map.setZoom(zoomLevel.value);
+  }
+
+  filtersChanged.value = false;
+
+  const items = await this.$elasticService.map({
+    init: false,
+    boundingBox: boundingBox.value,
+    precision: currentPrecision,
+    multi: searchInput.value,
+    filters: filters.value,
+    searchFields,
+    operation: selectedOperation.value,
+  });
+
+  leafletAggs.value = items.aggregations._geohash;
+  const viewport = leafletAggs.value;
+  updateLayerBuckets(viewport?.buckets);
+  aggregations.value = populateAggregations(items.aggregations);
+  total.value = items.hits?.total || 0;
+
+  return items;
 };
 
 const newAggs = ({ query, aggsName }) => {
@@ -780,7 +767,7 @@ const newAggs = ({ query, aggsName }) => {
   if (query.q) {
     searchInput = decodeURIComponent(query.q);
   }
-  changedFilters = true;
+  filtersChanged.value = true;
 };
 
 const populate = ({ items, newSearch, aggregations }) => {
@@ -873,44 +860,39 @@ const updateFilters = async ({ clear, empty }) => {
   }
 };
 
-const bucketSelected = async ({ checkedBuckets, id }) => {
-  this.filters[id] = checkedBuckets;
-  await this.updateRoutes({ updateFilters: true });
-};
+const resetSearch = () => {
+  scrollToTop();
 
-const resetSearch = async () => {
-  console.log(this.boundingBox);
-  map.setZoom(this.initZoom);
-  map.setView(this.initView, this.initZoom);
-  this.zoomLevel = this.initZoom;
-  this.boundingBox = this.initBoundingBox;
-  this.currentPrecision = undefined;
-  const topLeft = L.latLng(this.boundingBox.topLeft);
-  const bottomRight = L.latLng(this.boundingBox.bottomRight);
+  map.setZoom(initZoom);
+  map.setView(initView, initZoom);
+
+  zoomLevel.value = initZoom;
+  boundingBox.value = initBoundingBox;
+  currentPrecision.value = undefined;
+
+  const topLeft = L.latLng(boundingBox.value.topLeft);
+  const bottomRight = L.latLng(boundingBox.value.bottomRight);
   const bounds = L.latLngBounds(bottomRight, topLeft);
-  map.fitBounds(bounds, { maxZoom: this.maxZoom });
-  this.filters = {};
-  this.searchInput = '';
-  await this.searchEvent(true);
+  map.fitBounds(bounds, { maxZoom });
+
+  filters.value = {};
+  searchInput.value = '';
+
+  searchEvent(true);
 };
 
-const clearFilters = async () => {
-  this.filters = {};
-  await this.updateRoutes({ updateFilters: true });
+const clearFilters = () => {
+  filters.value = {};
+
+  updateRoutes({ updateFilters: true });
 };
 
-const mergeFilters = (newFilters, aggsName) => {
-  const filters = toRaw(this.filters);
-  if (isEmpty(this.filters)) {
-    this.filters = newFilters;
-  } else {
-    this.filters[aggsName] = newFilters[aggsName] || [];
-    if (isEmpty(this.filters[aggsName])) {
-      delete this.filters[aggsName];
-    }
+const mergeFilters = (newFilters: Record<string, string[]>, aggsName: string) => {
+  filters.value[aggsName] = newFilters[aggsName] || [];
+
+  if (filters.value[aggsName].length === 0) {
+    delete filters.value[aggsName];
   }
-  console.log('is this.filters empty?');
-  console.log(isEmpty(this.filters));
 };
 
 const clean = (string) => {
@@ -923,29 +905,42 @@ const clean = (string) => {
   return string.replace(/@|_|(\..*)/g, '');
 };
 
-const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage }) => {
+const updateGeoHashSearch = async ({
+  geohash,
+  pageSize,
+  currentPage,
+}: { geohash: string; pageSize: number; currentPage: number }) => {
+  // NOTE: Why is this needed?
   if (currentPage <= 0) {
     currentPage = 0;
   }
-  const result = await window.oni_ui.searchGeoHash({
+
+  const result = await searchGeoHash({
     geohash,
     pageSize,
     currentPage,
   });
+
   const hits = document.getElementById('tooltip_open');
-  hits.innerHTML = '';
-  hits.scrollTop = 0;
+  if (hits) {
+    hits.innerHTML = '';
+    hits.scrollTop = 0;
+  }
+
   const total = result.hits.total;
-  console.log(result.hits.hits.length);
   if (result.hits.hits.length === 0) {
     const noResults = document.createElement('div');
     noResults.innerHTML = '<div>No More Results</div>';
-    hits.appendChild(noResults);
+    if (hits) {
+      hits.appendChild(noResults);
+    }
   } else {
     for (const hit of result.hits.hits) {
       const newDiv = document.createElement('div');
-      newDiv.innerHTML = this.getInnerHTMLTooltip(hit._source, total);
-      hits.appendChild(newDiv);
+      newDiv.innerHTML = getInnerHTMLTooltip(hit, total);
+      if (hits) {
+        hits.appendChild(newDiv);
+      }
     }
   }
 };
@@ -981,15 +976,16 @@ const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage })
 </script>
 
 <template>
-  <el-row>
+  <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
     <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-      class="h-full max-h-screen overflow-y-auto flex flex-col p-2">
-      <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-        <SearchBar ref='searchBar' @populate='populate' :searchInput="searchInput" @search="search" :clearSearch="clear"
-          :filters="this.filters" :fields="searchFields" class="grow justify-items-center items-center m-4"
-          @advanced-search="enableAdvancedSearch" :enableAdvancedSearch="advancedSearch"
-          @updateSearchInput="onInputChange" @basicSearch="updateRoutes" :searchPath="'map'" />
+      class="h-full max-h-screen overflow-y-auto flex flex-col p-2" data-scroll-to-top>
+      <div v-show="!advancedSearchEnabled"
+        class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
+        <SearchBar ref='searchBar' :searchInput="searchInput.toString()"
+          class="grow justify-items-center items-center m-4" @enable-advanced="enableAdvancedSearch"
+          @update-search-input="onInputChange" @do-search="updateRoutes" searchPath="map" />
       </div>
+
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
         <div class="py-3 px-2">
           <div class="">
@@ -999,70 +995,87 @@ const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage })
           </div>
         </div>
       </div>
-      <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
-        <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide'] && aggs['name'] !== '_geohash'"
-          class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
-          <li @click="aggs.active = !aggs.active"
-            class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
-            <span class="text-xl text-gray-600 font-semibold py-1 px-2">
-              {{ aggs.display }}
-              <el-tooltip v-if="aggs.help" class="box-item" effect="light" trigger="hover" :content="aggs.help"
-                placement="top">
-                <el-button link>
-                  <font-awesome-icon icon="fa-solid fa-circle-info" />
-                </el-button>
-              </el-tooltip>
-            </span>
-            <span class="py-1 px-2">
-              <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down" />
-              <span v-else>
-                <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                  aggs?.buckets?.length
-                  }}</span>&nbsp;
-                <font-awesome-icon icon="fa fa-chevron-right" />
+
+      <div class="pt-2">
+        <div class="flex w-full" v-for="facet of facets" :key="facet.name">
+          <ul v-if="facet.buckets.length > 0 && !facet.hide && facet.name !== 'geohash'"
+            class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
+            <li @click="facet.active = !facet.active"
+              class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
+              <span class="text-xl text-gray-600 font-semibold py-1 px-2">
+                {{ facet.display }}
+                <el-tooltip v-if="facet.help" class="box-item" effect="light" trigger="hover" :content="facet.help"
+                  placement="top">
+                  <el-button link>
+                    <font-awesome-icon icon="fa-solid fa-circle-info" />
+                  </el-button>
+                </el-tooltip>
               </span>
-            </span>
-          </li>
-          <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
-          <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name" v-show="aggs.active"
-            @is-active="aggs.active = true" @changed-aggs="newAggs" />
-        </ul>
+              <span class="py-1 px-2">
+                <font-awesome-icon v-if="facet.active" icon="fa fa-chevron-down" />
+                <span v-else>
+                  <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
+                    facet.buckets.length
+                  }}</span>&nbsp;
+                  <font-awesome-icon icon="fa fa-chevron-right" />
+                </span>
+              </span>
+            </li>
+            <li v-if="facet.buckets.length <= 0" class="w-full min-w-full">&nbsp;</li>
+            <SearchAggs :buckets="facet.buckets" :aggsName="facet.name" :ref="facet.name" v-show="facet.active"
+              @is-active="facet.active = true" @changed-aggs="newAggs" />
+          </ul>
+        </div>
       </div>
     </el-col>
+
     <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
-      class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3">
+      class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3" data-scroll-to-top>
+
       <div class="pr-0">
+        <div v-show="advancedSearchEnabled" data-scroll-to-top
+          class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
+          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
+            @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
+        </div>
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
-              <el-button-group class="">
-                <el-button type="warning" v-show="changedFilters" @click="updateRoutes({ updateFilters: true })">Apply
-                  Filters
+              <el-button-group class="mr-1" v-show="filtersChanged">
+                <el-button type="warning" @click="updateRoutes()">
+                  Apply Filters
                 </el-button>
               </el-button-group>
-              <span class="my-1 mr-1" v-show="!changedFilters" v-if="!isEmpty(this.filters)">Filtering by:</span>
-              <el-button-group v-show="!changedFilters" class="my-1 mr-2" v-for="(filter, filterKey) of this.filters"
-                :key="filterKey" v-model="this.filters">
+
+              <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">
+                Filtering by:
+              </span>
+
+              <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
+                :key="filterKey" v-model="filters">
                 <el-button plain>{{ clean(filterKey) }}</el-button>
                 <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                  @click="this.updateFilters({ clear: { f, filterKey } })" class="text-2xl">
+                  @click="clearFilter(f, filterKey)" class="text-2xl">
                   {{ clean(f) }}
                   <el-icon class="el-icon--right">
                     <CloseBold />
                   </el-icon>
                 </el-button>
               </el-button-group>
-              <el-button-group class="mr-1">
-                <el-button v-show="!isEmpty(this.filters)" @click="clearFilters()">Clear Filters</el-button>
+
+              <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
+                <el-button @click="clearFilters()">Clear Filters</el-button>
               </el-button-group>
-              <span id="total_results" class="my-1 mr-2">
-                <span>{{ total }} Index entries (Collections, Objects, Files and Notebooks)</span>
+
+              <span id="total_results" class="my-1 mr-2" v-show="totals">
+                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects, Files and
+                  Notebooks)</span>
                 <span v-if="outOfBounds > 0" class="my-1" v-show="total">, some ({{ outOfBounds }}) result(s) are out of
                   bounds; move your map to see them.
                 </span>
               </span>
-              <span v-if="errorText">error: {{ errorText }}</span>
             </el-col>
+
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
               <el-button size="large" @click="router.push({ path: '/search' })">
                 <span>
@@ -1083,36 +1096,45 @@ const updateGeoHashSearch = async ({ geohash, pageSize, currentPage, nextPage })
               </p>
             </el-col>
           </el-row>
-
         </div>
+
+        <el-row :span="24" class="pt-2 flex gap-4 pb-2">
+          <el-button-group class="my-1">
+            <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
+          </el-button-group>
+        </el-row>
+
+        <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
+        <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
       </div>
-      <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
-      <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
     </el-col>
   </el-row>
-  <el-dialog v-model="errorDialogVisible" width="40%" center>
+
+  <el-dialog v-model="errorDialogText" width="40%" center>
     <el-alert title="Error" type="warning" :closable="false">
-      <p class="break-normal">{{ this.errorDialogText }}</p>
+      <p class="break-normal">{{ errorDialogText }}</p>
     </el-alert>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+        <el-button type="primary" @click="errorDialogText = undefined">Close</el-button>
       </span>
     </template>
   </el-dialog>
-  <el-row v-show="changedFilters" class="bg-white rounded-sm m-4 p-4 px-8 shadow-md border" role="alert"
+
+  <el-row v-show="filtersChanged" class="bg-white rounded-sm m-4 p-4 px-8 shadow-md border" role="alert"
     style="bottom: 16px; z-index: 2044; position: fixed">
     <el-row class="p-2">
       <div class="w-full">
         <el-button-group class="self-center">
           <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes({ updateFilters: true })">Apply Filters</el-button>
+          <el-button type="warning" @click="updateRoutes()">Apply Filters</el-button>
         </el-button-group>
       </div>
     </el-row>
   </el-row>
   <el-row></el-row>
 </template>
+
 <style>
 .oni-tooltip-marker {
   width: 200px;

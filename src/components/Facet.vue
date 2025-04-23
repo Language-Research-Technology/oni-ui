@@ -10,9 +10,9 @@ const filter = ref<string | undefined>(undefined);
 const currentPage = ref(1);
 const pageSize = ref(5);
 
-const { aggsName, buckets } = defineProps<{ aggsName: string; buckets: Array<{ name: string; count: number }> }>();
+const { facetName, buckets } = defineProps<{ facetName: string; buckets: Array<{ name: string; count: number }> }>();
 
-const emit = defineEmits(['isActive', 'changedAggs']);
+const emit = defineEmits(['isActive', 'updated']);
 
 watch(
   () => route.query.f,
@@ -38,7 +38,7 @@ const updateFilters = () => {
     }
   }
 
-  const qfFound = Object.keys(queryFilters).find((qF) => qF === aggsName);
+  const qfFound = Object.keys(queryFilters).find((qF) => qF === facetName);
   if (!qfFound) {
     checkedBuckets.value = [];
 
@@ -46,7 +46,7 @@ const updateFilters = () => {
   }
 
   for (const [key, val] of Object.entries(queryFilters)) {
-    if (key === aggsName) {
+    if (key === facetName) {
       checkedBuckets.value = val;
     }
   }
@@ -73,16 +73,16 @@ const onChange = async () => {
         localCheckedBuckets.push(cB);
       }
     }
-    queryFilters[aggsName] = localCheckedBuckets;
+    queryFilters[facetName] = localCheckedBuckets;
     const encodedFilters = encodeURIComponent(JSON.stringify(queryFilters));
     query.f = encodedFilters;
   } else {
     const queryFilters: Record<string, string[]> = {};
     for (const checkedBucket of checkedBuckets.value) {
-      if (!queryFilters[aggsName]) {
-        queryFilters[aggsName] = [];
+      if (!queryFilters[facetName]) {
+        queryFilters[facetName] = [];
       }
-      queryFilters[aggsName].push(checkedBucket);
+      queryFilters[facetName].push(checkedBucket);
     }
     const encodedFilters = encodeURIComponent(JSON.stringify(queryFilters));
     query.f = encodedFilters;
@@ -92,7 +92,7 @@ const onChange = async () => {
     emit('isActive');
   }
 
-  emit('changedAggs', { query, aggsName });
+  emit('updated', { query, facetName });
 };
 
 const updatePages = (page: number) => {
@@ -112,11 +112,11 @@ updateFilters();
     <el-input class="pt-1" v-model="filter" placeholder="Filter" clearable @input="updatePages(1)" />
     <li class="m-2 mt-4 cursor-pointer" v-for="ag in filteredValues?.slice(pageStartIndex, pageStartIndex + pageSize)">
       <div class="form-check form-check-inline cursor-pointer">
-        <input :id="aggsName + '_' + ag.name" :name="aggsName + '_' + ag.name" v-model="checkedBuckets"
+        <input :id="facetName + '_' + ag.name" :name="facetName + '_' + ag.name" v-model="checkedBuckets"
           v-on:change="onChange"
           class="cursor-pointer form-check-input h-4 w-4 border border-gray-300 rounded-xs bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-hidden transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2"
           type="checkbox" :value="ag.name">
-        <label class="cursor-pointer form-check-label text-gray-800" :for="aggsName + '_' + ag.name">
+        <label class="cursor-pointer form-check-label text-gray-800" :for="facetName + '_' + ag.name">
           {{ ag.name }} <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{ ag['count']
             }}</span>
         </label>

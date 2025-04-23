@@ -29,6 +29,12 @@ const fetchDataPack = async (url: string) => {
   return data;
 };
 
+const outputPath = process.argv[2];
+if (!outputPath) {
+  console.error('Output path not provided');
+  process.exit(1);
+}
+
 for (const [name, url] of Object.entries(vocabs)) {
   console.log(`Loading ${name}`);
 
@@ -46,12 +52,6 @@ for (const [name, url] of Object.entries(vocabs)) {
       output[key] = def;
     }
   }
-}
-
-const outputPath = process.argv[2];
-if (!outputPath) {
-  console.error('Output path not provided');
-  process.exit(1);
 }
 
 writeFileSync(outputPath, JSON.stringify(output));

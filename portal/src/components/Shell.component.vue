@@ -121,8 +121,8 @@ export default {
       removeLocalStorage({ key: tokenSessionKey });
       this.$cookies.remove('session', '/');
       removeLocalStorage({ key: 'isLoggedIn' });
-      await this.$http.get({ route: '/logout' });
       this.showTerms = false;
+      await this.$router.push('/logout');
     }
   }
 };

@@ -34,6 +34,7 @@ import HTTPService from './http.service';
 import MembershipService from './membership.service';
 import ZipService from './zip.service';
 import TermsService from "./terms.service";
+import StatusService from "./status.service";
 
 (async () => {
   const app = createApp(App);
@@ -67,6 +68,7 @@ import TermsService from "./terms.service";
     app.config.globalProperties.$zip = new ZipService({ router, apiPath: '/api' });
     app.config.globalProperties.$elasticService = new ElasticService({ router, configuration });
     app.config.globalProperties.$terms = new TermsService({ router, configuration });
+    app.config.globalProperties.$status = new StatusService({ router, configuration });
   } else {
     configuration.ui = null;
     await router.push({ path: '/404' });

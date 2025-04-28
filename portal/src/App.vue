@@ -11,12 +11,13 @@ export default {
   data() {
     return {
       sessionCookie: null,
-      checkInterval: null,
+      checkSessionInterval: null,
     };
   },
   mounted() {
     this.setup();
-    this.checkInterval = setInterval(this.checkSessionCookie, 3600000); // Check every 1 hr
+    this.checkAPIStatus();
+    this.checkSessionInterval = setInterval(this.checkSessionCookie, 3600000); // Check every 1 hr
   },
   watch: {
     sessionCookie(newVal, oldVal) {
@@ -51,6 +52,48 @@ export default {
         putLocalStorage({ key: 'isLoggedIn', data: false });
       }
     },
+  async checkAPIStatus() {
+    const response = await this.$status.get();
+    if (response.error) {
+      console.error(response);
+      ElNotification({
+        title: 'Error',
+        message: JSON.stringify(response.error),
+        duration: 0,
+      });
+    } else {
+      if (response.repository?.error) {
+        setTimeout(() => {
+          ElNotification({
+            title: 'Repository Error',
+            message: response.repository.error,
+            duration: 0,
+            type: 'error'
+          });
+        });
+      }
+      if (response.structuralIndex?.error) {
+        setTimeout(() => {
+          ElNotification({
+            title: 'Structural Index Error',
+            message: response.structuralIndex.error,
+            duration: 0,
+            type: 'error'
+          });
+        });
+      }
+      if (!response.searchIndex.items) {
+        setTimeout(() => {
+          ElNotification({
+            title: 'Search Index Error',
+            message: 'Problem accessing search index',
+            duration: 0,
+            type: 'error'
+          });
+        })
+      }
+    }
+  }
   },
   checkSessionCookie() {
     const currentCookie = this.$cookies.get('session');
@@ -61,10 +104,10 @@ export default {
   },
   beforeDestroy() {
     // Clear the interval when the component is destroyed
-    if (this.checkInterval) {
-      clearInterval(this.checkInterval);
+    if (this.checkSessionInterval) {
+      clearInterval(this.checkSessionInterval);
     }
-  },
+  }
 };
 </script>
 

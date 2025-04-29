@@ -98,9 +98,11 @@ export default {
           this.showTerms = false;
           throw new Error(`Error managing Terms and Conditions: ${terms.error}`);
         } else if(terms?.agreement) {
-          this.terms = terms;
+          this.showTerms = false;
+        } else {
           this.showTerms = true;
         }
+        this.terms = terms;
         putLocalStorage({ key: 'loginTermsURL', data: this.terms?.url });
       } catch (e) {
         removeLocalStorage({ key: 'loginTermsURL' });

@@ -94,9 +94,10 @@ export default {
       this.showTerms = false;
       try {
         const terms = await this.$terms.get();
-        if (terms?.agreement) {
+        if (terms.error) {
           this.showTerms = false;
-        } else {
+          throw new Error(`Error managing Terms and Conditions: ${terms.error}`);
+        } else if(terms?.agreement) {
           this.terms = terms;
           this.showTerms = true;
         }
@@ -112,7 +113,7 @@ export default {
         //If there is an error I dont want to alert the user.
         this.showTerms = false;
         if (response.error) {
-          console.error(response);
+          throw new Error(`Error accepting Terms and Conditions: ${response.error}`);
         }
       } catch (e) {
         console.error(e);

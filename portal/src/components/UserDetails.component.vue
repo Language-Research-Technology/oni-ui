@@ -94,6 +94,7 @@ import {getLocalStorage, putLocalStorage} from '@/storage';
 export default {
   data() {
     return {
+      ui: this.$store.state.configuration?.ui,
       user: {
         email: null,
         name: null,
@@ -115,7 +116,7 @@ export default {
       const { user } = await response.json();
       this.user = user;
       this.provider = user.provider;
-      if(this.loginTermsURL !== '') {
+      if(this.loginTermsURL !== '' && this.ui.login?.manageTermsAndConditions) {
         const terms = await this.$terms.get();
         putLocalStorage({key: 'loginTermsURL', data: terms?.url});
       }

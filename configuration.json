@@ -52,7 +52,8 @@
       }
     },
     "login": {
-      "enabled": true
+      "enabled": true,
+      "manageTermsAndConditions": false
     },
     "authorizationProvider": {
       "label": "REMS",
@@ -465,6 +466,18 @@
       }
     },
     "authentication": {
+      "identity": {
+        "provider": "comanage",
+        "admin": {
+          "host": "https://registry-test.cilogon.org.au",
+          "username": "USERNAME",
+          "apiKey": "PASSWORD",
+          "group": "0"
+        },
+        "terms":{
+          "id": 1
+        }
+      },
       "cilogon": {
         "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
         "clientSecret": "XXXXXXXXXXXX",

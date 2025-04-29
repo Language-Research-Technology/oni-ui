@@ -61,7 +61,7 @@ services:
 
   api:
     restart: always
-    image: rrkive/oni:2.1.0
+    image: rrkive/oni:2.1.2
     platform: linux/amd64
     depends_on:
       db:

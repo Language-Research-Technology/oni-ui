@@ -16,6 +16,7 @@ export default class TermsService {
         return termsStatus;
       }
     } catch (e) {
+
       throw new Error(e);
     }
   }

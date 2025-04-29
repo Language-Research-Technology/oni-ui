@@ -21,7 +21,8 @@
   <template v-else>
     <MaintenacePage/>
   </template>
-  <el-dialog v-model="showTerms" width="50%" center class="mt-4 mb-4" :show-close="false">
+  <el-dialog v-model="showTerms" width="50%" center class="mt-4 mb-4" :show-close="false"
+             :close-on-click-modal="false">
     <template #header>
       <h2 class="break-normal">Terms And Conditions</h2>
     </template>
@@ -56,10 +57,11 @@ export default {
   beforeMount() {
   },
   async updated() {
-    this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
-    if (this.isLoggedIn && this.ui.login?.manageTermsAndConditions) {
-      await this.manageTerms();
-    }
+    // Dont need to manage terms on updated
+    // this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+    // if (this.isLoggedIn && this.ui.login?.manageTermsAndConditions) {
+    //   await this.manageTerms();
+    // }
   },
   async mounted() {
     this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});

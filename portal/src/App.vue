@@ -63,30 +63,33 @@ export default {
       });
     } else {
       if (response.repository?.error) {
+        console.error(response.repository.error);
         setTimeout(() => {
           ElNotification({
             title: 'Repository Error',
-            message: response.repository.error,
+            message: 'There was an error while connecting to the repository, please contact the administrator.',
             duration: 0,
             type: 'error'
           });
         });
       }
       if (response.structuralIndex?.error) {
+        console.error(response.structuralIndex.error);
         setTimeout(() => {
           ElNotification({
             title: 'Structural Index Error',
-            message: response.structuralIndex.error,
+            message: 'There is a problem with the structural index, please contact the administrator.',
             duration: 0,
             type: 'error'
           });
         });
       }
       if (!response.searchIndex.items) {
+        console.error('Problem accessing search index');
         setTimeout(() => {
           ElNotification({
             title: 'Search Index Error',
-            message: 'Problem accessing search index',
+            message: 'There is a problem with the search index, please contact the administrator.',
             duration: 0,
             type: 'error'
           });

@@ -91,13 +91,14 @@ export default {
   },
   methods: {
     async manageTerms() {
+      this.showTerms = false;
       try {
         const terms = await this.$terms.get();
         if (terms?.agreement) {
           this.showTerms = false;
         } else {
-          this.showTerms = true;
           this.terms = terms;
+          this.showTerms = true;
         }
         putLocalStorage({ key: 'loginTermsURL', data: this.terms?.url });
       } catch (e) {

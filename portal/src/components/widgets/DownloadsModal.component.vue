@@ -20,7 +20,7 @@
       </template>
     </div>
     <template v-else>
-      <p>No downloads associated with this item/collection.</p>
+      <p>No direct downloads associated with this item/collection.</p>
     </template>
     <template #footer>
       <div class="dialog-footer">
@@ -28,6 +28,17 @@
       </div>
     </template>
   </el-dialog>
+  <div v-if="simpleView" v-loading="loading">
+    <div v-if="objectTotals > 0">
+      <template v-for="(obj, index) of objects" :key="index">
+        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="false"
+                 v-if="obj.name" />
+      </template>
+    </div>
+    <template v-else>
+      <p>No downloads associated with this item/collection.</p>
+    </template>
+  </div>
 </template>
 <script>
 import { first } from 'lodash';
@@ -38,7 +49,7 @@ export default {
   components: {
     ZipLink,
   },
-  props: ['id', 'modelValue', 'title'],
+  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView'],
   data() {
     return {
       isModalVisible: false,
@@ -51,6 +62,9 @@ export default {
       pageSize: 10,
       currentPage: 1,
     };
+  },
+  mounted() {
+    this.getObjects();
   },
   computed: {
     visible: {
@@ -89,8 +103,10 @@ export default {
     },
     async getObjects() {
       this.loading = true;
+      const filters = {_isOCFL: 'true' };
+      filters[this.idFieldName] = [this.id];
       const items = await this.$elasticService.multi({
-        filters: { '_root.@id': [this.id], _isOCFL: 'true' },
+        filters: filters,
         sort: 'relevance',
         order: 'desc',
         pageSize: this.pageSize,

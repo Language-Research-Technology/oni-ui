@@ -12,7 +12,7 @@ import ObjectView from '@/views/ObjectView.vue';
 import File from '@/views/FileView.vue';
 import Privacy from '@/views/PrivacyView.vue';
 import Search from '@/views/SearchView.vue';
-// import SearchMap from '@/views/SearchMapView.vue';
+import SearchMap from '@/views/SearchMapView.vue';
 import Shell from '@/views/ShellView.vue';
 import Terms from '@/views/TermsView.vue';
 import User from '@/views/UserView.vue';
@@ -29,11 +29,11 @@ const routes: RouterOptions['routes'] = [
         name: 'search',
         component: Search,
       },
-      // {
-      //   path: '/map',
-      //   name: 'map',
-      //   component: SearchMap,
-      // },
+      {
+        path: '/map',
+        name: 'map',
+        component: SearchMap,
+      },
       {
         path: '/list',
         name: 'list',

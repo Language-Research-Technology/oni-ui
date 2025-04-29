@@ -765,7 +765,7 @@ const newAggs = ({ query, aggsName }) => {
     mergeFilters(decodedFilters, aggsName);
   }
   if (query.q) {
-    searchInput = decodeURIComponent(query.q);
+    searchInput.value = decodeURIComponent(query.q);
   }
   filtersChanged.value = true;
 };
@@ -1016,7 +1016,7 @@ const updateGeoHashSearch = async ({
                 <span v-else>
                   <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
                     facet.buckets.length
-                  }}</span>&nbsp;
+                    }}</span>&nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>

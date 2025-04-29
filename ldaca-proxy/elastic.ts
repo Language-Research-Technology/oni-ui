@@ -128,7 +128,7 @@ export class ElasticService {
       const multiFields = [];
       for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
-          multiFields.push(key);
+          multiFields.push(aggMapReverse[key]);
         }
       }
       const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');
@@ -137,7 +137,7 @@ export class ElasticService {
       const multiFields = [];
       for (const [key, value] of Object.entries(fields)) {
         if (value.checked) {
-          multiFields.push(key);
+          multiFields.push(aggMapReverse[key]);
         }
       }
       const phraseQuery = esb.multiMatchQuery(multiFields, searchQuery).type('best_fields');

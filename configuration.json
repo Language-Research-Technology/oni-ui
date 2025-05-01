@@ -33,7 +33,7 @@
     },
     "citeData": {
       "help": {
-      "text": "See this <span style=\"display: inline-flex; align-items: center;\"><a class=\"el-link el-link--primary\" target=\"_blank\" href=\"https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/\">help</a></span> page for more detail."
+        "text": "See this <span style=\"display: inline-flex; align-items: center;\"><a class=\"el-link el-link--primary\" target=\"_blank\" href=\"https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/\">help</a></span> page for more detail."
       }
     },
     "terms": {
@@ -472,7 +472,7 @@
           "apiKey": "PASSWORD",
           "group": "0"
         },
-        "terms":{
+        "terms": {
           "id": 1
         }
       },
@@ -707,16 +707,14 @@
         "limit": 10000
       },
       "mappings": {
-        "date_detection": false,
+        "date_detection": true,
         "properties": {
           "datePublished": {
-            "type": "object",
+            "type": "nested",
             "properties": {
               "@value": {
-                "type": "date"
-              },
-              "value": {
-                "type": "keyword"
+                "type": "date",
+                "format": "yyyy||yyyy-MM||yyyy-MM-dd||yyyy/yyyy"
               }
             }
           },

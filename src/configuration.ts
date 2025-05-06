@@ -149,6 +149,16 @@ const splashSchema = z.object({
   launcher: z.string(),
 });
 
+const mapSchema = z.object({
+  boundingBox: z.object({
+    topRight: z.object({ lat: z.number(), lng: z.number() }),
+    bottomLeft: z.object({ lat: z.number(), lng: z.number() }),
+  }),
+  precision: z.number(),
+  center: z.object({ lat: z.number(), lng: z.number() }),
+  zoom: z.number(),
+});
+
 const uiSchema = z.object({
   title: z.string(),
   shortTitle: z.string().optional(),
@@ -230,6 +240,7 @@ const uiSchema = z.object({
       gaMeasurementId: z.string(),
     })
     .optional(),
+  mapConfig: mapSchema,
 });
 
 const apiSchema = z.object({

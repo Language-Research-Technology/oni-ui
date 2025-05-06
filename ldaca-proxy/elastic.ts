@@ -18,7 +18,7 @@ type MultiProps = {
 };
 
 const aggMap = {
-  '_geohash.@id': 'geohash',
+  '_geohash': 'geohash',
   '_memberOf.name.@value': 'memberOf',
   '_root.name.@value': 'root',
   '_mainCollection.name.@value': 'mainCollection',
@@ -118,6 +118,60 @@ export class ElasticService {
     return body;
   }
 
+  async map({
+    boundingBox,
+    precision = 5,
+    multi,
+    filters,
+    searchFrom,
+  }) {
+    const searchFields = this.#fields;
+    const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
+
+    let topRight = {};
+    let bottomLeft = {};
+    let geoQuery = {};
+    let tR = boundingBox.topRight;
+    tR = fixMalformedCoordinates(tR);
+    topRight = esb.geoPoint().lat(tR.lat).lon(tR.lng);
+    let bL = boundingBox.bottomLeft;
+    bL = fixMalformedCoordinates(bL);
+    bottomLeft = esb.geoPoint().lat(bL.lat).lon(bL.lng);
+    geoQuery = esb
+      .geoBoundingBoxQuery()
+      .field('_centroid')
+      .topRight(topRight)
+      .bottomLeft(bottomLeft)
+      .validationMethod('COERCE');
+    const aggs = geoAggs.toJSON();
+
+    const geoQueryJson = geoQuery.toJSON();
+    const geoBoundingBox = geoQueryJson.geo_bounding_box;
+    const boolQuery = this.boolQuery({
+      searchQuery: multi,
+      fields: searchFields,
+      filters,
+    });
+    if (!boolQuery.bool.filter) boolQuery.bool.filter = {};
+    if (boolQuery.bool.filter?.length) {
+      //if array
+      boolQuery.bool.must = boolQuery.bool.filter;
+    } else if (boolQuery.bool.filter.terms) {
+      boolQuery.bool.must = { terms: boolQuery.bool.filter.terms };
+    }
+    boolQuery.bool.filter = { geo_bounding_box: geoBoundingBox };
+
+    const body = {
+      query: boolQuery,
+      aggs: { ...aggs, ...this.#aggs },
+      from: searchFrom,
+      track_total_hits: true,
+    };
+
+    return body;
+  }
+
+
   boolQuery({ searchQuery, fields = {}, filters, operation }) {
     const filterTerms = this.termsQuery(filters);
     const searchQueryIsEmpty = !searchQuery;
@@ -212,102 +266,6 @@ export class ElasticService {
       }
     }
     return filterTerms;
-  }
-
-  // queryString(searchGroup) {
-  //   let qS = '';
-  //   searchGroup.forEach((sg, i) => {
-  //     let lastOneSG = false;
-  //     if (i + 1 === searchGroup.length) {
-  //       lastOneSG = true;
-  //     }
-  //     if (sg.searchInput.length === 0) {
-  //       sg.searchInput = '*';
-  //     }
-  //     if (sg.field === 'all_fields') {
-  //       let qqq = '( ';
-  //       Object.keys(this.#fields).map((f, index, keys) => {
-  //         let lastOne = false;
-  //         if (index + 1 === keys.length) {
-  //           lastOne = true;
-  //         }
-  //         let qq = '';
-  //         qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
-  //         qqq += qq;
-  //       });
-  //       qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
-  //     } else {
-  //       qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
-  //     }
-  //   });
-  //   return qS;
-  // }
-
-  async map({
-    init = true,
-    boundingBox,
-    precision = 5,
-    multi,
-    searchFields,
-    filters,
-    operation,
-    pageSize,
-    searchFrom,
-  }) {
-    const httpService = new HTTPService();
-    const route = this.#searchRoute + this.#indexRoute;
-    const body = {};
-    const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
-    let topRight = {};
-    let bottomLeft = {};
-    let geoQuery = {};
-    if (init) {
-      topRight = esb.geoPoint().lat(90).lon(180);
-      bottomLeft = esb.geoPoint().lat(-90).lon(-180);
-      geoQuery = esb.geoBoundingBoxQuery().field('_centroid').topRight(topRight).bottomLeft(bottomLeft);
-    } else {
-      let tR = boundingBox.topRight;
-      tR = fixMalformedCoordinates(tR);
-      topRight = esb.geoPoint().lat(tR.lat).lon(tR.lon);
-      let bL = boundingBox.bottomLeft;
-      bL = fixMalformedCoordinates(bL);
-      bottomLeft = esb.geoPoint().lat(bL.lat).lon(bL.lon);
-      geoQuery = esb
-        .geoBoundingBoxQuery()
-        .field('_centroid')
-        .topRight(topRight)
-        .bottomLeft(bottomLeft)
-        .validationMethod('COERCE');
-    }
-    const aggs = geoAggs.toJSON();
-
-    body.aggs = { ...aggs, ...this.#aggs };
-    const geoQueryJson = geoQuery.toJSON();
-    const geoBoundingBox = geoQueryJson.geo_bounding_box;
-    const boolQuery = this.boolQuery({
-      searchQuery: multi,
-      fields: searchFields,
-      filters,
-      operation,
-    });
-    if (!boolQuery.bool.filter) boolQuery.bool.filter = {};
-    if (boolQuery.bool.filter?.length) {
-      //if array
-      boolQuery.bool.must = boolQuery.bool.filter;
-    } else if (boolQuery.bool.filter.terms) {
-      boolQuery.bool.must = { terms: boolQuery.bool.filter.terms };
-    }
-    boolQuery.bool.filter = { geo_bounding_box: geoBoundingBox };
-    body.query = boolQuery;
-    body.size = pageSize;
-    body.from = searchFrom;
-    body.track_total_hits = true;
-    const response = await httpService.post({ route, body });
-    if (response.status !== 200) {
-      throw new Error(response.statusText);
-    }
-    const results = await response.json();
-    return results;
   }
 }
 

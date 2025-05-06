@@ -211,7 +211,7 @@ type GetSearchResponse = {
 };
 
 const aggMap: Record<string, string> = {
-  '_geohash.@id': 'geohash',
+  '_geohash': 'geohash',
   '_memberOf.name.@value': 'memberOf',
   '_root.name.@value': 'root',
   '_mainCollection.name.@value': 'mainCollection',
@@ -268,16 +268,29 @@ app.post('/ldaca/search', async (req, res) => {
 
   req.on('end', async () => {
     const params = JSON.parse(data);
-    const body = await es.multi({
-      multi: params.query,
-      searchType: params.searchType,
-      filters: params.filters,
-      sort: params.sort,
-      order: params.order,
-      pageSize: params.limit,
-      searchFrom: params.offset,
-    });
+    let body: any;
 
+    if (params.boundingBox) {
+      body = await es.map({
+        boundingBox: params.boundingBox,
+        // precision: currentPrecision,
+        multi: params.query,
+        filters: params.filters,
+        searchFrom: 0,
+      });
+    } else {
+      body = await es.multi({
+        multi: params.query,
+        searchType: params.searchType,
+        filters: params.filters,
+        sort: params.sort,
+        order: params.order,
+        pageSize: params.limit,
+        searchFrom: params.offset,
+      });
+    }
+
+    console.log("🪚 body:", JSON.stringify(body, null, 2))
     const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(body),
@@ -285,6 +298,7 @@ app.post('/ldaca/search', async (req, res) => {
 
     // biome-ignore lint/suspicious/noExplicitAny: foo
     const result = (await response.json()) as any;
+    // console.log("🪚 result:", JSON.stringify(result, null, 2))
 
     const conformsTo = configuration.ui.conformsTo;
 

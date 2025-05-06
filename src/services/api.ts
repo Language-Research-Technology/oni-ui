@@ -19,6 +19,7 @@ export type SearchParams = GetEntitiesParams & {
   query: string;
   filters?: Record<string, string[]>;
   searchType?: 'basic' | 'advanced';
+  boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number }; precision: number };
 };
 
 export type EntityType = {

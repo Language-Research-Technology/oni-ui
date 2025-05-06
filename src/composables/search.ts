@@ -6,6 +6,8 @@ import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/
 import { useGtm } from '@gtm-support/vue-gtm';
 import { useRoute, useRouter } from 'vue-router';
 
+const { mapConfig } = configuration.ui;
+
 export type FacetType = {
   buckets: Array<{ name: string; count: number }>;
   display: string;
@@ -67,6 +69,11 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const defaultSorting = ui.search?.searchSorting || sorting[0];
   const selectedSorting = ref(defaultSorting);
 
+  // Map Stuff
+  const zoomLevel = ref(mapConfig.zoom);
+  const currentPrecision = ref(mapConfig.precision);
+  const boundingBox = ref(mapConfig.boundingBox);
+
   const clearFilter = async (f: string, filterKey: string) => {
     if (filters.value[filterKey]) {
       filters.value[filterKey].splice(filters.value[filterKey].indexOf(f), 1);
@@ -99,7 +106,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
   };
 
   const syncStateToUrlAndNavigate = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
-    const query: { q?: string; f?: string; a?: string } = {};
+    const query: { q?: string; f?: string; a?: string; z?: string; p?: string; bb?: string } = {};
 
     if (Object.keys(filters.value).length > 0) {
       query.f = encodeURIComponent(JSON.stringify(filters.value));
@@ -117,13 +124,51 @@ export const useSearch = (searchType: 'list' | 'map') => {
       }
     }
 
+    if (isMap) {
+      query.z = zoomLevel.value.toString();
+      query.p = currentPrecision.value.toString();
+      query.bb = encodeURIComponent(JSON.stringify(boundingBox.value));
+    }
+
     await router.push({ path: isMap ? 'map' : 'search', query, replace: true });
+  };
+
+  const setMapParams = ({
+    zoom,
+    precision,
+    boundingBox: localBoundingBox,
+  }: {
+    zoom?: number;
+    precision?: number;
+    boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
+  }) => {
+    if (zoom) {
+      zoomLevel.value = zoom;
+    }
+
+    if (precision) {
+      currentPrecision.value = precision;
+    }
+
+    if (localBoundingBox) {
+      boundingBox.value = localBoundingBox;
+    }
   };
 
   const search = async () => {
     filtersChanged.value = false;
 
     isLoading.value = true;
+
+    // MOO
+    //   if (!boundingBox.value) {
+    //
+    //     setMapBounds();
+    //   }
+    //
+    //   leafletAggs.value = items.aggregations._geohash;
+    //   const viewport = leafletAggs.value;
+    //   updateLayerBuckets(viewport?.buckets);
 
     try {
       const params: SearchParams = {
@@ -135,6 +180,11 @@ export const useSearch = (searchType: 'list' | 'map') => {
         sort: selectedSorting.value?.value,
         order: selectedOrder.value?.value,
       };
+
+      if (isMap) {
+        params.boundingBox = { ...boundingBox.value, precision: currentPrecision.value };
+      }
+
       const results = await api.search(params);
 
       searchTime.value = results.searchTime;
@@ -239,9 +289,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     clear.value = !clear.value;
 
     searchInput.value = '';
-    route.query.q = '';
-    route.query.f = '';
-    route.query.t = '';
+    filters.value = {};
 
     if (resetAdvancedSearch.value) {
       advancedSearchEnabled.value = false;
@@ -258,7 +306,21 @@ export const useSearch = (searchType: 'list' | 'map') => {
     filters.value = {};
 
     const query = {};
-    await router.push({ path: 'search', query });
+
+    // TODO: Reset the map stuff
+    // map.setZoom(initZoom);
+    // map.setView(initView, initZoom);
+    //
+    // zoomLevel.value = initZoom;
+    // boundingBox.value = { ...initBoundingBox };
+    // currentPrecision.value = undefined;
+    //
+    // const topRight = L.latLng(boundingBox.value.topRight);
+    // const bottomLeft = L.latLng(boundingBox.value.bottomLeft);
+    // const bounds = L.latLngBounds(bottomLeft, topRight);
+    // map.fitBounds(bounds, { maxZoom });
+    //
+    await router.push({ path: 'search' });
   };
 
   const scrollToTop = () => {
@@ -320,7 +382,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
   };
 
   const doWork = async () => {
-    console.log('🪚 🔵', 'doWork');
     await syncStateFromUrl();
 
     search();
@@ -372,5 +433,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     orderResults,
     updatePages,
     clearError,
+    setMapParams,
   };
 };

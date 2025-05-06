@@ -1,97 +1,127 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUpdated, ref, toRaw, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue';
 
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 import 'leaflet.path.drag';
 import 'leaflet-editable';
 
-// Enable gesture handling
-import { GestureHandling } from 'leaflet-gesture-handling';
-import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+// import { GestureHandling } from 'leaflet-gesture-handling';
+// import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 
 import Geohash from 'latlon-geohash';
-import { CloseBold } from '@element-plus/icons-vue';
-import { v4 as uuid } from 'uuid';
 
-import SearchAggs from '@/components/Facet.vue';
-// import SearchDetailElement from './SearchDetailElement.component.vue';
-import SearchBar from '@/components/SearchBar.vue';
+import { useSearch } from '@/composables/search';
 
+import SearchLayout from '@/components/SearchLayout.vue';
 import { configuration } from '@/configuration';
 
-L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
+const {
+  advancedSearchEnabled,
+  searchInput,
+  facets,
+  filters,
+  entities,
+  isLoading,
+  totals,
+  searchTime,
+  isMap,
+  selectedSorting,
+  selectedOrder,
+  pageSize,
+  currentPage,
+  errorDialogText,
 
-//This is to fix a leaflet bug
-//https://salesforce.stackexchange.com/questions/180977/leaflet-error-when-zoom-after-close-popup-in-lightning-component
-// L.Popup.prototype._animateZoom = function (e) {
-//   if (!this._map) {
-//     return;
-//   }
-//   const pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center);
-//   const anchor = this._getAnchor();
-//   L.DomUtil.setPosition(this._container, pos.add(anchor));
-// };
+  onInputChange,
+  updateRoutes,
+  enableAdvancedSearch,
+  updateFilter,
+  basicSearch,
+  resetAdvancedSearch,
+  filtersChanged,
+  clearFilters,
+  clearFilter,
+  resetSearch,
+  sortResults,
+  orderResults,
+  updatePages,
+  clearError,
+  setMapParams,
+} = useSearch('map');
 
-// L.Icon.Default.prototype._getIconUrl = undefined;
+// L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
-// L.ClickableTooltip = L.Popup.extend({
-//   onAdd: function (map) {
-//     L.Popup.prototype.onAdd.call(this, map);
-//     const el = this.getElement();
-//     el.addEventListener('click', () => {
-//       this.fire('click');
-//     });
-//     el.style.pointerEvents = 'auto';
-//   },
+// //This is to fix a leaflet bug
+// //https://salesforce.stackexchange.com/questions/180977/leaflet-error-when-zoom-after-close-popup-in-lightning-component
+// // L.Popup.prototype._animateZoom = function (e) {
+// //   if (!this._map) {
+// //     return;
+// //   }
+// //   const pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center);
+// //   const anchor = this._getAnchor();
+// //   L.DomUtil.setPosition(this._container, pos.add(anchor));
+// // };
+//
+// // L.Icon.Default.prototype._getIconUrl = undefined;
+//
+// L.Icon.Default.mergeOptions({
+//   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+//   iconUrl: require('leaflet/dist/images/marker-icon.png'),
+//   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 // });
 //
-// L.SearchControl = L.Control.extend({
-//   options: {
-//     position: 'bottomright',
-//   },
-//   onAdd: (map) => {
-//     const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-bottomcenter');
-//     const button = L.DomUtil.create('a', '', container);
-//     button.innerHTML =
-//       '<div class="cursor-pointer">' +
-//       '<?xml version="1.0" encoding="utf-8"?>\n' +
-//       '\n' +
-//       '<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->\n' +
-//       '<svg width="30px" height="30px" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">\n' +
-//       '\n' +
-//       '<g fill="none" fill-rule="evenodd" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" transform="matrix(0 1 1 0 2.5 2.5)">\n' +
-//       '\n' +
-//       '<path d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"/>\n' +
-//       '\n' +
-//       '<path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"/>\n' +
-//       '\n' +
-//       '</g>\n' +
-//       '\n' +
-//       '</svg>' +
-//       '</div>';
-//     button.className = 'leaflet-control-button-search';
-//     L.DomEvent.disableClickPropagation(button);
-//     L.DomEvent.on(button, 'click', () => {
-//       window.oni_ui.resetSearch();
-//     });
-//     container.title = 'Reset Search';
-//     return container;
-//   },
-// });
+// // L.ClickableTooltip = L.Popup.extend({
+// //   onAdd: function (map) {
+// //     L.Popup.prototype.onAdd.call(this, map);
+// //     const el = this.getElement();
+// //     el.addEventListener('click', () => {
+// //       this.fire('click');
+// //     });
+// //     el.style.pointerEvents = 'auto';
+// //   },
+// // });
+
+const SearchControl = L.Control.extend({
+  options: {
+    position: 'bottomright',
+  },
+  onAdd: (map: L.Map) => {
+    const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-bottomcenter');
+    container.title = 'Reset Search';
+
+    const button = L.DomUtil.create('a', '', container);
+    button.innerHTML =
+      '<div class="cursor-pointer">' +
+      '<?xml version="1.0" encoding="utf-8"?>\n' +
+      '\n' +
+      '<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->\n' +
+      '<svg width="30px" height="30px" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">\n' +
+      '\n' +
+      '<g fill="none" fill-rule="evenodd" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" transform="matrix(0 1 1 0 2.5 2.5)">\n' +
+      '\n' +
+      '<path d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"/>\n' +
+      '\n' +
+      '<path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"/>\n' +
+      '\n' +
+      '</g>\n' +
+      '\n' +
+      '</svg>' +
+      '</div>';
+
+    button.className = 'leaflet-control-button-search';
+
+    L.DomEvent.disableClickPropagation(button);
+    L.DomEvent.on(button, 'click', () => resetSearch());
+
+    return container;
+  },
+});
 
 const LocationDivIcon = L.Icon.extend({
   options: {
-    iconRetinaUrl: require('assets/marker-circle-icon-2x.png'),
-    iconUrl: require('assets/marker-circle-icon.png'),
-    shadowUrl: require('assets/marker-circle-icon.png'),
+    iconRetinaUrl: new URL('@/assets/marker-circle-icon-2x.png', import.meta.url).href,
+    iconUrl: new URL('@/assets/marker-circle-icon.png', import.meta.url).href,
+    shadowUrl: new URL('@/assets/marker-circle-icon.png', import.meta.url).href,
     ref: '<a href="https://www.flaticon.com/free-icons/red" title="red icons">Red icons created by hqrloveq - Flaticon</a>',
     iconSize: [24, 26], // size of the icon
     shadowSize: null, // size of the shadow
@@ -101,11 +131,14 @@ const LocationDivIcon = L.Icon.extend({
   },
 });
 
+type NumberedIconOptions = {
+  number: number | string;
+};
 const NumberedDivIcon = L.Icon.extend({
   options: {
-    iconRetinaUrl: require('assets/marker-empty-icon.png'),
-    iconUrl: require('assets/marker-empty-icon.png'),
-    shadowUrl: require('assets/marker-empty-icon.png'),
+    iconRetinaUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
+    iconUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
+    shadowUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
     number: '',
     iconSize: new L.Point(25, 40),
     iconAnchor: new L.Point(12, 16),
@@ -127,92 +160,50 @@ const NumberedDivIcon = L.Icon.extend({
   },
   //you could change this to add a shadow like in the normal marker if you really wanted
   createShadow: () => null,
-});
+}) as new (
+  options: NumberedIconOptions,
+) => L.Icon;
 
-// L.CountDivIcon = L.Icon.extend({
-//   options: {
-//     number: '',
-//     className: 'leaflet-div-icon',
-//   },
-//   createIcon: function () {
-//     const div = document.createElement('div');
-//     const img = this._createImg(this.options.iconUrl);
-//     const numdiv = document.createElement('div');
-//     numdiv.setAttribute('class', 'number');
-//     numdiv.innerHTML = this.options.number || '';
-//     div.appendChild(img);
-//     div.appendChild(numdiv);
-//     this._setIconStyles(div, 'icon');
-//     return div;
-//   },
-//   //you could change this to add a shadow like in the normal marker if you really wanted
-//   createShadow: () => null,
-// });
-
-type Facet = {
-  buckets: Array<{ name: string; count: number }>;
-  display: string;
-  order: number;
-  name: string;
-  active?: boolean;
-  help: string;
-  hide?: boolean;
-};
-
-const { searchFields } = configuration.ui;
-
-const initBoundingBox = {
-  topRight: {
-    lat: 37.160316546736766,
-    lng: -174.19921875,
-  },
-  bottomLeft: {
-    lat: -69.90011762668541,
-    lng: 85.60546875,
-  },
-  bottomRight: { lat: -11.523088, lng: 162.649886 },
-  topLeft: { lat: -42.811522, lng: 108.64901 },
-};
-const minZoom = 3; // Why does it stop working below 3?
-const maxZoom = 18; // NOTE: 18 is the max
-// TODO: pass this via config. Center location and zoom level
-const initView = { lat: -25, lng: 134 };
-const initZoom = 4;
+// // L.CountDivIcon = L.Icon.extend({
+// //   options: {
+// //     number: '',
+// //     className: 'leaflet-div-icon',
+// //   },
+// //   createIcon: function () {
+// //     const div = document.createElement('div');
+// //     const img = this._createImg(this.options.iconUrl);
+// //     const numdiv = document.createElement('div');
+// //     numdiv.setAttribute('class', 'number');
+// //     numdiv.innerHTML = this.options.number || '';
+// //     div.appendChild(img);
+// //     div.appendChild(numdiv);
+// //     this._setIconStyles(div, 'icon');
+// //     return div;
+// //   },
+// //   //you could change this to add a shadow like in the normal marker if you really wanted
+// //   createShadow: () => null,
+// // });
+//
+const { mapConfig } = configuration.ui;
 
 const geoHashLayer = L.featureGroup();
 const tooltipLayers = L.layerGroup();
-const map = L.map('map', {
-  // @ts-expect-error No types
-  gestureHandling: true,
-  minZoom,
-  maxZoom,
-  worldCopyJump: false, // this is weird if true because it jumps
-});
-
-const route = useRoute();
-const router = useRouter();
-
-const searchInput = ref(route.query.q || '');
-const advancedSearchEnabled = ref(false);
-const boundingBox = ref(initBoundingBox);
 const outOfBounds = ref(0);
-const buckets = ref<{ key: string; doc_count: number }[]>([]);
-const zoomLevel = ref(8);
-const currentPrecision = ref<number>();
 const tooltip = ref<L.Popup>();
 const markerSelected = ref(false);
-const currentPage = ref(0);
-const filters = ref<Record<string, string[]>>({});
-const selectedOperation = ref('must');
-const pageSize = ref(10);
-const filtersChanged = ref(false);
-const leafletAggs = ref([]);
-const facets = ref<Facet[]>([]);
-const totals = ref(0);
-const errorDialogText = ref<string | undefined>();
+let map: L.Map;
 
 const initMap = () => {
-  map.setView(initView, initZoom);
+  map = L.map('map', {
+    // @ts-expect-error No types
+    gestureHandling: true,
+    minZoom: 3,
+    maxZoom: 18,
+    worldCopyJump: false, // this is weird if true because it jumps
+  });
+
+  // Starting point for zoom out
+  map.setView(mapConfig.center, mapConfig.zoom);
 
   L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -223,20 +214,14 @@ const initMap = () => {
   geoHashLayer.addTo(map);
   tooltipLayers.addTo(map);
 
-  // TODO: Is this used does it work?
-  // const control = new L.SearchControl();
-  // control.addTo(map);
+  const control = new SearchControl();
+  control.addTo(map);
 
-  //Set initial bounds
-  const topLeft = L.latLng(boundingBox.value.topLeft);
-  const bottomRight = L.latLng(boundingBox.value.bottomRight);
-  const bounds = L.latLngBounds(bottomRight, topLeft);
-
-  console.log('bounds', JSON.stringify(bounds));
-
-  if (bounds.isValid()) {
-    map.flyToBounds(bounds, { maxZoom });
-  }
+  // Zoom to bounds
+  const topRight = L.latLng(mapConfig.boundingBox.topRight);
+  const bottomLeft = L.latLng(mapConfig.boundingBox.bottomLeft);
+  const bounds = L.latLngBounds(bottomLeft, topRight);
+  map.flyToBounds(bounds);
 };
 
 const clearLayers = () => {
@@ -286,17 +271,24 @@ const fitBounds = (position: L.LatLng) => {
   return position;
 };
 
-const updateLayerBuckets = (val: { key: string; doc_count: number }[]) => {
+const updateLayers = () => {
   clearLayers();
 
-  if (!val) {
+  if (!facets.value) {
     return;
   }
 
-  for (const bucket of val) {
+  const facet = facets.value.find((f) => f.name === 'geohash');
+
+  if (!facet) {
+    return;
+  }
+
+  for (const bucket of facet.buckets) {
     try {
-      const geohash = bucket.key;
+      const geohash = bucket.name;
       const decoded = Geohash.decode(geohash);
+      console.log('🪚 decoded:', JSON.stringify(decoded, null, 2));
       const latlon = L.latLng(decoded.lat, decoded.lon);
 
       const newPosition = fitBounds(latlon);
@@ -316,16 +308,15 @@ const updateLayerBuckets = (val: { key: string; doc_count: number }[]) => {
       }
 
       let shape: L.Rectangle | L.Marker;
-      if (bucket.doc_count > 0) {
+      if (bucket.count > 0) {
         const count = L.marker(latlon, {
-          // @ts-expect-error FIXME
-          icon: new NumberedDivIcon({ number: bucket.doc_count }),
+          icon: new NumberedDivIcon({ number: bucket.count }),
         });
-        L.setOptions(count, { customData: { docCount: bucket.doc_count, key: geohash, latlng: latlon } });
+        L.setOptions(count, { customData: { docCount: bucket.count, key: geohash, latlng: latlon } });
         count.addTo(geoHashLayer);
 
         let color = '#ffffff';
-        const docCount = bucket.doc_count;
+        const docCount = bucket.count;
         if (docCount <= 1) color = '#ffea1f';
         if (docCount > 1 && docCount <= 10) color = '#4470a2';
         if (docCount > 10 && docCount <= 30) color = '#14a848';
@@ -344,12 +335,13 @@ const updateLayerBuckets = (val: { key: string; doc_count: number }[]) => {
           icon: new LocationDivIcon(),
         });
       }
-      L.setOptions(shape, { customData: { docCount: bucket.doc_count, key: geohash, latlng: latlon } });
+      L.setOptions(shape, { customData: { docCount: bucket.count, key: geohash, latlng: latlon } });
       shape.addTo(geoHashLayer);
 
+      console.log('🪚 map.getBounds:', JSON.stringify(map.getBounds(), null, 2));
       if (!map.getBounds().contains(latlon)) {
         console.log('shape is out of bounds', shape);
-        outOfBounds.value += bucket.doc_count || 0;
+        outOfBounds.value += bucket.count || 0;
       }
     } catch (error) {
       console.log('ERROR GEOHASH BUCKET', error);
@@ -370,73 +362,22 @@ const calculatePrecision = (zoomLevel: number) => {
   return precision;
 };
 
-const setMapBounds = (init = false) => {
-  if (init) {
-    boundingBox.value = { ...initBoundingBox };
-    console.log('init bounds', init);
-  }
+const searchEvent = async () => {
+  console.log('🪚 💜', 'SearchEvent');
+  const zoom = map.getZoom();
+  const precision = calculatePrecision(zoom);
 
   const bounds = map.getBounds();
-  if (bounds.isValid()) {
-    const ne = bounds.getNorthEast();
-    const sw = bounds.getSouthWest();
-    // FIXME: Do we need to standardise on the corners?
-    // @ts-expect-error FIXME
-    boundingBox.value = {
-      topRight: { lat: ne.lat, lng: ne.lng },
-      bottomLeft: { lat: sw.lat, lng: sw.lng },
-    };
-  } else {
-    alert('Bounds not valid');
-  }
-};
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+  const boundingBox = {
+    topRight: { lat: ne.lat, lng: ne.lng },
+    bottomLeft: { lat: sw.lat, lng: sw.lng },
+  };
 
-// FIXME
-const updateRoutes = async ({ queries = {}, updateFilters = false }) => {
-  // let filters;
-  // const query = {};
-  // let localFilterUpdate = false;
-  // if (!isEmpty(this.filters) || updateFilters) {
-  //   filters = toRaw(this.filters);
-  //   filters = encodeURIComponent(JSON.stringify(filters));
-  //   query.f = filters;
-  //   localFilterUpdate = true;
-  // } else {
-  //   query.f = undefined;
-  // }
-  // if (this.$route.query.f && !localFilterUpdate) {
-  //   query.f = this.$route.query.f;
-  // }
-  // let localSearchGroupUpdate = false;
-  // if (queries?.searchGroup) {
-  //   this.advancedQueries = queries;
-  //   query.q = undefined;
-  //   query.a = queries.searchGroup;
-  //   this.currentPage = 0;
-  //   //this.selectedSorting = this.sorting[0];
-  //   localSearchGroupUpdate = true;
-  // }
-  // if (this.$route.query.a && !localSearchGroupUpdate) {
-  //   query.a = this.$route.query.a;
-  //   query.q = undefined;
-  //   this.updateAdvancedQueries();
-  // } else {
-  //   this.advancedQueries = null; //clear advanced search
-  //   query.q = this.searchInput;
-  // }
-  // query.z = this.zoomLevel;
-  // query.p = this.currentPrecision;
-  // query.bb = encodeURIComponent(JSON.stringify(this.boundingBox));
-  // console.log(JSON.stringify(this.boundingBox));
-  // query.r = uuid();
-  // await router.push({ path: 'map', query, replace: false });
-};
+  setMapParams({ zoom, precision, boundingBox });
 
-const searchEvent = async (init = false) => {
-  zoomLevel.value = map.getZoom();
-  currentPrecision.value = calculatePrecision(zoomLevel.value);
-  setMapBounds(init);
-  await updateRoutes({ updateFilters: init });
+  await updateRoutes();
 };
 
 const searchGeoHash = async ({
@@ -444,28 +385,25 @@ const searchGeoHash = async ({
   pageSize,
   currentPage: newCurentPage,
 }: { geohash: string; pageSize: number; currentPage: number }) => {
-  // TODO: JF do we really want to reset this?
-  currentPage.value = 0;
-
   const bounds = Geohash.bounds(geohash);
-  // FIXME: Do we need to standardise on the corners?
-  // @ts-expect-error FIXME
-  boundingBox.value = {
+  const boundingBox = {
     topRight: { lat: bounds.ne.lat, lng: bounds.ne.lon },
     bottomLeft: { lat: bounds.sw.lat, lng: bounds.sw.lon },
   };
 
+  setMapParams({ boundingBox });
+
   // FIXME: Implement this
-  const searchOptions = {
-    init: false,
-    boundingBox: boundingBox.value,
-    multi: searchInput.value,
-    filters: filters.value,
-    searchFields,
-    operation: selectedOperation.value,
-    page: pageSize,
-    searchFrom: newCurentPage * pageSize,
-  };
+  // const searchOptions = {
+  //   init: false,
+  //   boundingBox: boundingBox.value,
+  //   multi: searchInput.value,
+  //   filters: filters.value,
+  //   searchFields,
+  //   operation: selectedOperation.value,
+  //   page: pageSize,
+  //   searchFrom: newCurentPage * pageSize,
+  // };
 
   const items = {
     hits: {
@@ -517,7 +455,7 @@ const getInnerHTMLTooltip = (item: ItemType) => {
   if (Array.isArray(memberOf) && memberOf.length > 0) {
     for (const mO of memberOf) {
       innerHTMLMemberOf += `
-        <a 
+        <a
            class="text-sm m-1 text-gray-700 underline"
            href="/collection?id=${encodeURIComponent(mO?.['@id'])}&_crateId=${encodeURIComponent(mO?.['@id'])}"
         >
@@ -562,18 +500,21 @@ const getInnerHTMLTooltip = (item: ItemType) => {
 
 const initControls = () => {
   map.on('load', async () => {
+    console.log('🪚 🔵');
     clearLayers();
     await searchEvent();
   });
 
   map.on('zoomend', async () => {
-    clearLayers();
-    tooltipLayers.clearLayers();
-    tooltip.value = undefined;
-    await searchEvent();
+    console.log('🪚 🔲', 'ZOOMED');
+    // clearLayers();
+    // tooltipLayers.clearLayers();
+    // tooltip.value = undefined;
+    // await searchEvent();
   });
 
   map.on('dragend', async () => {
+    console.log('🪚 ⭐');
     clearLayers();
     tooltipLayers.clearLayers();
     tooltip.value = undefined;
@@ -593,10 +534,12 @@ const initControls = () => {
     });
 
     markerSelected.value = false;
-    const data = e.layer?.customData;
+    const data = e.propagatedFrom?.customData;
+
     // TODO: ask people if they like this behaviour
-    zoomLevel.value = map.getZoom();
-    if (data?.docCount > 10 && zoomLevel.value <= 10) {
+    const zoom = map.getZoom();
+    setMapParams({ zoom });
+    if (data?.docCount > 10 && zoom <= 10) {
       //if there are more than X zoom in
       let nextZoom = 1;
       if (data?.docCount >= 30) {
@@ -605,10 +548,10 @@ const initControls = () => {
       if (data?.docCount >= 10) {
         nextZoom = 2;
       }
-      map.setView(e.latlng, zoomLevel.value + nextZoom);
+      map.setView(e.latlng, zoom + nextZoom);
     } else {
-      if (e.layer?.customData) {
-        const data = e.layer?.customData;
+      if (e.propagatedFrom?.customData) {
+        const data = e.propagatedFrom?.customData;
         currentPage.value = 0;
         const result = await searchGeoHash({
           geohash: data.key,
@@ -669,241 +612,21 @@ const initControls = () => {
 
 onMounted(() => {
   initMap();
-  // TODO: Is this necessary after init?
-  clearLayers();
-  updateLayerBuckets(buckets.value);
+  updateLayers();
   initControls();
 });
 
-onUpdated(() => {
-  if (map && geoHashLayer) {
-    updateLayerBuckets(buckets.value);
-  }
-});
-
-onBeforeUnmount(() => {
-  if (map) {
-    map.remove();
-  }
-});
-
-// const created = async () => {
-//   console.log('created');
-//   this.isStart = true;
-//   await this.updateFilters({});
-//   if (this.$route.query.q) {
-//     this.searchInput = this.$route.query.q;
+// onUpdated(() => {
+//   if (map && geoHashLayer) {
+//     updateLayerBuckets(buckets.value);
 //   }
-//   if (this.$route.query.a) {
-//     this.updateAdvancedQueries();
-//   } else {
-//     this.advancedSearch = false;
-//   }
-//   this.loading = true;
-//   await this.search();
-//   this.loading = false;
-// };
+// });
 //
-// const mounted = async () => {
-//   console.log('mounted');
-//   await this.updateFilters({});
-//   if (this.$route.query.o) {
-//     this.selectedOperation = this.$route.query.o;
+// onBeforeUnmount(() => {
+//   if (map) {
+//     map.remove();
 //   }
-//   if (this.$route.query.a) {
-//     this.updateAdvancedQueries();
-//   } else {
-//     this.advancedSearch = false;
-//   }
-// };
-//
-// const updated = async () => {
-//   console.log('updated');
-//   if (this.$route.query.q) {
-//     this.advancedSearch = false;
-//   }
-// };
-//
-// const open = (route) => {
-//   this.$router.push({ path: route });
-// };
-//
-const search = async () => {
-  if (!boundingBox.value) {
-    setMapBounds();
-  }
-
-  if (map.getZoom() !== zoomLevel.value) {
-    map.setZoom(zoomLevel.value);
-  }
-
-  filtersChanged.value = false;
-
-  const items = await this.$elasticService.map({
-    init: false,
-    boundingBox: boundingBox.value,
-    precision: currentPrecision,
-    multi: searchInput.value,
-    filters: filters.value,
-    searchFields,
-    operation: selectedOperation.value,
-  });
-
-  leafletAggs.value = items.aggregations._geohash;
-  const viewport = leafletAggs.value;
-  updateLayerBuckets(viewport?.buckets);
-  aggregations.value = populateAggregations(items.aggregations);
-  total.value = items.hits?.total || 0;
-
-  return items;
-};
-
-const newAggs = ({ query, aggsName }) => {
-  if (query.f) {
-    //In here we need to merge the filters
-    const decodedFilters = JSON.parse(decodeURIComponent(query.f));
-    mergeFilters(decodedFilters, aggsName);
-  }
-  if (query.q) {
-    searchInput.value = decodeURIComponent(query.q);
-  }
-  filtersChanged.value = true;
-};
-
-const populate = ({ items, newSearch, aggregations }) => {
-  this.items = [];
-  if (newSearch) {
-    this.newSearch = true;
-  }
-  if (items?.hits) {
-    const thisItems = items.hits.hits;
-    this.totals = items.hits.total;
-    if (thisItems.length > 0) {
-      for (const item of thisItems) {
-        this.items.push(item);
-      }
-      this.more = true;
-    } else {
-      this.more = false;
-    }
-  }
-  if (items?.aggregations) {
-    this.aggregations = this.populateAggregations(items.aggregations);
-    this.memberOfBuckets = items.aggregations?.['_memberOf.name.@value'];
-  }
-};
-
-const populateAggregations = (aggregations) => {
-  const a = {};
-  //Note: below is converted to an ordered array not an object.
-  const aggInfo = this.$store.state.configuration.ui.aggregations;
-  for (const agg of Object.keys(aggregations)) {
-    const info = aggInfo.find((a) => a.name === agg);
-    const display = info?.display;
-    const order = info?.order;
-    const name = info?.name;
-    const hide = info?.hide;
-    const active = info?.active;
-    const help = info?.help;
-    a[agg] = {
-      buckets: aggregations[agg]?.buckets || aggregations[agg]?.values?.buckets,
-      display: display || agg,
-      order: order || 0,
-      name: name || agg,
-      hide: hide,
-      active: active,
-      help: help || '',
-    };
-  }
-  return orderBy(a, 'order');
-};
-
-const enableAdvancedSearch = () => {
-  alert('Advanced Search is not available in Map View.');
-};
-
-const onInputChange = (value) => {
-  this.searchInput = value;
-};
-
-const updateFilters = async ({ clear, empty }) => {
-  try {
-    // updating filters from command
-    if (clear?.f && clear?.filterKey) {
-      if (this.filters[clear.filterKey]) {
-        this.filters[clear.filterKey].splice(this.filters[clear.filterKey].indexOf(clear.f), 1);
-        if (isEmpty(this.filters[clear.filterKey])) {
-          delete this.filters[clear.filterKey];
-        }
-        //if there is an update on the filter the site will do another search.
-        await this.updateRoutes({ updateFilters: true });
-      }
-    } else {
-      // or updating filters from routes
-      if (isEmpty(this.$route.query.f)) {
-        this.filters = {};
-      } else {
-        let filterQuery;
-        const filters = decodeURIComponent(this.$route.query.f);
-        filterQuery = JSON.parse(filters);
-        this.filters = {};
-        for (const [key, val] of Object.entries(filterQuery)) {
-          this.filters[key] = val;
-          if (this.filters[key].length === 0) {
-            delete this.filters[key];
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const resetSearch = () => {
-  scrollToTop();
-
-  map.setZoom(initZoom);
-  map.setView(initView, initZoom);
-
-  zoomLevel.value = initZoom;
-  boundingBox.value = initBoundingBox;
-  currentPrecision.value = undefined;
-
-  const topLeft = L.latLng(boundingBox.value.topLeft);
-  const bottomRight = L.latLng(boundingBox.value.bottomRight);
-  const bounds = L.latLngBounds(bottomRight, topLeft);
-  map.fitBounds(bounds, { maxZoom });
-
-  filters.value = {};
-  searchInput.value = '';
-
-  searchEvent(true);
-};
-
-const clearFilters = () => {
-  filters.value = {};
-
-  updateRoutes({ updateFilters: true });
-};
-
-const mergeFilters = (newFilters: Record<string, string[]>, aggsName: string) => {
-  filters.value[aggsName] = newFilters[aggsName] || [];
-
-  if (filters.value[aggsName].length === 0) {
-    delete filters.value[aggsName];
-  }
-};
-
-const clean = (string) => {
-  if (string === 'true') {
-    return 'Yes';
-  }
-  if (string === 'false') {
-    return 'No';
-  }
-  return string.replace(/@|_|(\..*)/g, '');
-};
+// });
 
 const updateGeoHashSearch = async ({
   geohash,
@@ -927,7 +650,6 @@ const updateGeoHashSearch = async ({
     hits.scrollTop = 0;
   }
 
-  const total = result.hits.total;
   if (result.hits.hits.length === 0) {
     const noResults = document.createElement('div');
     noResults.innerHTML = '<div>No More Results</div>';
@@ -937,13 +659,15 @@ const updateGeoHashSearch = async ({
   } else {
     for (const hit of result.hits.hits) {
       const newDiv = document.createElement('div');
-      newDiv.innerHTML = getInnerHTMLTooltip(hit, total);
+      newDiv.innerHTML = getInnerHTMLTooltip(hit);
       if (hits) {
         hits.appendChild(newDiv);
       }
     }
   }
 };
+
+watch(facets, updateLayers);
 
 // watch(
 //   () => '$route.query',
@@ -976,163 +700,17 @@ const updateGeoHashSearch = async ({
 </script>
 
 <template>
-  <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
-    <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-      class="h-full max-h-screen overflow-y-auto flex flex-col p-2" data-scroll-to-top>
-      <div v-show="!advancedSearchEnabled"
-        class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-        <SearchBar ref='searchBar' :searchInput="searchInput.toString()"
-          class="grow justify-items-center items-center m-4" @enable-advanced="enableAdvancedSearch"
-          @update-search-input="onInputChange" @do-search="updateRoutes" searchPath="map" />
-      </div>
-
-      <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
-        <div class="py-3 px-2">
-          <div class="">
-            <p class="text-xl text-gray-600 font-semibold py-1 px-2">
-              Filters
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-2">
-        <div class="flex w-full" v-for="facet of facets" :key="facet.name">
-          <ul v-if="facet.buckets.length > 0 && !facet.hide && facet.name !== 'geohash'"
-            class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
-            <li @click="facet.active = !facet.active"
-              class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">
-              <span class="text-xl text-gray-600 font-semibold py-1 px-2">
-                {{ facet.display }}
-                <el-tooltip v-if="facet.help" class="box-item" effect="light" trigger="hover" :content="facet.help"
-                  placement="top">
-                  <el-button link>
-                    <font-awesome-icon icon="fa-solid fa-circle-info" />
-                  </el-button>
-                </el-tooltip>
-              </span>
-              <span class="py-1 px-2">
-                <font-awesome-icon v-if="facet.active" icon="fa fa-chevron-down" />
-                <span v-else>
-                  <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                    facet.buckets.length
-                    }}</span>&nbsp;
-                  <font-awesome-icon icon="fa fa-chevron-right" />
-                </span>
-              </span>
-            </li>
-            <li v-if="facet.buckets.length <= 0" class="w-full min-w-full">&nbsp;</li>
-            <SearchAggs :buckets="facet.buckets" :aggsName="facet.name" :ref="facet.name" v-show="facet.active"
-              @is-active="facet.active = true" @changed-aggs="newAggs" />
-          </ul>
-        </div>
-      </div>
-    </el-col>
-
-    <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
-      class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3" data-scroll-to-top>
-
-      <div class="pr-0">
-        <div v-show="advancedSearchEnabled" data-scroll-to-top
-          class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
-            @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
-        </div>
-        <div class="top-20 z-10 bg-white pb-3">
-          <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
-            <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
-              <el-button-group class="mr-1" v-show="filtersChanged">
-                <el-button type="warning" @click="updateRoutes()">
-                  Apply Filters
-                </el-button>
-              </el-button-group>
-
-              <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">
-                Filtering by:
-              </span>
-
-              <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
-                :key="filterKey" v-model="filters">
-                <el-button plain>{{ clean(filterKey) }}</el-button>
-                <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                  @click="clearFilter(f, filterKey)" class="text-2xl">
-                  {{ clean(f) }}
-                  <el-icon class="el-icon--right">
-                    <CloseBold />
-                  </el-icon>
-                </el-button>
-              </el-button-group>
-
-              <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
-                <el-button @click="clearFilters()">Clear Filters</el-button>
-              </el-button-group>
-
-              <span id="total_results" class="my-1 mr-2" v-show="totals">
-                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects, Files and
-                  Notebooks)</span>
-                <span v-if="outOfBounds > 0" class="my-1" v-show="total">, some ({{ outOfBounds }}) result(s) are out of
-                  bounds; move your map to see them.
-                </span>
-              </span>
-            </el-col>
-
-            <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
-              <el-button size="large" @click="router.push({ path: '/search' })">
-                <span>
-                  <font-awesome-icon icon="fa-solid fa-list" />&nbsp;List View
-                  <el-tooltip
-                    content="View the results as a list. Note that current search and filter options will be reset."
-                    placement="bottom-end" effect="light">
-                    <font-awesome-icon icon="fa fa-circle-question" />
-                  </el-tooltip>
-                </span>
-              </el-button>
-            </el-col>
-            <el-col>
-              <p class="text-sm">
-                <font-awesome-icon icon="fa fa-triangle-exclamation" />
-                Filter and Search results will only show results on the current map view, move or resize the map
-                to view other results.
-              </p>
-            </el-col>
-          </el-row>
-        </div>
-
-        <el-row :span="24" class="pt-2 flex gap-4 pb-2">
-          <el-button-group class="my-1">
-            <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
-          </el-button-group>
-        </el-row>
-
-        <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
-        <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
-      </div>
-    </el-col>
-  </el-row>
-
-  <el-dialog v-model="errorDialogText" width="40%" center>
-    <el-alert title="Error" type="warning" :closable="false">
-      <p class="break-normal">{{ errorDialogText }}</p>
-    </el-alert>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button type="primary" @click="errorDialogText = undefined">Close</el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <el-row v-show="filtersChanged" class="bg-white rounded-sm m-4 p-4 px-8 shadow-md border" role="alert"
-    style="bottom: 16px; z-index: 2044; position: fixed">
-    <el-row class="p-2">
-      <div class="w-full">
-        <el-button-group class="self-center">
-          <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes()">Apply Filters</el-button>
-        </el-button-group>
-      </div>
-    </el-row>
-  </el-row>
-  <el-row></el-row>
+  <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities"
+    :clearFilter="clearFilter" :onInputChange="onInputChange" :enableAdvancedSearch="enableAdvancedSearch"
+    :clearError="clearError" :filtersChanged="filtersChanged" :advancedSearchEnabled="advancedSearchEnabled"
+    :updateRoutes="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" :clearFilters=clearFilters
+    :updateFilter="updateFilter" :basicSearch="basicSearch" :totals="totals" :resetSearch="resetSearch" :isMap="isMap"
+    :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults" :selectedOrder="selectedOrder"
+    :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
+    :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages">
+    <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
+    <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
+  </SearchLayout>
 </template>
 
 <style>

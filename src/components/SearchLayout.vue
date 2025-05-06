@@ -133,9 +133,10 @@ const clean = (value: string) => {
               <span class="py-1 px-2">
                 <font-awesome-icon v-if="facet.active" icon="fa fa-chevron-down" />
                 <span v-else>
-                  <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                    facet.buckets.length
-                    }}</span>&nbsp;
+                  <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">
+                    {{ facet.buckets.length }}
+                  </span>
+                  &nbsp;
                   <font-awesome-icon icon="fa fa-chevron-right" />
                 </span>
               </span>
@@ -194,16 +195,25 @@ const clean = (value: string) => {
             </el-col>
 
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
-              <el-button size="large" @click="router.push({ path: isMap ? '/map' : '/search', query: route.query })">
+              <el-button size="large" @click="router.push({ path: isMap ? '/search' : '/map', query: route.query })">
                 <span>
-                  <font-awesome-icon icon="fa-solid fa-map-location" />&nbsp;Map View
+                  <font-awesome-icon :icon="`fa-solid fa-${isMap ? 'map-location' : 'list'}`" />
+                  &nbsp;
+                  {{ isMap ? 'List' : 'Map' }} View
                   <el-tooltip
-                    content="View the results as a map. Note that current search and filter options will be reset."
+                    :content="`View the results as a ${isMap ? 'list' : 'map'}. Note that current search and filter options will be reset.`"
                     placement="bottom-end" effect="light">
                     <font-awesome-icon icon="fa fa-circle-question" />
                   </el-tooltip>
                 </span>
               </el-button>
+            </el-col>
+            <el-col v-if="isMap">
+              <p class="text-sm">
+                <font-awesome-icon icon="fa fa-triangle-exclamation" />
+                Filter and Search results will only show results on the current map view, move or resize the map
+                to view other results.
+              </p>
             </el-col>
           </el-row>
         </div>
@@ -212,17 +222,19 @@ const clean = (value: string) => {
           <el-button-group class="my-1">
             <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
           </el-button-group>
-          <el-select :model-value="selectedSorting" @change="sortResults" class="my-1 !w-sm">
-            <template #prefix>Sort by:</template>
-            <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-          <el-select :model-value="selectedOrder" @change="orderResults" class="my-1 !w-sm">
-            <template #prefix>Order by:</template>
-            <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <template v-if="!isMap">
+            <el-select :model-value="selectedSorting" @change="sortResults" class="my-1 !w-sm">
+              <template #prefix>Sort by:</template>
+              <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+            <el-select :model-value="selectedOrder" @change="orderResults" class="my-1 !w-sm">
+              <template #prefix>Order by:</template>
+              <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </template>
         </el-row>
 
-        <div class="py-0 w-full pb-2">
+        <div class="py-0 w-full pb-2" v-if="!isMap">
           <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals"
             :page-size="pageSize" :currentPage="currentPage" @current-change="updatePages($event)" />
         </div>
@@ -237,12 +249,12 @@ const clean = (value: string) => {
           </el-row>
           <el-row>
             <p class="text-center">
-              <el-button type="primary" v-on:click="resetSearch">RESTART SEARCH</el-button>
+              <el-button type="primary" v-on:click="resetSearch">RESET SEARCH</el-button>
             </p>
           </el-row>
         </div>
 
-        <div class="py-2 w-full">
+        <div class="py-2 w-full" v-if="!isMap">
           <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals"
             :page-size="pageSize" :currentPage="currentPage" @current-change="updatePages($event)" />
         </div>

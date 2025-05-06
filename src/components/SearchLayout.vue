@@ -3,9 +3,9 @@ import type { FacetType } from '@/composables/search';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
+import Facet from '@/components/Facet.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
-import Facet from '@/components/Facet.vue';
 
 import { configuration } from '@/configuration';
 import type { EntityType } from '@/services/api';
@@ -19,6 +19,7 @@ const ordering = ui.search?.ordering || [
 ];
 
 import { useRoute, useRouter } from 'vue-router';
+import { watch } from 'vue';
 const router = useRouter();
 const route = useRoute();
 
@@ -42,7 +43,7 @@ const {
   enableAdvancedSearch,
   updateRoutes,
   onInputChange,
-  updatedFacet,
+  updateFilter,
   basicSearch,
   resetAdvancedSearch,
   filtersChanged,
@@ -71,7 +72,7 @@ const {
   enableAdvancedSearch: () => void;
   updateRoutes: () => void;
   onInputChange: (value: string) => void;
-  updatedFacet: ({ query, aggsName }: { query: Record<string, string>; aggsName: string }) => void;
+  updateFilter: (name: string, selectedValues: string[]) => void;
   basicSearch: () => void;
   clearFilter: (f: string, filterKey: string) => void;
   clearFilters: () => void;
@@ -99,9 +100,9 @@ const clean = (value: string) => {
       class="h-full max-h-screen overflow-y-auto flex flex-col p-2" data-scroll-to-top>
       <div v-show="!advancedSearchEnabled"
         class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-        <SearchBar ref='searchBar' :searchInput="searchInput.toString()"
-          class="grow justify-items-center items-center m-4" @enable-advanced="enableAdvancedSearch"
-          @update-search-input="onInputChange" @do-search="updateRoutes" searchPath="search" />
+        <SearchBar ref='searchBar' :searchInput="searchInput" class="grow justify-items-center items-center m-4"
+          @enable-advanced="enableAdvancedSearch" @update-search-input="onInputChange" @do-search="updateRoutes"
+          searchPath="search" />
       </div>
 
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
@@ -141,7 +142,8 @@ const clean = (value: string) => {
             </li>
             <li v-if="facet.buckets.length <= 0" class="w-full min-w-full">&nbsp;</li>
             <Facet :buckets="facet.buckets" :facetName="facet.name" :ref="facet.name" v-show="facet.active"
-              @is-active="facet.active = true" @updated="updatedFacet" />
+              :initialSelectedFacetValues="filters[facet.name]" @is-active="facet.active = true"
+              @updated="updateFilter" />
           </ul>
         </div>
       </div>

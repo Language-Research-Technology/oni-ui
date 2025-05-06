@@ -23,7 +23,7 @@ const {
   onInputChange,
   updateRoutes,
   enableAdvancedSearch,
-  updatedFacet,
+  updateFilter,
   basicSearch,
   resetAdvancedSearch,
   filtersChanged,
@@ -38,11 +38,11 @@ const {
 </script>
 
 <template>
-  <SearchLayout :searchInput="searchInput.toString()" :filters="filters" :facets="facets" :entities="entities"
+  <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities"
     :clearFilter="clearFilter" :onInputChange="onInputChange" :enableAdvancedSearch="enableAdvancedSearch"
     :clearError="clearError" :filtersChanged="filtersChanged" :advancedSearchEnabled="advancedSearchEnabled"
     :updateRoutes="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" :clearFilters=clearFilters
-    :updatedFacet="updatedFacet" :basicSearch="basicSearch" :totals="totals" :resetSearch="resetSearch" :isMap="isMap"
+    :updateFilter="updateFilter" :basicSearch="basicSearch" :totals="totals" :resetSearch="resetSearch" :isMap="isMap"
     :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults" :selectedOrder="selectedOrder"
     :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages">

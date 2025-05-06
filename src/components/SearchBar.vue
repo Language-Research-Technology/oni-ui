@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const emit = defineEmits(['updateSearchInput', 'doSearch', 'enableAdvanced']);
 
@@ -14,6 +14,14 @@ const updateSearchInput = (text: string) => {
   localInput.value = text;
   emit('updateSearchInput', text);
 };
+
+watch(
+  () => searchInput,
+  (newValue) => {
+    localInput.value = newValue;
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

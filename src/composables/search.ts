@@ -31,19 +31,24 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   const isMap = searchType === 'map';
 
-  const searchInput = ref(route.query.q || '');
-  const advancedSearchEnabled = ref(!!route.query.a);
+  // Search state
+  const searchInput = ref('');
+  const advancedSearchEnabled = ref(false);
+  const filters = ref<Record<string, string[]>>({});
+
+  // Pagination
+  const pageSize = ref(10);
+  const currentPage = ref(1);
+  const totals = ref(0);
+  const searchTime = ref(0);
+
+  // Other
   const facets = ref<FacetType[]>();
   const isLoading = ref(false);
   const filtersChanged = ref(false);
   const errorDialogText = ref<string | undefined>();
   const entities = ref<EntityType[]>([]);
-  const filters = ref<Record<string, string[]>>({});
   const selectedOperation = ref(route.query.o || 'must');
-  const pageSize = ref(10);
-  const currentPage = ref(1);
-  const totals = ref(0);
-  const searchTime = ref(0);
   const resetAdvancedSearch = ref(false);
 
   const more = ref(false);
@@ -70,11 +75,14 @@ export const useSearch = (searchType: 'list' | 'map') => {
         delete filters.value[filterKey];
       }
 
-      await updateRoutes();
+      await syncStateToUrlAndNavigate();
     }
   };
 
-  const updateFilters = async () => {
+  const syncStateFromUrl = async () => {
+    searchInput.value = route.query.q?.toString() || '';
+    advancedSearchEnabled.value = !!route.query.a;
+
     filters.value = {};
 
     if (!route.query.f) {
@@ -88,6 +96,28 @@ export const useSearch = (searchType: 'list' | 'map') => {
         delete filters.value[key];
       }
     }
+  };
+
+  const syncStateToUrlAndNavigate = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
+    const query: { q?: string; f?: string; a?: string } = {};
+
+    if (Object.keys(filters.value).length > 0) {
+      query.f = encodeURIComponent(JSON.stringify(filters.value));
+    }
+
+    // TODO: rather than passing this have a function set it directly maybe?
+    if (searchGroup) {
+      query.a = encodeURIComponent(JSON.stringify(searchGroup));
+      currentPage.value = 1;
+    } else {
+      if (route.query.a) {
+        query.a = route.query.a.toString();
+      } else {
+        query.q = searchInput.value ? searchInput.value.toString() : undefined;
+      }
+    }
+
+    await router.push({ path: isMap ? 'map' : 'search', query, replace: true });
   };
 
   const search = async () => {
@@ -199,31 +229,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     return a.sort((a, b) => a.order - b.order);
   };
 
-  const updateRoutes = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
-    const query: { q?: string; f?: string; a?: string } = {};
-
-    if (Object.keys(filters.value).length > 0) {
-      query.f = encodeURIComponent(JSON.stringify(filters.value));
-    } else {
-      query.f = undefined;
-    }
-
-    if (searchGroup) {
-      query.q = undefined;
-      query.a = encodeURIComponent(JSON.stringify(searchGroup));
-      currentPage.value = 1;
-    } else {
-      if (route.query.a) {
-        query.a = route.query.a.toString();
-        query.q = undefined;
-      } else {
-        query.q = searchInput.value ? searchInput.value.toString() : undefined;
-      }
-    }
-
-    await router.push({ path: 'search', query, replace: true });
-  };
-
   const onInputChange = (value: string) => {
     searchInput.value = value;
   };
@@ -289,29 +294,14 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   const clearFilters = async () => {
     filters.value = {};
-    await updateRoutes();
+    await syncStateToUrlAndNavigate();
   };
 
-  const mergeFilters = (newFilters: Record<string, string[]>, aggsName: string) => {
-    if (Object.keys(filters.value).length > 0) {
-      filters.value = newFilters;
+  const updateFilter = (name: string, values: string[]) => {
+    if (values.length === 0) {
+      delete filters.value[name];
     } else {
-      filters.value[aggsName] = newFilters[aggsName] || [];
-      if (filters.value[aggsName].length === 0) {
-        delete filters.value[aggsName];
-      }
-    }
-  };
-
-  const updatedFacet = ({ query, aggsName }: { query: Record<string, string>; aggsName: string }) => {
-    if (query.f) {
-      //In here we need to merge the filters
-      const decodedFilters = JSON.parse(decodeURIComponent(query.f));
-      mergeFilters(decodedFilters, aggsName);
-    }
-
-    if (query.q) {
-      searchInput.value = decodeURIComponent(query.q);
+      filters.value[name] = values;
     }
 
     filtersChanged.value = true;
@@ -330,11 +320,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
   };
 
   const doWork = async () => {
-    await updateFilters();
-
-    if (route.query.q) {
-      searchInput.value = route.query.q?.toString();
-    }
+    console.log('🪚 🔵', 'doWork');
+    await syncStateFromUrl();
 
     search();
   };
@@ -372,10 +359,10 @@ export const useSearch = (searchType: 'list' | 'map') => {
     currentPage,
 
     onInputChange,
-    updateRoutes,
+    updateRoutes: syncStateToUrlAndNavigate,
     enableAdvancedSearch,
     basicSearch,
-    updatedFacet,
+    updateFilter,
     resetAdvancedSearch,
     filtersChanged,
     clearFilter,

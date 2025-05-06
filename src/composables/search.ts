@@ -182,7 +182,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
       };
 
       if (isMap) {
-        params.boundingBox = { ...boundingBox.value, precision: currentPrecision.value };
+        // params.boundingBox = { ...boundingBox.value, precision: currentPrecision.value };
+        params.boundingBox = { ...boundingBox.value, precision: 2 };
       }
 
       const results = await api.search(params);

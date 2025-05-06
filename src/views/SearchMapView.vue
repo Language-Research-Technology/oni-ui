@@ -288,7 +288,6 @@ const updateLayers = () => {
     try {
       const geohash = bucket.name;
       const decoded = Geohash.decode(geohash);
-      console.log('🪚 decoded:', JSON.stringify(decoded, null, 2));
       const latlon = L.latLng(decoded.lat, decoded.lon);
 
       const newPosition = fitBounds(latlon);
@@ -362,8 +361,7 @@ const calculatePrecision = (zoomLevel: number) => {
   return precision;
 };
 
-const searchEvent = async () => {
-  console.log('🪚 💜', 'SearchEvent');
+const searchEvent = () => {
   const zoom = map.getZoom();
   const precision = calculatePrecision(zoom);
 
@@ -377,7 +375,9 @@ const searchEvent = async () => {
 
   setMapParams({ zoom, precision, boundingBox });
 
-  await updateRoutes();
+  updateLayers();
+
+  updateRoutes();
 };
 
 const searchGeoHash = async ({
@@ -507,10 +507,10 @@ const initControls = () => {
 
   map.on('zoomend', async () => {
     console.log('🪚 🔲', 'ZOOMED');
-    // clearLayers();
-    // tooltipLayers.clearLayers();
-    // tooltip.value = undefined;
-    // await searchEvent();
+    clearLayers();
+    tooltipLayers.clearLayers();
+    tooltip.value = undefined;
+    await searchEvent();
   });
 
   map.on('dragend', async () => {
@@ -612,7 +612,7 @@ const initControls = () => {
 
 onMounted(() => {
   initMap();
-  updateLayers();
+  // updateLayers();
   initControls();
 });
 
@@ -667,7 +667,7 @@ const updateGeoHashSearch = async ({
   }
 };
 
-watch(facets, updateLayers);
+// watch(facets, updateLayers);
 
 // watch(
 //   () => '$route.query',

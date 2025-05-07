@@ -19,7 +19,11 @@ export type SearchParams = GetEntitiesParams & {
   query: string;
   filters?: Record<string, string[]>;
   searchType?: 'basic' | 'advanced';
-  boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number }; precision: number };
+  boundingBox?: {
+    topRight: { lat: number; lng: number };
+    bottomLeft: { lat: number; lng: number };
+    precision?: number;
+  };
 };
 
 export type EntityType = {
@@ -55,6 +59,7 @@ export type GetSearchResponse = {
   searchTime: number;
   entities: Array<EntityType>;
   facets: Record<string, { name: string; count: number }[]>;
+  geohashGrid: Record<string, number>;
 };
 
 export type RoCrate = {

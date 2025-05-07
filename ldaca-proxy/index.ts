@@ -208,6 +208,7 @@ type GetSearchResponse = {
   searchTime: number;
   entities: Array<EntityType & { searchExtra: { score: number; highlight: string[] } }>;
   facets: Record<string, { name: string; count: number }[]>;
+  geohashGrid: Record<string, number>;
 };
 
 const aggMap: Record<string, string> = {
@@ -290,7 +291,6 @@ app.post('/ldaca/search', async (req, res) => {
       });
     }
 
-    console.log("🪚 body:", JSON.stringify(body, null, 2))
     const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(body),
@@ -298,7 +298,6 @@ app.post('/ldaca/search', async (req, res) => {
 
     // biome-ignore lint/suspicious/noExplicitAny: foo
     const result = (await response.json()) as any;
-    // console.log("🪚 result:", JSON.stringify(result, null, 2))
 
     const conformsTo = configuration.ui.conformsTo;
 
@@ -361,6 +360,11 @@ app.post('/ldaca/search', async (req, res) => {
 
     const facets: Record<string, { name: string; count: number }[]> = {};
 
+    const geohashGrid: Record<string, number> = {}
+    result.aggregations['_geohash']?.buckets.forEach((bucket: Record<string, number>) => geohashGrid[bucket.key] = bucket.doc_count);
+
+    delete result.aggregations['_geohash'];
+
     for (const key in result.aggregations) {
       const values = result.aggregations[key].buckets.map((bucket: { key: string; doc_count: number }) => ({
         name: bucket.key,
@@ -377,6 +381,7 @@ app.post('/ldaca/search', async (req, res) => {
       searchTime: result.took,
       entities,
       facets,
+      geohashGrid,
     };
 
     res.status(response.status).send(JSON.stringify(converted, null, 2));

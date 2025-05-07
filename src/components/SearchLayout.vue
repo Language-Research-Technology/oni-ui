@@ -218,7 +218,7 @@ const clean = (value: string) => {
           </el-row>
         </div>
 
-        <el-row :span="24" class="pt-2 flex gap-4 pb-2">
+        <el-row :span="24" class="pt-2 flex gap-4 pb-2" v-if="!isMap">
           <el-button-group class="my-1">
             <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
           </el-button-group>

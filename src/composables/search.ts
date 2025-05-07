@@ -71,8 +71,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   // Map Stuff
   const zoomLevel = ref(mapConfig.zoom);
-  const currentPrecision = ref(mapConfig.precision);
   const boundingBox = ref(mapConfig.boundingBox);
+  const geohashGrid = ref<Record<string, number>>({});
 
   const clearFilter = async (f: string, filterKey: string) => {
     if (filters.value[filterKey]) {
@@ -86,26 +86,32 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
   };
 
-  const syncStateFromUrl = async () => {
+  const syncStateFromUrl = () => {
+    console.log('🪚 🟩');
     searchInput.value = route.query.q?.toString() || '';
     advancedSearchEnabled.value = !!route.query.a;
 
     filters.value = {};
 
-    if (!route.query.f) {
-      return;
-    }
-
-    const filterQuery = JSON.parse(decodeURIComponent(route.query.f.toString())) as Record<string, string[]>;
-    for (const [key, val] of Object.entries(filterQuery)) {
-      filters.value[key] = val;
-      if (filters.value[key].length === 0) {
-        delete filters.value[key];
+    if (route.query.f) {
+      const filterQuery = JSON.parse(decodeURIComponent(route.query.f.toString())) as Record<string, string[]>;
+      for (const [key, val] of Object.entries(filterQuery)) {
+        filters.value[key] = val;
+        if (filters.value[key].length === 0) {
+          delete filters.value[key];
+        }
       }
     }
+
+    zoomLevel.value = route.query.z ? Number.parseInt(route.query.z.toString(), 10) : mapConfig.zoom;
+
+    boundingBox.value = route.query.bb
+      ? JSON.parse(decodeURIComponent(route.query.bb.toString()))
+      : mapConfig.boundingBox;
   };
 
   const syncStateToUrlAndNavigate = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
+    console.log('🪚 syncStateToUrlAndNavigate');
     const query: { q?: string; f?: string; a?: string; z?: string; p?: string; bb?: string } = {};
 
     if (Object.keys(filters.value).length > 0) {
@@ -126,7 +132,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
     if (isMap) {
       query.z = zoomLevel.value.toString();
-      query.p = currentPrecision.value.toString();
       query.bb = encodeURIComponent(JSON.stringify(boundingBox.value));
     }
 
@@ -135,19 +140,13 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   const setMapParams = ({
     zoom,
-    precision,
     boundingBox: localBoundingBox,
   }: {
     zoom?: number;
-    precision?: number;
     boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
   }) => {
     if (zoom) {
       zoomLevel.value = zoom;
-    }
-
-    if (precision) {
-      currentPrecision.value = precision;
     }
 
     if (localBoundingBox) {
@@ -155,20 +154,24 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
   };
 
+  const calculatePrecision = (zoomLevel: number) => {
+    // This is a way to match zoom levels in leaflet vs precision levels in elastic/opensearch geoHashGridAggregation
+    let precision = Math.floor(zoomLevel / 2);
+
+    if (precision < 1) {
+      precision = 1;
+    } else if (precision > 7) {
+      precision = 7;
+    }
+
+    return precision;
+  };
+
   const search = async () => {
+    console.log('🪚 search');
     filtersChanged.value = false;
 
     isLoading.value = true;
-
-    // MOO
-    //   if (!boundingBox.value) {
-    //
-    //     setMapBounds();
-    //   }
-    //
-    //   leafletAggs.value = items.aggregations._geohash;
-    //   const viewport = leafletAggs.value;
-    //   updateLayerBuckets(viewport?.buckets);
 
     try {
       const params: SearchParams = {
@@ -182,8 +185,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
       };
 
       if (isMap) {
-        // params.boundingBox = { ...boundingBox.value, precision: currentPrecision.value };
-        params.boundingBox = { ...boundingBox.value, precision: 2 };
+        const precision = calculatePrecision(zoomLevel.value);
+        params.boundingBox = { ...boundingBox.value, precision };
       }
 
       const results = await api.search(params);
@@ -207,6 +210,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
       if (results.facets) {
         facets.value = populateFacets(results.facets);
       }
+
+      geohashGrid.value = results.geohashGrid;
 
       isLoading.value = false;
 
@@ -314,14 +319,12 @@ export const useSearch = (searchType: 'list' | 'map') => {
     //
     // zoomLevel.value = initZoom;
     // boundingBox.value = { ...initBoundingBox };
-    // currentPrecision.value = undefined;
     //
     // const topRight = L.latLng(boundingBox.value.topRight);
     // const bottomLeft = L.latLng(boundingBox.value.bottomLeft);
     // const bounds = L.latLngBounds(bottomLeft, topRight);
     // map.fitBounds(bounds, { maxZoom });
-    //
-    await router.push({ path: 'search' });
+    await router.push({ path: isMap ? 'map' : 'search' });
   };
 
   const scrollToTop = () => {
@@ -408,6 +411,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     searchInput,
     errorDialogText,
     facets,
+    geohashGrid,
     searchFields,
     entities,
     filters,

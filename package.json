@@ -4,6 +4,7 @@
   "description": "A Generic Oni Discovery UI",
   "type": "module",
   "scripts": {
+    "create-vocabs": "scripts/fetch-vocabs.mts",
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",

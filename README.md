@@ -25,7 +25,7 @@ Current guide applies to Mac and Linux:
          <br>e.g. `{"key": "YOUR_GITHUB_ACCESS_TOKEN", "org": "Australian-Text-Analytics-Platform", "binderUrl": "https://binderhub.example.cloud.edu.au"}`
       2. `node elastic-notebook-index.js` (Note: this will add notebooks to the items index)
    5. Vocabs
-      1. To add graph like vocabs run `node vocabs-index.js` this will add a second index called vocabs
+      1. To add graph like vocabs run `yarn create-vocabs`
       2. Vocabs are searched with exact match first trying <https://w3id.org/ldac/terms#><<ID>> and then <http://schema.org/><<ID>>
 6. Develop Portal:
    1. `cd portal`

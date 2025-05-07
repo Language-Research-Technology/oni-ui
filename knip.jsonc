@@ -5,8 +5,7 @@
   },
   "entry:": [
     "{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
-    "src/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
-    "scripts/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"
+    "src/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"
   ],
   "ignore": [
     // https://github.com/webpro-nl/knip/issues/504#issuecomment-2532321511

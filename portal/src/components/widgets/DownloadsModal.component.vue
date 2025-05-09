@@ -36,7 +36,7 @@
       </template>
     </div>
     <template v-else>
-      <p>No downloads associated with this item/collection.</p>
+      <p>This item does not have a direct download link.</p>
     </template>
   </div>
 </template>

@@ -61,17 +61,22 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5">
+          <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5" v-loading="loading">
             <h5 class="text-2xl font-medium">Content</h5>
             <hr class="divider divider-gray pt-2"/>
-            <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'"
-                           :id="this.$route.query.id" :root="this.metadata._root"
-                           :title="'Data'"/>
-            <SummariesCard :aggregations="aggregations"
-                           :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"
-                           :name="'licenses'"
-                           :id="this.$route.query.id" :root="this.metadata._root"
-                           :title="'Data Licenses'"/>
+            <div v-if="Object.keys(aggregations).length > 0 && !loading">
+              <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'"
+                             :id="this.$route.query.id" :root="this.metadata._root"
+                             :title="'Data'"/>
+              <SummariesCard :aggregations="aggregations"
+                             :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"
+                             :name="'licenses'"
+                             :id="this.$route.query.id" :root="this.metadata._root"
+                             :title="'Data Licenses'"/>
+            </div>
+            <div v-else>
+              No Content Found
+            </div>
           </el-card>
         </el-col>
       </el-row>
@@ -234,11 +239,13 @@ export default {
       aggregations: [],
       openDownloads: false,
       rootId: '',
-      access: null
+      access: null,
+      loading: true
     };
   },
   async mounted() {
     try {
+      this.loading = true;
       const id = encodeURIComponent(this.$route.query.id);
       const crateId = encodeURIComponent(this.$route.query._crateId);
       //encodeURIComponent may return "undefined" string
@@ -291,8 +298,10 @@ export default {
           await this.$router.push({path: '/404'});
         }
       }
+      this.loading = false;
     } catch (e) {
       console.error(e);
+      this.loading = false;
     }
     document.dispatchEvent(new Event('ZoteroItemUpdated', {
       bubbles: true,
@@ -307,6 +316,7 @@ export default {
       value: id,
     });
     putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    this.loading = false;
   },
   watch: {},
   methods: {

@@ -37,10 +37,10 @@ export default {
     };
   },
   mounted() {
-    this.populateBuckets();
+    //this.populateBuckets();
   },
   computed() {
-    this.populateBuckets();
+    //this.populateBuckets();
   },
   watch: {
     aggregations: {

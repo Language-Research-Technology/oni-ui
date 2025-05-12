@@ -68,11 +68,12 @@
               <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'"
                              :id="this.$route.query.id" :root="this.metadata._root"
                              :title="'Data'"/>
-              <SummariesCard :aggregations="aggregations"
-                             :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"
-                             :name="'licenses'"
-                             :id="this.$route.query.id" :root="this.metadata._root"
-                             :title="'Data Licenses'"/>
+              <!--Not needed because data licenses shown above-->
+<!--              <SummariesCard :aggregations="aggregations"-->
+<!--                             :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"-->
+<!--                             :name="'licenses'"-->
+<!--                             :id="this.$route.query.id" :root="this.metadata._root"-->
+<!--                             :title="'Data Licenses'"/>-->
             </div>
             <div v-else>
               No Content Found

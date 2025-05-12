@@ -24,9 +24,6 @@
       </li>
     </ul>
   </template>
-  <template v-if="aggregations.length > 0 && buckets.length  === 0" v-loading="loading">
-    No {{ title || 'Data' }} Found <br/>{{ loading }}
-  </template>
 </template>
 <script>
 import { first } from 'lodash';
@@ -68,6 +65,13 @@ export default {
             buckets: this.aggregations[field.name]?.buckets,
           });
         }
+      }
+      if(this.buckets.length === 0) {
+        // Hack to show no data found
+        this.buckets = [{
+          field: `No ${this.title} Found`,
+          buckets: [{}]
+        }];
       }
       this.loading = false;
     },

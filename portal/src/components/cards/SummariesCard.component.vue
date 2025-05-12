@@ -24,12 +24,15 @@
       </li>
     </ul>
   </template>
+  <template v-if="buckets.length  === 0">
+    No {{ title || 'Data' }} Found <br/>
+  </template>
 </template>
 <script>
 import { first } from 'lodash';
 
 export default {
-  props: ['aggregations', 'fields', 'name', 'id', 'root', 'link'],
+  props: ['aggregations', 'fields', 'name', 'id', 'root', 'link', 'title'],
   data() {
     return {
       buckets: [],

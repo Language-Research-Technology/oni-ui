@@ -24,8 +24,8 @@
       </li>
     </ul>
   </template>
-  <template v-if="buckets.length  === 0">
-    No {{ title || 'Data' }} Found <br/>
+  <template v-if="aggregations.length > 0 && buckets.length  === 0" v-loading="loading">
+    No {{ title || 'Data' }} Found <br/>{{ loading }}
   </template>
 </template>
 <script>
@@ -36,26 +36,20 @@ export default {
   data() {
     return {
       buckets: [],
-      loading: false,
+      loading: false
     };
   },
   mounted() {
-    this.loading = true;
     this.populateBuckets();
-    this.loading = false;
   },
   computed() {
-    this.loading = true;
     this.populateBuckets();
-    this.loading = false;
   },
   watch: {
     aggregations: {
       handler() {
         if (this.aggregations) {
-          this.loading = true;
           this.populateBuckets();
-          this.loading = false;
         }
       },
       flush: 'post',
@@ -64,6 +58,7 @@ export default {
   },
   methods: {
     populateBuckets() {
+      this.loading = true;
       this.buckets = [];
       for (const field of this.fields) {
         if (this.aggregations?.[field?.name]) {
@@ -74,6 +69,7 @@ export default {
           });
         }
       }
+      this.loading = false;
     },
     getSearchUrl(name, bucket) {
       const part = {};

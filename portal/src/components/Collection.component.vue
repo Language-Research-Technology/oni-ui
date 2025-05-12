@@ -66,7 +66,7 @@
             <hr class="divider divider-gray pt-2" />
             <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'"
               :id="this.$route.query.id" :root="this.metadata._root"
-                           :title="'Data'"/>
+                           :title="'Data'" />
             <SummariesCard :aggregations="aggregations"
               :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]" :name="'licenses'"
               :id="this.$route.query.id" :root="this.metadata._root"

@@ -35,22 +35,14 @@
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2"/>
-            <h4 class="text-1xl font-medium">
-              Content in this collection is licensed as:
-            </h4>
-            <div>Metadata License:</div>
-            <ul class="list-disc my-2 mx-3 pl-2">
-              <li>{{ first(this.license?.name)?.['@value'] }}</li>
-            </ul>
-            <div>Data License(s):</div>
-            <!--            <AccessHelper v-if="access" :access="access" :license="license"/>-->
-            <PropertySummaryCard
-                :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"
-                :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"
-                :fieldName="'license'"
-                :external="true" :id="this.$route.query.id" :root="this.metadata._root"
-                :emptyLabel="'no Licenses'"/>
-            <!--            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>-->
+            <AccessHelper v-if="access" :access="access" :license="license"/>
+<!--            <PropertySummaryCard-->
+<!--                :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"-->
+<!--                :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"-->
+<!--                :fieldName="'license'"-->
+<!--                :external="true" :id="this.$route.query.id" :root="this.metadata._root"-->
+<!--                :emptyLabel="'no Licenses'"/>-->
+<!--            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>-->
           </el-card>
         </el-col>
       </el-row>
@@ -159,6 +151,7 @@ import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import CitationCard from './cards/CitationCard.component.vue';
 import AccessHelper from './AccessHelper.component.vue';
 import AccessInfo from './AccessInfo.component.vue';
+import {defaultPostCssConfigStubFile} from "tailwindcss/lib/constants";
 
 export default {
   components: {
@@ -264,7 +257,7 @@ export default {
         });
         this.metadata = metadata?._source;
         console.log('DEBUG COLLECTION');
-        console.log(this.metadata);
+        console.log(this.metadata.license);
         this.$gtag.event('/collection', {
           event_category: 'collection',
           event_label: 'loaded-collection',
@@ -287,7 +280,7 @@ export default {
               true,
           );
           const summaries = await this.filter({'_collectionStack.@id': [this.$route.query.id]});
-          this.aggregations = summaries?.aggregations;
+          this.aggregations = summaries?.aggregations || [];
 
           putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
         } else {

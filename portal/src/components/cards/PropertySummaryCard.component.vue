@@ -28,7 +28,7 @@ export default {
     this.loading = true;
     const result = await this.filter({'_collectionStack.@id': [this.id]});
     if(result) {
-      this.buckets = result.aggregations;
+      this.buckets = result?.aggregations || [];
     }
     this.loading = false;
   },

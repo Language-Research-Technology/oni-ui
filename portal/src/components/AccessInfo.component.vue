@@ -14,6 +14,9 @@
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock"/>
       </div>
       <div>
+        <template v-for="(l, index) of licenses">
+          {{l}}
+        </template>
         <p>Access to <a :href="license['@id']" class="font-bold">{{
             first(license['name'])?.['@value'] || license['@id']
           }}</a> granted
@@ -178,7 +181,7 @@ export default {
       const filters = {'_collectionStack.@id': [this.id]};
       const result = await this.$elasticService.filter({filters, aggregations: this.aggregations});
       console.log('result', result);
-      this.buckets = result.aggregations;
+      this.buckets = result?.aggregations || [];
       await this.checkUserMemberships();
       this.getEnrollment();
       this.user = this.$store.state.user;

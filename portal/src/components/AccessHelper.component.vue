@@ -1,4 +1,10 @@
 <template v-loading="loading">
+  <template v-if="access['hasAccess'] && !access['group']">
+    <p>License <a :href="license['@id']" class="font-bold">{{
+        first(license['name'])?.['@value'] || license['@id']
+      }}</a>
+    </p>
+  </template>
   <template v-if="access['hasAccess'] && access['group']">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <div class="pr-3">
@@ -17,7 +23,10 @@
     <el-row class="px-5 py-6 bg-red-200 text-red-700">
       <el-row>
         <p class="items-center">
-          <font-awesome-icon icon="fa-solid fa-5x fa-lock"/>&nbsp;Request access for this item.&nbsp;
+          <font-awesome-icon icon="fa-solid fa-5x fa-lock"/>&nbsp;Request access or login for this item.&nbsp;
+          <a :href="license['@id']" class="font-bold">{{
+              first(license['name'])?.['@value'] || license['@id']
+            }}</a>
         </p>
       </el-row>
       <el-row v-if="errorMessage">
@@ -152,4 +161,6 @@ export default {
     },
   },
 };
+</script>
+<script setup lang="ts">
 </script>

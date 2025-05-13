@@ -185,8 +185,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
       };
 
       if (isMap) {
-        const precision = calculatePrecision(zoomLevel.value);
-        params.boundingBox = { ...boundingBox.value, precision };
+        params.geohashPrecision = calculatePrecision(zoomLevel.value);
+        params.boundingBox = { ...boundingBox.value };
       }
 
       const results = await api.search(params);

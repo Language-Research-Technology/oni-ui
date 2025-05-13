@@ -274,7 +274,7 @@ app.post('/ldaca/search', async (req, res) => {
     if (params.boundingBox) {
       body = await es.map({
         boundingBox: params.boundingBox,
-        precision: params.boundingBox.precision,
+        precision: params.geohashPrecision,
         multi: params.query,
         filters: params.filters,
         searchFrom: 0,

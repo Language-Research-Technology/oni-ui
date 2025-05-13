@@ -22,8 +22,8 @@ export type SearchParams = GetEntitiesParams & {
   boundingBox?: {
     topRight: { lat: number; lng: number };
     bottomLeft: { lat: number; lng: number };
-    precision?: number;
   };
+  geohashPrecision?: number;
 };
 
 export type EntityType = {

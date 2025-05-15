@@ -44,14 +44,13 @@ const {
   updateRoutes,
   onInputChange,
   updateFilter,
-  basicSearch,
-  resetAdvancedSearch,
   filtersChanged,
   clearFilter,
   resetSearch,
   sortResults,
   orderResults,
   updatePages,
+  setSearchParams,
 } = defineProps<{
   isLoading: boolean;
   errorDialogText: string | undefined;
@@ -64,16 +63,13 @@ const {
   filters: Record<string, string[]>;
   filtersChanged: boolean;
   advancedSearchEnabled: boolean;
-  resetAdvancedSearch: boolean;
   selectedSorting: { value: string; label: string };
   selectedOrder: { value: string; label: string };
   pageSize: number;
   currentPage: number;
-  enableAdvancedSearch: () => void;
   updateRoutes: () => void;
   onInputChange: (value: string) => void;
   updateFilter: (name: string, selectedValues: string[]) => void;
-  basicSearch: () => void;
   clearFilter: (f: string, filterKey: string) => void;
   clearFilters: () => void;
   sortResults: (by: string) => void;
@@ -81,6 +77,7 @@ const {
   updatePages: (page: number) => void;
   resetSearch: () => void;
   clearError: () => void;
+  setSearchParams: () => void;
 }>();
 
 const clean = (value: string) => {
@@ -92,6 +89,14 @@ const clean = (value: string) => {
   }
   return value.replace(/@|_|(\..*)/g, '');
 };
+console.log('🪚 setSearchParamsLAYO:', JSON.stringify(setSearchParams, null, 2));
+console.log('🪚 updatePages:', JSON.stringify(updatePages, null, 2));
+
+const moo = (args) => {
+  console.log('moo', args);
+  console.log('🪚 setSearchParams:', setSearchParams);
+  setSearchParams(args);
+};
 </script>
 
 <template>
@@ -101,8 +106,7 @@ const clean = (value: string) => {
       <div v-show="!advancedSearchEnabled"
         class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
         <SearchBar ref='searchBar' :searchInput="searchInput" class="grow justify-items-center items-center m-4"
-          @enable-advanced="enableAdvancedSearch" @update-search-input="onInputChange" @do-search="updateRoutes"
-          searchPath="search" />
+          @set-search-params="moo" @update-search-input="onInputChange" @do-search="updateRoutes" searchPath="search" />
       </div>
 
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
@@ -156,8 +160,7 @@ const clean = (value: string) => {
       <div class="pr-0">
         <div v-show="advancedSearchEnabled" data-scroll-to-top
           class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :fields="searchFields" @basic-search="basicSearch"
-            @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
+          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :setSearchParams="setSearchParams" />
         </div>
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">

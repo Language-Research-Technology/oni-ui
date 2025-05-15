@@ -35,6 +35,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   // Search state
   const searchInput = ref('');
+  const advancedSearchQuery = ref('');
   const advancedSearchEnabled = ref(false);
   const filters = ref<Record<string, string[]>>({});
 
@@ -50,11 +51,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const filtersChanged = ref(false);
   const errorDialogText = ref<string | undefined>();
   const entities = ref<EntityType[]>([]);
-  const selectedOperation = ref(route.query.o || 'must');
-  const resetAdvancedSearch = ref(false);
 
   const more = ref(false);
-  const clear = ref(false);
   const filterButton = ref([]);
   const isBrowse = ref(false);
 
@@ -87,9 +85,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
   };
 
   const syncStateFromUrl = () => {
-    console.log('🪚 🟩');
     searchInput.value = route.query.q?.toString() || '';
-    advancedSearchEnabled.value = !!route.query.a;
 
     filters.value = {};
 
@@ -103,6 +99,12 @@ export const useSearch = (searchType: 'list' | 'map') => {
       }
     }
 
+    if (route.query.a) {
+      console.log('🪚 💜');
+      advancedSearchQuery.value = JSON.parse(decodeURIComponent(route.query.a.toString()));
+      advancedSearchEnabled.value = true;
+    }
+
     zoomLevel.value = route.query.z ? Number.parseInt(route.query.z.toString(), 10) : mapConfig.zoom;
 
     boundingBox.value = route.query.bb
@@ -110,24 +112,18 @@ export const useSearch = (searchType: 'list' | 'map') => {
       : mapConfig.boundingBox;
   };
 
-  const syncStateToUrlAndNavigate = async ({ searchGroup }: { searchGroup?: object[] } = {}) => {
-    console.log('🪚 syncStateToUrlAndNavigate');
+  const syncStateToUrlAndNavigate = async () => {
     const query: { q?: string; f?: string; a?: string; z?: string; p?: string; bb?: string } = {};
 
     if (Object.keys(filters.value).length > 0) {
       query.f = encodeURIComponent(JSON.stringify(filters.value));
     }
 
-    // TODO: rather than passing this have a function set it directly maybe?
-    if (searchGroup) {
-      query.a = encodeURIComponent(JSON.stringify(searchGroup));
+    if (advancedSearchEnabled.value) {
+      query.a = encodeURIComponent(JSON.stringify(advancedSearchQuery.value));
       currentPage.value = 1;
     } else {
-      if (route.query.a) {
-        query.a = route.query.a.toString();
-      } else {
-        query.q = searchInput.value ? searchInput.value.toString() : undefined;
-      }
+      query.q = searchInput.value ? searchInput.value.toString() : undefined;
     }
 
     if (isMap) {
@@ -138,19 +134,34 @@ export const useSearch = (searchType: 'list' | 'map') => {
     await router.push({ path: isMap ? 'map' : 'search', query, replace: true });
   };
 
-  const setMapParams = ({
-    zoom,
-    boundingBox: localBoundingBox,
-  }: {
-    zoom?: number;
+  const setSearchParams = (params: {
+    zoomLevel?: number;
     boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
+    advancedSearchQuery?: string;
+    advancedSearchEnabled?: boolean;
   }) => {
-    if (zoom) {
-      zoomLevel.value = zoom;
+    if (params.zoomLevel) {
+      zoomLevel.value = params.zoomLevel;
     }
 
-    if (localBoundingBox) {
-      boundingBox.value = localBoundingBox;
+    if (params.boundingBox) {
+      boundingBox.value = params.boundingBox;
+    }
+
+    if (params.advancedSearchQuery) {
+      console.log('🪚 ⭐');
+      advancedSearchQuery.value = params.advancedSearchQuery;
+      syncStateToUrlAndNavigate();
+    }
+
+    if ('advancedSearchEnabled' in params) {
+      console.log('🪚 🟩');
+      advancedSearchEnabled.value = true;
+      if (advancedSearchEnabled.value) {
+        searchInput.value = '';
+      } else {
+        advancedSearchQuery.value = '';
+      }
     }
   };
 
@@ -168,21 +179,22 @@ export const useSearch = (searchType: 'list' | 'map') => {
   };
 
   const search = async () => {
-    console.log('🪚 search');
     filtersChanged.value = false;
 
     isLoading.value = true;
 
     try {
       const params: SearchParams = {
-        query: route.query.a ? generateQueryString(route.query.a.toString()) : searchInput.value.toString(),
-        searchType: route.query.a ? 'advanced' : 'basic',
+        query: advancedSearchEnabled.value ? advancedSearchQuery.value.toString() : searchInput.value.toString(),
+        searchType: advancedSearchEnabled.value ? 'advanced' : 'basic',
         filters: filters.value,
         limit: pageSize.value,
         offset: (currentPage.value - 1) * pageSize.value,
         sort: selectedSorting.value?.value,
         order: selectedOrder.value?.value,
       };
+      console.log('🪚 🔲');
+      console.log('🪚 params:', JSON.stringify(params, null, 2));
 
       if (isMap) {
         params.geohashPrecision = calculatePrecision(zoomLevel.value);
@@ -227,37 +239,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
   };
 
-  const generateQueryString = (rawSearchGroup: string) => {
-    let qS = '';
-    const searchGroup = JSON.parse(decodeURIComponent(rawSearchGroup));
-    // @ts-expect-error FIXME:
-    searchGroup.forEach((sg, i) => {
-      let lastOneSG = false;
-      if (i + 1 === searchGroup.length) {
-        lastOneSG = true;
-      }
-      if (sg.searchInput.length === 0) {
-        sg.searchInput = '*';
-      }
-      if (sg.field === 'all_fields') {
-        let qqq = '( ';
-        Object.keys(searchFields).map((f, index, keys) => {
-          let lastOne = false;
-          if (index + 1 === keys.length) {
-            lastOne = true;
-          }
-          let qq = '';
-          qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
-          qqq += qq;
-        });
-        qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
-      } else {
-        qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
-      }
-    });
-    return qS;
-  };
-
   const populateFacets = (newFacets: GetSearchResponse['facets']) => {
     const a: FacetType[] = [];
     // NOTE: below is converted to an ordered array not an object.
@@ -292,38 +273,20 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const resetSearch = async () => {
     scrollToTop();
 
-    clear.value = !clear.value;
-
     searchInput.value = '';
     filters.value = {};
 
-    if (resetAdvancedSearch.value) {
-      advancedSearchEnabled.value = false;
-    } else {
-      advancedSearchEnabled.value = !!route.query.a;
-    }
-    resetAdvancedSearch.value = true;
+    advancedSearchQuery.value = '';
 
-    route.query.o = selectedOperation.value;
     selectedOrder.value = defaultOrder;
     filterButton.value = [];
     isBrowse.value = false;
     currentPage.value = 1;
     filters.value = {};
 
-    const query = {};
+    zoomLevel.value = mapConfig.zoom;
+    boundingBox.value = mapConfig.boundingBox;
 
-    // TODO: Reset the map stuff
-    // map.setZoom(initZoom);
-    // map.setView(initView, initZoom);
-    //
-    // zoomLevel.value = initZoom;
-    // boundingBox.value = { ...initBoundingBox };
-    //
-    // const topRight = L.latLng(boundingBox.value.topRight);
-    // const bottomLeft = L.latLng(boundingBox.value.bottomLeft);
-    // const bounds = L.latLngBounds(bottomLeft, topRight);
-    // map.fitBounds(bounds, { maxZoom });
     await router.push({ path: isMap ? 'map' : 'search' });
   };
 
@@ -373,20 +336,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
     filtersChanged.value = true;
   };
 
-  const enableAdvancedSearch = () => {
-    advancedSearchEnabled.value = true;
-    searchInput.value = '';
-    scrollToTop();
-  };
-
-  const basicSearch = () => {
-    advancedSearchEnabled.value = false;
-    resetAdvancedSearch.value = true;
-    resetSearch();
-  };
-
   const doWork = async () => {
-    await syncStateFromUrl();
+    syncStateFromUrl();
 
     search();
   };
@@ -405,6 +356,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
   );
 
   onMounted(() => doWork());
+
+  console.log('🪚 🟦', setSearchParams);
 
   return {
     advancedSearchEnabled,
@@ -426,10 +379,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
     onInputChange,
     updateRoutes: syncStateToUrlAndNavigate,
-    enableAdvancedSearch,
-    basicSearch,
     updateFilter,
-    resetAdvancedSearch,
     filtersChanged,
     clearFilter,
     clearFilters,
@@ -438,6 +388,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     orderResults,
     updatePages,
     clearError,
-    setMapParams,
+    setSearchParams,
   };
 };

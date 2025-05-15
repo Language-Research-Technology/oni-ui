@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-const emit = defineEmits(['updateSearchInput', 'doSearch', 'enableAdvanced']);
+const emit = defineEmits(['updateSearchInput', 'doSearch', 'setSearchParams']);
 
 const { searchInput } = defineProps<{
   searchInput: string;
@@ -48,7 +48,8 @@ watch(
       </el-row>
 
       <el-row justify="center" :gutter="20" align="middle" class="pt-2">
-        <el-button @click="emit('enableAdvanced')" class="cursor-pointer">
+        <el-button @click="console.log(' MOO'); emit('setSearchParams', { advanceSearchEnabled: true })"
+          class="cursor-pointer">
           Advanced Search&nbsp;
           <span class="text-xs text-gray-400 shadow-sm rounded-2xl px-2">beta</span>
         </el-button>

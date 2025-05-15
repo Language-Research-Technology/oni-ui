@@ -7,8 +7,8 @@ if [ ! -f "$CONFIG_PATH" ]; then
     exit 1
 fi
 
-# Copy configuration file to the appropriate location
-cp "$CONFIG_PATH" /usr/share/nginx/html/configuration.json
+# Copy configuration file to the project root for dev mode
+cp "$CONFIG_PATH" /app/configuration.json
 
-# Execute the CMD
+# Execute the CMD (yarn dev with arguments)
 exec "$@"

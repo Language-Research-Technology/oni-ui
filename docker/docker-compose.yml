@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  oni-ui:
+    image: ghcr.io/nabu/oni-ui:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./configuration.json:/app/config/configuration.json
+    restart: unless-stopped

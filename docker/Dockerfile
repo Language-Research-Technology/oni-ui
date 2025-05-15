@@ -4,13 +4,13 @@ FROM node:22
 WORKDIR /app
 
 # Copy package.json and yarn.lock
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
 
 # Enable yarn
 RUN corepack enable
 
 # Install dependencies
-RUN yarn install
+RUN yarn install && yarn cache clean
 
 # Copy project files
 COPY . .

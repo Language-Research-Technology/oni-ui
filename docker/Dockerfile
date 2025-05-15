@@ -19,7 +19,7 @@ COPY . .
 RUN mkdir -p /app/config
 
 # Build vocabulary during container build
-RUN yarn create-vocabs /app/vocabs.json
+RUN yarn create-vocabs /app/vocab.json
 
 # Set environment variables
 ENV CONFIG_PATH=/app/config/configuration.json

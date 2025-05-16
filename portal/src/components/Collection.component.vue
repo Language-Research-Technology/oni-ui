@@ -43,6 +43,7 @@
 <!--                :external="true" :id="this.$route.query.id" :root="this.metadata._root"-->
 <!--                :emptyLabel="'no Licenses'"/>-->
 <!--            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>-->
+            <license-card v-if="this.license?.['@id']" :license="license"/>
           </el-card>
         </el-col>
       </el-row>

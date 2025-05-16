@@ -16,7 +16,7 @@
       </template>
     </el-col>
   </el-row>
-  <el-row class="p-7" v-show="resolve">
+  <el-row :gutter="20" class="p-7" v-show="resolve">
     <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
       <ul>
         <li v-for="meta of this.meta">

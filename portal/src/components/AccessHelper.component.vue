@@ -1,10 +1,4 @@
 <template v-loading="loading">
-  <template v-if="access['hasAccess'] && !access['group']">
-    <p>License <a :href="license['@id']" class="font-bold">{{
-        first(license['name'])?.['@value'] || license['@id']
-      }}</a>
-    </p>
-  </template>
   <template v-if="access['hasAccess'] && access['group']">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <div class="pr-3">
@@ -59,7 +53,7 @@
         </template>
       </template>
       <template v-if="!isLoggedIn">
-        <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
+        &nbsp;<router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
       </template>
     </el-row>
   </template>
@@ -69,9 +63,10 @@ import { first, isEqual } from 'lodash';
 
 import { getLocalStorage } from '@/storage';
 import EnrollmentCard from './cards/EnrollmentCard.component.vue';
+import LicenseCard from './cards/LicenseCard.component.vue';
 
 export default {
-  components: { EnrollmentCard },
+  components: { EnrollmentCard, LicenseCard },
   props: ['access', 'license'],
   data() {
     return {
@@ -161,6 +156,4 @@ export default {
     },
   },
 };
-</script>
-<script setup lang="ts">
 </script>

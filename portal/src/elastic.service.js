@@ -431,6 +431,24 @@ export default class ElasticService {
     //console.log(results);
     return results;
   }
+
+  async filter({filters, aggregations}) {
+    const items = await this.multi({
+      filters: filters,
+      aggs: aggregations,
+      sort: 'relevance',
+      order: 'desc',
+    });
+    if (items?.hits?.hits.length > 0) {
+      return {
+        data: items?.hits?.hits,
+        aggregations: items?.aggregations,
+        total: items.hits?.total.value,
+        scrollId: items?._scroll_id,
+        route: null,
+      };
+    }
+  }
 }
 
 function switchFilter(operation, boolQueryObj, phraseQuery, filterTerms) {

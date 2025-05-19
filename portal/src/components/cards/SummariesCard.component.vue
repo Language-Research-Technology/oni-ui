@@ -29,30 +29,24 @@
 import { first } from 'lodash';
 
 export default {
-  props: ['aggregations', 'fields', 'name', 'id', 'root', 'link'],
+  props: ['aggregations', 'fields', 'name', 'id', 'root', 'link', 'title'],
   data() {
     return {
       buckets: [],
-      loading: false,
+      loading: false
     };
   },
   mounted() {
-    this.loading = true;
-    this.populateBuckets();
-    this.loading = false;
+    //this.populateBuckets();
   },
   computed() {
-    this.loading = true;
-    this.populateBuckets();
-    this.loading = false;
+    //this.populateBuckets();
   },
   watch: {
     aggregations: {
       handler() {
         if (this.aggregations) {
-          this.loading = true;
           this.populateBuckets();
-          this.loading = false;
         }
       },
       flush: 'post',
@@ -61,6 +55,7 @@ export default {
   },
   methods: {
     populateBuckets() {
+      this.loading = true;
       this.buckets = [];
       for (const field of this.fields) {
         if (this.aggregations?.[field?.name]) {
@@ -71,6 +66,14 @@ export default {
           });
         }
       }
+      if(this.buckets.length === 0) {
+        // Hack to show no data found
+        this.buckets = [{
+          field: `No ${this.title} Found`,
+          buckets: [{}]
+        }];
+      }
+      this.loading = false;
     },
     getSearchUrl(name, bucket) {
       const part = {};

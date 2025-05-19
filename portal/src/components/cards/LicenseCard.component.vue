@@ -1,7 +1,10 @@
 <template>
-  <p class="whitespace-pre-wrap" id="license" v-if="!hideDescription">{{ first(this.license?.description)?.['@value'] }}</p>
+  <p class="whitespace-pre-wrap p-2" id="license" v-if="!hideDescription">
+    {{ first(this.license?.description)?.['@value'] }}
+  </p>
   <span v-if="!hideDescription" id="readMoreLicense">
-    <el-button v-if="!licenseSnipped" class="justify-self-center mt-2" @click="doSnip('#license')">Read more
+    <el-button v-if="first(this.license?.description)?.['@value'] && !licenseSnipped" class="justify-self-center mt-2"
+               @click="doSnip('#license')">Read more
   </el-button>
     </span>
   <div class="grid p-4">
@@ -13,14 +16,14 @@
   <div class="grid p-4">
     <div class="justify-self-center">
       {{ first(this.license.metadataIsPublic)?.['@value'] === false ? 'Private Metadata' : 'Public Metadata' }} and
-      {{ first(this.license.allowTextIndex)?.['@value'] === false ? 'Cannot Search in Text' :'Text is Searchable' }}
+      {{ first(this.license.allowTextIndex)?.['@value'] === false ? 'Cannot Search in Text' : 'Text is Searchable' }}
     </div>
   </div>
   <div class="bottom justify-self-center"></div>
 </template>
 <script>
-import { first, isEmpty } from 'lodash';
-import { initSnip, toggleSnip } from '../../tools';
+import {first, isEmpty} from 'lodash';
+import {initSnip, toggleSnip} from '../../tools';
 
 export default {
   props: ['license', 'hideDescription'],
@@ -41,11 +44,11 @@ export default {
       this.licenseSnipped = true;
     },
   },
-  mounted() {},
+  mounted() {
+    initSnip({selector: '#license', button: '#readMoreLicense'});
+  },
   updated() {
-    if (!this.licenseSnipped) {
-      initSnip({ selector: '#license', button: '#readMoreLicense' });
-    }
+    initSnip({selector: '#license', button: '#readMoreLicense'});
   },
 };
 </script>

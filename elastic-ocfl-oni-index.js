@@ -1,6 +1,6 @@
 //const {Client} = require('@elastic/elasticsearch');
-const { Client } = require('@opensearch-project/opensearch');
-const { Indexer } = require('./lib/Indexer');
+const {Client} = require('@opensearch-project/opensearch');
+const {Indexer} = require('./lib/Indexer');
 const configuration = require('./configuration.json');
 const ocfl = require('@ocfl/ocfl-fs');
 const fs = require('fs-extra');
@@ -31,18 +31,16 @@ const assert = require('node:assert');
   await client.indices.create({
     index: elastic?.index || 'items',
     body: {
-      max_result_window: elastic.max_result_window,
-      mappings: elastic.mappings,
-    },
-  });
-  const elasticIndex = elastic?.indexConfiguration;
-  // Put Settings
-  await client.indices.putSettings({
-    index: elastic?.index || 'items',
-    body: {
-      mapping: elasticIndex?.mapping,
-      max_result_window: elasticIndex?.max_result_window || 100000,
-    },
+      settings: {
+        max_result_window: elastic?.max_result_window || 100000,
+        index: {
+          mapping: {
+            total_fields: elastic.total_fields,
+          }
+        },
+      },
+      mappings: elastic.mappings
+    }
   });
   const indexConfig = await client.indices.getSettings();
   console.log('Index Settings:');
@@ -83,6 +81,7 @@ const assert = require('node:assert');
     assert(Array.isArray(skipCollections), `${skipConfiguration} not an array of strings, please fix.`);
   }
   // Create an Indexer and index collections
-  const indexer = new Indexer({ configuration, repository, client });
-  await indexer.findOcflObjects({ memberOf: null, conformsTo: indexer.conformsToCollection, skip: skipCollections });
-})();
+  const indexer = new Indexer({configuration, repository, client});
+  await indexer.findOcflObjects({memberOf: null, conformsTo: indexer.conformsToCollection, skip: skipCollections});
+})
+();

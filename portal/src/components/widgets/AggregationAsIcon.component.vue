@@ -30,6 +30,16 @@
           <manku-icon name="loginplus" size="40" fill="grey"/>
         </el-tooltip>
       </span>
+      <span class="justify-center" v-if="accessIcon === 'loginManual'">
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="There are restrictions on access to this data. Log in to get further information."
+            placement="bottom"
+        >
+          <manku-icon name="loginplus" size="40" fill="grey"/>
+        </el-tooltip>
+      </span>
     </span>
   <span class="p-1 m-1" v-else>
       <span class="justify-center">
@@ -94,6 +104,9 @@ export default {
       this.iconType = 'fa-face-kiss';
     } else if (/public/.test(this.item)) {
       this.accessIcon = 'public';
+      this.noIcon = true;
+    } else if (/loginManual/.test(this.item)) {
+      this.accessIcon = 'loginManual';
       this.noIcon = true;
     } else if (/loginPlus/.test(this.item)) {
       this.accessIcon = 'loginPlus';

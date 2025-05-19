@@ -14,7 +14,7 @@ const configuration = require('./configuration.json');
     index: elastic?.index || 'items',
     body: {
       index: {
-        max_result_window: elastic.indexConfiguration.max_result_window,
+        max_result_window: elastic.max_result_window,
       },
     },
   });

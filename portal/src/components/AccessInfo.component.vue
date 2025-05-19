@@ -1,10 +1,22 @@
 <template v-loading="loading">
-  <template v-if="access['hasAccess'] && access['group']">
+
+  <template v-for="(f, index) of buckets" :key="f.field+'_'+index" v-loading="loading">
+    <h5><span class="font-semibold">{{ f.field }}</span></h5>
+    <ul class="list-disc my-2 mx-3 pl-2" v-if="f?.buckets.length > 0">
+      <template v-for="bucket of f?.buckets" :key="bucket.key">
+        <li>{{ bucket.key }}</li>
+      </template>
+    </ul>
+  </template>
+  <template v-if="access && access['hasAccess'] && access['group']">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <div class="pr-3">
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock"/>
       </div>
       <div>
+        <template v-for="(l, index) of licenses">
+          {{l}}
+        </template>
         <p>Access to <a :href="license['@id']" class="font-bold">{{
             first(license['name'])?.['@value'] || license['@id']
           }}</a> granted
@@ -13,14 +25,11 @@
       </div>
     </el-row>
   </template>
-  <template v-else-if="!access['hasAccess']">
-    <el-row class="px-5 py-6 bg-red-200 text-red-700">
+  <template v-else-if="access && !access['hasAccess']">
+    <el-row class="px-5 py-6 bg-yellow-200 text-yellow-700">
       <el-row>
         <p class="items-center">
-          <font-awesome-icon icon="fa-solid fa-5x fa-lock"/>&nbsp;Request access or login for this item.&nbsp;
-          <a :href="license['@id']" class="font-bold">{{
-              first(license['name'])?.['@value'] || license['@id']
-            }}</a>
+          <font-awesome-icon icon="fa-solid fa-5x fa-lock"/>&nbsp;Request access for this item.&nbsp;
         </p>
       </el-row>
       <el-row v-if="errorMessage">
@@ -43,8 +52,8 @@
           </el-row>
           <el-row v-if="enrollment?.url">
             or <el-link underline="underline" type='default' @click="refreshAuthorization()" class="mx-1">
-              refresh permissions
-            </el-link>
+            refresh permissions
+          </el-link>
             <enrollment-card v-if="noEnrollment"/>
           </el-row>
           <el-row v-else>
@@ -53,7 +62,7 @@
         </template>
       </template>
       <template v-if="!isLoggedIn">
-        &nbsp;<router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
+        <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
       </template>
     </el-row>
   </template>
@@ -63,14 +72,13 @@ import { first, isEqual } from 'lodash';
 
 import { getLocalStorage } from '@/storage';
 import EnrollmentCard from './cards/EnrollmentCard.component.vue';
-import LicenseCard from './cards/LicenseCard.component.vue';
 
 export default {
-  components: { EnrollmentCard, LicenseCard },
-  props: ['access', 'license'],
+  components: { EnrollmentCard },
+  props: ['id','licenses'],
   data() {
     return {
-      licenses: this.$store.state.configuration.ui?.licenses || [],
+      restrictedLicenses: this.$store.state.configuration.ui?.licenses || [],
       isLoginEnabled: this.$store.state.configuration.ui.login?.enabled,
       emailHelp: this.$store.state.configuration.ui?.email?.help,
       enrollment: {},
@@ -82,6 +90,10 @@ export default {
       loading: false,
       errorMessage: undefined,
       memberships: [],
+      access: null,
+      buckets: [],
+      fields: [{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }],
+      aggregations: { 'license.@id': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }
     };
   },
   watch: {
@@ -95,22 +107,31 @@ export default {
       immediate: true,
     },
   },
-  async updated() {
+  computed() {
     this.loading = true;
-    await this.checkUserMemberships();
-    this.getEnrollment();
-    this.user = this.$store.state.user;
+    this.populateBuckets();
     this.loading = false;
   },
+  async updated() {
+    //await this.loadData();
+  },
   async mounted() {
-    this.loading = true;
-    await this.checkUserMemberships();
-    this.getEnrollment();
-    this.user = this.$store.state.user;
-    this.loading = false;
+    await this.loadData();
   },
   methods: {
     first,
+    populateBuckets() {
+      this.buckets = [];
+      for (const field of this.fields) {
+        if (this.aggregations?.[field?.name]) {
+          this.buckets.push({
+            name: field.name,
+            field: field.display,
+            buckets: this.aggregations[field.name]?.buckets,
+          });
+        }
+      }
+    },
     async checkUserMemberships(isClick) {
       const membershipsStatus = await this.$membership.get();
       if (!membershipsStatus.error) {
@@ -133,9 +154,9 @@ export default {
       }
     },
     getEnrollment() {
-      if (this.licenses.length > 0) {
-        const license = this.licenses.find((l) => {
-          if (l.group === this.access.group) {
+      if (this.restrictedLicenses.length > 0) {
+        const license = this.restrictedLicenses.find((l) => {
+          if (l.group === this.access?.group) {
             return l.enrollment;
           }
         });
@@ -154,6 +175,18 @@ export default {
         window.location.reload();
       }
     },
-  },
+    async loadData() {
+      this.loading = true;
+      console.log('aggregations', this.aggregations);
+      const filters = {'_collectionStack.@id': [this.id]};
+      const result = await this.$elasticService.filter({filters, aggregations: this.aggregations});
+      console.log('result', result);
+      this.buckets = result?.aggregations || [];
+      await this.checkUserMemberships();
+      this.getEnrollment();
+      this.user = this.$store.state.user;
+      this.loading = false;
+    }
+  }
 };
 </script>

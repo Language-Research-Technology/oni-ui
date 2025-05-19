@@ -33,6 +33,15 @@
             <input type="text" name="provider" id="provider"
                    class="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
                    v-model="this.user.provider" placeholder="Provider"/>
+
+          </div>
+          <div v-if="loginTermsURL" class="md:col-span-3">
+            <br/>
+          </div>
+          <div v-if="loginTermsURL" class="md:col-span-2">
+            <label>View&nbsp;</label>
+            <a :href="loginTermsURL" class="break-normal underline text-blue-600" target="_blank noreferer">Terms &
+              Conditions</a>
           </div>
 
           <div class="md:col-span-3">
@@ -80,14 +89,18 @@
 </template>
 
 <script>
+import {getLocalStorage, putLocalStorage} from '@/storage';
+
 export default {
   data() {
     return {
+      ui: this.$store.state.configuration?.ui,
       user: {
         email: null,
         name: null,
         id: null,
       },
+      loginTermsURL: null,
       provider: '',
       apiKeyPlaceholder: '*************',
     };
@@ -103,6 +116,12 @@ export default {
       const { user } = await response.json();
       this.user = user;
       this.provider = user.provider;
+      if(this.loginTermsURL !== '' && this.ui.login?.manageTermsAndConditions) {
+        const terms = await this.$terms.get();
+        putLocalStorage({key: 'loginTermsURL', data: terms?.url});
+      }
+      this.loginTermsURL = getLocalStorage({key: 'loginTermsURL'});
+
     },
     async updateApiToken() {
       const response = await this.$http.get({ route: '/user/token' });

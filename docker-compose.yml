@@ -82,7 +82,7 @@ services:
       DB_PASSWORD: ""
       DB_DATABASE: "oni"
     volumes:
-      - ./development.configuration.json:/srv/configuration.json
+      - ./configuration.json:/srv/configuration.json
       - /opt/storage/oni:/opt/storage/oni
     ports:
       - "0.0.0.0:8080:8080"

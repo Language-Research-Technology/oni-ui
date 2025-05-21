@@ -4,11 +4,14 @@ import { useRoute } from 'vue-router';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
 
-const route = useRoute();
-
 import { configuration } from '@/configuration';
+import type { SetSearchParamsOptions } from '@/composables/search';
 const { ui } = configuration;
 const { searchFields } = ui;
+
+const { setSearchParams } = defineProps<{
+  setSearchParams: (params: SetSearchParamsOptions) => void;
+}>();
 
 const advancedSearchFields = [{ label: 'All Fields', value: 'all_fields' }];
 Object.keys(searchFields).map((f) => {
@@ -38,9 +41,9 @@ const showHelp = ref(false);
 const generateQueryString = () => {
   let qS = '';
 
-  advancedSearch.forEach((sg, i) => {
+  advancedSearch.value.forEach((sg, i) => {
     let lastOneSG = false;
-    if (i + 1 === advancedSearch.length) {
+    if (i + 1 === advancedSearch.value.length) {
       lastOneSG = true;
     }
 
@@ -69,7 +72,7 @@ const generateQueryString = () => {
 };
 
 const toggleShowQueryString = () => {
-  setQueryString();
+  generateQueryString();
   showQueryString.value = !showQueryString.value;
 };
 
@@ -89,12 +92,12 @@ const removeLine = (index: number) => {
 
 const doAdvancedSearch = () => {
   generateQueryString();
-  setSearchParams({ advancedSearchQuery });
+  setSearchParams({ advancedSearchQuery: advancedSearchQuery.value });
 };
 
 const clearSearch = () => {
   advancedSearch.value = [advancedSearchLine];
-  setQueryString();
+  generateQueryString();
 };
 </script>
 
@@ -163,8 +166,8 @@ const clearSearch = () => {
         </el-button>
       </el-row>
       <el-row class="p-2" :justify="'start'" :gutter="10" :align="'middle'">
-        <el-button @click="setSearchParams({ advanceSearchEnabled: false })" class="cursor-pointer">Switch to basic
-          search
+        <el-button @click="setSearchParams({ advancedSearchEnabled: false })" class="cursor-pointer">
+          Switch to basic search
         </el-button>
       </el-row>
     </el-col>

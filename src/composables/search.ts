@@ -18,6 +18,13 @@ export type FacetType = {
   hide?: boolean;
 };
 
+export type SetSearchParamsOptions = {
+  zoomLevel?: number;
+  boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
+  advancedSearchQuery?: string;
+  advancedSearchEnabled?: boolean;
+};
+
 export const useSearch = (searchType: 'list' | 'map') => {
   const router = useRouter();
   const route = useRoute();
@@ -134,29 +141,22 @@ export const useSearch = (searchType: 'list' | 'map') => {
     await router.push({ path: isMap ? 'map' : 'search', query, replace: true });
   };
 
-  const setSearchParams = (params: {
-    zoomLevel?: number;
-    boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
-    advancedSearchQuery?: string;
-    advancedSearchEnabled?: boolean;
-  }) => {
-    if (params.zoomLevel) {
-      zoomLevel.value = params.zoomLevel;
+  const setSearchParams = (options: SetSearchParamsOptions) => {
+    if (options.zoomLevel) {
+      zoomLevel.value = options.zoomLevel;
     }
 
-    if (params.boundingBox) {
-      boundingBox.value = params.boundingBox;
+    if (options.boundingBox) {
+      boundingBox.value = options.boundingBox;
     }
 
-    if (params.advancedSearchQuery) {
-      console.log('🪚 ⭐');
-      advancedSearchQuery.value = params.advancedSearchQuery;
+    if (options.advancedSearchQuery) {
+      advancedSearchQuery.value = options.advancedSearchQuery;
       syncStateToUrlAndNavigate();
     }
 
-    if ('advancedSearchEnabled' in params) {
-      console.log('🪚 🟩');
-      advancedSearchEnabled.value = true;
+    if ('advancedSearchEnabled' in options) {
+      advancedSearchEnabled.value = !!options.advancedSearchEnabled;
       if (advancedSearchEnabled.value) {
         searchInput.value = '';
       } else {
@@ -193,7 +193,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
         sort: selectedSorting.value?.value,
         order: selectedOrder.value?.value,
       };
-      console.log('🪚 🔲');
       console.log('🪚 params:', JSON.stringify(params, null, 2));
 
       if (isMap) {
@@ -356,8 +355,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
   );
 
   onMounted(() => doWork());
-
-  console.log('🪚 🟦', setSearchParams);
 
   return {
     advancedSearchEnabled,

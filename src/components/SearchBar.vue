@@ -48,8 +48,7 @@ watch(
       </el-row>
 
       <el-row justify="center" :gutter="20" align="middle" class="pt-2">
-        <el-button @click="console.log(' MOO'); emit('setSearchParams', { advanceSearchEnabled: true })"
-          class="cursor-pointer">
+        <el-button @click="emit('setSearchParams', { advancedSearchEnabled: true })" class="cursor-pointer">
           Advanced Search&nbsp;
           <span class="text-xs text-gray-400 shadow-sm rounded-2xl px-2">beta</span>
         </el-button>

@@ -148,6 +148,7 @@ export class ElasticService {
     const geoQueryJson = geoQuery.toJSON();
     const geoBoundingBox = geoQueryJson.geo_bounding_box;
     const boolQuery = this.boolQuery({
+      operation: 'must',
       searchQuery: multi,
       fields: searchFields,
       filters,

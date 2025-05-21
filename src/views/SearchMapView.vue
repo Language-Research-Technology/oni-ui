@@ -45,7 +45,7 @@ const {
   orderResults,
   updatePages,
   clearError,
-  setMapParams,
+  setSearchParams,
 } = useSearch('map');
 
 const api = inject<ApiService>('api');
@@ -305,7 +305,7 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
     bottomLeft: { lat: bounds.sw.lat, lng: bounds.sw.lon },
   };
 
-  setMapParams({ boundingBox });
+  setSearchParams({ boundingBox });
 
   const params: SearchParams = {
     // FIXME: advanced search
@@ -394,7 +394,7 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
 };
 
 const searchEvent = () => {
-  const zoom = map.getZoom();
+  const zoomLevel = map.getZoom();
 
   const bounds = map.getBounds();
   const ne = bounds.getNorthEast();
@@ -404,7 +404,7 @@ const searchEvent = () => {
     bottomLeft: { lat: sw.lat, lng: sw.lng },
   };
 
-  setMapParams({ zoom, boundingBox });
+  setSearchParams({ zoomLevel, boundingBox });
 
   updateRoutes();
 };
@@ -498,11 +498,11 @@ watch(geohashGrid, updateLayers);
 <template>
   <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities"
     :clearFilter="clearFilter" :onInputChange="onInputChange" :clearError="clearError" :filtersChanged="filtersChanged"
-    :updateRoutes="updateRoutes" :clearFilters=clearFilters :updateFilter="updateFilter" :basicSearch="basicSearch"
-    :totals="totals" :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime"
-    :sortResults="sortResults" :selectedOrder="selectedOrder" :selectedSorting="selectedSorting"
-    :orderResults="orderResults" :pageSize="pageSize" :errorDialogText="errorDialogText" :currentPage="currentPage"
-    :updatePages="updatePages" :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled">
+    :updateRoutes="updateRoutes" :clearFilters=clearFilters :updateFilter="updateFilter" :totals="totals"
+    :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"
+    :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
+    :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
+    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled">
     <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
   </SearchLayout>

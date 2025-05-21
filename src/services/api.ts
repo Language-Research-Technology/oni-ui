@@ -118,7 +118,6 @@ export class ApiService {
   }
 
   async getFileUrl(id: string, path: string, downloadable = false) {
-    console.log('getFileUrl', id, path, downloadable);
     const params = {
       disposition: downloadable ? 'attachment' : 'inline',
       filename: path,
@@ -130,16 +129,13 @@ export class ApiService {
       const filePath = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
 
       const url = `${this.#apiUri}${filePath}`;
-      console.log('🪚 url:', JSON.stringify(url, null, 2));
 
       return url;
     }
 
     const url = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}`;
-    console.log('🪚 location:', JSON.stringify(url, null, 2));
 
     const json = await this.#get(url, { ...params, noRedirect: 'true' });
-    console.log('🪚 json:', JSON.stringify(json, null, 2));
 
     return json.location;
   }

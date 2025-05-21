@@ -139,7 +139,6 @@ app.get('/ldaca/entity/:id', async (req, res) => {
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
   const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/login`;
-  console.log('🪚 url:', JSON.stringify(url, null, 2));
   const response = await fetch(url);
 
   res.status(response.status);
@@ -273,10 +272,10 @@ app.post('/ldaca/search', async (req, res) => {
 
     if (params.boundingBox) {
       body = await es.map({
-        boundingBox: params.boundingBox,
-        precision: params.geohashPrecision,
         multi: params.query,
         filters: params.filters,
+        boundingBox: params.boundingBox,
+        precision: params.geohashPrecision,
         searchFrom: 0,
       });
     } else {

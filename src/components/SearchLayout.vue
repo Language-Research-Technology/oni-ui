@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FacetType } from '@/composables/search';
+import type { FacetType, SetSearchParamsOptions } from '@/composables/search';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
@@ -11,7 +11,6 @@ import { configuration } from '@/configuration';
 import type { EntityType } from '@/services/api';
 
 const { ui } = configuration;
-const { searchFields } = ui;
 const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
 const ordering = ui.search?.ordering || [
   { value: 'asc', label: 'Ascending' },
@@ -19,7 +18,6 @@ const ordering = ui.search?.ordering || [
 ];
 
 import { useRoute, useRouter } from 'vue-router';
-import { watch } from 'vue';
 const router = useRouter();
 const route = useRoute();
 
@@ -40,7 +38,6 @@ const {
   clearError,
   facets,
 
-  enableAdvancedSearch,
   updateRoutes,
   onInputChange,
   updateFilter,
@@ -77,7 +74,7 @@ const {
   updatePages: (page: number) => void;
   resetSearch: () => void;
   clearError: () => void;
-  setSearchParams: () => void;
+  setSearchParams: (options: SetSearchParamsOptions) => void;
 }>();
 
 const clean = (value: string) => {
@@ -89,14 +86,6 @@ const clean = (value: string) => {
   }
   return value.replace(/@|_|(\..*)/g, '');
 };
-console.log('🪚 setSearchParamsLAYO:', JSON.stringify(setSearchParams, null, 2));
-console.log('🪚 updatePages:', JSON.stringify(updatePages, null, 2));
-
-const moo = (args) => {
-  console.log('moo', args);
-  console.log('🪚 setSearchParams:', setSearchParams);
-  setSearchParams(args);
-};
 </script>
 
 <template>
@@ -106,7 +95,8 @@ const moo = (args) => {
       <div v-show="!advancedSearchEnabled"
         class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
         <SearchBar ref='searchBar' :searchInput="searchInput" class="grow justify-items-center items-center m-4"
-          @set-search-params="moo" @update-search-input="onInputChange" @do-search="updateRoutes" searchPath="search" />
+          @set-search-params="setSearchParams" @update-search-input="onInputChange" @do-search="updateRoutes"
+          searchPath="search" />
       </div>
 
       <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
@@ -191,7 +181,7 @@ const moo = (args) => {
                 <el-button @click="clearFilters()">Clear Filters</el-button>
               </el-button-group>
 
-              <span id="total_results" class="my-1 mr-2" v-show="totals">
+              <span id="total_results" class="my-1 mr-2" v-show="totals !== undefined">
                 Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects, Files and
                   Notebooks)</span>
               </span>

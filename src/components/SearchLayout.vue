@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FacetType, SetSearchParamsOptions } from '@/composables/search';
+import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
 
 import { CloseBold } from '@element-plus/icons-vue';
 
@@ -23,6 +23,7 @@ const route = useRoute();
 
 const {
   searchInput,
+  advancedSearchLines,
   filters,
   advancedSearchEnabled,
   entities,
@@ -50,6 +51,7 @@ const {
   setSearchParams,
 } = defineProps<{
   isLoading: boolean;
+  advancedSearchLines: AdvancedSearchLine[];
   errorDialogText: string | undefined;
   searchInput: string;
   totals: number;
@@ -150,7 +152,8 @@ const clean = (value: string) => {
       <div class="pr-0">
         <div v-show="advancedSearchEnabled" data-scroll-to-top
           class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :setSearchParams="setSearchParams" />
+          <SearchAdvanced :advancedSearch="advancedSearchEnabled" :advancedSearchLines="advancedSearchLines"
+            :setSearchParams="setSearchParams" />
         </div>
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">

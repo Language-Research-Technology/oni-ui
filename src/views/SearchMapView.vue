@@ -20,6 +20,7 @@ import type { ApiService, EntityType, SearchParams } from '@/services/api';
 const {
   advancedSearchEnabled,
   searchInput,
+  advancedSearchLines,
   facets,
   geohashGrid,
   filters,
@@ -502,7 +503,8 @@ watch(geohashGrid, updateLayers);
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
-    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled">
+    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
+    :advancedSearchLines="advancedSearchLines">
     <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
   </SearchLayout>

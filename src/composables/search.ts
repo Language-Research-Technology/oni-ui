@@ -18,11 +18,27 @@ export type FacetType = {
   hide?: boolean;
 };
 
+export type AdvancedSearchLine = {
+  field: string;
+  operation: string;
+  operator: string;
+  type: string;
+  searchInput: string;
+};
+
 export type SetSearchParamsOptions = {
   zoomLevel?: number;
   boundingBox?: { topRight: { lat: number; lng: number }; bottomLeft: { lat: number; lng: number } };
-  advancedSearchQuery?: string;
+  advancedSearchLines?: AdvancedSearchLine[];
   advancedSearchEnabled?: boolean;
+};
+
+export const blankAdvancedSearchLine: AdvancedSearchLine = {
+  field: 'all_fields',
+  operation: 'AND',
+  operator: 'AND',
+  type: 'phrase',
+  searchInput: '',
 };
 
 export const useSearch = (searchType: 'list' | 'map') => {
@@ -42,7 +58,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   // Search state
   const searchInput = ref('');
-  const advancedSearchQuery = ref('');
+  const advancedSearchLines = ref<AdvancedSearchLine[]>([]);
   const advancedSearchEnabled = ref(false);
   const filters = ref<Record<string, string[]>>({});
 
@@ -107,8 +123,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
 
     if (route.query.a) {
-      console.log('🪚 💜');
-      advancedSearchQuery.value = JSON.parse(decodeURIComponent(route.query.a.toString()));
+      advancedSearchLines.value = JSON.parse(decodeURIComponent(route.query.a.toString()));
       advancedSearchEnabled.value = true;
     }
 
@@ -127,7 +142,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
 
     if (advancedSearchEnabled.value) {
-      query.a = encodeURIComponent(JSON.stringify(advancedSearchQuery.value));
+      query.a = encodeURIComponent(JSON.stringify(advancedSearchLines.value));
       currentPage.value = 1;
     } else {
       query.q = searchInput.value ? searchInput.value.toString() : undefined;
@@ -150,8 +165,8 @@ export const useSearch = (searchType: 'list' | 'map') => {
       boundingBox.value = options.boundingBox;
     }
 
-    if (options.advancedSearchQuery) {
-      advancedSearchQuery.value = options.advancedSearchQuery;
+    if (options.advancedSearchLines) {
+      advancedSearchLines.value = options.advancedSearchLines;
       syncStateToUrlAndNavigate();
     }
 
@@ -160,7 +175,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
       if (advancedSearchEnabled.value) {
         searchInput.value = '';
       } else {
-        advancedSearchQuery.value = '';
+        advancedSearchLines.value = [blankAdvancedSearchLine];
       }
     }
   };
@@ -185,7 +200,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
     try {
       const params: SearchParams = {
-        query: advancedSearchEnabled.value ? advancedSearchQuery.value.toString() : searchInput.value.toString(),
+        query: advancedSearchEnabled.value ? advancedSearchLines.value.toString() : searchInput.value.toString(),
         searchType: advancedSearchEnabled.value ? 'advanced' : 'basic',
         filters: filters.value,
         limit: pageSize.value,
@@ -193,7 +208,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
         sort: selectedSorting.value?.value,
         order: selectedOrder.value?.value,
       };
-      console.log('🪚 params:', JSON.stringify(params, null, 2));
 
       if (isMap) {
         params.geohashPrecision = calculatePrecision(zoomLevel.value);
@@ -275,7 +289,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     searchInput.value = '';
     filters.value = {};
 
-    advancedSearchQuery.value = '';
+    advancedSearchLines.value = [blankAdvancedSearchLine];
 
     selectedOrder.value = defaultOrder;
     filterButton.value = [];
@@ -356,9 +370,12 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   onMounted(() => doWork());
 
+  syncStateFromUrl();
+
   return {
     advancedSearchEnabled,
     searchInput,
+    advancedSearchLines,
     errorDialogText,
     facets,
     geohashGrid,

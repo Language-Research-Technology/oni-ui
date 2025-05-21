@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref } from 'vue';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
 
 import { configuration } from '@/configuration';
-import type { SetSearchParamsOptions } from '@/composables/search';
+import { blankAdvancedSearchLine, type AdvancedSearchLine, type SetSearchParamsOptions } from '@/composables/search';
 const { ui } = configuration;
 const { searchFields } = ui;
 
-const { setSearchParams } = defineProps<{
+const { setSearchParams, advancedSearchLines } = defineProps<{
+  advancedSearchLines: AdvancedSearchLine[];
   setSearchParams: (params: SetSearchParamsOptions) => void;
 }>();
 
@@ -18,22 +18,7 @@ Object.keys(searchFields).map((f) => {
   advancedSearchFields.push({ label: searchFields[f].label, value: f });
 });
 
-type SearchGroup = {
-  field: string;
-  operation: string;
-  operator: string;
-  type: string;
-  searchInput: string;
-};
-
-const advancedSearchLine = {
-  field: 'all_fields',
-  operation: 'AND',
-  operator: 'AND',
-  type: 'phrase',
-  searchInput: '',
-};
-const advancedSearch = ref<SearchGroup[]>([advancedSearchLine]);
+const localAdvancedSearchLines = ref<AdvancedSearchLine[]>(advancedSearchLines || [blankAdvancedSearchLine]);
 const advancedSearchQuery = ref('');
 const showQueryString = ref(false);
 const showHelp = ref(false);
@@ -41,9 +26,9 @@ const showHelp = ref(false);
 const generateQueryString = () => {
   let qS = '';
 
-  advancedSearch.value.forEach((sg, i) => {
+  localAdvancedSearchLines.value.forEach((sg, i) => {
     let lastOneSG = false;
-    if (i + 1 === advancedSearch.value.length) {
+    if (i + 1 === localAdvancedSearchLines.value.length) {
       lastOneSG = true;
     }
 
@@ -77,26 +62,20 @@ const toggleShowQueryString = () => {
 };
 
 const addNewLine = () => {
-  advancedSearch.value.push({
-    field: 'all_fields',
-    operation: 'AND',
-    operator: 'AND',
-    type: 'phrase',
-    searchInput: '',
-  });
+  localAdvancedSearchLines.value.push(blankAdvancedSearchLine);
 };
 
 const removeLine = (index: number) => {
-  advancedSearch.value.splice(index, 1);
+  localAdvancedSearchLines.value.splice(index, 1);
 };
 
 const doAdvancedSearch = () => {
   generateQueryString();
-  setSearchParams({ advancedSearchQuery: advancedSearchQuery.value });
+  setSearchParams({ advancedSearchLines: localAdvancedSearchLines.value });
 };
 
 const clearSearch = () => {
-  advancedSearch.value = [advancedSearchLine];
+  localAdvancedSearchLines.value = [blankAdvancedSearchLine];
   generateQueryString();
 };
 </script>
@@ -113,7 +92,7 @@ const clearSearch = () => {
       <el-row class="p-2 px-8" :gutter="10" v-if="showHelp">
         <SearchAdvancedHelp />
       </el-row>
-      <el-row class="px-2 pb-2" :gutter="10" v-for="(as, index) in advancedSearch" :key="index">
+      <el-row class="px-2 pb-2" :gutter="10" v-for="(as, index) in localAdvancedSearchLines" :key="index">
         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" class="h-auto">
           <el-select class="w-full m-2" placeholder="Select a Field" :default-first-option="true" v-model="as.field"
             @change="as.field === 'all_fields' || as.field === '@id' ? as.type = 'phrase' : as.type">
@@ -126,12 +105,13 @@ const clearSearch = () => {
           <el-input class="w-full m-2" v-model="as.searchInput" />
         </el-col>
         <el-col :xs="24" :sm="24" :md="1" :lg="1" :xl="1" class="h-auto">
-          <el-button v-show="advancedSearch.length > 1" class="w-full m-2" type="warning" @click="removeLine(index)">
+          <el-button v-show="localAdvancedSearchLines.length > 1" class="w-full m-2" type="warning"
+            @click="removeLine(index)">
             <font-awesome-icon icon="fa fa-minus" />
           </el-button>
         </el-col>
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="h-auto">
-          <el-select v-if="index < advancedSearch.length - 1" class="w-20 m-2 mt-4" v-model="as.operation"
+          <el-select v-if="index < localAdvancedSearchLines.length - 1" class="w-20 m-2 mt-4" v-model="as.operation"
             :default-first-option="true">
             <el-option label="AND" value="AND" />
             <el-option label="OR" value="OR" />

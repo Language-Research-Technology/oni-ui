@@ -27,17 +27,17 @@ const splash = ref(false);
     </el-row>
     <el-row>
       <el-col :span="24" class="flex space-x-4">
-        <el-link v-if="terms" class="text-gray-600 font-semibold" :underline="false">
+        <el-link v-if="terms" class="text-gray-600 font-semibold" underline="never">
           <router-link :to="terms?.href">
             {{ terms?.title }}
           </router-link>
         </el-link>
 
-        <el-link v-if="launcher" class="text-gray-600 font-semibold" href="#" @click="splash = true" :underline="false">
+        <el-link v-if="launcher" class="text-gray-600 font-semibold" href="#" @click="splash = true" underline="never">
           {{ launcher || 'Splash' }}
         </el-link>
 
-        <el-link v-if="privacy" class="text-gray-600 font-semibold" :href="privacy?.href" :underline="false">
+        <el-link v-if="privacy" class="text-gray-600 font-semibold" :href="privacy?.href" underline="never">
           <router-link :to="privacy?.href">
             {{ privacy?.title }}
           </router-link>

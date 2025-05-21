@@ -13,7 +13,7 @@ const link = `/${routePath}?id=${encodeURIComponent(memberOf['@id'])}`;
     <hr class="divider divider-gray pt-2" />
     <ul>
       <li class="font-semibold">
-        <el-link :underline="true" type="primary" :href="link">
+        <el-link underline="always" type="primary" :href="link">
           {{ memberOf.name || memberOf['@id'] }}
         </el-link>
       </li>

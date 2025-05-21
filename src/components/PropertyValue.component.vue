@@ -1,8 +1,8 @@
 <template>
   <el-tooltip v-if="href" :content="alt" placement="bottom" effect="light">
-    <el-link v-if="external" :underline="true" :href="href" target="_blank">{{ text }}
+    <el-link v-if="external" underline="always" :href="href" target="_blank">{{ text }}
       <!--: {{ bucket.doc_count }}--></el-link>
-    <el-link v-else :underline="true" :href="href">{{ text }}
+    <el-link v-else underline="always" :href="href">{{ text }}
       <!--: {{ bucket.doc_count }}--></el-link>
   </el-tooltip>
   <div v-else>

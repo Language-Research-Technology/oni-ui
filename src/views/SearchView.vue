@@ -7,6 +7,7 @@ import SearchLayout from '@/components/SearchLayout.vue';
 const {
   advancedSearchEnabled,
   searchInput,
+  advancedSearchLines,
   facets,
   filters,
   entities,
@@ -33,9 +34,6 @@ const {
   clearError,
   setSearchParams,
 } = useSearch('list');
-
-console.log('🪚 setSearchParams: VIEW', JSON.stringify(setSearchParams, null, 2));
-console.log('🪚 updateRoutes:', JSON.stringify(updateRoutes, null, 2));
 </script>
 
 <template>
@@ -45,7 +43,8 @@ console.log('🪚 updateRoutes:', JSON.stringify(updateRoutes, null, 2));
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
-    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled">
+    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
+    :advancedSearchLines="advancedSearchLines">
     <div v-for="entity of entities" :key="entity.id" class="z-0 mt-0 mb-4 w-full" v-loading="isLoading">
       <EntitySummary :entity="entity" />
     </div>

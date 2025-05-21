@@ -210,7 +210,7 @@ onMounted(fetchData);
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
                 Metadata licensed as:
-                <el-link underline="underline" type="primary" :href="metadata.metadataLicense.id" target="_blank"
+                <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
                   class="mx-1">
                   {{ metadata.metadataLicense.name ||
                     metadata.metadataLicense.id }}

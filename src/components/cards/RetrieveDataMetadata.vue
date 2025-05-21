@@ -32,12 +32,12 @@ const generateDownloadLink = async (onBlank: boolean) => {
 <template>
   <ul>
     <li class="font-semibold">
-      <el-link :underline="true" type="primary" href="#" @click.prevent="generateDownloadLink(false)">
+      <el-link underline="always" type="primary" href="#" @click.prevent="generateDownloadLink(false)">
         Download metadata
       </el-link>
     </li>
     <li class="font-semibold">
-      <el-link :underline="true" type="primary" href="#" rel="noreferrer noopener"
+      <el-link underline="always" type="primary" href="#" rel="noreferrer noopener"
         @click.prevent="generateDownloadLink(true)">
         Open metadata in a new window
       </el-link>

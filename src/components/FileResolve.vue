@@ -141,7 +141,7 @@ if (resolve) {
 
     <el-row class="flex justify-center" v-if="access['hasAccess']">
       <el-button-group class="m-2">
-        <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" :underline="false">
+        <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" underline="never">
           <el-button type="default" class="px-2">View File</el-button>
         </router-link>
 

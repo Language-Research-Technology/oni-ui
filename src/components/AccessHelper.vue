@@ -100,7 +100,7 @@ onMounted(doWork);
           </el-row>
 
           <el-row v-if="enrollment?.url">
-            <el-link :underline="true" :href="enrollment.url" target="_blank" class="mx-1"
+            <el-link underline="always" :href="enrollment.url" target="_blank" class="mx-1"
               title="Will open in a new tab">
               {{ enrollment.label }}&nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
@@ -109,7 +109,7 @@ onMounted(doWork);
 
           <el-row v-if="enrollment?.url">
             or
-            <!-- <el-link underline="underline" type='default' @click="refreshAuthorization()" class="mx-1"> -->
+            <!-- <el-link underline="always" type='default' @click="refreshAuthorization()" class="mx-1"> -->
             refresh permissions
             <!-- </el-link> -->
             <EnrollmentCard v-if="noEnrollment" />

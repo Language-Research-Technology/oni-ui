@@ -70,7 +70,7 @@ getUserMemberships();
         </div>
       </div>
       <div class="h-10 flex rounded-sm items-center">
-        <el-link underline="underline" :href="authorizationProvider?.url" target="_blank" class="mx-1"
+        <el-link underline="always" :href="authorizationProvider?.url" target="_blank" class="mx-1"
           title="Will open in a new tab">
           Verify your access in {{ authorizationProvider?.label }}&nbsp;<font-awesome-icon
             icon="fa-solid fa-arrow-up-right-from-square" />

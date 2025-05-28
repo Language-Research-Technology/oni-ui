@@ -4,7 +4,7 @@
   "description": "Scripts to create structural and elastic indexes for an Oni",
   "main": "structural-index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "lint": "biome check --write .",
     "index": "node structural-index.js",
     "elastic": "node elastic-ocfl-oni-index.js",
@@ -13,7 +13,8 @@
   "author": "Moises Sacal Bonequi",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4"
+    "@biomejs/biome": "^1.9.4",
+    "mocha": "^11.5.0"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",

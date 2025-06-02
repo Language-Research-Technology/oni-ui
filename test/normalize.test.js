@@ -37,16 +37,16 @@ describe('normalize.js',  () => {
 
   it('Should not duplicate props if updated prefix',  async() => {
     const json = JSON.parse(fs.readFileSync('./test-data/normalize/ro-crate-metadata.json', 'utf8'));
-    const crate = new ROCrate(json);
+    const crate = new ROCrate(json, {link: true, array: true});
     const context = await getContext('https://w3id.org/ldac/context');
     // await crate.importContext('https://w3id.org/ldac/context')
     crate.addContext({"ldac": ldacIri});
     normalizeLdac(crate, context);
     const entity = crate.getEntity('17_BC_DV_PTC.mov.mp4');
-    const entityValue = entity['ldac:communicationMode'];
+    const entityValue = entity['ldac:communicationMode'][0];
     assert.deepStrictEqual(
-      entityValue,
-      { "@id": "https://w3id.org/ldac/terms#SpokenLanguage" },
+      entityValue["@id"],
+      "https://w3id.org/ldac/terms#SpokenLanguage",
       'normalized communicationMode to ldac:communicationMode'
     );
     assert.deepStrictEqual(

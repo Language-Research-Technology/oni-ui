@@ -14,7 +14,7 @@
         </el-row>
         <el-row>
           <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="flex justify-center h-screen overflow-auto">
-            <file-resolve :id="id" :resolve="true" :encodingFormat="encodingFormat"
+            <file-resolve :id="id" :resolve="true" :encodingFormat="encodingFormat" :contentSize="contentSize"
               :crateId="crateId" :rootId="rootId" :name="title" :parentName="parentTitle" :hideOpenLink="true"
               :isPreview="false" :access="access" :license="license" />
           </el-col>
@@ -40,6 +40,7 @@ export default {
       crateId: '',
       title: '',
       encodingFormat: '',
+      contentSize: '',
       rootId: '',
       parentId: '',
       parentTitle: '',
@@ -72,6 +73,7 @@ export default {
       this.parentId = parent['@id'];
       this.parentTitle = first(parent.name)?.['@value'] || this.parentId;
       this.encodingFormat = first(this.metadata?.encodingFormat)?.['@value'];
+      this.contentSize = first(this.metadata?.contentSize)?.['@value'];
       console.log('--------------');
       console.log(this.encodingFormat);
     },

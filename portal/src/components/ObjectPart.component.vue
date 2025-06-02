@@ -25,7 +25,8 @@
       </ul>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
-      <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="encodingFormat" :crateId="crateId"
+      <file-resolve class="flex justify-center" :id="id" :resolve="resolve" :encodingFormat="encodingFormat"
+                    :contentSize="contentSize" :crateId="crateId"
         :rootId="rootId" :pdfPages="1" :name="title" :parentName="parentName" previewText="Click 'View File' to see more"
         isPreview="true" :access="access" :license="license" />
     </el-col>
@@ -51,6 +52,7 @@ export default {
     'active',
     'id',
     'encodingFormat',
+    'contentSize',
     'crateId',
     'rootId',
     'parentName',

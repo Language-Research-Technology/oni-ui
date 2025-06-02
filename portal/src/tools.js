@@ -21,6 +21,10 @@ export function toggleSnip(selector) {
 }
 
 export function parseContentSize(value) {
+  // If it's already a number, treat it as bytes
+  if (!isNaN(value)) {
+    return value;
+  }
   const regex = /^\d+(\.\d+)?\s*(bytes|kb|mb|gb|tb|b)$/i;
   if (typeof value !== 'string' || !regex.test(value)) return null;
 
@@ -49,7 +53,7 @@ export function isLargerThan(value, threshold, thresholdUnit = 'mb') {
     gb: 1024 ** 3,
     tb: 1024 ** 4,
   };
-
+  console.log(sizeInBytes, threshold, thresholdUnit);
   const thresholdInBytes = threshold * (unitMultipliers[thresholdUnit.toLowerCase()] || 1);
   return sizeInBytes !== null && sizeInBytes > thresholdInBytes;
 }

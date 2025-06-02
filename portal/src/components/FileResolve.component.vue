@@ -14,6 +14,7 @@
               </el-row>
             </div>
             <div class="p-4 break-words" v-else-if="type === 'txt'">
+              <div v-if="errorDialogText">{{errorDialogText}}</div>
               <CSVWidget v-if="tryCSV" :data="data" :limitText="isPreview ? 500 : null"/>
               <PlainTextWidget v-else :data="data" :limitText="isPreview ? 700 : null"/>
             </div>
@@ -314,9 +315,7 @@ export default {
     },
     async loadTxt() {
       this.type = 'txt';
-      console.log('load txt');
-      console.log(this.contentSize);
-      if (isLargerThan(this.contentSize, 10)) {
+      if (isLargerThan(this.contentSize, 20, 'mb')) {
         this.errorDialogText = 'File is too large to display';
         this.errorDialogVisible = true;
       } else {

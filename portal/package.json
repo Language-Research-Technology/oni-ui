@@ -9,6 +9,9 @@
     "dev": "npm install && webpack serve -c webpack-development.js",
     "build": "npm install && webpack -c webpack-production.js"
   },
+  "jest": {
+    "testMatch": ["**/test/**/*.js", "**/*.test.js"]
+  },
   "keywords": [
     "Oni",
     "UI",

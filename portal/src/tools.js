@@ -21,26 +21,29 @@ export function toggleSnip(selector) {
 }
 
 export function parseContentSize(value) {
-  // If it's already a number, treat it as bytes
-  if (!isNaN(value)) {
-    return value;
+  if (typeof value === 'number' && !isNaN(value)) {
+    return value; // Already in bytes
   }
-  const regex = /^\d+(\.\d+)?\s*(bytes|kb|mb|gb|tb|b)$/i;
-  if (typeof value !== 'string' || !regex.test(value)) return null;
 
-  const [, , unit] = value.toLowerCase().match(/(\d+(\.\d+)?)(?:\s*)(bytes|kb|mb|gb|tb|b)/);
-  const number = parseFloat(value);
+  const regex = /^(\d+(?:\.\d+)?)(\s*)(bytes|b|kb|mb|gb|tb)$/i;
+
+  if (typeof value !== 'string') return null;
+  const match = value.trim().match(regex);
+  if (!match) return null;
+
+  const number = parseFloat(match[1]);
+  const unit = match[3].toLowerCase();
 
   const unitMultipliers = {
-    bytes: 1,
     b: 1,
+    bytes: 1,
     kb: 1024,
     mb: 1024 ** 2,
     gb: 1024 ** 3,
     tb: 1024 ** 4,
   };
 
-  return number * (unitMultipliers[unit] || 0);
+  return number * (unitMultipliers[unit] || 1);
 }
 
 export function isLargerThan(value, threshold, thresholdUnit = 'mb') {

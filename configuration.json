@@ -394,6 +394,7 @@
     }
   },
   "api": {
+    "memberOfField": "pcdm:memberOf",
     "structural": {
       "host": "https://catalog.paradisec.org.au",
       "key": "XXX",

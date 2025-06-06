@@ -99,7 +99,9 @@
             <a :id="'part-' + encodeURIComponent(part?.['@id'])"></a>
             <object-part :part="part" :title="first(part?.name)?.['@value'] || part?.['@id']"
                          :active="isPartActive(part?.['@id'], index)" :id="encodeURIComponent(part?.['@id'])"
-                         :encodingFormat="first(part?.['encodingFormat'])?.['@value']" :crateId="this.crateId"
+                         :encodingFormat="first(part?.['encodingFormat'])?.['@value']"
+                         :contentSize="first(part?.['contentSize'])?.['@value']"
+                         :crateId="this.crateId"
                          :rootId="this.rootId" :parentName="first(this.name)?.['@value']"
                          :parentId="this.$route.query.id"
                          :license="license" :access="access"/>

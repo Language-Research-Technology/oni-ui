@@ -258,7 +258,7 @@
           "_isTopLevel",
           "_root",
           "hasPart",
-          "hasMember",
+          "pcdm:hasMember",
           "_memberOf",
           "_isSubLevel",
           "memberOf",
@@ -314,7 +314,7 @@
           "_isTopLevel",
           "_root",
           "hasPart",
-          "hasMember",
+          "pcdm:hasMember",
           "error",
           "_parent",
           "_access",
@@ -394,6 +394,8 @@
     }
   },
   "api": {
+    "memberOfField": "pcdm:memberOf",
+    "hasMemberField": "pcdm:hasMember",
     "structural": {
       "host": "https://catalog.paradisec.org.au",
       "key": "XXX",

@@ -12,7 +12,7 @@
   </template>
   <template v-else>
     <template v-if="url">
-      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute"  :href="id"
+      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute" :href="id"
          target="_blank" rel="nofollow noreferrer">
         <manku-icon :name="title" height="30">
           <template #notFound>
@@ -23,7 +23,9 @@
         </manku-icon>
       </a><br/>
     </template>
-    <template v-else-if="value"><div class="break-words">{{ value }}</div></template>
+    <template v-else-if="value">
+      <div class="break-words">{{ value }}</div>
+    </template>
     <template v-else>
       <p>
         {{ name }}
@@ -39,8 +41,8 @@
 </template>
 <script>
 import convertSize from 'convert-size';
-import { first, isEmpty } from 'lodash';
-import { defineAsyncComponent } from 'vue';
+import {first, isEmpty} from 'lodash';
+import {defineAsyncComponent} from 'vue';
 
 export default {
   components: {
@@ -78,7 +80,7 @@ export default {
     for (const f of this.expand) {
       if (f === this.title) {
         console.log(f, this.title);
-        this.expandField = { name: this.title, data: this.field };
+        this.expandField = {name: this.title, data: this.field};
       }
     }
     this.value = this.cleanValue();
@@ -115,7 +117,11 @@ export default {
     },
     convert(value) {
       try {
-        return convertSize(Number.parseInt(value), { accuracy: 2 });
+        const contentSizeRegex = /^\d+(\.\d+)?\s*(bytes|kb|mb|gb|tb|b)$/i;
+        if (typeof value === 'string' && contentSizeRegex.test(value)) {
+          return value;
+        }
+        return convertSize(Number.parseInt(value), {accuracy: 2});
       } catch (e) {
         return value;
       }

@@ -14,6 +14,7 @@
               </el-row>
             </div>
             <div class="p-4 break-words" v-else-if="type === 'txt'">
+              <div v-if="errorDialogText">{{errorDialogText}}</div>
               <CSVWidget v-if="tryCSV" :data="data" :limitText="isPreview ? 500 : null"/>
               <PlainTextWidget v-else :data="data" :limitText="isPreview ? 700 : null"/>
             </div>
@@ -72,12 +73,13 @@
 
 <script>
 import 'element-plus/theme-chalk/display.css';
-import { VideoPlay } from '@element-plus/icons-vue';
-import { first, isUndefined } from 'lodash';
+import {VideoPlay} from '@element-plus/icons-vue';
+import {first, isUndefined} from 'lodash';
 import AccessHelper from './AccessHelper.component.vue';
 import CSVWidget from './widgets/CSVWidget.component.vue';
 import PDFWidget from './widgets/PDFWidget.component.vue';
 import PlainTextWidget from './widgets/PlainTextWidget.component.vue';
+import {isLargerThan} from "../tools";
 
 export default {
   inheritAttrs: false,
@@ -85,6 +87,7 @@ export default {
     'resolve',
     'id',
     'encodingFormat',
+    'contentSize',
     'crateId',
     'rootId',
     'pdfPages',
@@ -169,7 +172,7 @@ export default {
     async tryDownloadBlob() {
       this.loading = true;
       try {
-        this.responseBlob = await this.$http.get({ route: this.route });
+        this.responseBlob = await this.$http.get({route: this.route});
         console.log(`this.responseBlob.status: ${this.responseBlob.status}`);
         if (this.responseBlob.status !== 200) {
           this.errorMessage = 'We could not load the file';
@@ -207,20 +210,20 @@ export default {
       //TODO: issue https://github.com/Language-Research-Technology/oni-ui/issues/46
       if (!this.encodingFormat) {
         if (
-          this.path &&
-          (this.path.endsWith('.txt') ||
-            this.path.endsWith('.csv') ||
-            this.path.endsWith('.eaf') ||
-            this.path.endsWith('.html') ||
-            this.path.endsWith('.xml') ||
-            this.path.endsWith('.flab'))
+            this.path &&
+            (this.path.endsWith('.txt') ||
+                this.path.endsWith('.csv') ||
+                this.path.endsWith('.eaf') ||
+                this.path.endsWith('.html') ||
+                this.path.endsWith('.xml') ||
+                this.path.endsWith('.flab'))
         ) {
           await this.loadTxt();
           this.loading = false;
         }
       } else if (
-        this.encodingFormat &&
-        (this.encodingFormat?.startsWith('text/') || this.encodingFormat.endsWith('xml'))
+          this.encodingFormat &&
+          (this.encodingFormat?.startsWith('text/') || this.encodingFormat.endsWith('xml'))
       ) {
         await this.loadTxt();
         this.loading = false;
@@ -259,7 +262,7 @@ export default {
         this.loading = true;
         const link = document.createElement('a');
         link.download = this.path;
-        const response = await this.$http.get({ route: this.route });
+        const response = await this.$http.get({route: this.route});
         if (response.status !== 200) {
           this.errorDialogVisible = true;
           this.errorDialogTitle = 'Download Error';
@@ -268,7 +271,7 @@ export default {
           }
           if (response.status === 404) {
             this.errorDialogText =
-              'The file was not found in the path, please contact your Data Provider or Data Steward';
+                'The file was not found in the path, please contact your Data Provider or Data Steward';
           } else {
             this.errorDialogText = response.statusText;
           }
@@ -312,10 +315,14 @@ export default {
     },
     async loadTxt() {
       this.type = 'txt';
-      console.log('load txt');
-      this.data = await this.responseBlob.text({ type: 'text/plain', endings: 'native' });
-      if (this.path.endsWith('.csv')) {
-        this.tryCSV = true;
+      if (isLargerThan(this.contentSize, 20, 'mb')) {
+        this.errorDialogText = 'File is too large to display';
+        this.errorDialogVisible = true;
+      } else {
+        this.data = await this.responseBlob.text({type: 'text/plain', endings: 'native'});
+        if (this.path.endsWith('.csv')) {
+          this.tryCSV = true;
+        }
       }
       this.hidePreviewText = false;
     },

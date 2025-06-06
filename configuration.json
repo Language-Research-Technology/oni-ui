@@ -395,6 +395,7 @@
   },
   "api": {
     "memberOfField": "pcdm:memberOf",
+    "hasMemberField": "pcdm:hasMember",
     "structural": {
       "host": "https://catalog.paradisec.org.au",
       "key": "XXX",

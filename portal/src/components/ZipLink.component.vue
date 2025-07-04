@@ -10,7 +10,7 @@
     <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
             :xl="asTableRow ? 8 : 24">
       <p v-if="zip.noAccess">
-        Access to these content is restricted. Request Access
+        Access to this content is restricted. Request Access:
         <el-link :underline="false" type="primary">
           <template v-if="!isLoggedIn">
             <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>

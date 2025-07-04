@@ -153,15 +153,15 @@
         },
         {
           "display": "Linguistic Genre",
-          "name": "linguisticGenre.name.@value"
+          "name": "ldac:linguisticGenre.name.@value"
         },
         {
-          "display": "Modality",
-          "name": "modality.name.@value"
+          "display": "Communication Mode",
+          "name": "ldac:communicationMode.name.@value"
         },
         {
           "display": "Annotation Type",
-          "name": "annotationType.@value"
+          "name": "ldac:annotationType.@value"
         },
         {
           "display": "File Formats",
@@ -207,7 +207,7 @@
         },
         {
           "name": "DC.identifier",
-          "content": "doi"
+          "content": "ldac:doi"
         },
         {
           "name": "DC.type",
@@ -215,7 +215,7 @@
         },
         {
           "name": "DC.type",
-          "content": "materialType"
+          "content": "ldac:materialType"
         },
         {
           "name": "DC.license",
@@ -595,11 +595,11 @@
           "label": "Description",
           "checked": true
         },
-        "language.name.@value": {
+        "inLanguage.name.@value": {
           "label": "Language",
           "checked": true
         },
-        "language.alternateName.@value": {
+        "inLanguage.alternateName.@value": {
           "label": "Alternate Language Name",
           "checked": true
         },
@@ -660,16 +660,16 @@
         {
           "display": "Communication Mode",
           "order": 5,
-          "name": "communicationMode.name.@value",
-          "field": "communicationMode.name.@value.keyword",
+          "name": "ldac:communicationMode.name.@value",
+          "field": "ldac:communicationMode.name.@value.keyword",
           "help": "The mode(s) (spoken, written, signed, etc.) used in the interaction represented by this resource.",
           "icons": true
         },
         {
           "display": "Linguistic Genre",
           "order": 6,
-          "name": "linguisticGenre.name.@value",
-          "field": "linguisticGenre.name.@value.keyword",
+          "name": "ldac:linguisticGenre.name.@value",
+          "field": "ldac:linguisticGenre.name.@value.keyword",
           "help": "The linguistic classification of the genre of this resource."
         },
         {
@@ -683,8 +683,8 @@
         {
           "display": "Annotation Type",
           "order": 8,
-          "name": "annotationType.@value",
-          "field": "annotationType.@value.keyword"
+          "name": "ldac:annotationType.@value",
+          "field": "ldac:annotationType.@value.keyword"
         }
       ],
       "highlightFields": [

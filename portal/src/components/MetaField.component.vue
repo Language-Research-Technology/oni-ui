@@ -53,6 +53,8 @@ export default {
     clean(text) {
       if (text) {
         text = text.replace(/^_/, ''); // If it contains underscore
+        text = text.replace(/^ldac:/, ''); // If it contains the ldac prefix
+        text = text.replace(/^dct:/, ''); // If it contains dublincore prefix
         return this.capitalizeFirstLetter(text.replace(/([a-z])([A-Z])/g, '$1 $2'));
       }
     },

@@ -121,7 +121,7 @@
           <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
                         :citation="metadata['citation']" :datePublished="metadata['datePublished']"
                         :id="metadata['@id']"
-                        :creator="metadata['creator']" :doi="metadata['doi']" :creditText="metadata['creditText']"/>
+                        :creator="metadata['creator']" :doi="metadata['ldac:doi']" :creditText="metadata['creditText']"/>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">

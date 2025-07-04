@@ -103,9 +103,9 @@ export default {
             //         : 'undefined')}`;
             let author = '';
             if (Array.isArray(this.author) && this.author.length > 0) {
-                author = `<b>Author:</b> ${this.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')}`;
+                author = `<b>Author:</b> ${this.author.map(a => a?.name?.[0]?.['@value'] || a?.['@value']).filter(Boolean).join(', ')}`;
             } else if (Array.isArray(this.creator) && this.creator.length > 0) {
-                author = `<b>Creator:</b> ${this.creator.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')}`;
+                author = `<b>Creator:</b> ${this.creator.map(a => a?.name?.[0]?.['@value'] || a?.['@value']).filter(Boolean).join(', ')}`;
             } else {
                 author = `<b>Author:</b> undefined`;
             }

@@ -32,7 +32,7 @@
         <enrollment-card v-if="noEnrollment"/>
         <template v-else>
           <el-row>
-            <p class="items-center">You are logged in and you can apply for permission to view these files</p>
+            <p class="items-center">You are logged in and you can apply for permission to view these files.</p>
           </el-row>
           <el-row v-if="enrollment?.url">
             <el-link underline="underline" :href="enrollment.url" target="_blank" class="mx-1"
@@ -48,7 +48,7 @@
             <enrollment-card v-if="noEnrollment"/>
           </el-row>
           <el-row v-else>
-            <p class="items-center">No access control url has been configured, please contact the administrator</p>
+            <p class="items-center">No access control URL has been configured, please contact the administrator.</p>
           </el-row>
         </template>
       </template>

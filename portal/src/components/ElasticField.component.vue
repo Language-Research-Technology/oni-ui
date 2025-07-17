@@ -1,7 +1,7 @@
 <template>
   <template v-if="expandField">
     <el-collapse>
-      <el-collapse-item :title="name" :name="name">
+      <el-collapse-item :title="collapseName" :name="collapseName">
         <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :crateId="''" :filePath="''"
                     :parentId="''"/>
       </el-collapse-item>
@@ -54,6 +54,7 @@ export default {
     return {
       id: '',
       name: '',
+      collapseName: '',
       description: '',
       url: '',
       value: '',
@@ -100,6 +101,7 @@ export default {
         }
       }
     }
+  this.collapseName = this.shortenText(this.name);
   },
   methods: {
     first,
@@ -126,6 +128,15 @@ export default {
         return value;
       }
     },
+    shortenText(input, { minLength = 0, maxLength = 20 } = {}) {
+      if (typeof input === 'string') {
+        if (input.length <= minLength) {
+          return input; // Don't shorten if it's too short
+        }
+        return input.length > maxLength ? input.slice(0, maxLength) + '...' : input;
+      }
+      return '';
+    }
   },
 };
 </script>

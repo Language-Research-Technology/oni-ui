@@ -128,7 +128,7 @@ export default {
         return value;
       }
     },
-    shortenText(input, { minLength = 0, maxLength = 20 } = {}) {
+    shortenText(input, { minLength = 0, maxLength = 24 } = {}) {
       if (typeof input === 'string') {
         if (input.length <= minLength) {
           return input; // Don't shorten if it's too short

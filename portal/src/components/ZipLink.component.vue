@@ -1,39 +1,24 @@
 <template>
   <!-- TODO: remove this asTableRow -->
   <el-row class="py-2">
-    <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24" v-if="!zip.notFound">
+    <el-col :xs="24" :sm="asTableRow ? 10 : 24" :md="asTableRow ? 10 : 24" :lg="asTableRow ? 10 : 24"
+      :xl="asTableRow ? 10 : 24">
+      <p>
+        {{ zip.name }}
+      </p>
       <p v-if="zip?.numberOfFiles && zip?.expandedSize">
         Files: {{ zip.numberOfFiles }}, Size: {{ zip.expandedSize }}
       </p>
-    </el-col>
-    <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24">
-      <p v-if="zip.noAccess">
-        Access to this content is restricted. Request Access:
-        <el-link :underline="false" type="primary">
-          <template v-if="!isLoggedIn">
-            <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
-          </template>
-        </el-link>
-      </p>
-      <p v-else-if="zip.notFound">
-        Zip file {{ zip.name }} not found.
-      </p>
-      <p v-else>
-        <el-link ref="linkElement" :underline="true" type="primary" :href="zip.url" :download="zip.name"
-                 :onClick="trackEvent">
-          {{ zip.name }}
-          <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message" placement="top">
-            <el-button size="small" link>
-              <font-awesome-icon icon="fa-solid fa-circle-info"/>
-            </el-button>
-          </el-tooltip>
-        </el-link>
+      <p>
+        <el-tooltip v-if="message" class="box-item" effect="light" trigger="hover" :content="message" placement="top">
+          <el-button size="small" link>
+            <font-awesome-icon icon="fa-solid fa-circle-info" />
+          </el-button>
+        </el-tooltip>
       </p>
     </el-col>
-    <el-col :xs="24" :sm="asTableRow ? 8 : 24" :md="asTableRow ? 8 : 24" :lg="asTableRow ? 8 : 24"
-            :xl="asTableRow ? 8 : 24" v-if="!zip.notFound">
+    <el-col :xs="24" :sm="asTableRow ? 10 : 24" :md="asTableRow ? 10 : 24" :lg="asTableRow ? 10 : 24"
+      :xl="asTableRow ? 10 : 24" v-if="!zip.notFound">
       <p v-for="license of licenses">
         <span class="justify-self-center">
           <a class="underline" :href="license['@id']">
@@ -41,12 +26,45 @@
         </span>
       </p>
     </el-col>
+    <el-col :xs="24" :sm="asTableRow ? 4 : 24" :md="asTableRow ? 4 : 24" :lg="asTableRow ? 4 : 24"
+      :xl="asTableRow ? 4 : 24">
+      <p v-if="zip.noAccess">
+        <el-popover :visible="visible" placement="top" :width="260">
+          <p>Access to this content is restricted.<br>Request Access:<br><br></p>
+          <div style="text-align: left; margin: 0">
+            <el-button type="primary" @click="visible = false">
+              <template v-if="!isLoggedIn">
+                <router-link v-if="isLoginEnabled" to="/login">Sign Up or Log In</router-link>
+              </template>
+            </el-button>
+          </div>
+          <template #reference>
+            <el-button type="danger" circle size="large">
+              <font-awesome-icon icon="fa-solid fa-lock" size="lg" />
+            </el-button>
+          </template>
+        </el-popover>
+      </p>
+      <p v-else-if="zip.notFound">
+        Zip file {{ zip.name }} not found.
+      </p>
+      <p v-else>
+        <el-link ref="linkElement" :underline="false" type="primary" :href="zip.url" :download="zip.name"
+          :onClick="trackEvent">
+          <el-button type="primary" circle size="large">
+            <el-tooltip class="box-item" effect="dark" content="Click to download item." placement="bottom">
+              <font-awesome-icon icon="fa-solid fa-arrow-down" size="xl" />
+            </el-tooltip>
+          </el-button>
+        </el-link>
+      </p>
+    </el-col>
   </el-row>
 </template>
 <script>
-import {getLocalStorage} from '@/storage';
+import { getLocalStorage } from '@/storage';
 import convertSize from 'convert-size';
-import {first} from 'lodash';
+import { first } from 'lodash';
 
 export default {
   props: ['id', 'name', 'message', 'licenses', 'asTableRow'],
@@ -65,7 +83,7 @@ export default {
   watch: {
     '$store.state.user': {
       async handler() {
-        this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       },
       flush: 'post',
       immediate: true,
@@ -80,11 +98,11 @@ export default {
   methods: {
     first,
     async processZip() {
-      this.isLoggedIn = getLocalStorage({key: 'isLoggedIn'});
+      this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
       this.zip = await this.$zip.get(this.id, this.name);
       const group = first(this.licenses)?.['@id'];
-      const access = {hasAccess: this.zip.hasAccess, group};
-      const accessDetails = {access, license: first(this.license)};
+      const access = { hasAccess: this.zip.hasAccess, group };
+      const accessDetails = { access, license: first(this.license) };
       this.$emit('accessDetails', accessDetails);
     },
     trackEvent(e) {

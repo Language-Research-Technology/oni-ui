@@ -53,7 +53,7 @@
         </template>
       </template>
       <template v-if="!isLoggedIn">
-        &nbsp;<router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or Login</router-link>
+        &nbsp;<router-link class="underline" v-if="isLoginEnabled" to="/login">Sign Up or Log In</router-link>
       </template>
     </el-row>
   </template>

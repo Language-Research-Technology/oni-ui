@@ -3,7 +3,7 @@
         <h5 class="text-2xl font-medium">Citation</h5>
         <hr class="divider divider-gray pt-2" />
         <el-link plain @click="dialogVisible = true" type="primary">
-            View citation details
+            View citation details for this item
         </el-link>
 
         <el-dialog v-model="dialogVisible" title="Citation" width="40%">
@@ -30,9 +30,7 @@
                     Related Published Work
                 </h4>
                 <p class="spaced">
-                    Please also cite this <span style="display: inline-flex; align-items: center;"><el-link
-                            type="primary" target="_blank" :href=this.citationDoi>published
-                            work</el-link></span> based on the collection:
+                    Please also cite other published work based on the collection:
                 </p>
                 <p class="spaced">
                 <div v-html="relatedPublishedWork"></div>
@@ -69,7 +67,7 @@ export default {
     props: ['name', 'author', 'datePublished', 'id', 'memberOf', 'citation', 'creator', 'doi', 'creditText'],
     data() {
         return {
-            citationDoi: this.getCitationDoi(),
+            // citationDoi: this.getCitationDoi(),
             suggestedCitation: this.getSuggestedCitation(),
             bibliography: this.getBibliographyEntry(),
             relatedPublishedWork: this.getRelatedPublishedWork(),
@@ -89,10 +87,10 @@ export default {
         }
     },
     methods: {
-        getCitationDoi() {
-            let citationDoi = `${this.citation?.[0]?.['@id']}`;
-            return citationDoi;
-        },
+        // getCitationDoi() {
+        //     let citationDoi = `${this.citation?.[0]?.['@id']}`;
+        //     return citationDoi;
+        // },
         getSuggestedCitation() {
             let result = `${first(this.creditText)?.['@value']}`;
             return result
@@ -124,15 +122,27 @@ export default {
             return result
         },
         getRelatedPublishedWork() {
-            let citationAuthor = `<b>Author:</b> ${Array.isArray((this.citation)?.author) && (this.citation)?.author.length > 0 ? (this.citation)?.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ') : 'undefined'}`;
-            let citationTitle = `<b>Title:</b> ${first(this.citation)?.name[0]?.['@value']}`;
-            let citationPublishedDate = `<b>Date:</b> ${first(this.citation)?.datePublished[0]?.['@value']}`;
-            let citationPublisher = `<b>Publisher:</b> ${first(this.citation)?.publisher[0]?.['@value']}`;
-            let citationLocator = `<b>Locator:</b> ${this.citation?.[0]?.['@id']}`;
-            let variables = [citationAuthor, citationTitle, citationPublishedDate, citationPublisher, citationLocator];
-            let result = variables.filter(value => !String(value).includes("undefined")).join(", ");
-            return result
+            if (!Array.isArray(this.citation) || this.citation.length === 0) {
+                return '';
+            }
+            return this.citation.map(cite => {
+                let citationAuthor = `<b>Author:</b> ${Array.isArray(cite.author) && cite.author.length > 0
+                        ? cite.author.map(a => a?.name?.[0]?.['@value']).filter(Boolean).join(', ')
+                        : 'undefined'
+                    }`;
+                let citationTitle = `${cite.name?.[0]?.['@value'] || 'undefined'}`;
+                let citationPublishedDate = `<b>Date:</b> ${cite.datePublished?.[0]?.['@value'] || 'undefined'}`;
+                let citationPublisher = `<b>Publisher:</b> ${cite.publisher?.[0]?.['@value'] || 'undefined'}`;
+                let citationLocator = `<b>Locator:</b> ${cite['@id'] || 'undefined'}`;
+                // Filter out undefined values and join
+                let variables = [citationAuthor, citationPublishedDate, citationPublisher, citationLocator];
+                let head = citationTitle;
+                let result = variables.filter(value => !value.includes("undefined")).join(", ");
+                let combined = `${head}<br>${result}`
+                return combined;
+            }).join("<br><br>"); // Separate citations with line breaks
         }
+
     }
 }
 </script>

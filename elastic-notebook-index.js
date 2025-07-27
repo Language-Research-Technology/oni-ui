@@ -72,13 +72,13 @@ async function initElasticClient() {
   console.log('Index Configuration');
   console.log(JSON.stringify(elastic.indexConfiguration));
   const index = elastic?.index || 'items';
-  await client.indices.putSettings({
-    index,
-    body: {
-      max_result_window: elastic.indexConfiguration?.max_result_window,
-      mapping: elastic.indexConfiguration?.mapping,
-    },
-  });
+  // await client.indices.putSettings({
+  //   index,
+  //   body: {
+  //     max_result_window: elastic.indexConfiguration?.max_result_window,
+  //     mapping: elastic.indexConfiguration?.mapping,
+  //   },
+  // });
   const settings = await client.indices.getSettings({ index });
   console.log('Index Settings');
   console.log(JSON.stringify(settings));

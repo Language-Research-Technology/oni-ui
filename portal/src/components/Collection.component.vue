@@ -2,30 +2,30 @@
   <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <member-of-link :memberOf="metadata?._memberOf"/>
+        <member-of-link :memberOf="metadata?._memberOf" />
         {{ first(this.name)?.['@value'] }}
       </h5>
     </el-row>
-    <hr class="divider divider-gray pt-2"/>
+    <hr class="divider divider-gray pt-2" />
   </div>
   <el-row :justify="'center'" v-if="this.metadata" class="m-5 pt2 px-10 pb-7">
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
-      <MetaTopCard :tops="this.tops" :className="'px-5 py-2'"/>
+      <MetaTopCard :tops="this.tops" :className="'px-5 py-2'" />
       <el-row class="px-5">
         <el-col v-for="meta of this.meta">
-          <meta-field :meta="meta" :routePath="'collection'" :crateId="this.$route.query._crateId"/>
+          <meta-field :meta="meta" :routePath="'collection'" :crateId="this.$route.query._crateId" />
         </el-col>
       </el-row>
       <el-row v-if="collectionSubCollections">
         <el-col>
           <collection-members :title="'Sub Collections'" :id="$route.query.id" :conformsTo="conformsToCollection"
-                              :routePath="'collection'"/>
+            :routePath="'collection'" />
         </el-col>
       </el-row>
       <el-row>
         <el-col v-if="collectionMembers">
           <collection-members :title="'Objects in Collection'" :id="$route.query.id" :conformsTo="conformsToObject"
-                              :routePath="'object'"/>
+            :routePath="'object'" />
         </el-col>
       </el-row>
     </el-col>
@@ -34,39 +34,38 @@
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <AccessHelper v-if="access" :access="access" :license="license"/>
-<!--            <PropertySummaryCard-->
-<!--                :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"-->
-<!--                :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"-->
-<!--                :fieldName="'license'"-->
-<!--                :external="true" :id="this.$route.query.id" :root="this.metadata._root"-->
-<!--                :emptyLabel="'no Licenses'"/>-->
-<!--            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>-->
-            <license-card v-if="this.license?.['@id']" :license="license"/>
+            <hr class="divider divider-gray pt-2" />
+            <AccessHelper v-if="access" :access="access" :license="license" />
+            <!--            <PropertySummaryCard-->
+            <!--                :aggregations="{ 'license.name.@value': { 'terms': { 'field': 'license.name.@value.keyword', 'size': '1000' } } }"-->
+            <!--                :fields="[{ 'name': 'license.@id', 'display': 'Licenses' }]" :name="'license.@id'"-->
+            <!--                :fieldName="'license'"-->
+            <!--                :external="true" :id="this.$route.query.id" :root="this.metadata._root"-->
+            <!--                :emptyLabel="'no Licenses'"/>-->
+            <!--            <AccessInfo :id="this.$route.query.id" :licenses="[{ 'name': 'license.@id', 'display': 'Licenses' }]"/>-->
+            <license-card v-if="this.license?.['@id']" :license="license" />
           </el-card>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5" v-if="metadata?._memberOf && metadata?._memberOf.length > 0">
         <el-col>
-          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
+          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf" />
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5" v-loading="loading">
             <h5 class="text-2xl font-medium">Content</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <div v-if="Object.keys(aggregations).length > 0 && !loading">
               <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'"
-                             :id="this.$route.query.id" :root="this.metadata._root"
-                             :title="'Data'"/>
+                :id="this.$route.query.id" :root="this.metadata._root" :title="'Data'" />
               <!--Not needed because data licenses shown above-->
-<!--              <SummariesCard :aggregations="aggregations"-->
-<!--                             :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"-->
-<!--                             :name="'licenses'"-->
-<!--                             :id="this.$route.query.id" :root="this.metadata._root"-->
-<!--                             :title="'Data Licenses'"/>-->
+              <!--              <SummariesCard :aggregations="aggregations"-->
+              <!--                             :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]"-->
+              <!--                             :name="'licenses'"-->
+              <!--                             :id="this.$route.query.id" :root="this.metadata._root"-->
+              <!--                             :title="'Data Licenses'"/>-->
             </div>
             <div v-else>
               No Content Found
@@ -78,12 +77,12 @@
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value'] != undefined">
             <h5 class="text-2xl font-medium">Downloads</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
-                            v-model="openDownloads" :title="first(name)?.['@value']"/>
+              v-model="openDownloads" :title="first(name)?.['@value']" />
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
             <DownloadsModal :id="rootId" :idFieldName="'_root.@id'" v-model="openDownloads"
-                            :title="first(name)?.['@value']"/>
+              :title="first(name)?.['@value']" />
           </el-card>
         </el-col>
       </el-row>
@@ -91,14 +90,14 @@
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <RetrieveDataMetadata :id="this.$route.query.id"/>
+            <hr class="divider divider-gray pt-2" />
+            <RetrieveDataMetadata :id="this.$route.query.id" />
             <template v-if="metadata._metadataLicense?.id">
-              <hr class="divider divider-gray mt-4 pb-2"/>
+              <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
                 Metadata licensed as:
                 <el-link underline="underline" :underline="true" type="primary" :href="metadata._metadataLicense?.id"
-                         target="_blank" class="mx-1">
+                  target="_blank" class="mx-1">
                   {{ metadata._metadataLicense?.name || metadata._metadataLicense?.id }}
                 </el-link>
               </h4>
@@ -106,36 +105,35 @@
           </el-card>
         </el-col>
       </el-row>
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
+            :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']"
+            :creator="metadata['creator']" :doi="metadata['ldac:doi']" :creditText="metadata['creditText']" />
+        </el-col>
+      </el-row>
       <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <SimpleRelationshipCard :id="this.$route.query.id" :objectType="relationship.type"
-                                    :objectName="relationship.name"/>
+              :objectName="relationship.name" />
           </el-card>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
-                        :citation="metadata['citation']" :datePublished="metadata['datePublished']"
-                        :id="metadata['@id']"
-                        :creator="metadata['creator']" :doi="metadata['doi']" :creditText="metadata['creditText']"/>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20" class="pb-5">
-        <el-col>
-          <TakedownCard/>
+          <TakedownCard />
         </el-col>
       </el-row>
     </el-col>
   </el-row>
 </template>
 <script>
-import {putLocalStorage} from '@/storage';
-import {first, isEmpty, isUndefined, reject, sortBy} from 'lodash';
-import {defineAsyncComponent} from 'vue';
+import { putLocalStorage } from '@/storage';
+import { first, isEmpty, isUndefined, reject, sortBy } from 'lodash';
+import { defineAsyncComponent } from 'vue';
 import MetaField from './MetaField.component.vue';
 import ContentCard from './cards/ContentCard.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
@@ -152,7 +150,7 @@ import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import CitationCard from './cards/CitationCard.component.vue';
 import AccessHelper from './AccessHelper.component.vue';
 import AccessInfo from './AccessInfo.component.vue';
-import {defaultPostCssConfigStubFile} from "tailwindcss/lib/constants";
+import { defaultPostCssConfigStubFile } from "tailwindcss/lib/constants";
 
 export default {
   components: {
@@ -250,7 +248,7 @@ export default {
           event_label: 'no-id-collection',
           value: id,
         });
-        await this.$router.push({path: '/404'});
+        await this.$router.push({ path: '/404' });
       } else {
         const metadata = await this.$elasticService.single({
           id: id,
@@ -267,30 +265,30 @@ export default {
         if (!isEmpty(this.metadata)) {
           await this.populate();
           this.collectionSubCollections = await this.filter(
-              {
-                '_memberOf.@id': [this.$route.query.id],
-                'conformsTo.@id': [this.conformsToCollection],
-              },
-              true,
+            {
+              '_memberOf.@id': [this.$route.query.id],
+              'conformsTo.@id': [this.conformsToCollection],
+            },
+            true,
           );
           this.collectionMembers = await this.filter(
-              {
-                '_memberOf.@id': [this.$route.query.id],
-                'conformsTo.@id': [this.conformsToObject],
-              },
-              true,
+            {
+              '_memberOf.@id': [this.$route.query.id],
+              'conformsTo.@id': [this.conformsToObject],
+            },
+            true,
           );
-          const summaries = await this.filter({'_collectionStack.@id': [this.$route.query.id]});
+          const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
           this.aggregations = summaries?.aggregations || [];
 
-          putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+          putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
         } else {
           this.$gtag.event('/collection', {
             event_category: 'collection',
             event_label: 'no-metadata-collection',
             value: id,
           });
-          await this.$router.push({path: '/404'});
+          await this.$router.push({ path: '/404' });
         }
       }
       this.loading = false;
@@ -310,7 +308,7 @@ export default {
       event_label: 'loaded-collection',
       value: id,
     });
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
     this.loading = false;
   },
   watch: {},
@@ -375,7 +373,7 @@ export default {
         if (this.metadata[field.name]) {
           value = this.metadata[field.name];
         } else {
-          value = [{'@value': 'Not Defined'}];
+          value = [{ '@value': 'Not Defined' }];
         }
         this.tops.push({
           name: field.display,
@@ -397,7 +395,7 @@ export default {
             definition: 'TODO: Add definition',
           };
         }
-        this.meta.push({name: filter, data: this.metadata[filter], help: helper});
+        this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
       this.meta = sortBy(this.meta, 'name');
     },
@@ -406,7 +404,7 @@ export default {
     },
     async populateBuckets() {
       const items = await this.$elasticService.multi({
-        filters: {'_memberOf.@id': [this.$route.query.id]},
+        filters: { '_memberOf.@id': [this.$route.query.id] },
         sort: 'relevance',
         order: 'desc',
       });
@@ -414,7 +412,7 @@ export default {
       this.buckets = [];
       for (const field of this.fields) {
         if (aggregations[field.name]) {
-          this.buckets.push({field: field.display, buckets: aggregations[field.name]?.buckets});
+          this.buckets.push({ field: field.display, buckets: aggregations[field.name]?.buckets });
         }
       }
     },
@@ -429,7 +427,7 @@ export default {
 
     //TODO: refactor this integrate to multi
     async filter(filters, scroll) {
-      const items = await this.$elasticService.multi({scroll, filters, sort: 'relevance', order: 'desc'});
+      const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
       if (items?.hits?.hits.length > 0) {
         return {
           data: items?.hits?.hits,

@@ -178,6 +178,19 @@
         "citation"
       ]
     },
+    "textReplacements": {
+      "^_": "",
+      "^ldac:doi$": "DOI",
+      "^ldac:isDeIdentified$": "Is De-Identified",
+      "^citation$": "Related Works",
+      "^ldac:": "",
+      "^dct:": "",
+      "^isbn$": "ISBN",
+      "^issn$": "ISSN",
+      "^url$": "URL",
+      "^@id$": "ID",
+      "^@type$": "Type"
+    },
     "head": {
       "title": "DC.publisher",
       "meta": [
@@ -270,19 +283,6 @@
           "_subCollection",
           "_isOCFL"
         ],
-        "textReplacements": {
-          "^_": "",
-          "^ldac:doi$": "DOI",
-          "^ldac:isDeIdentified$": "Is De-Identified",
-          "^citation$": "Related Works",
-          "^ldac:": "",
-          "^dct:": "",
-          "^isbn$": "ISBN",
-          "^issn$": "ISSN",
-          "^url$": "URL",
-          "^@id$": "ID",
-          "^@type$": "Type"
-        },
         "displayHasMember": false,
         "displayHasPart": true
       },

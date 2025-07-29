@@ -36,7 +36,7 @@
             <h5 class="text-2xl font-medium">Downloads</h5>
             <hr class="divider divider-gray pt-2"/>
             <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'" v-model="openDownloads" :title="first(name)?.['@value']"/>
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
             <DownloadsModal :id="this.rootId" :idFieldName="'_root.@id'" v-model="openDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>

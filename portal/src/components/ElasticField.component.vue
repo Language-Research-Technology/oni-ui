@@ -12,7 +12,7 @@
   </template>
   <template v-else>
     <template v-if="url">
-      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute" :href="id"
+      <a class="block break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
          target="_blank" rel="nofollow noreferrer">
         <manku-icon :name="title" height="30">
           <template #notFound>

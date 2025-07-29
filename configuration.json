@@ -173,7 +173,7 @@
         "contentSize"
       ],
       "expand": [
-        "speaker",
+        "ldac:speaker",
         "author",
         "citation"
       ]
@@ -189,7 +189,8 @@
       "^issn$": "ISSN",
       "^url$": "URL",
       "^@id$": "ID",
-      "^@type$": "Type"
+      "^@type$": "Type",
+      "^arcp://name,custom/terms#": ""
     },
     "head": {
       "title": "DC.publisher",

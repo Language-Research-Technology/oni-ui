@@ -80,7 +80,7 @@
             <hr class="divider divider-gray pt-2" />
             <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
               v-model="openDownloads" :title="first(name)?.['@value']" />
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
             <DownloadsModal :id="rootId" :idFieldName="'_root.@id'" v-model="openDownloads"
               :title="first(name)?.['@value']" />
           </el-card>

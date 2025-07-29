@@ -21,7 +21,7 @@
       :xl="asTableRow ? 10 : 24" v-if="!zip.notFound">
       <p v-for="license of licenses">
         <span class="justify-self-center">
-          <a class="underline" :href="license['@id']">
+          <a class="underline" :href="license['@id']" target="_blank">
             {{ first(license.name)?.['@value'] }}</a>
         </span>
       </p>
@@ -29,7 +29,7 @@
     <el-col :xs="24" :sm="asTableRow ? 4 : 24" :md="asTableRow ? 4 : 24" :lg="asTableRow ? 4 : 24"
       :xl="asTableRow ? 4 : 24">
       <p v-if="zip.noAccess">
-        <el-popover :visible="visible" placement="top" :width="260">
+        <el-popover v-if="!isLoggedIn" :visible="visible" placement="top" :width="260">
           <p>Access to this content is restricted.<br>Request Access:<br><br></p>
           <div style="text-align: left; margin: 0">
             <el-button type="primary" @click="visible = false">
@@ -38,6 +38,17 @@
               </template>
             </el-button>
           </div>
+          <template #reference>
+            <el-button type="danger" circle size="large">
+              <font-awesome-icon icon="fa-solid fa-lock" size="lg" />
+            </el-button>
+          </template>
+        </el-popover>
+        <el-popover v-else-if="isLoggedIn" :visible="visible" placement="top" :width="260">
+          <el-row>
+            <p class="items-center">Access to this content is restricted. You are logged in and can apply for permission
+              to access these files.</p>
+          </el-row>
           <template #reference>
             <el-button type="danger" circle size="large">
               <font-awesome-icon icon="fa-solid fa-lock" size="lg" />

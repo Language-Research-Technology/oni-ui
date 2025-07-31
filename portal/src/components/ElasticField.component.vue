@@ -72,9 +72,6 @@ export default {
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
-      if (isEmpty(this.description)) {
-        this.description = 'This value only has an Id';
-      }
     }
     if (this.title === 'base64') {
     }

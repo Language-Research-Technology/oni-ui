@@ -28,11 +28,11 @@
     </el-col>
     <el-col :xs="24" :sm="asTableRow ? 4 : 24" :md="asTableRow ? 4 : 24" :lg="asTableRow ? 4 : 24"
       :xl="asTableRow ? 4 : 24">
-      <p v-if="zip.noAccess">
-        <el-popover v-if="!isLoggedIn" :visible="visible" placement="top" :width="260">
+      <template v-if="zip.noAccess">
+        <el-popover v-if="!isLoggedIn" placement="top" :width="260">
           <p>Access to this content is restricted.<br>Request Access:<br><br></p>
           <div style="text-align: left; margin: 0">
-            <el-button type="primary" @click="visible = false">
+            <el-button type="primary">
               <template v-if="!isLoggedIn">
                 <router-link v-if="isLoginEnabled" to="/login">Sign Up or Log In</router-link>
               </template>
@@ -44,10 +44,18 @@
             </el-button>
           </template>
         </el-popover>
-        <el-popover v-else-if="isLoggedIn" :visible="visible" placement="top" :width="260">
+        <el-popover v-else placement="top" :width="260">
+          <enrollment-card v-if="noEnrollment" />
           <el-row>
-            <p class="items-center">Access to this content is restricted. You are logged in and can apply for permission
-              to access these files.</p>
+            <p class="items-center">
+              You are logged in and can apply for permission to view these files.<br><br>
+            </p>
+          </el-row>
+          <el-row v-if="enrollment?.url">
+            <el-link underline="underline" :href="enrollment.url" target="_blank">
+              {{ enrollment.label }}
+              &nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
+            </el-link>
           </el-row>
           <template #reference>
             <el-button type="danger" circle size="large">
@@ -55,7 +63,7 @@
             </el-button>
           </template>
         </el-popover>
-      </p>
+      </template>
       <p v-else-if="zip.notFound">
         Zip file {{ zip.name }} not found.
       </p>
@@ -74,11 +82,12 @@
 </template>
 <script>
 import { getLocalStorage } from '@/storage';
-import convertSize from 'convert-size';
-import { first } from 'lodash';
+import { first, isEqual } from 'lodash';
+import EnrollmentCard from './cards/EnrollmentCard.component.vue';
 
 export default {
-  props: ['id', 'name', 'message', 'licenses', 'asTableRow'],
+  components: { EnrollmentCard },
+  props: ['id', 'name', 'message', 'licenses', 'asTableRow', 'access'],
   data() {
     return {
       isLoggedIn: false,
@@ -89,6 +98,14 @@ export default {
         expandedSize: '',
         numberOfFiles: 0,
       },
+      enrollment: {},
+      errorDialogText: '',
+      noEnrollment: false,
+      user: '',
+      helpUrl: this.$store.state.configuration.ui?.help?.helpUrl || '',
+      loading: false,
+      memberships: [],
+      licenseConfig: this.$store.state.configuration.ui?.licenses || [],
     };
   },
   watch: {
@@ -102,9 +119,19 @@ export default {
   },
   async mounted() {
     await this.processZip();
+    this.loading = true;
+    await this.checkUserMemberships();
+    this.getEnrollment();
+    this.user = this.$store.state.user;
+    this.loading = false;
   },
   async updated() {
     await this.processZip();
+    this.loading = true;
+    await this.checkUserMemberships();
+    this.getEnrollment();
+    this.user = this.$store.state.user;
+    this.loading = false;
   },
   methods: {
     first,
@@ -122,6 +149,45 @@ export default {
         event_label: 'download-zip',
         value: this.zip.url,
       });
+    },
+    async checkUserMemberships(isClick) {
+      const membershipsStatus = await this.$membership.get();
+      if (!membershipsStatus.error) {
+        if (membershipsStatus.unenrolled) {
+          this.noEnrollment = true;
+        } else {
+          if (isClick) {
+            if (!isEqual(this.memberships, membershipsStatus.memberships)) {
+              this.memberships = membershipsStatus.memberships;
+              // Instead of re-rendering the spa with router.go, I will reload the entire thing, because in Safari it was not working
+              // this.$router.go(0);
+              window.location.reload();
+            }
+          } else {
+            this.memberships = membershipsStatus.memberships;
+          }
+        }
+      } else {
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
+      }
+    },
+    getEnrollment() {
+      if (this.licenseConfig.length > 0) {
+        if (this.access) {
+          const license = this.licenseConfig.find((l) => {
+            if (l.group === this.access.group) {
+              return l.enrollment;
+            }
+          })
+          //TODO: I'm sending the this.license but not using it??
+          // const propLicense = this.license;
+          // debugger
+          this.enrollment = license?.enrollment;
+        }
+      } else {
+        this.errorDialogText = 'No licenses configured';
+      }
+      console.log(license)
     },
   },
 };

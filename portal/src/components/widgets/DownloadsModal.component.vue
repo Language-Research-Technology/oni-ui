@@ -18,8 +18,8 @@
         </el-col>
       </el-row>
       <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="true"
-          v-if="obj.name" />
+        <ZipLink :access="access" :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message"
+          :asTableRow="true" v-if="obj.name" />
       </template>
     </div>
     <template v-else>
@@ -32,12 +32,12 @@
     </template>
   </el-dialog>
   <div v-if="simpleView">
-    <div v-if="objectTotals > 0">
-      <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="false"
-          v-if="obj.name" />
+    <template v-if="objectTotals > 0">
+      <template v-for="(obj, index) in objects" :key="index">
+        <ZipLink :access="access" :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message"
+          :asTableRow="false" v-if="obj.name" />
       </template>
-    </div>
+    </template>
     <template v-else>
       <p>This item does not have a direct download link.</p>
     </template>
@@ -52,7 +52,7 @@ export default {
   components: {
     ZipLink,
   },
-  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView'],
+  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView', 'access'],
   data() {
     return {
       isModalVisible: false,

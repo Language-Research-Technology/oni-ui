@@ -185,6 +185,9 @@
       "^citation$": "Related Works",
       "^ldac:": "",
       "^dct:": "",
+      "^local:": "",
+      "^prov:": "",
+      "^pcdm:": "",
       "^isbn$": "ISBN",
       "^issn$": "ISSN",
       "^url$": "URL",
@@ -282,7 +285,8 @@
           "identifier",
           "_mainCollection",
           "_subCollection",
-          "_isOCFL"
+          "_isOCFL",
+          "_metadataLicense"
         ],
         "displayHasMember": false,
         "displayHasPart": true
@@ -338,7 +342,8 @@
           "_metadataIsPublic",
           "_mainCollection",
           "_subCollection",
-          "_isOCFL"
+          "_isOCFL",
+          "_metadataLicense"
         ]
       }
     },
@@ -357,7 +362,8 @@
           "_metadataIsPublic",
           "_mainCollection",
           "_subCollection",
-          "_isOCFL"
+          "_isOCFL",
+          "_metadataLicense"
         ]
       }
     },
@@ -395,7 +401,8 @@
           "_metadataIsPublic",
           "_mainCollection",
           "_subCollection",
-          "_isOCFL"
+          "_isOCFL",
+          "_metadataLicense"
         ],
         "displayHasMember": false,
         "displayHasPart": false

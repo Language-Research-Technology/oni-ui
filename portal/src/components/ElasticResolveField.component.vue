@@ -13,18 +13,7 @@
          :href="field" target="_blank">{{field}}</a>
     </template>
     <template v-else>
-      <el-link class="break-words break-all" type="primary" :href="this.link">{{ this.field }}</el-link>&nbsp;
-      <el-tooltip v-if="field"
-                  class="box-item"
-                  effect="light"
-                  trigger="click"
-                  content="This is a sharable link, right click and copy it to share"
-                  placement="top"
-      >
-        <el-button link>
-          <font-awesome-icon icon="fa-solid fa-circle-info"/>
-        </el-button>
-      </el-tooltip>
+      <el-link class="break-words break-all" type="primary" :href="this.link">{{ this.field }}</el-link>
     </template>
   </template>
 </template>

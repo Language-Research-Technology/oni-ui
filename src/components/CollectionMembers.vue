@@ -28,7 +28,7 @@ const setMembers = async () => {
     memberOf: id,
     conformsTo,
     limit: pageSize.value,
-    sort: 'title',
+    sort: 'name',
     order: 'asc',
   };
 

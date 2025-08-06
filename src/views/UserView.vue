@@ -10,7 +10,7 @@ import UserMemberships from '@/components/UserMemberships.vue';
         <h2 class="font-semibold text-xl text-gray-600">User Info</h2>
         <p class="text-gray-500 mb-6"></p>
         <UserDetails />
-        <!-- <UserMemberships /> -->
+        <UserMemberships />
       </div>
     </div>
   </div>

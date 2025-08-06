@@ -2,7 +2,16 @@ import { pipeline } from 'node:stream/promises';
 
 import express from 'express';
 
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+
+import jwt from 'jsonwebtoken';
+import * as crypto from 'node:crypto';
+
 const app = express();
+
+app.use(morgan('combined'));
+app.use(cookieParser());
 
 import configuration from '../src/configuration.json';
 import { ElasticService } from './elastic';
@@ -407,6 +416,185 @@ app.post('/api/search/index/items', async (req, res) => {
     const body = await response.text();
     res.status(response.status).send(body);
   });
+});
+
+const base_url = 'https://data.ldaca.edu.au';
+
+app.get('/.well-known/openid-configuration', async (_req, res) => {
+  const body = {
+    "issuer": "http://localhost:5173",
+    "authorization_endpoint": "http://localhost:5173/ldaca/oauth/authorize",
+    "token_endpoint": "http://localhost:5173/ldaca/oauth/token",
+    // "revocation_endpoint": "https://data.ldaca.edu.au/oauth/revoke",
+    // "introspection_endpoint": "https://data.ldaca.edu.au/oauth/introspect",
+    // "userinfo_endpoint": "https://data.ldaca.edu.au/oauth/userinfo",
+    // "jwks_uri": "https://data.ldaca.edu.au/oauth/discovery/keys",
+    "scopes_supported": [
+      "public",
+      "profile",
+      "openid",
+      "email"
+    ],
+    "response_types_supported": [
+      "code",
+      "token",
+      "id_token",
+      "id_token token"
+    ],
+    "response_modes_supported": [
+      "query",
+      "fragment",
+      "form_post"
+    ],
+    "grant_types_supported": [
+      "authorization_code",
+      "client_credentials",
+      "implicit_oidc"
+    ],
+    "token_endpoint_auth_methods_supported": [
+      "client_secret_basic",
+      "client_secret_post"
+    ],
+    "subject_types_supported": [
+      "public"
+    ],
+    "id_token_signing_alg_values_supported": [
+      "RS256"
+    ],
+    "claim_types_supported": [
+      "normal"
+    ],
+    "claims_supported": [
+      "iss",
+      "sub",
+      "aud",
+      "exp",
+      "iat",
+      "email",
+      "given_name",
+      "family_name",
+      "name"
+    ],
+    "code_challenge_methods_supported": [
+      "plain",
+      "S256"
+    ]
+  };
+
+  res.status(200).send(body);
+});
+
+
+app.get('/ldaca/oauth/authorize', async (req, res) => {
+   console.log("🪚 ⭐", req.query);
+
+  const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+  const { state } = req.query;
+  console.log("🪚 qs:", qs);
+
+  const response = await fetch(`${base_url}/api/oauth/cilogon/login?${qs}`);
+
+  const { url, code_verifier } = await response.json() as { url: string, code_verifier: string };
+
+  res.cookie('x-code-verifier', code_verifier, { httpOnly: true });
+  res.cookie('x-state', state, { httpOnly: true });
+
+  res.redirect(301, url);
+});
+
+// NOTE: This is a dirty hack to intercept the login flow manually done by the user for testing
+app.get('/ldaca/oauth/intercept', async (req, res) => {
+  const { code } = req.query;
+  const code_verifier = req.cookies['x-code-verifier'];
+  const state = req.cookies['x-state'];
+
+  const response = await fetch(`${base_url}/api/oauth/cilogon/code`, {
+    method: 'POST',
+    body: JSON.stringify({ code, state: 'cilogon', code_verifier }),
+  });
+
+  const { token } = await response.json() as { token: string };
+
+  res.cookie('x-token', token, { httpOnly: true });
+
+  res.redirect(301, `http://localhost:5173/auth/callback?code=moo&state=${state}`);
+});
+
+
+app.post('/ldaca/oauth/token', async (req, res) => {
+  console.log("🪚 🟩");
+  const access_token = req.cookies['x-token'];
+
+  console.log("🪚 ⭕");
+  const response = await fetch(`${base_url}/api/user`, {
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+    }
+  });
+
+  console.log("🪚 💜");
+  const user = (await response.json() as { user: Record<string, string> }).user;
+  console.log(user);
+
+  console.log("🪚 🔲");
+  const claims = {
+    iss: 'http://localhost:5173',
+    sub: user.id,
+    aud: 'your-client-id',
+    nonce: 'random-nonce-value',
+    email: user.email,
+    email_verified: true,
+    name: user.name,
+  };
+  console.log("🪚 claims:", JSON.stringify(claims, null, 2))
+
+  console.log("🪚 🔵");
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem'
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem'
+    }
+  });
+
+  const payload = {
+    ...claims,
+    auth_time: Math.floor(Date.now() / 1000)
+  };
+
+  // JWT sign options
+  const signOptions: jwt.SignOptions = {
+
+    algorithm: 'RS256',
+    expiresIn: '365d',
+    issuer: claims.iss,
+    audience: claims.aud,
+    subject: claims.sub,
+    header: {
+      typ: 'JWT',
+      alg: 'RS256',
+    }
+  };
+  console.log("🪚 signOptions:", JSON.stringify(signOptions, null, 2))
+
+  const { iss, aud, sub, ...payloadWithoutDuplicates } = payload;
+
+  const id_token = jwt.sign(payloadWithoutDuplicates, privateKey, signOptions);
+
+  const data = {
+    access_token,
+    token_type: "Bearer",
+    expires_in: 720000,
+    scope: "public openid profile email",
+    created_at: 1754443546,
+    id_token,
+  };
+
+  res.status(200).send(data);
 });
 
 export const ldacaProxy = app;

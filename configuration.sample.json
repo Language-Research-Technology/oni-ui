@@ -86,10 +86,6 @@
       {
         "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
         "display": "Top Collections"
-      },
-      {
-        "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522SoftwareApplication%2522%255D%257D",
-        "display": "Notebooks"
       }
     ],
     "search": {
@@ -257,14 +253,7 @@
           "_subCollection",
           "_isOCFL"
         ]
-      },
-      "relationships": [
-        {
-          "name": "notebook",
-          "display": "Notebooks",
-          "type": "SoftwareApplication"
-        }
-      ]
+      }
     },
     "object": {
       "name": {
@@ -335,52 +324,6 @@
         ]
       }
     },
-    "notebook": {
-      "name": {
-        "display": "Name",
-        "name": "name"
-      },
-      "top": [
-        {
-          "display": "Name",
-          "name": "name"
-        },
-        {
-          "display": "Description",
-          "name": "description"
-        },
-        {
-          "display": "Date Published",
-          "name": "datePublished"
-        }
-      ],
-      "meta": {
-        "hide": [
-          "name",
-          "description",
-          "@type",
-          "datePublished",
-          "gitName",
-          "gitRepo",
-          "url",
-          "binderLink",
-          "base64",
-          "_access",
-          "_metadataIsPublic",
-          "_metadataLicense",
-          "_mainCollection",
-          "_subCollection",
-          "_isOCFL"
-        ],
-        "displayHasMember": false,
-        "displayHasPart": false
-      }
-    },
-    "baseVocab": "https://w3id.org/ldac/terms#",
-    "analytics": {
-      "gaMeasurementId": "G-LN82JVFCWL"
-    }
-  },
   "api": {
     "structural": {
       "endpoint": "https://catalog.paradisec.org.au",
@@ -689,8 +632,7 @@
     },
     "conformsTo": {
       "collection": "https://w3id.org/ldac/profile#Collection",
-      "object": "https://w3id.org/ldac/profile#Object",
-      "notebook": "https://w3id.org/ldac/profile#Notebook"
+      "object": "https://w3id.org/ldac/profile#Object"
     },
     "skipByMatch": []
   }

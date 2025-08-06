@@ -1,21 +1,21 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import configurationJSON from './configuration.json';
 
 const helpSchema = z.object({
   aboutText: z.string(),
-  helpUrl: z.string().url(),
+  helpUrl: z.url(),
   citationText: z.string(),
 });
 
 const subHelpLinkSchema = z.object({
   name: z.string(),
-  href: z.string().url(),
+  href: z.url(),
   target: z.string(),
 });
 
 const googleFormSchema = z.object({
-  takedown: z.string().url(),
+  takedown: z.url(),
 });
 
 // const binderhubRegistrySchema = z.object({
@@ -35,18 +35,9 @@ const termsAndPrivacySchema = z.object({
 const footerSchema = z.object({
   copyright: z.string(),
   link: z.object({
-    href: z.string().url(),
+    href: z.url(),
     text: z.string(),
   }),
-});
-
-const loginProviderSchema = z.object({
-  name: z.string(),
-  url: z.string(),
-  clientId: z.string(),
-  text: z.string(),
-  disabled: z.boolean().optional(),
-  buttonStyle: z.string().optional(),
 });
 
 const topNavItemSchema = z.object({
@@ -123,24 +114,6 @@ const fileSchema = z.object({
   }),
 });
 
-// const notebookSchema = z.object({
-//   name: z.object({
-//     display: z.string(),
-//     name: z.string(),
-//   }),
-//   top: z.array(
-//     z.object({
-//       display: z.string(),
-//       name: z.string(),
-//     }),
-//   ),
-//   meta: z.object({
-//     hide: z.array(z.string()),
-//     displayHasMember: z.boolean(),
-//     displayHasPart: z.boolean(),
-//   }),
-// });
-
 const splashSchema = z.object({
   text: z.string(),
   textClass: z.string(),
@@ -179,12 +152,11 @@ const uiSchema = z.object({
   }),
   authorizationProvider: z.object({
     label: z.string(),
-    url: z.string().url(),
+    url: z.url(),
   }),
-  // loginProviders: z.array(loginProviderSchema),
   enrollment: z.object({
     enforced: z.boolean(),
-    URL: z.string().url(),
+    URL: z.url(),
   }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
@@ -197,12 +169,9 @@ const uiSchema = z.object({
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
-  // notebook: notebookSchema,
-  // baseVocab: z.string().url(),
   conformsTo: z.object({
-    collection: z.string().url(),
-    object: z.string().url(),
-    notebook: z.string().url(),
+    collection: z.url(),
+    object: z.url(),
   }),
   licenses: z.array(
     z.object({
@@ -211,7 +180,7 @@ const uiSchema = z.object({
       access: z.string(),
       enrollment: z
         .object({
-          url: z.string().url().optional(),
+          url: z.url().optional(),
           label: z.string().optional(),
           class: z.string().optional(),
         })
@@ -230,6 +199,7 @@ const uiSchema = z.object({
     }),
   ),
   searchFields: z.record(
+    z.string(),
     z.object({
       label: z.string(),
       checked: z.boolean(),
@@ -245,15 +215,13 @@ const uiSchema = z.object({
 
 const apiSchema = z.object({
   rocrate: z.object({
-    endpoint: z.string().url(),
+    endpoint: z.url(),
     path: z.string(),
     clientId: z.string().optional(),
     callbackPrefix: z.string().optional(),
     usesRedirects: z.boolean().optional(),
   }),
 });
-
-// type ConfigurationSchema = z.infer<typeof configurationSchema>;
 
 const configurationSchema = z.object({
   ui: uiSchema,

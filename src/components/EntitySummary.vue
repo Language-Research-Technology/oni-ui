@@ -32,24 +32,6 @@ const getSearchDetailUrl = () => {
     return `/object?id=${id}`;
   }
 
-  // FIXME: Deal with files
-  // if (fileType) {
-  //   let isNotebook;
-  //   if (item._source?.['conformsTo']) {
-  //     isNotebook = item._source['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
-  //   }
-  //
-  //   if (isNotebook) {
-  //     id = encodeURIComponent(item._id);
-  //     return `/object?_id=${id}`;
-  //   } else {
-  //     const fileId = id;
-  //     id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
-  //     return `/object?id=${id}&_id=${id}&fileId=${fileId}`
-  //   }
-  // }
-
-  // Defaults to object if it doesnt know what it is
   return `/object?id=${id}`;
 };
 </script>

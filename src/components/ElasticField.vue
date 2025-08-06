@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import NotebookViewerWidget from '@/components/widgets/NotebookViewerWidget.vue';
 import MetaField from '@/components/MetaField.vue';
 import LeafletMap from '@/components/widgets/LeafletMap.vue';
 
@@ -93,10 +92,6 @@ extractData();
     <LeafletMap class="h-72 flex grow min-w-[200px] mr-4" :modelValue="geometry" :enableDrawing="false" />
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
   </template>
-
-  <!-- <template v-else-if="title === 'base64'"> -->
-  <!--   <NotebookViewerWidget :ipynb="field.value" /> -->
-  <!-- </template> -->
 
   <template v-else-if="url">
     <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute" :href="id"

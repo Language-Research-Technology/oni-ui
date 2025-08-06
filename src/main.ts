@@ -4,8 +4,6 @@ import VueCookies from 'vue-cookies';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
-import { createHead } from '@unhead/vue';
-
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import 'element-plus/theme-chalk/index.css';
@@ -35,9 +33,6 @@ const app = createApp(App);
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
-
-const head = createHead();
-app.use(head);
 
 app.use(router);
 app.use(VueCookies);

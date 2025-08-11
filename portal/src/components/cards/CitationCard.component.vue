@@ -88,8 +88,13 @@ export default {
     },
     methods: {
         getSuggestedCitation() {
-            let result = `${first(this.creditText)?.['@value']}`;
-            return result
+            if (!Array.isArray(this.creditText)) return '';
+            const result = this.creditText
+                .map(item => item['@value'])
+                .filter(Boolean)
+                .join("<br><br>");
+
+            return result;
         },
         getBibliographyEntry() {
             let author = '';

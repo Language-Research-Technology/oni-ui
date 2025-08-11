@@ -10,7 +10,10 @@
     "build": "npm install && webpack -c webpack-production.js"
   },
   "jest": {
-    "testMatch": ["**/test/**/*.js", "**/*.test.js"]
+    "testMatch": [
+      "**/test/**/*.js",
+      "**/*.test.js"
+    ]
   },
   "keywords": [
     "Oni",
@@ -45,7 +48,7 @@
     "leaflet.path.drag": "^0.0.6",
     "loglevel": "^1.7.0",
     "loglevel-plugin-prefix": "^0.8.4",
-    "manku-icon-lib": "^1.1.4",
+    "manku-icon-lib": "^1.1.7",
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.1.3",
     "swagger-ui": "^4.18.3",

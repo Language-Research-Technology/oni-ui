@@ -63,6 +63,13 @@
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
+            :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']"
+            :creator="metadata['creator']" :doi="metadata['ldac:doi']" :creditText="metadata['creditText']" />
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
           <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf" />
         </el-col>
@@ -144,6 +151,7 @@ import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
+import CitationCard from './cards/CitationCard.component.vue';
 
 
 export default {
@@ -162,6 +170,7 @@ export default {
     ZipLink,
     DownloadsModal,
     RetrieveDataMetadata,
+    CitationCard,
 
   },
   props: [],

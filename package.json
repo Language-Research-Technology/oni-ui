@@ -25,7 +25,7 @@
     "@turf/turf": "^6.5.0",
     "fs-extra": "^10.0.0",
     "lodash": "^4.17.20",
-    "manku-icon-lib": "^1.1.2",
+    "manku-icon-lib": "^1.1.7",
     "node-fetch": "^2.6.1",
     "octokit": "^2.0.5",
     "ro-crate": "^3.2.1",

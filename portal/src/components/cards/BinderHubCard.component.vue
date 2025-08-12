@@ -15,10 +15,10 @@
             {{ item?.name }}
           </el-tooltip>
         </el-col>
-        <el-col :span="9.5">
+        <el-col :span="10.5">
           <br>
           <a :href="generateUrl(item.url)" target="_blank" rel="noopener noreferrer">
-            <manku-icon name="binderLink" height="25" fill="blue"/>
+            <manku-icon name="launchbinder" height="25" fill="blue"/>
           </a>
         </el-col>
         <el-col :span="1" fixed="right">

@@ -11,7 +11,7 @@
     </template>
   </template>
   <template v-else>
-    <p>No {{ objectName }} associated with this item/collection.</p>
+    <p>No {{ objectName }} associated with this item.</p>
   </template>
 </template>
 <script>

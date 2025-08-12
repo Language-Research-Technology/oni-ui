@@ -1,26 +1,29 @@
 <template>
-  <el-dialog v-model="visible" title="Downloads for this collection" width="50%">
+  <el-dialog v-model="visible" title="Downloads for this Collection" width="50%">
     <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="objectTotals || 0"
       v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)" />
     <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
+        <!-- <el-col :xs="24" :sm="7" :md="7" :lg="7" :xl="7">
           <h3 class="font-bold">Details</h3>
+        </el-col> -->
+        <el-col :xs="24" :sm="10" :md="10" :lg="10" :xl="10">
+          <h3 class="font-bold">Name</h3>
         </el-col>
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
-          <h3 class="font-bold">Link</h3>
-        </el-col>
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
+        <el-col :xs="24" :sm="10" :md="10" :lg="10" :xl="10">
           <h3 class="font-bold">License</h3>
+        </el-col>
+        <el-col :xs="24" :sm="4" :md="4" :lg="4" :xl="4">
+          <h3 class="font-bold">Access</h3>
         </el-col>
       </el-row>
       <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="true"
-          v-if="obj.name" />
+        <ZipLink :access="access" :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message"
+          :asTableRow="true" v-if="obj.name" />
       </template>
     </div>
     <template v-else>
-      <p>No direct downloads associated with this item/collection.</p>
+      <p><br>No direct downloads associated with this item.</p>
     </template>
     <template #footer>
       <div class="dialog-footer">
@@ -28,13 +31,13 @@
       </div>
     </template>
   </el-dialog>
-  <div v-if="simpleView" v-loading="loading">
-    <div v-if="objectTotals > 0">
-      <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="false"
-                 v-if="obj.name" />
+  <div v-if="simpleView">
+    <template v-if="objectTotals > 0">
+      <template v-for="(obj, index) in objects" :key="index">
+        <ZipLink :access="access" :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message"
+          :asTableRow="false" v-if="obj.name" />
       </template>
-    </div>
+    </template>
     <template v-else>
       <p>This item does not have a direct download link.</p>
     </template>
@@ -49,7 +52,7 @@ export default {
   components: {
     ZipLink,
   },
-  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView'],
+  props: ['id', 'idFieldName', 'modelValue', 'title', 'simpleView', 'access'],
   data() {
     return {
       isModalVisible: false,
@@ -103,7 +106,7 @@ export default {
     },
     async getObjects() {
       this.loading = true;
-      const filters = {_isOCFL: 'true' };
+      const filters = { _isOCFL: 'true' };
       filters[this.idFieldName] = [this.id];
       const items = await this.$elasticService.multi({
         filters: filters,

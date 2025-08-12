@@ -2,20 +2,20 @@
   <div class="px-10 pt-10 pb-7 z-10 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
-        <member-of-link :memberOf="metadata?._memberOf"/>
+        <member-of-link :memberOf="metadata?._memberOf" />
         {{ first(this.name)?.['@value'] }}
       </h5>
     </el-row>
-    <hr class="divider divider-gray pt-2"/>
+    <hr class="divider divider-gray pt-2" />
   </div>
   <el-row :justify="'center'" v-if="this.metadata" class="m-5 px-10" v-loading="loading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
-      <AccessHelper v-if="access" :access="access" :license="license"/>
+      <AccessHelper v-if="access" :access="access" :license="license" />
       <div class="px-5 pb-5">
-        <MetaTopCard :tops="this.tops" :className="'py-5'"/>
+        <MetaTopCard :tops="this.tops" :className="'py-5'" />
         <el-row class="">
           <el-col v-for="meta of this.meta">
-            <meta-field :meta="meta" :routePath="'object'" :crateId="this.crateId"/>
+            <meta-field :meta="meta" :routePath="'object'" :crateId="this.crateId" />
           </el-col>
         </el-row>
       </div>
@@ -25,8 +25,8 @@
         <el-col v-if="this.license?.['@id']">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <license-card v-if="this.license?.['@id']" :license="license"/>
+            <hr class="divider divider-gray pt-2" />
+            <license-card v-if="this.license?.['@id']" :license="license" />
           </el-card>
         </el-col>
       </el-row>
@@ -34,26 +34,54 @@
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
             <h5 class="text-2xl font-medium">Downloads</h5>
-            <hr class="divider divider-gray pt-2"/>
-            <DownloadsModal :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'" v-model="openDownloads" :title="first(name)?.['@value']"/>
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Downloads</el-link>
-            <DownloadsModal :id="this.rootId" :idFieldName="'_root.@id'" v-model="openDownloads" :title="first(name)?.['@value']"/>
+            <hr class="divider divider-gray pt-2" />
+            <DownloadsModal :access="access" :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
+              v-model="openDownloads" :title="first(name)?.['@value']" />
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
+            <DownloadsModal v-if="access" :access="access" :id="this.rootId" :idFieldName="'_root.@id'"
+              v-model="openDownloads" :title="first(name)?.['@value']" />
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5" v-if="isOCFL">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
+            <hr class="divider divider-gray pt-2" />
+            <RetrieveDataMetadata :id="this.$route.query.id" />
+            <template v-if="metadata._metadataLicense?.id">
+              <hr class="divider divider-gray mt-4 pb-2" />
+              <h4 class="text-1xl font-medium">
+                Metadata licensed as:
+                <el-link underline="underline" :underline="true" type="primary" :href="metadata._metadataLicense?.id"
+                  target="_blank" class="mx-1">
+                  {{ metadata._metadataLicense?.name || metadata._metadataLicense?.id }}
+                </el-link>
+              </h4>
+            </template>
           </el-card>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
+            :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']"
+            :creator="metadata['creator']" :doi="metadata['ldac:doi']" :creditText="metadata['creditText']" />
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata?._memberOf">
-          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf"/>
+          <MemberOfCard :routePath="'collection'" :_memberOf="metadata?._memberOf" />
         </el-col>
       </el-row>
       <el-row v-if="membersFiltered?.data && membersFiltered?.data.length">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5>
-            <hr class="divider divider-gray pt-2"/>
+            <hr class="divider divider-gray pt-2" />
             <ul>
               <li v-for="d of membersFiltered.data">
-                <collection-item :field="d._source" :routePath="'object'"/>
+                <collection-item :field="d._source" :routePath="'object'" />
               </li>
               <li v-if="membersFiltered">
                 <el-link type="primary" :href="`/search?f=${moreObjects()}`">more...</el-link>
@@ -64,17 +92,13 @@
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <BinderHubCard v-if="metadata['gitName']"
-                         :gitOrg="metadata['gitOrg']"
-                         :gitName="metadata['gitName']"
-                         :gitBranch="metadata['gitBranch']"
-                         :filepath="metadata['filepath']"
-          />
+          <BinderHubCard v-if="metadata['gitName']" :gitOrg="metadata['gitOrg']" :gitName="metadata['gitName']"
+            :gitBranch="metadata['gitBranch']" :filepath="metadata['filepath']" />
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <TakedownCard/>
+          <TakedownCard />
         </el-col>
       </el-row>
     </el-col>
@@ -86,7 +110,7 @@
           <h2 class="text-2xl tracking-tight dark:text-white">
             Files: {{ parts.length }}
             <AggregationAsIcon v-for="part of uniqueParts" :item="part" :field="{ 'name': 'File', 'display': 'File' }"
-                               :id="id"/>
+              :id="id" />
           </h2>
         </div>
         <div></div>
@@ -98,13 +122,11 @@
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part?.['@id'])"></a>
             <object-part :part="part" :title="first(part?.name)?.['@value'] || part?.['@id']"
-                         :active="isPartActive(part?.['@id'], index)" :id="encodeURIComponent(part?.['@id'])"
-                         :encodingFormat="first(part?.['encodingFormat'])?.['@value']"
-                         :contentSize="first(part?.['contentSize'])?.['@value']"
-                         :crateId="this.crateId"
-                         :rootId="this.rootId" :parentName="first(this.name)?.['@value']"
-                         :parentId="this.$route.query.id"
-                         :license="license" :access="access"/>
+              :active="isPartActive(part?.['@id'], index)" :id="encodeURIComponent(part?.['@id'])"
+              :encodingFormat="first(part?.['encodingFormat'])?.['@value']"
+              :contentSize="first(part?.['contentSize'])?.['@value']" :crateId="this.crateId" :rootId="this.rootId"
+              :parentName="first(this.name)?.['@value']" :parentId="this.$route.query.id" :license="license"
+              :access="access" />
           </li>
         </ul>
       </el-col>
@@ -128,6 +150,9 @@ import TakedownCard from './cards/TakedownCard.component.vue';
 import AggregationAsIcon from './widgets/AggregationAsIcon.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
+import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
+import CitationCard from './cards/CitationCard.component.vue';
+
 
 export default {
   components: {
@@ -144,6 +169,9 @@ export default {
     BinderHubCard,
     ZipLink,
     DownloadsModal,
+    RetrieveDataMetadata,
+    CitationCard,
+
   },
   props: [],
   data() {
@@ -172,6 +200,7 @@ export default {
       fullPath: window.location.href,
       zips: [],
       openDownloads: false,
+      isOCFL: false,
     };
   },
   async updated() {
@@ -190,6 +219,7 @@ export default {
         },
         false,
       );
+      this.isOCFL = this.metadata?._isOCFL === 'false' ? false : !!this.metadata?._isOCFL; // double bang to convert truthy to boolean
       this.$gtag.event('/object', {
         event_category: 'object',
         event_label: 'loaded-object',
@@ -230,6 +260,7 @@ export default {
         metadata = await this.$elasticService.single({ _id });
       }
       this.metadata = metadata?._source;
+      this.isOCFL = this.metadata?._isOCFL === 'false' ? false : !!this.metadata?._isOCFL; // double bang to convert truthy to boolean
       await this.populate();
       initSnip({ selector: '#license', button: '#readMoreLicense' });
 

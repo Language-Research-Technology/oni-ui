@@ -1,7 +1,7 @@
 <template>
   <template v-if="expandField">
     <el-collapse>
-      <el-collapse-item :title="name" :name="name">
+      <el-collapse-item :title="collapseName" :name="collapseName">
         <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :crateId="''" :filePath="''"
                     :parentId="''"/>
       </el-collapse-item>
@@ -12,7 +12,7 @@
   </template>
   <template v-else>
     <template v-if="url">
-      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute" :href="id"
+      <a class="block break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
          target="_blank" rel="nofollow noreferrer">
         <manku-icon :name="title" height="30">
           <template #notFound>
@@ -54,6 +54,7 @@ export default {
     return {
       id: '',
       name: '',
+      collapseName: '',
       description: '',
       url: '',
       value: '',
@@ -71,9 +72,6 @@ export default {
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
-      if (isEmpty(this.description)) {
-        this.description = 'This value only has an Id';
-      }
     }
     if (this.title === 'base64') {
     }
@@ -100,6 +98,7 @@ export default {
         }
       }
     }
+  this.collapseName = this.shortenText(this.name);
   },
   methods: {
     first,
@@ -126,6 +125,15 @@ export default {
         return value;
       }
     },
+    shortenText(input, { minLength = 0, maxLength = 24 } = {}) {
+      if (typeof input === 'string') {
+        if (input.length <= minLength) {
+          return input; // Don't shorten if it's too short
+        }
+        return input.length > maxLength ? input.slice(0, maxLength) + '...' : input;
+      }
+      return '';
+    }
   },
 };
 </script>

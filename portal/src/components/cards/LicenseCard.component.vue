@@ -9,7 +9,7 @@
     </span>
   <div class="grid p-4">
     <span class="justify-self-center">
-      <a class="underline" :href="this.license['@id']">
+      <a class="underline" :href="this.license['@id']" target="_blank">
       {{ first(this.license.name)?.['@value'] }}</a>
     </span>
   </div>

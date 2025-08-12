@@ -208,7 +208,6 @@ export default {
       }
       //TODO: get encodingFormat directly from the API and merge these two ifs
       //TODO: issue https://github.com/Language-Research-Technology/oni-ui/issues/46
-      if (!this.encodingFormat) {
         if (
             this.path &&
             (this.path.endsWith('.txt') ||
@@ -216,12 +215,13 @@ export default {
                 this.path.endsWith('.eaf') ||
                 this.path.endsWith('.html') ||
                 this.path.endsWith('.xml') ||
+                this.path.endsWith('.json') ||
                 this.path.endsWith('.flab'))
         ) {
           await this.loadTxt();
           this.loading = false;
         }
-      } else if (
+        if (
           this.encodingFormat &&
           (this.encodingFormat?.startsWith('text/') || this.encodingFormat.endsWith('xml'))
       ) {
@@ -232,7 +232,7 @@ export default {
           this.data = await this.responseBlob.blob();
           this.blobURL = window.URL.createObjectURL(this.data);
           //TODO: https://github.com/Language-Research-Technology/oni-ui/issues/46
-          if (this.path && (this.path.endsWith('.mp3') || this.path.endsWith('.wav'))) {
+          if (this.path && (this.path.endsWith('.mp3') || this.path.endsWith('.wav') || this.path.endsWith('.m4a'))) {
             this.type = 'audio';
             this.data = this.blobURL;
             this.hidePreviewText = true;

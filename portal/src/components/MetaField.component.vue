@@ -5,24 +5,27 @@
         <el-row v-for="(value, key) in meta.data">
           <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ clean(key) }}</el-col>
           <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-            <elastic-field :field="value" :title="key"/>
+            <elastic-field :field="value" :title="key" />
           </el-col>
         </el-row>
       </el-col>
     </template>
     <template v-else>
-    <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7" class="mt-1">
-      <span class="font-bold break-words">{{ clean(meta?.name) }}</span>
-      <span v-if="meta?.help"><FieldHelperCard :meta="meta?.help"/></span>
-    </el-col>
-    <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-      <template v-if="Array.isArray(meta?.data)">
-        <elastic-field :field="d" :title="meta?.name" v-for="d of meta.data"/>
-      </template>
-      <template v-else>
-        <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath" :parentId="parentId" :crateId="crateId"/>
-      </template>
-    </el-col>
+      <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7" class="mt-1">
+        <span class="font-bold break-words">{{ clean(meta?.name) }}</span>
+        <span v-if="meta?.help">
+          <FieldHelperCard :meta="meta?.help" />
+        </span>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
+        <template v-if="Array.isArray(meta?.data)">
+          <elastic-field :field="d" :title="meta?.name" v-for="d of meta.data" />
+        </template>
+        <template v-else>
+          <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath"
+            :parentId="parentId" :crateId="crateId" />
+        </template>
+      </el-col>
     </template>
   </el-row>
 </template>
@@ -40,7 +43,9 @@ export default {
   },
   props: ['meta', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
   data() {
-    return {};
+    return {
+      textReplacements: this.$store.state.configuration.ui.textReplacements,
+    };
   },
   async mounted() {
     try {
@@ -52,7 +57,10 @@ export default {
     first,
     clean(text) {
       if (text) {
-        text = text.replace(/^_/, ''); // If it contains underscore
+        for (const [pattern, replacement] of Object.entries(this.textReplacements)) {
+          const regex = new RegExp(pattern, 'g');
+          text = text.replace(regex, replacement)
+        }
         return this.capitalizeFirstLetter(text.replace(/([a-z])([A-Z])/g, '$1 $2'));
       }
     },

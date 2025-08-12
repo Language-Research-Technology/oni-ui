@@ -83,13 +83,13 @@ const collectionSchema = z.object({
   meta: z.object({
     hide: z.array(z.string()),
   }),
-  // relationships: z.array(
-  //   z.object({
-  //     name: z.string(),
-  //     display: z.string(),
-  //     type: z.string(),
-  //   }),
-  // ),
+  relationships: z.array(
+    z.object({
+      name: z.string(),
+      display: z.string(),
+      type: z.string(),
+    }),
+  ),
 });
 
 const objectSchema = z.object({

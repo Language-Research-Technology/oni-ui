@@ -63,7 +63,7 @@ export type GetSearchResponse = {
 };
 
 export type RoCrate = {
-  memberOf?: {
+  'pcdm:memberOf'?: {
     '@id': string;
     name?: string;
   };
@@ -102,19 +102,8 @@ export class ApiService {
     return response;
   }
 
-  async getEntity(id: string) {
-    const [entity, crateJson] = await Promise.all([
-      this.#get(`/entity/${encodeURIComponent(id)}`),
-      this.#get(`/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`),
-    ]);
-
-    if (!entity) {
-      return {};
-    }
-
-    if (entity.errors) {
-      return { errors: entity.errors };
-    }
+  async getRoCrate(id: string) {
+    const crateJson = await this.#get(`/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`);
 
     if (!crateJson) {
       return {};
@@ -125,7 +114,28 @@ export class ApiService {
 
     const crate = new ROCrate(crateJson, { array: false, link: true });
 
-    return { entity, metadata: crate.rootDataset as RoCrate };
+    return { metadata: crate.rootDataset as RoCrate };
+  }
+
+  async getEntity(id: string) {
+    const [entity, crateJson] = await Promise.all([
+      this.#get(`/entity/${encodeURIComponent(id)}`),
+      this.getRoCrate(id),
+    ]);
+
+    if (!entity) {
+      return {};
+    }
+
+    if (entity.errors) {
+      return { errors: entity.errors };
+    }
+
+    if (crateJson.errors) {
+      return { errors: crateJson.errors };
+    }
+
+    return { entity, metadata: crateJson.metadata };
   }
 
   async getFileUrl(id: string, path: string, downloadable = false) {
@@ -149,10 +159,6 @@ export class ApiService {
     const json = await this.#get(url, { ...params, noRedirect: 'true' });
 
     return json.location;
-  }
-
-  async getRoCrate(id: string, downloadable = false) {
-    return await this.getFileUrl(id, 'ro-crate-metadata.json', downloadable);
   }
 
   async #getHeaders() {

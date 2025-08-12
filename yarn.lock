@@ -2081,13 +2081,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"anser@npm:^2.1.1":
-  version: 2.3.2
-  resolution: "anser@npm:2.3.2"
-  checksum: 10c0/e7cebc020d406cd14f004e1a70f45e05b66f3d14146d709f52a9c335ff1e2bbcdf389cd1b63d6444a7c679946ff1722d1c8e3f97f3dcd264e091f59e66e5c471
-  languageName: node
-  linkType: hard
-
 "ansi-regex@npm:^5.0.1":
   version: 5.0.1
   resolution: "ansi-regex@npm:5.0.1"
@@ -2308,13 +2301,6 @@ __metadata:
   version: 12.1.0
   resolution: "commander@npm:12.1.0"
   checksum: 10c0/6e1996680c083b3b897bfc1cfe1c58dfbcd9842fd43e1aaf8a795fbc237f65efcc860a3ef457b318e73f29a4f4a28f6403c3d653d021d960e4632dd45bde54a9
-  languageName: node
-  linkType: hard
-
-"commander@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "commander@npm:8.3.0"
-  checksum: 10c0/8b043bb8322ea1c39664a1598a95e0495bfe4ca2fad0d84a92d7d1d8d213e2a155b441d2470c8e08de7c4a28cf2bc6e169211c49e1b21d9f7edc6ae4d9356060
   languageName: node
   linkType: hard
 
@@ -3105,13 +3091,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"highlight.js@npm:^10.7.3":
-  version: 10.7.3
-  resolution: "highlight.js@npm:10.7.3"
-  checksum: 10c0/073837eaf816922427a9005c56c42ad8786473dc042332dfe7901aa065e92bc3d94ebf704975257526482066abb2c8677cc0326559bb8621e046c21c5991c434
-  languageName: node
-  linkType: hard
-
 "hookable@npm:^5.5.3":
   version: 5.5.3
   resolution: "hookable@npm:5.5.3"
@@ -3210,28 +3189,6 @@ __metadata:
   version: 1.9.1
   resolution: "ipaddr.js@npm:1.9.1"
   checksum: 10c0/0486e775047971d3fdb5fb4f063829bac45af299ae0b82dcf3afa2145338e08290563a2a70f34b732d795ecc8311902e541a8530eeb30d75860a78ff4e94ce2a
-  languageName: node
-  linkType: hard
-
-"ipynb2html-core@npm:0.4.0-rc.1":
-  version: 0.4.0-rc.1
-  resolution: "ipynb2html-core@npm:0.4.0-rc.1"
-  checksum: 10c0/bb637bf1b195b170fca37c717a727a8fe39e1b5698372ab540d188e002fa98cde8a674349a1e7ce86469d9b546cef60482aa92842d882144d4ba131b5d552d6c
-  languageName: node
-  linkType: hard
-
-"ipynb2html@npm:^0.4.0-rc.1":
-  version: 0.4.0-rc.1
-  resolution: "ipynb2html@npm:0.4.0-rc.1"
-  dependencies:
-    anser: "npm:^2.1.1"
-    highlight.js: "npm:^10.7.3"
-    ipynb2html-core: "npm:0.4.0-rc.1"
-    katex: "npm:^0.16.3"
-    marked: "npm:^4.1.1"
-  peerDependencies:
-    nodom: ^2.3.0
-  checksum: 10c0/1c26c53c8f77623b8c78cc5527ae4f1584dfc8f52fe6b5e271c0ea4c775692fecfd5260f880fd64a14c8dd8eca8ffb31a6005c0564b12ccf0f0839b96012c372
   languageName: node
   linkType: hard
 
@@ -3465,17 +3422,6 @@ __metadata:
   version: 4.0.0
   resolution: "jwt-decode@npm:4.0.0"
   checksum: 10c0/de75bbf89220746c388cf6a7b71e56080437b77d2edb29bae1c2155048b02c6b8c59a3e5e8d6ccdfd54f0b8bda25226e491a4f1b55ac5f8da04cfbadec4e546c
-  languageName: node
-  linkType: hard
-
-"katex@npm:^0.16.3":
-  version: 0.16.21
-  resolution: "katex@npm:0.16.21"
-  dependencies:
-    commander: "npm:^8.3.0"
-  bin:
-    katex: cli.js
-  checksum: 10c0/e2e4139ba72a13f2393308fbb2b4c5511611a19a40a6e39d956cf775e553af3517dbfd0a54477faaf401c923e4654e32296347846b8ff15dfa579f88ff8579bb
   languageName: node
   linkType: hard
 
@@ -3782,15 +3728,6 @@ __metadata:
   dependencies:
     vue: "npm:^3.2.47"
   checksum: 10c0/7c683eeed04817b4cb398a1f9dead247dd1c65893e049ccd90e14f6f2489c13a735f4244e2819a9f2273bfcf39616b87b3dbd7726e4fdd1bf6b3a93ef34cdac9
-  languageName: node
-  linkType: hard
-
-"marked@npm:^4.1.1":
-  version: 4.3.0
-  resolution: "marked@npm:4.3.0"
-  bin:
-    marked: bin/marked.js
-  checksum: 10c0/0013463855e31b9c88d8bb2891a611d10ef1dc79f2e3cbff1bf71ba389e04c5971298c886af0be799d7fa9aa4593b086a136062d59f1210b0480b026a8c5dc47
   languageName: node
   linkType: hard
 
@@ -4228,7 +4165,6 @@ __metadata:
     elastic-builder: "npm:^2.31.1"
     element-plus: "npm:^2.10.5"
     express: "npm:^5.1.0"
-    ipynb2html: "npm:^0.4.0-rc.1"
     js-snip: "npm:^1.2.0"
     jsonwebtoken: "npm:^9.0.2"
     knip: "npm:^5.62.0"

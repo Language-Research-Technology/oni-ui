@@ -9,7 +9,7 @@ import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
-// import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
+import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
 import SummariesCard from '@/components/cards/SummariesCard.vue';
 
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
@@ -40,7 +40,7 @@ const entity = ref<EntityType | undefined>();
 // license: undefined,
 const conformsToCollection = conformsTo.collection;
 const conformsToObject = conformsTo.object;
-// const findObjectByRelationship = ui.collection.relationships;
+const findObjectByRelationship = config.relationships;
 // const aggregations = [];
 
 let name: string;
@@ -131,7 +131,7 @@ onMounted(fetchData);
   <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
-        <MemberOfLink v-if="metadata?.memberOf" :memberOf="metadata.memberOf" />
+        <MemberOfLink v-if="metadata?.['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
         {{ name }}
       </h5>
     </el-row>
@@ -179,9 +179,10 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" class="pb-5" v-if="metadata.memberOf">
+      <el-row :gutter="20" class="pb-5" v-if="metadata['pcdm:memberOf']">
         <el-col>
-          <MemberOfCard v-if="metadata.memberOf" :routePath="'collection'" :memberOf="metadata.memberOf" />
+          <MemberOfCard v-if="metadata['pcdm:memberOf']" :routePath="'collection'"
+            :memberOf="metadata['pcdm:memberOf']" />
         </el-col>
       </el-row>
 
@@ -216,17 +217,16 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <!-- <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship"> -->
+      <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship">
 
-      <!--   <el-col> -->
-      <!--     <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5"> -->
-      <!--       <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5> -->
-      <!--       <hr class="divider divider-gray pt-2" /> -->
-      <!--       <SimpleRelationshipCard :id="id" :objectType="relationship.type" -->
-      <!--         :objectName="relationship.name" /> -->
-      <!--     </el-card> -->
-      <!--   </el-col> -->
-      <!-- </el-row> -->
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5>
+            <hr class="divider divider-gray pt-2" />
+            <SimpleRelationshipCard :id="id" :objectType="relationship.type" :objectName="relationship.name" />
+          </el-card>
+        </el-col>
+      </el-row>
 
       <el-row :gutter="20" class="pb-5">
         <el-col>

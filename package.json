@@ -33,7 +33,6 @@
     "cookie-parser": "^1.4.7",
     "elastic-builder": "^2.31.1",
     "element-plus": "^2.10.5",
-    "ipynb2html": "^0.4.0-rc.1",
     "js-snip": "^1.2.0",
     "latlon-geohash": "^2.0.0",
     "leaflet": "^1.9.4",

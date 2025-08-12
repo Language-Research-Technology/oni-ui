@@ -60,10 +60,11 @@ const resolveFile = async () => {
 };
 
 const extension = filename.split('.').pop() || '';
-const isCsv = encodingFormat.some((ef) => ef.endsWith('csv')) || extension === 'csv';
+const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
+const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
 const isTxt =
-  encodingFormat.some((ef) => ef.startsWith('text')) || ['txt', 'eaf', 'html', 'xml', 'flab'].includes(extension);
-const isPdf = encodingFormat.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
+  plainEncodingFormats.some((ef) => ef.startsWith('text')) || ['txt', 'eaf', 'html', 'xml', 'flab'].includes(extension);
+const isPdf = plainEncodingFormats.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
 
 watch(
   () => resolve,

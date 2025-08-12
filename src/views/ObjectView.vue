@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// import AggregationAsIcon from '@/components/widgets/AggregationAsIcon.vue';
 import AccessHelper from '@/components/AccessHelper.vue';
 import MetaField from '@/components/MetaField.vue';
+import CollectionItem from '@/components/CollectionItem.vue';
 // import BinderHubCard from '@/components/cards/BinderHubCard.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
@@ -13,16 +13,12 @@ import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
-import type { ApiService, RoCrate } from '@/services/api';
+import type { ApiService, EntityType, RoCrate } from '@/services/api';
 import { initSnip } from '../tools';
 
 import { configuration } from '@/configuration';
 
-const {
-  object: config,
-  // main: { fields },
-} = configuration.ui;
-// const { conformsTo: { object: conformsToObject } } = apiConfig;
+const { object: config, conformsTo } = configuration.ui;
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -46,11 +42,10 @@ const mediaTypes = ref<string[]>([]);
 const access = ref<{ hasAccess: boolean; group?: string }>({ hasAccess: false });
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
-
-const id = route.query.id?.toString() as string;
+// const id = ref<string>(route.query.id?.toString() || '');
 
 const activePart = ref(false);
-// const membersFiltered = {};
+const membersFiltered = ref<EntityType[]>([]);
 
 const populateName = (md: Record<string, string>) => {
   name.value = md[config.name.name];
@@ -58,6 +53,7 @@ const populateName = (md: Record<string, string>) => {
 };
 
 const populateTop = (md: Record<string, string>) => {
+  tops.value = [];
   for (const field of config.top) {
     const value = md[field.name] || 'Not Defined';
     tops.value.push({ name: field.display, value: value });
@@ -65,6 +61,7 @@ const populateTop = (md: Record<string, string>) => {
 };
 
 const populateMeta = (md: Record<string, string>) => {
+  meta.value = [];
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
@@ -101,7 +98,7 @@ const populateParts = (md: {
   parts.value = newParts2;
 
   if (parts.value.length) {
-    const up = parts.value.flatMap((p) => p.encodingFormat);
+    const up = parts.value.flatMap((p) => p.encodingFormat).filter((p) => typeof p === 'string');
     mediaTypes.value = [...new Set(up)];
   }
 };
@@ -127,6 +124,8 @@ const populate = (md: RoCrate) => {
 };
 
 const fetchdata = async () => {
+  const id = route.query.id?.toString() as string;
+
   if (!id) {
     router.push({
       name: 'NotFound',
@@ -157,6 +156,15 @@ const fetchdata = async () => {
 
   isLoading.value = false;
 
+  if (md['pcdm:memberOf']) {
+    membersFiltered.value = (
+      await api.getEntities({
+        memberOf: md['pcdm:memberOf']['@id'],
+        conformsTo: conformsTo.object,
+      })
+    )?.entities;
+  }
+
   initSnip({ selector: '#license', button: '#readMoreLicense' });
 };
 
@@ -173,65 +181,27 @@ const isPartActive = (id: string, index: number) => {
   return false;
 };
 
-//TODO: refactor this integrate to multi
-// const filter = async (filters, scroll) => {
-//   try {
-//     const items = await this.$elasticService.multi({ scroll, filters, sort: 'relevance', order: 'desc' });
-//     if (items?.hits?.hits.length > 0) {
-//       return {
-//         data: items?.hits?.hits,
-//         aggregations: items?.aggregations,
-//         total: items.hits?.total.value,
-//         scrollId: items?._scroll_id,
-//         route: null,
-//       };
-//     }
-//   } catch (e) {
-//     console.error(e);
-//     return {
-//       data: [],
-//       aggregations: {},
-//       total: 0,
-//       scrollId: null,
-//       route: null,
-//     };
-//   }
-// };
+const moreObjects = () => {
+  const filter = {
+    memberOf: [encodeURIComponent(metadata?.value?.['pcdm:memberOf']?.['@id'] || '')],
+  };
 
-// const moreObjects = () => {
-//   const filter = {
-//     '_memberOf.@id': [encodeURIComponent(id)],
-//   };
-//   return encodeURIComponent(JSON.stringify(filter));
-// };
+  return encodeURIComponent(JSON.stringify(filter));
+};
 
-onMounted(fetchdata);
+watch(
+  () => route.params,
+  () => fetchdata(),
+);
 
-// const updated = async () {
-// const fileId = route.query.fileId;
-// if (fileId) {
-//   setTimeout(function () {
-//     const fileElement = document.getElementById('part-' + encodeURIComponent(fileId));
-//     fileElement.scrollIntoView({block: 'start', inline: 'start'});
-//   }, 200);
-// }
-// if (id) {
-//   membersFiltered.value = await filter(
-//     {
-//       '_memberOf.@id': [id],
-//       'conformsTo.@id': [conformsToObject],
-//     },
-//     false,
-//   );
-// }
-// },
+fetchdata();
 </script>
 
 <template>
   <div class="px-10 pt-10 pb-7 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
-        <MemberOfLink v-if="metadata?.memberOf" :memberOf="metadata.memberOf" />
+        <MemberOfLink v-if="metadata?.['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
         {{ name }}
       </h5>
     </el-row>
@@ -264,37 +234,28 @@ onMounted(fetchdata);
       </el-row>
 
       <el-row :gutter="20" class="pb-5">
-        <el-col v-if="metadata.memberOf">
-          <MemberOfCard :routePath="'collection'" :memberOf="metadata.memberOf" />
+        <el-col v-if="metadata['pcdm:memberOf']">
+          <MemberOfCard :routePath="'collection'" :memberOf="metadata['pcdm:memberOf']" />
         </el-col>
       </el-row>
 
-      <!--     <el-row v-if="membersFiltered?.data && membersFiltered?.data.length"> -->
-      <!--       <el-col> -->
-      <!--         <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5"> -->
-      <!--           <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5> -->
-      <!--           <hr class="divider divider-gray pt-2"/> -->
-      <!--           <ul> -->
-      <!--             <li v-for="d of membersFiltered.data"> -->
-      <!--               <collection-item :field="d._source" :routePath="'object'"/> -->
-      <!--             </li> -->
-      <!--             <li v-if="membersFiltered"> -->
-      <!--               <el-link type="primary" :href="`/search?f=${moreObjects()}`">more...</el-link> -->
-      <!--             </li> -->
-      <!--           </ul> -->
-      <!--         </el-card> -->
-      <!--       </el-col> -->
-      <!--     </el-row> -->
-      <!--     <el-row :gutter="20" class="pb-5"> -->
-      <!--       <el-col> -->
-      <!--         <BinderHubCard v-if="metadata['gitName']" -->
-      <!--                        :gitOrg="metadata['gitOrg']" -->
-      <!--                        :gitName="metadata['gitName']" -->
-      <!--                        :gitBranch="metadata['gitBranch']" -->
-      <!--                        :filepath="metadata['filepath']" -->
-      <!--         /> -->
-      <!--       </el-col> -->
-      <!--     </el-row> -->
+      <el-row v-if="membersFiltered?.length">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5>
+            <hr class="divider divider-gray pt-2" />
+            <ul>
+              <li v-for="d of membersFiltered">
+                <CollectionItem :field="d" :routePath="'object'" />
+              </li>
+
+              <li v-if="membersFiltered">
+                <el-link type="primary" :href="`/search?f=${moreObjects()}`">more...</el-link>
+              </li>
+            </ul>
+          </el-card>
+        </el-col>
+      </el-row>
 
       <el-row :gutter="20" class="pb-5">
         <el-col>
@@ -322,8 +283,8 @@ onMounted(fetchdata);
         <ul>
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
-            <ObjectPart :parentId="id" :part="part" :active="isPartActive(part['@id'], index)" :license="license"
-              :access="access" />
+            <ObjectPart :parentId="route.query.id?.toString() || ''" :part="part"
+              :active="isPartActive(part['@id'], index)" :license="license" :access="access" />
           </li>
         </ul>
       </el-col>

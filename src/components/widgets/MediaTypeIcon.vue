@@ -36,6 +36,10 @@ const detectIconName = () => {
       return 'file-word';
     case 'application/x-ipynb+json':
       return 'clipboard';
+    case 'application/mp4':
+      return 'file-video';
+    case 'application/json':
+      return 'file-code';
   }
 
   if (mediaType.startsWith('text')) {

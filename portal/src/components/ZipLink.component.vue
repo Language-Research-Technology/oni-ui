@@ -72,7 +72,7 @@
           :onClick="trackEvent">
           <el-button type="primary" circle size="large">
             <el-tooltip class="box-item" effect="dark" content="Click to download item." placement="bottom">
-              <font-awesome-icon icon="fa-solid fa-arrow-down" size="xl" />
+              <font-awesome-icon icon="fa-solid fa-download" size="lg" />
             </el-tooltip>
           </el-button>
         </el-link>

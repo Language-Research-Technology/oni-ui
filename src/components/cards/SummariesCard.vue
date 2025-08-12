@@ -1,83 +1,48 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import type { EntityType } from '@/services/api';
 
-const { aggregations, fields, id, root } = defineProps<{
-  aggregations: Record<string, { buckets: { key: string; doc_count: number }[] }>;
-  fields: Array<{ name: string; display: string }>;
-  name: string;
-  id: string;
-  root: Array<{ name: { '@value': string } }>;
-  link: string;
+const { entity } = defineProps<{
+  entity: EntityType | undefined;
 }>();
-const buckets = ref<Array<{ name: string; field: string; buckets: { key: string; doc_count: number }[] }>>([]);
-const isLoading = ref(false);
 
-watch(
-  () => aggregations,
-  () => {
-    if (aggregations) {
-      populateBuckets();
-      isLoading.value = false;
-    }
-  },
-);
+const getSearchUrl = (filterName: string, filterValue: string) => {
+  const f = {
+    root: [entity?.name],
+    [filterName]: filterValue,
+  };
+  const stringify = JSON.stringify(f);
 
-const populateBuckets = () => {
-  buckets.value = [];
-  for (const field of fields) {
-    if (aggregations?.[field?.name]) {
-      buckets.value.push({
-        name: field.name,
-        field: field.display,
-        buckets: aggregations[field.name]?.buckets,
-      });
-    }
-  }
+  return `/search?f=${encodeURIComponent(encodeURIComponent(stringify))}`;
 };
-
-const getSearchUrl = (name: string, bucket: string) => {
-  const part: Record<string, string[]> = {};
-  part[name] = [bucket];
-  const rootName = root[0]?.name?.['@value'];
-  if (rootName) {
-    part['_root.name.@value'] = [rootName];
-  } else {
-    part['_collectionStack.@id'] = [id];
-  }
-  const stringify = JSON.stringify(part);
-
-  return `/search?f=${encodeURIComponent(stringify)}`;
-};
-
-populateBuckets();
 </script>
 
 <template>
-  <template v-for="(f, index) of buckets" :key="f.field + '_' + index" v-loading="isLoading">
-    <ul>
-      <li v-if="f?.buckets.length > 1">
-        <ul>
-          <li><span class="font-semibold">{{ f.field }}</span></li>
-          <template v-for="bucket of f?.buckets" :key="bucket.key">
-            <li v-if="bucket.doc_count > 0" class="ml-4 pl-2">
-              <el-link underline="always" type="primary">
-                <router-link :to="getSearchUrl(f.name, bucket.key)">
-                  {{ bucket.key }}
-                  <!--: {{ bucket.doc_count }}-->
-                </router-link>
-              </el-link>
-            </li>
-          </template>
-        </ul>
+  <ul>
+    <template v-if="entity?.extra.language">
+      <li><span class="font-semibold">Language</span></li>
+      <li v-for="language in entity.extra.language" class="ml-4 pl-2">{{ language }}</li>
+    </template>
+
+    <template v-if="entity?.extra.communicationMode && entity.extra.communicationMode.length">
+      <li><span class="font-semibold">Comunication Mode</span></li>
+      <li v-for="communicationMode in entity.extra.communicationMode" class="ml-4 pl-2">
+        <el-link underline="always" type="primary">
+          <router-link :to="getSearchUrl('communicationMode', communicationMode)">
+            {{ communicationMode }}
+          </router-link>
+        </el-link>
       </li>
-      <li v-else-if="f?.buckets.length === 1">
-        <ul>
-          <li><span class="font-semibold">{{ f.field }}</span></li>
-          <template v-for="bucket of f?.buckets" :key="bucket.key">
-            <li class="ml-4 pl-2">{{ bucket.key }}</li>
-          </template>
-        </ul>
+    </template>
+
+    <template v-if="entity?.extra.mediaType">
+      <li><span class="font-semibold">File Formats</span></li>
+      <li v-for="mediaType in entity.extra.mediaType" class="ml-4 pl-2">
+        <el-link underline="always" type="primary">
+          <router-link :to="getSearchUrl('mediaType', mediaType)">
+            {{ mediaType }}
+          </router-link>
+        </el-link>
       </li>
-    </ul>
-  </template>
+    </template>
+  </ul>
 </template>

@@ -18,6 +18,46 @@ import { ElasticService } from './elastic';
 
 const es = new ElasticService();
 
+const getExtra = async (id: string, typem: string[]) => {
+  let summaries;
+  let subCollections;
+  let members;
+
+  const conformsTo = configuration.ui.conformsTo;
+
+  if (typem.includes('RepositoryCollection')) {
+    subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
+
+    members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
+
+    summaries = await filter({ collectionStack: [id] });
+  }
+
+  if (typem.includes('RepositoryObject')) {
+    summaries = await filter({ parent: [id] });
+  }
+
+  // Get the buckets to extract one value: File counts
+  let fileCount: { doc_count: number } | undefined;
+  const buckets: Array<any> = summaries?.aggregations?.['@type']?.buckets;
+  if (buckets) {
+    fileCount = buckets.find((obj) => obj.key === 'File');
+  }
+
+  return {
+    subCollectionCount: subCollections?.total,
+    objectCount: members?.total,
+    fileCount: fileCount?.doc_count,
+    accessControl: 'Public',
+    // @ts-ignore
+    communicationMode: summaries?.aggregations['communicationMode.name.@value'].buckets.map(({ key }) => key),
+    // @ts-ignore
+    mediaType: summaries?.aggregations['encodingFormat.@value'].buckets.map(({ key }) => key),
+    // @ts-ignore
+    language: summaries?.aggregations['inLanguage.name.@value'].buckets.map(({ key }) => key),
+  }
+};
+
 app.get('/ldaca/entities', async (req, res) => {
   const queryString = URL.parse(`http://dummy${req.url}`)?.search || '';
   const url = 'https://data.ldaca.edu.au/api/objects' + queryString;
@@ -31,12 +71,15 @@ app.get('/ldaca/entities', async (req, res) => {
 
   // @ts-expect-error Ignore type errors
   const { total, data } = await response.json();
+  console.log("🪚 data:", JSON.stringify(data[0], null, 2));
 
   // @ts-expect-error Ignore type errors
-  const entities = data.map(({ crateId, locked, objectRoot, record, url, ...rest }) => ({
+  const entities = await Promise.all(data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => ({
     id: crateId,
     ...rest,
-  }));
+    extra: await getExtra(crateId, rest.recordType),
+  })));
+
   const result = {
     total,
     entities,
@@ -93,37 +136,16 @@ const synthesise = async (id: string) => {
   return [200, rocrate];
 };
 
-app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
-  const idUrl = new URL(req.params.id);
-  idUrl.pathname = '';
-  const url = `https://data.ldaca.edu.au/api/object/${encodeURIComponent(idUrl.toString())}/${encodeURIComponent(req.params.path)}`;
-  const response = await fetch(url);
 
-  // response.headers.forEach((value, name) => {
-  //   res.setHeader(name, value);
-  // });
-
-  res.status(response.status);
-
-  if (!response.body) {
-    res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
-
-    return;
-  }
-
-  await pipeline(response.body, res);
-});
-
-app.get('/ldaca/entity/:id', async (req, res) => {
-  const queryString = (URL.parse(`http://dummy${req.url}`)?.search || '').replace(/^\?/, '&');
-  const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(req.params.id)}${queryString}`;
+const getcrate = async (id: string, res: any) => {
+  const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(id)}`;
   const response = await fetch(url);
 
   let rocrate: any;
   let status = response.status;
 
   if (response.status === 404) {
-    const result = await synthesise(req.params.id);
+    const result = await synthesise(id);
     status = result[0];
     rocrate = result[1];
   } else {
@@ -144,6 +166,63 @@ app.get('/ldaca/entity/:id', async (req, res) => {
   }
 
   res.status(status).send(rocrate);
+}
+
+app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
+  if (req.params.path === 'ro-crate-metadata.json') {
+    return getcrate(req.params.id, res);
+  }
+
+  const idUrl = new URL(req.params.id);
+  idUrl.pathname = '';
+  const url = `https://data.ldaca.edu.au/api/object/${encodeURIComponent(idUrl.toString())}/${encodeURIComponent(req.params.path)}`;
+  const response = await fetch(url);
+
+  res.status(response.status);
+
+  if (!response.body) {
+    res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+
+    return;
+  }
+
+  await pipeline(response.body, res);
+});
+
+app.get('/ldaca/entity/:id', async (req, res) => {
+  const url = `https://data.ldaca.edu.au/api/object?id=${encodeURIComponent(req.params.id)}`;
+  const response = await fetch(url, { redirect: 'follow' });
+
+  if (!response.ok) {
+    const body = response.text();
+    res.status(response.status).send(body);
+
+    return;
+  }
+
+  const data = await response.json() as any;
+  console.log("🪚 data:", JSON.stringify(data, null, 2))
+
+  const { id, crateId, license, objectRoot, locked, rootConformsTos, ...rest } = data;
+
+  if (rootConformsTos.length > 1) {
+    console.log("🪚 rootConformsTos:", JSON.stringify(rootConformsTos, null, 2))
+    throw new Error('Multiple conformsTo found in rootConformsTos');
+  }
+
+  const recordType = rootConformsTos[0].conformsTo.endsWith('Object') ? ['Dataset', 'RepositoryObject'] :  ['Dataset', 'RepositoryCollection'];
+
+  const result = {
+    id: crateId,
+    conformsTo: rootConformsTos[0].conformsTo,
+    recordType,
+    memberOf: 'Unknown',
+    root: 'Unknown',
+    extra: await getExtra(crateId, recordType),
+    ...rest,
+  };
+
+  res.json(result);
 });
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
@@ -268,6 +347,7 @@ const filter = async (filters: Record<string, string[]>) => {
   }
 };
 
+
 app.post('/ldaca/search', async (req, res) => {
   let data = '';
   req.setEncoding('utf8');
@@ -307,36 +387,15 @@ app.post('/ldaca/search', async (req, res) => {
     // biome-ignore lint/suspicious/noExplicitAny: foo
     const result = (await response.json()) as any;
 
-    const conformsTo = configuration.ui.conformsTo;
-
     const entities = await Promise.all(
       // biome-ignore lint/suspicious/noExplicitAny: foo
       result.hits.hits.map(async (hit: any) => {
-        let summaries;
-        let subCollections;
-        let members;
-
         const id = hit._source['@id'];
         const typem = hit._source?.['@type'];
+        console.log("🪚 🔲");
+        console.log("🪚 typem:", JSON.stringify(typem, null, 2))
 
-        if (typem.includes('RepositoryCollection')) {
-          subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
-
-          members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
-
-          summaries = await filter({ collectionStack: [id] });
-        }
-
-        if (typem.includes('RepositoryObject')) {
-          summaries = await filter({ parent: [id] });
-        }
-
-        // Get the buckets to extract one value: File counts
-        let fileCount: { doc_count: number } | undefined;
-        const buckets: Array<any> = summaries?.aggregations?.['@type']?.buckets;
-        if (buckets) {
-          fileCount = buckets.find((obj) => obj.key === 'File');
-        }
+        const extra = await getExtra(id, typem);
 
         return {
           id: hit._source['@id'],
@@ -348,16 +407,7 @@ app.post('/ldaca/search', async (req, res) => {
           root: hit._source._root?.[0]['@id'],
           createdAt: new Date(),
           updatedAt: new Date(),
-          extra: {
-            subCollectionCount: subCollections?.total,
-            objectCount: members?.total,
-            fileCount: fileCount?.doc_count,
-            accessControl: 'Public',
-            // @ts-ignore
-            communicationMode: summaries?.aggregations['communicationMode.name.@value'].buckets.map(({ key }) => key),
-            // @ts-ignore
-            mediaType: summaries?.aggregations['encodingFormat.@value'].buckets.map(({ key }) => key),
-          },
+          extra,
           searchExtra: {
             score: hit._score,
             highlight: hit.highlight,

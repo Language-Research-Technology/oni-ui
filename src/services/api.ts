@@ -102,19 +102,30 @@ export class ApiService {
     return response;
   }
 
-  async getRoCrate(id: string) {
-    const json = await this.#get(`/entity/${encodeURIComponent(id)}`);
-    if (!json) {
+  async getEntity(id: string) {
+    const [entity, crateJson] = await Promise.all([
+      this.#get(`/entity/${encodeURIComponent(id)}`),
+      this.#get(`/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`),
+    ]);
+
+    if (!entity) {
       return {};
     }
 
-    if (json.errors) {
-      return { errors: json.errors };
+    if (entity.errors) {
+      return { errors: entity.errors };
     }
 
-    const crate = new ROCrate(json, { array: false, link: true });
+    if (!crateJson) {
+      return {};
+    }
+    if (crateJson.errors) {
+      return { errors: crateJson.errors };
+    }
 
-    return { metadata: crate.rootDataset as RoCrate };
+    const crate = new ROCrate(crateJson, { array: false, link: true });
+
+    return { entity, metadata: crate.rootDataset as RoCrate };
   }
 
   async getFileUrl(id: string, path: string, downloadable = false) {
@@ -138,6 +149,10 @@ export class ApiService {
     const json = await this.#get(url, { ...params, noRedirect: 'true' });
 
     return json.location;
+  }
+
+  async getRoCrate(id: string, downloadable = false) {
+    return await this.getFileUrl(id, 'ro-crate-metadata.json', downloadable);
   }
 
   async #getHeaders() {

@@ -10,9 +10,9 @@ import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 // import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
-// import SummariesCard from '@/components/cards/SummariesCard.vue';
+import SummariesCard from '@/components/cards/SummariesCard.vue';
 
-import type { ApiService, RoCrate } from '@/services/api';
+import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const router = useRouter();
 const route = useRoute();
@@ -35,6 +35,7 @@ const id = route.query.id as string;
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
 const metadata = ref<RoCrate | undefined>();
+const entity = ref<EntityType | undefined>();
 
 // license: undefined,
 const conformsToCollection = conformsTo.collection;
@@ -95,7 +96,7 @@ const fetchData = async () => {
   }
 
   try {
-    const { errors, metadata: md } = await api.getRoCrate(id);
+    const { errors, entity: rawEntity, metadata: rawMeatadata } = await api.getEntity(id);
     if (errors) {
       errorDialogText.value = errors;
       errorDialogVisible.value = true;
@@ -103,7 +104,7 @@ const fetchData = async () => {
       return;
     }
 
-    if (!md) {
+    if (!rawMeatadata) {
       router.push({
         name: 'NotFound',
         params: { pathMatch: route.path.substring(1).split('/') },
@@ -114,11 +115,10 @@ const fetchData = async () => {
       return;
     }
 
-    metadata.value = md;
-    populate(md);
+    metadata.value = rawMeatadata;
+    entity.value = rawEntity;
 
-    // const summaries = await this.filter({ '_collectionStack.@id': [this.$route.query.id] });
-    // this.aggregations = summaries.aggregations;
+    populate(rawMeatadata);
   } catch (e) {
     console.error(e);
   }
@@ -162,8 +162,9 @@ onMounted(fetchData);
         </el-col>
       </el-row>
     </el-col>
+
     <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8">
-      <el-row v-if="metadata.license" :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
+      <el-row v-if="metadata.license" :gutter="20" class="pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
@@ -184,21 +185,15 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <!-- <el-row :gutter="20" class="pb-5"> -->
-      <!--   <el-col> -->
-      <!--     <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5"> -->
-      <!--       <h5 class="text-2xl font-medium">Content</h5> -->
-      <!--       <hr class="divider divider-gray pt-2" /> -->
-      <!--       <SummariesCard :aggregations="aggregations" :fields="fields || []" :name="'summaries'" -->
-
-      <!--         :id="this.$route.query.id" :root="this.metadata._root" /> -->
-      <!--       <SummariesCard :aggregations="aggregations" -->
-      <!--         :fields="[{ 'name': 'license.name.@value', 'display': 'Data licenses for access' }]" :name="'licenses'" -->
-
-      <!--         :id="this.$route.query.id" :root="this.metadata._root" /> -->
-      <!--     </el-card> -->
-      <!--   </el-col> -->
-      <!-- </el-row> -->
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5">
+            <h5 class="text-2xl font-medium">Content</h5>
+            <hr class="divider divider-gray pt-2" />
+            <SummariesCard :entity="entity" />
+          </el-card>
+        </el-col>
+      </el-row>
 
       <el-row :gutter="20" class="pb-5">
         <el-col>

@@ -216,10 +216,3 @@ export function Geometry(L) {
     },
   };
 }
-
-export const _private = {
-  parsePoints,
-  polygonToBox,
-  read,
-  writer,
-};

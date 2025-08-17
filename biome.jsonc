@@ -1,15 +1,62 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!**/ldaca-proxy/**/*",
+      "!**/package.json",
+      "!**/vocab.json",
+      // We need to review these files
+      "!src/components/widgets/geo_wkt.ts",
+      "!src/components/widgets/LeafletMap.vue"
+    ]
+  },
   "formatter": {
+    "enabled": true,
     "indentStyle": "space",
     "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
   },
   "javascript": {
     "formatter": {
       "quoteStyle": "single"
     }
   },
-  "files": {
-    "includes": ["**", "!**/ldaca-proxy/**/*", "!**/package.json", "!**/vocab.json"]
-  }
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "overrides": [
+    // FIx partial support for vuew in biome
+    {
+      "includes": ["**/*.vue"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }

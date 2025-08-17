@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { EntityType } from '@/services/api';
-
-import { configuration } from '@/configuration';
-
 import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
+import { configuration } from '@/configuration';
+import type { EntityType } from '@/services/api';
 
 const { ui } = configuration;
 

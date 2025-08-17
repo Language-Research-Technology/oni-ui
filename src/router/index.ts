@@ -1,22 +1,22 @@
-import { type NavigationGuardWithThis, type RouterOptions, createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type NavigationGuardWithThis, type RouterOptions } from 'vue-router';
 
 import { getUser } from '@/services/auth';
+import { useAuthStore } from '@/stores/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
+import File from '@/views/FileView.vue';
 import List from '@/views/ListView.vue';
 import Login from '@/views/LoginView.vue';
+import Logout from '@/views/LogoutView.vue';
 import NotFound from '@/views/NotFoundView.vue';
 import CallbackOauth from '@/views/OauthCallbackView.vue';
-import Logout from '@/views/LogoutView.vue';
 import ObjectView from '@/views/ObjectView.vue';
-import File from '@/views/FileView.vue';
 import Privacy from '@/views/PrivacyView.vue';
-import Search from '@/views/SearchView.vue';
 import SearchMap from '@/views/SearchMapView.vue';
+import Search from '@/views/SearchView.vue';
 import Shell from '@/views/ShellView.vue';
 import Terms from '@/views/TermsView.vue';
 import User from '@/views/UserView.vue';
-import { useAuthStore } from '@/stores/auth';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -102,7 +102,7 @@ const router = createRouter({
   routes,
 });
 
-const onAuthRequired: NavigationGuardWithThis<undefined> = async (to, from, next) => {
+const onAuthRequired: NavigationGuardWithThis<undefined> = async (to, _from, next) => {
   const authStore = useAuthStore();
 
   const user = await getUser();

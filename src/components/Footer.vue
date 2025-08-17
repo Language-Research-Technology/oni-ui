@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { configuration } from '@/configuration';
 import { ref } from 'vue';
-
 import SplashScreen from '@/components/SplashScreen.vue';
+import { configuration } from '@/configuration';
 
 const {
   footer: {

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { inject, ref, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
-
-import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 import { configuration } from '@/configuration';
+import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 
 const { ui } = configuration;
 const router = useRouter();

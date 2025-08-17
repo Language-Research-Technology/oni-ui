@@ -10,7 +10,8 @@
     "src/configuration.json",
     "ldaca-proxy/index.ts",
     "ldaca-proxy/elastic.ts",
-    "ldaca-proxy/http.ts"
+    "ldaca-proxy/http.ts",
+    "scripts/*"
   ],
   "compilerOptions": {
     "composite": true,

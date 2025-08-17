@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue';
-
-import type { ApiService, EntityType, GetEntitiesParams } from '@/services/api';
-
 import CollectionItem from '@/components/CollectionItem.vue';
+import type { ApiService, EntityType, GetEntitiesParams } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {

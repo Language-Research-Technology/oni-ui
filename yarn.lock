@@ -1490,6 +1490,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tsconfig/node-lts@npm:^22.0.2":
+  version: 22.0.2
+  resolution: "@tsconfig/node-lts@npm:22.0.2"
+  checksum: 10c0/7bfe370ed78494ba03aab3a54d48a74e3e19c5244fe6a84e7934457ea03440147a4fb0dab05afa9a20895af96cfdd2c8459a14cc1861cbffd49fa26624a6d5ed
+  languageName: node
+  linkType: hard
+
 "@tsconfig/node22@npm:^22.0.2":
   version: 22.0.2
   resolution: "@tsconfig/node22@npm:22.0.2"
@@ -4150,6 +4157,7 @@ __metadata:
     "@fortawesome/vue-fontawesome": "npm:^3.1.1"
     "@gtm-support/vue-gtm": "npm:^3.1.0"
     "@tailwindcss/postcss": "npm:^4.1.11"
+    "@tsconfig/node-lts": "npm:^22.0.2"
     "@tsconfig/node22": "npm:^22.0.2"
     "@types/cookie-parser": "npm:^1.4.9"
     "@types/express": "npm:^5.0.3"

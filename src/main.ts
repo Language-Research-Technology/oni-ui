@@ -1,10 +1,8 @@
-import { createApp } from 'vue';
-import VueCookies from 'vue-cookies';
-
+import ElementPlus from 'element-plus';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
-
-import ElementPlus from 'element-plus';
+import { createApp } from 'vue';
+import VueCookies from 'vue-cookies';
 import 'element-plus/dist/index.css';
 import 'element-plus/theme-chalk/index.css';
 
@@ -13,13 +11,10 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { MankuIcon } from 'manku-icon-lib';
-
 import { createGtm } from '@gtm-support/vue-gtm';
-
-import { configuration } from '@/configuration';
-
+import { MankuIcon } from 'manku-icon-lib';
 import App from '@/App.vue';
+import { configuration } from '@/configuration';
 import router from '@/router';
 
 import { ApiService } from '@/services/api';

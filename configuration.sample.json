@@ -324,299 +324,306 @@
         ]
       }
     },
-  "api": {
-    "structural": {
-      "endpoint": "https://catalog.paradisec.org.au",
-      "path": "/api/v1/oni",
-      "clientId": "REPLACE_ME",
-      "clientSecret": "REPLACE_ME"
-    },
-    "origins": [
-      {
-        "host": "https://catalog.paradisec.org.au",
-        "key": "XXX",
-        "secret": "XXX"
-      }
-    ],
-    "bootstrap": false,
-    "log": {
-      "logFolder": "/opt/storage/oni/logs"
-    },
-    "host": "localhost:8080",
-    "protocol": "http",
-    "ocfl": {
-      "ocflPath": "/opt/storage/oni/ocfl",
-      "ocflScratch": "/opt/storage/oni/scratch-ocfl",
-      "ocflTestPath": "/opt/storage/oni/test/ocfl",
-      "ocflTestScratch": "/opt/storage/oni/test/scratch-ocfl",
-      "catalogFilename": "ro-crate-metadata.json",
-      "hashAlgorithm": "md5",
-      "create": {
-        "repoName": "ATAP",
-        "collections": "../test-data/ingest-crate-list.development.json"
+    "api": {
+      "structural": {
+        "endpoint": "https://catalog.paradisec.org.au",
+        "path": "/api/v1/oni",
+        "clientId": "REPLACE_ME",
+        "clientSecret": "REPLACE_ME"
       },
-      "previewPath": "/opt/storage/oni/temp/ocfl/previews",
-      "previewPathInternal": "/ocfl/previews"
-    },
-    "rocrate": {
-      "dataTransform": {
-        "types": ["File"]
-      }
-    },
-    "administrators": ["ephe@feko.mt"],
-    "session": {
-      "lifetime": {
-        "hours": 5
-      },
-      "secret": "some_secret_-_32_characters_or_longer"
-    },
-    "tokens": {
-      "secret": "XXXXXXXXXXXX",
-      "accessTokenPassword": "XXXXXXXXXXXX",
-      "admin": "1234-1234-1234-1234"
-    },
-    "services": {},
-    "authorization": {
-      "provider": "rems",
-      "enrollment": {
-        "enforced": false,
-        "groups": ["CO:Members:all"],
-        "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
-      },
-      "rems": {
-        "apiUser": "XXX",
-        "apiKey": "XXX",
-        "apiHost": "https://rems-uat.ldaca.edu.au/api"
-      }
-    },
-    "authentication": {
-      "cilogon": {
-        "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
-        "clientSecret": "XXXXXXXXXXXX",
-        "redirect_uri": "http://localhost:8000/auth/cilogon/callback",
-        "authorizeHost": "https://test.cilogon.aaf.edu.au",
-        "authorizePath": "/authorize",
-        "tokenHost": "https://test.cilogon.aaf.edu.au",
-        "tokenPath": "/oauth2/token",
-        "user": "https://test.cilogon.aaf.edu.au/oauth2/userinfo",
-        "bearer": "token",
-        "scope": "openid+profile+email+org.cilogon.userinfo+offline_access",
-        "use_refresh_token": true,
-        "expirationWindowSeconds": 300,
-        "prompt": "consent",
-        "state": "cilogon",
-        "oauthType": "AuthorizationCode",
-        "useFormData": true,
-        "memberOf": "isMemberOf",
-        "userid": "sub",
-        "username": "sub"
-      },
-      "github": {
-        "clientID": "XXXXXXXXXXXX",
-        "clientSecret": "XXXXXXXXXXXX",
-        "redirect_uri": "http://localhost:11000/auth/github/callback",
-        "authorizeHost": "https://github.com",
-        "authorizePath": "/login/oauth/authorize",
-        "tokenHost": "https://github.com",
-        "tokenPath": "/login/oauth/access_token",
-        "user": "https://api.github.com/user",
-        "bearer": "token",
-        "scope": "read:org, user",
-        "state": "github",
-        "oauthType": "ClientCredentials",
-        "useHeaders": true,
-        "userid": "id",
-        "username": "login"
-      }
-    },
-    "licenses": [
-      {
-        "license": "#agreeToTerms",
-        "group": "agree-to-terms",
-        "access": "login",
-        "enrollment": {
-          "url": "https://rems-uat.example.com/application?items=999",
-          "label": "Apply for access",
-          "class": ""
-        }
-      },
-      {
-        "license": "#restricted",
-        "group": "restricted-users",
-        "access": "loginPlus",
-        "enrollment": {}
-      }
-    ],
-    "licenseGroup": "text-commons",
-    "license": {
-      "default": {
-        "@id": "https://choosealicense.com/no-permission/",
-        "@type": "OrganizationReuseLicense",
-        "metadataIsPublic": true,
-        "allowTextIndex": true,
-        "name": "Default LDaCA No License",
-        "description": "No License"
-      },
-      "defaultMetadata": {
-        "id": "https://creativecommons.org/licenses/by/4.0/",
-        "name": "Attribution 4.0 International (CC BY 4.0)",
-        "description": "You are free to:\nShare — copy and redistribute the material in any medium or format\nAdapt — remix, transform, and build upon the material\nfor any purpose, even commercially.\nThis license is acceptable for Free Cultural Works.\nThe licensor cannot revoke these freedoms as long as you follow the license terms.",
-        "isPublic": true
-      }
-    },
-    "identifier": {
-      "main": "Oni"
-    },
-    "elastic": {
-      "bootstrap": false,
-      "node": "http://opensearch:9200",
-      "maxScroll": 5000,
-      "scrollTimeout": "10m",
-      "log": "debug",
-      "index": "items",
-      "indexConfiguration": {
-        "mapping": {
-          "total_fields": {
-            "limit": 10000
-          }
-        },
-        "max_result_window": 100000,
-        "highlight": {
-          "max_analyzer_offset": 1000000
-        }
-      },
-      "fields": {
-        "name.@value": {
-          "label": "Name",
-          "checked": true
-        },
-        "description.@value": {
-          "label": "Description",
-          "checked": true
-        },
-        "language.name.@value": {
-          "label": "Language",
-          "checked": true
-        },
-        "language.alternateName.@value": {
-          "label": "Alternate Language Name",
-          "checked": true
-        },
-        "contributor.@value": {
-          "label": "Contributor",
-          "checked": true
-        },
-        "creator.@value": {
-          "label": "Creator",
-          "checked": true
-        },
-        "_text": {
-          "label": "Text",
-          "checked": true
-        }
-      },
-      "aggregations": [
+      "origins": [
         {
-          "display": "Collection",
-          "order": 0,
-          "name": "_root.name.@value",
-          "field": "_root.name.@value.keyword",
-          "active": true
-        },
-        {
-          "display": "Member Of",
-          "order": 1,
-          "name": "_memberOf.name.@value",
-          "field": "_memberOf.name.@value.keyword"
-        },
-        {
-          "display": "Access",
-          "order": 2,
-          "name": "license.name.@value",
-          "field": "license.name.@value.keyword",
-          "help": "The access conditions associated with a resource."
-        },
-        {
-          "display": "License",
-          "order": 0,
-          "name": "license.@id",
-          "field": "license.@id.keyword",
-          "hide": true,
-          "icons": true
-        },
-        {
-          "display": "Record Type",
-          "order": 3,
-          "name": "@type",
-          "field": "@type.keyword"
-        },
-        {
-          "display": "Language",
-          "order": 4,
-          "name": "inLanguage.name.@value",
-          "field": "inLanguage.name.@value.keyword"
-        },
-        {
-          "display": "Communication Mode",
-          "order": 5,
-          "name": "communicationMode.name.@value",
-          "field": "communicationMode.name.@value.keyword",
-          "help": "The mode(s) (spoken, written, signed, etc.) used in the interaction represented by this resource.",
-          "icons": true
-        },
-        {
-          "display": "Linguistic Genre",
-          "order": 6,
-          "name": "linguisticGenre.name.@value",
-          "field": "linguisticGenre.name.@value.keyword",
-          "help": "The linguistic classification of the genre of this resource."
-        },
-        {
-          "display": "File Format",
-          "order": 7,
-          "name": "encodingFormat.@value",
-          "field": "encodingFormat.@value.keyword",
-          "help": "The media type of the resource.",
-          "icons": true
-        },
-        {
-          "display": "Annotation Type",
-          "order": 8,
-          "name": "annotationType.@value",
-          "field": "annotationType.@value.keyword"
+          "host": "https://catalog.paradisec.org.au",
+          "key": "XXX",
+          "secret": "XXX"
         }
       ],
-      "highlightFields": ["_text"],
-      "test": {
-        "filters": {
-          "hasFile.language.name": ["Arabic, Standard", "Chinese, Mandarin", "Persian, Iranian", "Turkish", "Vietnames"]
-        },
-        "@type": ["TextDialogue"]
+      "bootstrap": false,
+      "log": {
+        "logFolder": "/opt/storage/oni/logs"
       },
-      "mappingFieldLimit": 3000,
-      "mappings": {
-        "date_detection": false,
-        "properties": {
-          "_contentLocation": {
-            "type": "geo_shape"
+      "host": "localhost:8080",
+      "protocol": "http",
+      "ocfl": {
+        "ocflPath": "/opt/storage/oni/ocfl",
+        "ocflScratch": "/opt/storage/oni/scratch-ocfl",
+        "ocflTestPath": "/opt/storage/oni/test/ocfl",
+        "ocflTestScratch": "/opt/storage/oni/test/scratch-ocfl",
+        "catalogFilename": "ro-crate-metadata.json",
+        "hashAlgorithm": "md5",
+        "create": {
+          "repoName": "ATAP",
+          "collections": "../test-data/ingest-crate-list.development.json"
+        },
+        "previewPath": "/opt/storage/oni/temp/ocfl/previews",
+        "previewPathInternal": "/ocfl/previews"
+      },
+      "rocrate": {
+        "dataTransform": {
+          "types": ["File"]
+        }
+      },
+      "administrators": ["ephe@feko.mt"],
+      "session": {
+        "lifetime": {
+          "hours": 5
+        },
+        "secret": "some_secret_-_32_characters_or_longer"
+      },
+      "tokens": {
+        "secret": "XXXXXXXXXXXX",
+        "accessTokenPassword": "XXXXXXXXXXXX",
+        "admin": "1234-1234-1234-1234"
+      },
+      "services": {},
+      "authorization": {
+        "provider": "rems",
+        "enrollment": {
+          "enforced": false,
+          "groups": ["CO:Members:all"],
+          "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
+        },
+        "rems": {
+          "apiUser": "XXX",
+          "apiKey": "XXX",
+          "apiHost": "https://rems-uat.ldaca.edu.au/api"
+        }
+      },
+      "authentication": {
+        "cilogon": {
+          "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
+          "clientSecret": "XXXXXXXXXXXX",
+          "redirect_uri": "http://localhost:8000/auth/cilogon/callback",
+          "authorizeHost": "https://test.cilogon.aaf.edu.au",
+          "authorizePath": "/authorize",
+          "tokenHost": "https://test.cilogon.aaf.edu.au",
+          "tokenPath": "/oauth2/token",
+          "user": "https://test.cilogon.aaf.edu.au/oauth2/userinfo",
+          "bearer": "token",
+          "scope": "openid+profile+email+org.cilogon.userinfo+offline_access",
+          "use_refresh_token": true,
+          "expirationWindowSeconds": 300,
+          "prompt": "consent",
+          "state": "cilogon",
+          "oauthType": "AuthorizationCode",
+          "useFormData": true,
+          "memberOf": "isMemberOf",
+          "userid": "sub",
+          "username": "sub"
+        },
+        "github": {
+          "clientID": "XXXXXXXXXXXX",
+          "clientSecret": "XXXXXXXXXXXX",
+          "redirect_uri": "http://localhost:11000/auth/github/callback",
+          "authorizeHost": "https://github.com",
+          "authorizePath": "/login/oauth/authorize",
+          "tokenHost": "https://github.com",
+          "tokenPath": "/login/oauth/access_token",
+          "user": "https://api.github.com/user",
+          "bearer": "token",
+          "scope": "read:org, user",
+          "state": "github",
+          "oauthType": "ClientCredentials",
+          "useHeaders": true,
+          "userid": "id",
+          "username": "login"
+        }
+      },
+      "licenses": [
+        {
+          "license": "#agreeToTerms",
+          "group": "agree-to-terms",
+          "access": "login",
+          "enrollment": {
+            "url": "https://rems-uat.example.com/application?items=999",
+            "label": "Apply for access",
+            "class": ""
+          }
+        },
+        {
+          "license": "#restricted",
+          "group": "restricted-users",
+          "access": "loginPlus",
+          "enrollment": {}
+        }
+      ],
+      "licenseGroup": "text-commons",
+      "license": {
+        "default": {
+          "@id": "https://choosealicense.com/no-permission/",
+          "@type": "OrganizationReuseLicense",
+          "metadataIsPublic": true,
+          "allowTextIndex": true,
+          "name": "Default LDaCA No License",
+          "description": "No License"
+        },
+        "defaultMetadata": {
+          "id": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "Attribution 4.0 International (CC BY 4.0)",
+          "description": "You are free to:\nShare — copy and redistribute the material in any medium or format\nAdapt — remix, transform, and build upon the material\nfor any purpose, even commercially.\nThis license is acceptable for Free Cultural Works.\nThe licensor cannot revoke these freedoms as long as you follow the license terms.",
+          "isPublic": true
+        }
+      },
+      "identifier": {
+        "main": "Oni"
+      },
+      "elastic": {
+        "bootstrap": false,
+        "node": "http://opensearch:9200",
+        "maxScroll": 5000,
+        "scrollTimeout": "10m",
+        "log": "debug",
+        "index": "items",
+        "indexConfiguration": {
+          "mapping": {
+            "total_fields": {
+              "limit": 10000
+            }
           },
-          "_centroid": {
-            "type": "geo_shape"
+          "max_result_window": 100000,
+          "highlight": {
+            "max_analyzer_offset": 1000000
+          }
+        },
+        "fields": {
+          "name.@value": {
+            "label": "Name",
+            "checked": true
           },
-          "@id": {
-            "type": "keyword"
+          "description.@value": {
+            "label": "Description",
+            "checked": true
           },
-          "hasFile": {
-            "type": "nested",
-            "properties": {
-              "language": {
-                "type": "nested",
-                "properties": {
-                  "name": {
-                    "type": "nested",
-                    "properties": {
-                      "@value": {
-                        "type": "keyword"
+          "language.name.@value": {
+            "label": "Language",
+            "checked": true
+          },
+          "language.alternateName.@value": {
+            "label": "Alternate Language Name",
+            "checked": true
+          },
+          "contributor.@value": {
+            "label": "Contributor",
+            "checked": true
+          },
+          "creator.@value": {
+            "label": "Creator",
+            "checked": true
+          },
+          "_text": {
+            "label": "Text",
+            "checked": true
+          }
+        },
+        "aggregations": [
+          {
+            "display": "Collection",
+            "order": 0,
+            "name": "_root.name.@value",
+            "field": "_root.name.@value.keyword",
+            "active": true
+          },
+          {
+            "display": "Member Of",
+            "order": 1,
+            "name": "_memberOf.name.@value",
+            "field": "_memberOf.name.@value.keyword"
+          },
+          {
+            "display": "Access",
+            "order": 2,
+            "name": "license.name.@value",
+            "field": "license.name.@value.keyword",
+            "help": "The access conditions associated with a resource."
+          },
+          {
+            "display": "License",
+            "order": 0,
+            "name": "license.@id",
+            "field": "license.@id.keyword",
+            "hide": true,
+            "icons": true
+          },
+          {
+            "display": "Record Type",
+            "order": 3,
+            "name": "@type",
+            "field": "@type.keyword"
+          },
+          {
+            "display": "Language",
+            "order": 4,
+            "name": "inLanguage.name.@value",
+            "field": "inLanguage.name.@value.keyword"
+          },
+          {
+            "display": "Communication Mode",
+            "order": 5,
+            "name": "communicationMode.name.@value",
+            "field": "communicationMode.name.@value.keyword",
+            "help": "The mode(s) (spoken, written, signed, etc.) used in the interaction represented by this resource.",
+            "icons": true
+          },
+          {
+            "display": "Linguistic Genre",
+            "order": 6,
+            "name": "linguisticGenre.name.@value",
+            "field": "linguisticGenre.name.@value.keyword",
+            "help": "The linguistic classification of the genre of this resource."
+          },
+          {
+            "display": "File Format",
+            "order": 7,
+            "name": "encodingFormat.@value",
+            "field": "encodingFormat.@value.keyword",
+            "help": "The media type of the resource.",
+            "icons": true
+          },
+          {
+            "display": "Annotation Type",
+            "order": 8,
+            "name": "annotationType.@value",
+            "field": "annotationType.@value.keyword"
+          }
+        ],
+        "highlightFields": ["_text"],
+        "test": {
+          "filters": {
+            "hasFile.language.name": [
+              "Arabic, Standard",
+              "Chinese, Mandarin",
+              "Persian, Iranian",
+              "Turkish",
+              "Vietnames"
+            ]
+          },
+          "@type": ["TextDialogue"]
+        },
+        "mappingFieldLimit": 3000,
+        "mappings": {
+          "date_detection": false,
+          "properties": {
+            "_contentLocation": {
+              "type": "geo_shape"
+            },
+            "_centroid": {
+              "type": "geo_shape"
+            },
+            "@id": {
+              "type": "keyword"
+            },
+            "hasFile": {
+              "type": "nested",
+              "properties": {
+                "language": {
+                  "type": "nested",
+                  "properties": {
+                    "name": {
+                      "type": "nested",
+                      "properties": {
+                        "@value": {
+                          "type": "keyword"
+                        }
                       }
                     }
                   }
@@ -625,15 +632,15 @@
             }
           }
         }
-      }
-    },
-    "admin": {
-      "indexRoutes": true
-    },
-    "conformsTo": {
-      "collection": "https://w3id.org/ldac/profile#Collection",
-      "object": "https://w3id.org/ldac/profile#Object"
-    },
-    "skipByMatch": []
+      },
+      "admin": {
+        "indexRoutes": true
+      },
+      "conformsTo": {
+        "collection": "https://w3id.org/ldac/profile#Collection",
+        "object": "https://w3id.org/ldac/profile#Object"
+      },
+      "skipByMatch": []
+    }
   }
 }

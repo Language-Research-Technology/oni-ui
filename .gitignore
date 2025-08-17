@@ -2,7 +2,10 @@
 configuration.json
 .env
 
- # Yarn v4
+# Generated files
+vocab.json
+
+# Yarn v4
 node_modules
 .pnp.*
 .yarn/*
@@ -34,6 +37,3 @@ lerna-debug.log*
 *.sw?
 
 *.tsbuildinfo
-
-# Generated files
-vocab.json

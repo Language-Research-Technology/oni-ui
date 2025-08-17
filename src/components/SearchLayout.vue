@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
-
 import { CloseBold } from '@element-plus/icons-vue';
-
 import Facet from '@/components/Facet.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
 
 import { configuration } from '@/configuration';
 import type { EntityType } from '@/services/api';
@@ -18,6 +16,7 @@ const ordering = ui.search?.ordering || [
 ];
 
 import { useRoute, useRouter } from 'vue-router';
+
 const router = useRouter();
 const route = useRoute();
 

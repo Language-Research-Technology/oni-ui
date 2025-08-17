@@ -15,14 +15,14 @@ RUN yarn install && yarn cache clean
 # Copy project files
 COPY . .
 
-# Create a directory for the configuration file
-RUN mkdir -p /app/config
-
 # Build vocabulary during container build
 RUN yarn create-vocabs /app/vocab.json
 
 # Set environment variables
 ENV CONFIG_PATH=/app/config/configuration.json
+
+# Create a directory for the configuration file
+RUN mkdir -p /app/config
 
 # Expose port for dev server
 EXPOSE 5173

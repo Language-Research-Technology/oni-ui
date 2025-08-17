@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { logout } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
-import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
 

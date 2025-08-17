@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { inject, ref, watch } from 'vue';
-
-import type { ApiService } from '@/services/api';
-
 import AccessHelper from '@/components/AccessHelper.vue';
 import CSVWidget from '@/components/widgets/CSVWidget.vue';
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
 import PlainTextWidget from '@/components/widgets/PlainTextWidget.vue';
+import type { ApiService } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {

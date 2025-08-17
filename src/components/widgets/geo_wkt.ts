@@ -5,10 +5,8 @@ const reRoot = /^(<.+>\s+)?(\w+)\s*(\(.+\))$/s;
 
 /**
  * Read a WKT formatted string and return a leaflet layer object
- * @param {Object} L
- * @param {string} wkt
  */
-function read(L, wkt, number) {
+function read(L: Object, wkt: string, number: number) {
   const m = wkt.trim().match(reRoot);
   const [, _srs, type = '', data] = m ?? [];
   if (!type || !data) return;
@@ -50,9 +48,8 @@ function read(L, wkt, number) {
 /**
  * Parse points to a nested arrays of [latitude,longitude]
  * Default order of the input coordinates follows WGS 84 which is longitude-latitude.
- * @param {string} text - nested list of points grouped by brackets, eg: (35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30)
  */
-function parsePoints(text, latlng) {
+function parsePoints(text: string, latlng) {
   const parents = [];
   let current;
   let prev;
@@ -97,10 +94,8 @@ function parsePoints(text, latlng) {
 
 /**
  * Check if a polygon is a rectangle and return the bottom left and top right corner coordinates
- * @param {Array} polygons
- * @return {L.LatLngTuple[]}
  */
-function polygonToBox(polygons) {
+function polygonToBox(polygons: Array): L.LatLngTuple[] {
   if (polygons.length !== 1) return;
   const polygon = polygons[0];
   if (polygon.length === 5) {

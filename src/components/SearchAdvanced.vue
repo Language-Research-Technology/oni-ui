@@ -2,9 +2,9 @@
 import { ref } from 'vue';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
-
+import { type AdvancedSearchLine, blankAdvancedSearchLine, type SetSearchParamsOptions } from '@/composables/search';
 import { configuration } from '@/configuration';
-import { blankAdvancedSearchLine, type AdvancedSearchLine, type SetSearchParamsOptions } from '@/composables/search';
+
 const { ui } = configuration;
 const { searchFields } = ui;
 
@@ -44,12 +44,12 @@ const generateQueryString = () => {
           lastOne = true;
         }
         let qq = '';
-        qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+        qq = `${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
         qqq += qq;
       });
-      qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+      qS += `${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
     } else {
-      qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+      qS += ` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
     }
   });
 

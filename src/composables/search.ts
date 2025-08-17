@@ -1,10 +1,8 @@
-import { ref, onMounted, inject, watch } from 'vue';
-
+import { useGtm } from '@gtm-support/vue-gtm';
+import { inject, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { configuration } from '@/configuration';
 import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
-
-import { useGtm } from '@gtm-support/vue-gtm';
-import { useRoute, useRouter } from 'vue-router';
 
 const { mapConfig } = configuration.ui;
 

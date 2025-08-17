@@ -3,20 +3,19 @@ import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
-import MetaField from '@/components/MetaField.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
-// import BinderHubCard from '@/components/cards/BinderHubCard.vue';
-import ObjectPart from '@/components/ObjectPart.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
-import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
+import MetaField from '@/components/MetaField.vue';
+// import BinderHubCard from '@/components/cards/BinderHubCard.vue';
+import ObjectPart from '@/components/ObjectPart.vue';
+import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
+import { configuration } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 import { initSnip } from '../tools';
-
-import { configuration } from '@/configuration';
 
 const { object: config, conformsTo } = configuration.ui;
 

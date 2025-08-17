@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ApiService, EntityType } from '@/services/api';
 import { inject, ref } from 'vue';
+import type { ApiService, EntityType } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {

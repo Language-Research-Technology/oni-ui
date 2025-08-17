@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useSearch } from '@/composables/search';
-
 import EntitySummary from '@/components/EntitySummary.vue';
 import SearchLayout from '@/components/SearchLayout.vue';
+import { useSearch } from '@/composables/search';
 
 const {
   advancedSearchEnabled,

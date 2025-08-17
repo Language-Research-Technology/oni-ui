@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
 
 import { configuration } from '@/configuration';
+
 const { ui } = configuration;
 
 const isLoading = ref(false);

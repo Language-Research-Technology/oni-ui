@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
-import { configuration } from '@/configuration';
-
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
+import { configuration } from '@/configuration';
 
 const { part, active, access, license, parentId } = defineProps<{
   part: { '@id': string; name: string; encodingFormat: string[] } & Record<string, string>;

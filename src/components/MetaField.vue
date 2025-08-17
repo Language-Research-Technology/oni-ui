@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ElasticField from '@/components/ElasticField.vue';
 import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
+import ElasticField from '@/components/ElasticField.vue';
 
 const startCase = (str: string) => {
   if (typeof str !== 'string' || !str) {

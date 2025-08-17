@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-
-import { configuration } from '@/configuration';
-
 import logo from '@/assets/logo.svg';
-
 import NavUser from '@/components/NavUser.vue';
+import { configuration } from '@/configuration';
 
 const route = useRoute();
 

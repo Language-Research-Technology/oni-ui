@@ -1,14 +1,12 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { inject, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
 
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
-
-import { useAuthStore } from '@/stores/auth';
-
 import type { ApiService } from '@/services/api';
 import { handleCallback } from '@/services/auth';
+import { useAuthStore } from '@/stores/auth';
 
 const api = inject<ApiService>('api');
 if (!api) {

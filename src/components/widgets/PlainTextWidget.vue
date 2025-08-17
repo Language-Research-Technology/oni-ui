@@ -11,13 +11,13 @@ const content = ref('');
 const download = async () => {
   const response = await fetch(src);
   if (!response.ok) {
-    content.value = "Fetch failed"
+    content.value = 'Fetch failed';
   }
 
   const data = await response.text();
 
- content.value = limitText ? data.slice(0, limitText) : data;
-}
+  content.value = limitText ? data.slice(0, limitText) : data;
+};
 
 download();
 </script>

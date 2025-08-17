@@ -2,12 +2,10 @@
 import { onMounted, watch } from 'vue';
 
 import { RouterView, useRoute, useRouter } from 'vue-router';
-
-import { configuration } from '@/configuration';
-
 import FooterView from '@/components/Footer.vue';
 import MaintenacePage from '@/components/MaintenacePage.vue';
 import NavView from '@/components/Nav.vue';
+import { configuration } from '@/configuration';
 
 const { ui } = configuration;
 const router = useRouter();

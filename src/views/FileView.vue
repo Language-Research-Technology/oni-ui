@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-import type { ApiService } from '@/services/api';
-
 import FileResolve from '@/components/FileResolve.vue';
+import type { ApiService } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
-import { login } from '@/services/auth';
-
 import { ui } from '@/configuration';
+import { login } from '@/services/auth';
 
 const { title } = ui;
 

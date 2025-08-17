@@ -10,10 +10,8 @@ import { GestureHandling } from 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 
 import Geohash from 'latlon-geohash';
-
-import { useSearch } from '@/composables/search';
-
 import SearchLayout from '@/components/SearchLayout.vue';
+import { useSearch } from '@/composables/search';
 import { configuration } from '@/configuration';
 import type { ApiService, EntityType, SearchParams } from '@/services/api';
 
@@ -210,7 +208,6 @@ const fitBounds = (position: L.LatLng) => {
 
     if (d < -1 && !isVisible) {
       // this part it hard to explain for me so easiest thing to do to understand how it work is to remove it and go far past 180
-      // biome-ignore lint/style/noParameterAssign: FIXME
       position = initialPos;
       position.lng += 360 * (d + 1);
       isVisible = visibleBounds.contains(position);
@@ -221,7 +218,6 @@ const fitBounds = (position: L.LatLng) => {
     isVisible = visibleBounds.contains(position);
 
     if (d > 1 && !isVisible) {
-      // biome-ignore lint/style/noParameterAssign: FIXME
       position = initialPos;
       position.lng += 360 * (d - 1);
       isVisible = visibleBounds.contains(position);

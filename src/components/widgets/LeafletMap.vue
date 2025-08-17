@@ -1,20 +1,20 @@
 <script setup lang="ts">
 // @ts-nocheck
 // FIXME: fix types
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import * as L from 'leaflet';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import 'leaflet-editable';
 import { GestureHandling } from 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import 'leaflet.path.drag';
 import 'leaflet/dist/leaflet.css';
 
-import transformer from '@/components/widgets/geo';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
 
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import transformer from '@/components/widgets/geo';
 
 L.Icon.Default.prototype._getIconUrl = undefined;
 

@@ -37,8 +37,6 @@ const doWork = async () => {
     },
   });
 
-  console.log('🪚 💜', csv);
-
   isLoading.value = false;
 };
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted, ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const { src, limitText } = defineProps<{
   src: string;

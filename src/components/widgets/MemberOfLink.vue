@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RoCrate } from '@/services/api';
 
-const { memberOf } = defineProps<{ memberOf: NonNullable<RoCrate['memberOf']> }>();
+const { memberOf } = defineProps<{ memberOf: NonNullable<RoCrate['pcdm:memberOf']> }>();
 
 const id = memberOf['@id'];
 const link = `/collection?id=${encodeURIComponent(id)}`;

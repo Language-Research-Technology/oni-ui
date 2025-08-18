@@ -107,33 +107,9 @@ const initMap = () => {
   L.control.scale().addTo(map);
   featuresLayer.addTo(map);
   initControls(map, featuresLayer);
-
-  // NOTE: JF I don'[t think this is needed as a full rerender will happen if the props change (and I don't think they can change in our app)
-  // watch(
-  //   props.modelValue,
-  //   (val) => {
-  //     //todo: compare new values to existing values, only update when there is difference
-  //
-  //     featuresLayer.clearLayers();
-  //     if (!val) return;
-  //     const shape = transform.value.fromEntity();
-  //     if (shape) {
-  //       try {
-  //         shape.addTo(featuresLayer);
-  //       } catch (error) {
-  //         console.log(error);
-  //         console.log(shape);
-  //       }
-  //     }
-  //     const bounds = featuresLayer.getBounds();
-  //     if (bounds.isValid()) map.flyToBounds(bounds, { maxZoom: 7 });
-  //   },
-  //   { immediate: true },
-  // );
 };
 
 const initControls = (map, featuresLayer) => {
-  //const controls = typeof props.controls === 'string' ? props.controls.split(' ') : props.controls;
   let selectedShape;
   let actionLink;
   let isModified = false;
@@ -225,7 +201,6 @@ const initControls = (map, featuresLayer) => {
       stopAction();
     }
   });
-  //L.DomEvent.on(document.getElementsByClassName('leaflet-control-container')[0], 'mousedown', L.DomEvent.stopPropagation);
 
   map.on('click', (e) => {
     console.log('map click', e);
@@ -253,8 +228,6 @@ const initControls = (map, featuresLayer) => {
     const isDeleting = actionLink && L.DomUtil.hasClass(actionLink, 'leaflet-control-edit-delete');
     console.log('isDeleting', isDeleting);
     if (isDeleting) {
-      //if ((e.originalEvent.ctrlKey || e.originalEvent.metaKey) || isDeleting) {}
-      //layer.editor.deleteShapeAt(e.latlng);
       featuresLayer.removeLayer(layer);
       update(featuresLayer.getLayers());
       map.getContainer().focus();
@@ -262,13 +235,6 @@ const initControls = (map, featuresLayer) => {
       selectedShape?.disableEdit();
       selectedShape = e.layer;
       layer.enableEdit();
-      //layer.dragging.enable();
-      // const shapes = featuresLayer.getLayers();
-      // for (let i = 0; i < shapes.length; ++i) {
-      //   if (shapes[i] === layer) {
-      //     return emit('update:current', i);
-      //   }
-      // }
     }
   });
 

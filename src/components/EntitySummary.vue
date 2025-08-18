@@ -10,7 +10,7 @@ const { ui } = configuration;
 const { entity } = defineProps<{ entity: EntityType }>();
 
 // TODO: Rename this
-const searchDetails = ui.search?.searchDetails || [];
+const { searchDetails = [] } = ui.search || {};
 
 const getSearchDetailUrl = () => {
   // TODO: this is not good, maybe do it with a ConformsTo to specify link.

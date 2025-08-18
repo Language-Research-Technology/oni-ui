@@ -9,7 +9,6 @@ import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
-// import BinderHubCard from '@/components/cards/BinderHubCard.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
 import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
@@ -41,7 +40,6 @@ const mediaTypes = ref<string[]>([]);
 const access = ref<{ hasAccess: boolean; group?: string }>({ hasAccess: false });
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
-// const id = ref<string>(route.query.id?.toString() || '');
 
 const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);

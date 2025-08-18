@@ -24,11 +24,7 @@ if (!api) {
 
 import { configuration } from '@/configuration';
 
-const {
-  collection: config,
-  // main: { fields },
-  conformsTo,
-} = configuration.ui;
+const { collection: config, conformsTo } = configuration.ui;
 
 const id = route.query.id as string;
 
@@ -37,11 +33,9 @@ const errorDialogVisible = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 
-// license: undefined,
 const conformsToCollection = conformsTo.collection;
 const conformsToObject = conformsTo.object;
 const findObjectByRelationship = config.relationships;
-// const aggregations = [];
 
 let name: string;
 let nameDisplay: string;

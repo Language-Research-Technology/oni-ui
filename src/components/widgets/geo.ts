@@ -1,19 +1,16 @@
-// @ts-nocheck
-// FIXME: fix types
-
 /** Geo format transformation utils */
 import { GeoCoordinates, GeoShape } from './geo_schema';
 import { Geometry } from './geo_wkt';
 
-export default function (L, entity) {
+export default function (L: any, entity: { '@type': string }) {
   const Transformers = {
     GeoCoordinates: GeoCoordinates(L),
     GeoShape: GeoShape(L),
     Geometry: Geometry(L),
+    ['http://www.opengis.net/ont/geosparql#Geometry']: Geometry(L),
   };
-  Transformers['http://www.opengis.net/ont/geosparql#Geometry'] = Transformers[Geometry];
 
-  const transformer = Transformers[entity['@type']];
+  const transformer = Transformers[entity['@type'] as keyof typeof Transformers];
   if (!transformer) {
     throw new Error(`Unknown shape type ${entity['@type']}`);
   }
@@ -25,7 +22,7 @@ export default function (L, entity) {
     fromEntity() {
       return transformer.from(entity);
     },
-    toEntity(shape) {
+    toEntity(shape: any) {
       transformer.to(shape, entity);
 
       return entity;

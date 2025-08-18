@@ -3,7 +3,6 @@ import MetaField from '@/components/MetaField.vue';
 import LeafletMap from '@/components/widgets/LeafletMap.vue';
 
 const { field, title } = defineProps<{
-  // biome-ignore lint/suspicious/noExplicitAny: FIXME
   field: any;
   title: string;
 }>();
@@ -18,9 +17,7 @@ let id: string;
 let url: string | undefined;
 let name: string;
 let description: string;
-// biome-ignore lint/suspicious/noExplicitAny: FIXME
 let geometry: any;
-// biome-ignore lint/suspicious/noExplicitAny: FIXME
 let expandField: any;
 
 const testURL = (url: string) => {

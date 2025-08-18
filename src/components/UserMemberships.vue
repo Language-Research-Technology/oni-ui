@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
-// FIXME: fix types
-
 import { ref } from 'vue';
 
 import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';

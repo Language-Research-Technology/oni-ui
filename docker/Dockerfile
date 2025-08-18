@@ -4,19 +4,19 @@ FROM node:22
 WORKDIR /app
 
 # Copy package.json and yarn.lock
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json pnpm-lock.yaml pnpm-lock.yaml  pnpm-workspace.yaml ./
 
 # Enable yarn
 RUN corepack enable
 
 # Install dependencies
-RUN yarn install && yarn cache clean
+RUN pnpm install --prod --frozen-lockfile
 
 # Copy project files
 COPY . .
 
 # Build vocabulary during container build
-RUN yarn create-vocabs /app/vocab.json
+RUN pnpm run create-vocabs /app/vocab.json
 
 # Set environment variables
 ENV CONFIG_PATH=/app/config/configuration.json
@@ -33,4 +33,4 @@ RUN chmod +x /entrypoint.sh
 
 # Use the entrypoint script to start the dev server
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["yarn", "dev", "--host"]
+CMD ["pnpm", "run", "dev", "--host"]

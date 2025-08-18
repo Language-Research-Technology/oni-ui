@@ -1,6 +1,6 @@
 import { pipeline } from 'node:stream/promises';
 
-import express from 'express';
+import express, { type Express } from 'express';
 
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
@@ -69,11 +69,11 @@ app.get('/ldaca/entities', async (req, res) => {
     return;
   }
 
-  // @ts-expect-error Ignore type errors
+  // @ts-ignore
   const { total, data } = await response.json();
   console.log("🪚 data:", JSON.stringify(data[0], null, 2));
 
-  // @ts-expect-error Ignore type errors
+  // @ts-ignore
   const entities = await Promise.all(data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => ({
     id: crateId,
     ...rest,
@@ -186,6 +186,7 @@ app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
     return;
   }
 
+  // @ts-ignore
   await pipeline(response.body, res);
 });
 
@@ -264,6 +265,8 @@ app.post('/ldaca/oauth/:provider/code', async (req, res) => {
     }
 
     res.status(response.status);
+
+    // @ts-ignore
     await pipeline(response.body, res);
   });
 });
@@ -598,8 +601,8 @@ app.post('/ldaca/oauth/token', async (req, res) => {
   };
   console.log("🪚 claims:", JSON.stringify(claims, null, 2))
 
-  console.log("🪚 🔵");
-  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+  console.log("🪚 🔵"); 
+  const { privateKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
     publicKeyEncoding: {
       type: 'spki',
@@ -647,4 +650,4 @@ app.post('/ldaca/oauth/token', async (req, res) => {
   res.status(200).send(data);
 });
 
-export const ldacaProxy = app;
+export const ldacaProxy: Express = app;

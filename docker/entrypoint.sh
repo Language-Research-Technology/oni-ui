@@ -10,5 +10,5 @@ fi
 # Copy configuration file to the project root for dev mode
 cp "$CONFIG_PATH" /app/src/configuration.json
 
-# Execute the CMD (yarn dev with arguments)
+# Execute the CMD (pnpm dev with arguments)
 exec "$@"

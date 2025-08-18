@@ -24,14 +24,14 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-brands-svg-icons": "^6.7.2",
-    "@fortawesome/free-regular-svg-icons": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/fontawesome-svg-core": "^7.0.0",
+    "@fortawesome/free-brands-svg-icons": "^7.0.0",
+    "@fortawesome/free-regular-svg-icons": "^7.0.0",
+    "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/vue-fontawesome": "^3.1.1",
     "@gtm-support/vue-gtm": "^3.1.0",
     "cookie-parser": "^1.4.7",
-    "elastic-builder": "^2.31.1",
+    "elastic-builder": "^3.0.0",
     "element-plus": "^2.10.5",
     "js-snip": "^1.2.0",
     "latlon-geohash": "^2.0.0",
@@ -81,5 +81,5 @@
   "engines": {
     "node": ">=22.18.0"
   },
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
 }

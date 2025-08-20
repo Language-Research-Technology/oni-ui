@@ -44,7 +44,7 @@ export default {
   props: ['meta', 'routePath', 'filePath', 'parentId', 'crateId', 'isExpand'],
   data() {
     return {
-      textReplacements: this.$store.state.configuration.ui.textReplacements,
+      textReplacements: this.$store.state.configuration.ui.textReplacements || {},
     };
   },
   async mounted() {

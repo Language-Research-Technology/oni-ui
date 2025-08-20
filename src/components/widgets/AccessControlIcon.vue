@@ -25,6 +25,8 @@ switch (accessControl) {
     iconName = 'loginPlus';
     content = 'There are restrictions on access to this data. Log in to get further information.';
     break;
+  default:
+    throw new Error(`Unknown access control type: ${accessControl}`);
 }
 </script>
 

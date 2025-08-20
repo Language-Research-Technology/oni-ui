@@ -3,6 +3,7 @@ import MetaField from '@/components/MetaField.vue';
 import LeafletMap from '@/components/widgets/LeafletMap.vue';
 
 const { field, title } = defineProps<{
+  // biome-ignore lint/suspicious/noExplicitAny: FIXME
   field: any;
   title: string;
 }>();
@@ -11,13 +12,15 @@ import { configuration } from '@/configuration';
 
 const { ui } = configuration;
 
-const expand = ui.main.expand || [];
+const { expand = [], byteFields } = ui.main;
 
 let id: string;
 let url: string | undefined;
 let name: string;
 let description: string;
+// biome-ignore lint/suspicious/noExplicitAny: FIXME
 let geometry: any;
+// biome-ignore lint/suspicious/noExplicitAny: FIXME
 let expandField: any;
 
 const testURL = (url: string) => {
@@ -41,19 +44,23 @@ const formatFileSize = (bytes: number, locales = 'en') => {
   return `${formatter.format(value)} ${units[i]}`;
 };
 
-const extractData = () => {
-  if (title === 'size') {
-    name = formatFileSize(field);
-
-    return;
+const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
+  if (!input) {
+    return input;
   }
 
-  if (['string', 'number'].includes(typeof field)) {
-    name = String(field);
-
-    return;
+  if (input.length <= minLength) {
+    return input; // Don't shorten if it's too short
   }
 
+  return input.length > maxLength ? `${input.slice(0, maxLength)}...` : input;
+};
+
+if (byteFields.includes(title)) {
+  name = formatFileSize(field);
+} else if (['string', 'number'].includes(typeof field)) {
+  name = String(field);
+} else {
   id = field['@id'];
   url = testURL(id);
   name = field.name;
@@ -61,24 +68,18 @@ const extractData = () => {
 
   if (title === 'contentLocation') {
     geometry = field.geo;
-
-    return;
-  }
-
-  if (expand.includes(title)) {
+  } else if (expand.includes(title)) {
     expandField = { name: title, data: field };
-
-    return;
   }
-};
+}
 
-extractData();
+const collapseName = shortenText(name);
 </script>
 
 <template>
   <template v-if="expandField">
     <el-collapse>
-      <el-collapse-item :title="name" :name="name">
+      <el-collapse-item :title="collapseName" :name="collapseName">
         <MetaField :meta="expandField" :isExpand="true" />
       </el-collapse-item>
     </el-collapse>
@@ -91,7 +92,7 @@ extractData();
   </template>
 
   <template v-else-if="url">
-    <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600 absolute" :href="id"
+    <a class="block break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
       target="_blank" rel="nofollow noreferrer">
       <manku-icon :name="title" height="30">
         <template #notFound>

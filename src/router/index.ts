@@ -106,7 +106,6 @@ const onAuthRequired: NavigationGuardWithThis<undefined> = async (to, _from, nex
   const authStore = useAuthStore();
 
   const user = await getUser();
-  console.log('🪚 user:', JSON.stringify(user, null, 2));
 
   if (user && to.path === '/login') {
     return next({ path: '/' });

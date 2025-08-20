@@ -14,7 +14,7 @@ const { setSearchParams, advancedSearchLines } = defineProps<{
 }>();
 
 const advancedSearchFields = [{ label: 'All Fields', value: 'all_fields' }];
-Object.keys(searchFields).map((f) => {
+Object.keys(searchFields).forEach((f) => {
   advancedSearchFields.push({ label: searchFields[f].label, value: f });
 });
 
@@ -38,7 +38,7 @@ const generateQueryString = () => {
 
     if (sg.field === 'all_fields') {
       let qqq = '( ';
-      Object.keys(searchFields).map((f, index, keys) => {
+      Object.keys(searchFields).forEach((f, index, keys) => {
         let lastOne = false;
         if (index + 1 === keys.length) {
           lastOne = true;

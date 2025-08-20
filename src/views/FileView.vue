@@ -2,7 +2,7 @@
 import { inject, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import FileResolve from '@/components/FileResolve.vue';
-import type { ApiService } from '@/services/api';
+import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -15,15 +15,15 @@ const router = useRouter();
 const id = route.query.id?.toString() as string;
 
 const title = ref('');
-const parentId = ref('');
-const parentTitle = ref('');
+const parentId = ref<string>();
+const parentTitle = ref<string>();
 const filename = ref('');
 const encodingFormat = ref<string[]>([]);
+const contentSize = ref<number>();
 const access = { hasAccess: true };
 const license: { '@id': string; description: string } = { '@id': 'FIXME', description: 'FIXME' };
 
-// biome-ignore lint/suspicious/noExplicitAny: FIXME: later
-const populateData = (md: any) => {
+const populateData = (md: RoCrate, entity: EntityType) => {
   title.value = md.name || md['@id'];
 
   parentId.value = md.parentId;
@@ -31,6 +31,9 @@ const populateData = (md: any) => {
 
   filename.value = md.filename;
   encodingFormat.value = [md.encodingFormat];
+  contentSize.value = md.contentSize;
+  license.value = md.license;
+  access.value = entity.extra?.access;
 };
 
 const getFileMetadata = async () => {
@@ -45,7 +48,7 @@ const getFileMetadata = async () => {
     return;
   }
 
-  const { metadata: md } = await api.getRoCrate(id);
+  const { entity, metadata: md } = await api.getEntity(id);
   if (!md) {
     router.push({
       name: 'NotFound',
@@ -57,7 +60,7 @@ const getFileMetadata = async () => {
     return;
   }
 
-  populateData(md);
+  populateData(md, entity);
 };
 
 getFileMetadata();
@@ -82,7 +85,7 @@ getFileMetadata();
             class="flex justify-center h-screen overflow-auto">
             <FileResolve :id="id" :parentId="parentId" :filename="filename" :resolve="true"
               :encodingFormat="encodingFormat" :name="title" :parentName="parentTitle" :hideOpenLink="true"
-              :isPreview="false" :access="access" :license="license" />
+              :isPreview="false" :access="access" :license="license" :contetnSize="contentSize" />
           </el-col>
         </el-row>
       </div>

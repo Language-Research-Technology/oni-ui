@@ -1,12 +1,10 @@
+import * as crypto from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
-
+import cookieParser from 'cookie-parser';
 import express, { type Express } from 'express';
 
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
-
 import jwt from 'jsonwebtoken';
-import * as crypto from 'node:crypto';
+import morgan from 'morgan';
 
 const app = express();
 
@@ -18,10 +16,53 @@ import { ElasticService } from './elastic';
 
 const es = new ElasticService();
 
-const getExtra = async (id: string, typem: string[]) => {
-  let summaries;
-  let subCollections;
-  let members;
+const base_url = 'https://data.ldaca.edu.au';
+
+const LICENSES: Record<string, string> = {
+  'https://www.ldaca.edu.au/licenses/holmer-fieldnotes/placeholder/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/holmer-fieldnotes/placeholder/all/v1/',
+  'https://www.ldaca.edu.au/licenses/australian-deafblind-signing-corpus/placeholder/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/australian-deafblind-signing-corpus/placeholder/all/v1/',
+  'https://www.ldaca.edu.au/licenses/ausesl/placeholder/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/ausesl/placeholder/all/v1/',
+  'https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/',
+  'https://www.ldaca.edu.au/licenses/the-expanded-auslan-corpus/placeholder/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/the-expanded-auslan-corpus/placeholder/all/v1/',
+  'https://www.ldaca.edu.au/licenses/sydney-speaks/license-a/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-a/all/v1/',
+  'https://www.ldaca.edu.au/licenses/ausesl/transcriptions-audio/all/v1/':
+    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/ausesl/transcriptions-audio/all/v1/',
+};
+
+const getMemberships = async (token: string) => {
+  if (!token) {
+    return [];
+  }
+
+  const response = await fetch(`${base_url}/user/memberships`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status !== 200) {
+    return [];
+  }
+
+  const membershipsStatus = (await response.json()) as { memberships: { id: string; userId: string; group: string }[] };
+
+  if (!membershipsStatus || !membershipsStatus.memberships) {
+    return [];
+  }
+
+  return membershipsStatus.memberships.map(({ group }) => group).filter(Boolean);
+};
+
+const getExtra = async (id: string, typem: string[], license: string, token: string) => {
+  let summaries: Awaited<ReturnType<typeof filter>>;
+  let subCollections: Awaited<ReturnType<typeof filter>>;
+  let members: Awaited<ReturnType<typeof filter>>;
 
   const conformsTo = configuration.ui.conformsTo;
 
@@ -39,54 +80,44 @@ const getExtra = async (id: string, typem: string[]) => {
 
   // Get the buckets to extract one value: File counts
   let fileCount: { doc_count: number } | undefined;
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const buckets: Array<any> = summaries?.aggregations?.['@type']?.buckets;
   if (buckets) {
     fileCount = buckets.find((obj) => obj.key === 'File');
   }
 
-  return {
+  const memberships = await getMemberships(token);
+
+  const access = memberships.includes(license);
+
+  console.log('🪚 memberships:', JSON.stringify(memberships, null, 2));
+
+  const extra = {
     subCollectionCount: subCollections?.total,
     objectCount: members?.total,
     fileCount: fileCount?.doc_count,
     accessControl: 'Public',
-    // @ts-ignore
+    access: {
+      // FIXME: How do we determine this
+      metadata: true,
+      files: access,
+    },
+    // @ts-expect-error
     communicationMode: summaries?.aggregations['communicationMode.name.@value'].buckets.map(({ key }) => key),
-    // @ts-ignore
+    // @ts-expect-error
     mediaType: summaries?.aggregations['encodingFormat.@value'].buckets.map(({ key }) => key),
-    // @ts-ignore
+    // @ts-expect-error
     language: summaries?.aggregations['inLanguage.name.@value'].buckets.map(({ key }) => key),
-  }
-};
-
-app.get('/ldaca/entities', async (req, res) => {
-  const queryString = URL.parse(`http://dummy${req.url}`)?.search || '';
-  const url = 'https://data.ldaca.edu.au/api/objects' + queryString;
-  const response = await fetch(url, { redirect: 'follow' });
-  if (!response.ok) {
-    const body = response.text();
-    res.status(response.status).send(body);
-
-    return;
-  }
-
-  // @ts-ignore
-  const { total, data } = await response.json();
-  console.log("🪚 data:", JSON.stringify(data[0], null, 2));
-
-  // @ts-ignore
-  const entities = await Promise.all(data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => ({
-    id: crateId,
-    ...rest,
-    extra: await getExtra(crateId, rest.recordType),
-  })));
-
-  const result = {
-    total,
-    entities,
   };
 
-  res.json(result);
-});
+  const enrollmenrUrl = LICENSES[license];
+  if (enrollmenrUrl) {
+    // @ts-expect-error
+    extra.access.enrollmentUrl = enrollmenrUrl;
+  }
+
+  return extra;
+};
 
 const synthesise = async (id: string) => {
   const body = await es.multi({
@@ -124,53 +155,139 @@ const synthesise = async (id: string) => {
   const rocrateRaw = await response2.text();
   const rocrate = JSON.parse(rocrateRaw);
 
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
   const parentId = metadata.about['@id'];
   metadata.about['@id'] = id;
 
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const parent = rocrate['@graph'].find((item: any) => item['@id'] === parentId);
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const child = rocrate['@graph'].find((item: any) => item['@id'] === id);
-  child['license'] = parent['license'];
-  child['memberOf'] = { '@id': parentId, name: parent['name'] };
+  child.license = parent.license;
+  child.memberOf = { '@id': parentId, name: parent.name };
 
   return [200, rocrate];
 };
 
-
-const getcrate = async (id: string, res: any) => {
+const getcrate = async (id: string) => {
   const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(id)}`;
   const response = await fetch(url);
 
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   let rocrate: any;
-  let status = response.status;
 
   if (response.status === 404) {
     const result = await synthesise(id);
-    status = result[0];
     rocrate = result[1];
   } else {
     rocrate = JSON.parse(await response.text());
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
+  // biome-ignore lint/suspicious/noExplicitAny: foo
   const object = rocrate['@graph'].find((item: any) => item['@id'] === metadata.about['@id']);
-  if (object.hasOwnProperty('hasPart')) {
+  if (Object.hasOwn(object, 'hasPart')) {
     for (const partId of object.hasPart) {
+      // biome-ignore lint/suspicious/noExplicitAny: foo
       const part = rocrate['@graph'].find((item: any) => item['@id'] === partId['@id']);
       const query = partId['@id'].split('?')[1];
       const searchParams = new URLSearchParams(query);
       part.filename = searchParams.get('path'); // ?.replace(/\//g, '_');
-      part['@id'] = searchParams.get('id') + '/' + searchParams.get('path');
+      part['@id'] = `${searchParams.get('id')}/${searchParams.get('path')}`;
       partId['@id'] = part['@id'];
     }
   }
 
-  res.status(status).send(rocrate);
-}
+  return rocrate;
+};
+
+app.get('/ldaca/entities', async (req, res) => {
+  const token = req.cookies['x-token'];
+
+  const queryString = URL.parse(`http://dummy${req.url}`)?.search || '';
+  const url = `https://data.ldaca.edu.au/api/objects${queryString}`;
+  const response = await fetch(url, { redirect: 'follow' });
+  if (!response.ok) {
+    const body = response.text();
+    res.status(response.status).send(body);
+
+    return;
+  }
+
+  const { total, data } = await response.json();
+  console.log('🪚 data:', JSON.stringify(data[0], null, 2));
+
+  const entities = await Promise.all(
+    // @ts-expect-error
+    data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => {
+      const roCrate = await getcrate(crateId);
+
+      const extra = await getExtra(crateId, rest.recordType, roCrate.license['@id'], token);
+
+      return {
+        id: crateId,
+        ...rest,
+        extra,
+      };
+    }),
+  );
+
+  const result = {
+    total,
+    entities,
+  };
+
+  res.json(result);
+});
+
+app.get('/ldaca/entity/:id', async (req, res) => {
+  const token = req.cookies['x-token'];
+
+  const url = `https://data.ldaca.edu.au/api/object?id=${encodeURIComponent(req.params.id)}`;
+  const response = await fetch(url, { redirect: 'follow' });
+
+  if (!response.ok) {
+    const body = response.text();
+    res.status(response.status).send(body);
+
+    return;
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: foo
+  const data = (await response.json()) as any;
+
+  // biome-ignore lint/correctness/noUnusedVariables: foo
+  const { id, crateId, license, objectRoot, locked, rootConformsTos, ...rest } = data;
+
+  if (rootConformsTos.length > 1) {
+    console.log('🪚 rootConformsTos:', JSON.stringify(rootConformsTos, null, 2));
+    throw new Error('Multiple conformsTo found in rootConformsTos');
+  }
+
+  const recordType = rootConformsTos[0].conformsTo.endsWith('Object')
+    ? ['Dataset', 'RepositoryObject']
+    : ['Dataset', 'RepositoryCollection'];
+
+  const result = {
+    id: crateId,
+    conformsTo: rootConformsTos[0].conformsTo,
+    recordType,
+    memberOf: 'Unknown',
+    root: 'Unknown',
+    extra: await getExtra(crateId, recordType, license, token),
+    ...rest,
+  };
+
+  return res.json(result);
+});
 
 app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
   if (req.params.path === 'ro-crate-metadata.json') {
-    return getcrate(req.params.id, res);
+    const rocrate = await getcrate(req.params.id);
+
+    return res.send(rocrate);
   }
 
   const idUrl = new URL(req.params.id);
@@ -186,44 +303,8 @@ app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
     return;
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   await pipeline(response.body, res);
-});
-
-app.get('/ldaca/entity/:id', async (req, res) => {
-  const url = `https://data.ldaca.edu.au/api/object?id=${encodeURIComponent(req.params.id)}`;
-  const response = await fetch(url, { redirect: 'follow' });
-
-  if (!response.ok) {
-    const body = response.text();
-    res.status(response.status).send(body);
-
-    return;
-  }
-
-  const data = await response.json() as any;
-  console.log("🪚 data:", JSON.stringify(data, null, 2))
-
-  const { id, crateId, license, objectRoot, locked, rootConformsTos, ...rest } = data;
-
-  if (rootConformsTos.length > 1) {
-    console.log("🪚 rootConformsTos:", JSON.stringify(rootConformsTos, null, 2))
-    throw new Error('Multiple conformsTo found in rootConformsTos');
-  }
-
-  const recordType = rootConformsTos[0].conformsTo.endsWith('Object') ? ['Dataset', 'RepositoryObject'] :  ['Dataset', 'RepositoryCollection'];
-
-  const result = {
-    id: crateId,
-    conformsTo: rootConformsTos[0].conformsTo,
-    recordType,
-    memberOf: 'Unknown',
-    root: 'Unknown',
-    extra: await getExtra(crateId, recordType),
-    ...rest,
-  };
-
-  res.json(result);
 });
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
@@ -266,7 +347,7 @@ app.post('/ldaca/oauth/:provider/code', async (req, res) => {
 
     res.status(response.status);
 
-    // @ts-ignore
+    // @ts-expect-error
     await pipeline(response.body, res);
   });
 });
@@ -302,7 +383,7 @@ type GetSearchResponse = {
 };
 
 const aggMap: Record<string, string> = {
-  '_geohash': 'geohash',
+  _geohash: 'geohash',
   '_memberOf.name.@value': 'memberOf',
   '_root.name.@value': 'root',
   '_mainCollection.name.@value': 'mainCollection',
@@ -350,8 +431,9 @@ const filter = async (filters: Record<string, string[]>) => {
   }
 };
 
-
 app.post('/ldaca/search', async (req, res) => {
+  const token = req.cookies['x-token'];
+
   let data = '';
   req.setEncoding('utf8');
   req.on('data', (chunk) => {
@@ -360,6 +442,7 @@ app.post('/ldaca/search', async (req, res) => {
 
   req.on('end', async () => {
     const params = JSON.parse(data);
+    // biome-ignore lint/suspicious/noExplicitAny: foo
     let body: any;
 
     if (params.boundingBox) {
@@ -395,10 +478,11 @@ app.post('/ldaca/search', async (req, res) => {
       result.hits.hits.map(async (hit: any) => {
         const id = hit._source['@id'];
         const typem = hit._source?.['@type'];
-        console.log("🪚 🔲");
-        console.log("🪚 typem:", JSON.stringify(typem, null, 2))
+        console.log('🪚 🔲');
+        console.log('🪚 typem:', JSON.stringify(typem, null, 2));
 
-        const extra = await getExtra(id, typem);
+        const roCrate = await getcrate(id);
+        const extra = await getExtra(id, typem, roCrate.license, token);
 
         return {
           id: hit._source['@id'],
@@ -421,10 +505,12 @@ app.post('/ldaca/search', async (req, res) => {
 
     const facets: Record<string, { name: string; count: number }[]> = {};
 
-    const geohashGrid: Record<string, number> = {}
-    result.aggregations['_geohash']?.buckets.forEach((bucket: Record<string, number>) => geohashGrid[bucket.key] = bucket.doc_count);
+    const geohashGrid: Record<string, number> = {};
+    result.aggregations._geohash?.buckets.forEach((bucket: Record<string, number>) => {
+      geohashGrid[bucket.key] = bucket.doc_count;
+    });
 
-    delete result.aggregations['_geohash'];
+    delete result.aggregations._geohash;
 
     for (const key in result.aggregations) {
       const values = result.aggregations[key].buckets.map((bucket: { key: string; doc_count: number }) => ({
@@ -471,83 +557,40 @@ app.post('/api/search/index/items', async (req, res) => {
   });
 });
 
-const base_url = 'https://data.ldaca.edu.au';
-
 app.get('/.well-known/openid-configuration', async (_req, res) => {
   const body = {
-    "issuer": "http://localhost:5173",
-    "authorization_endpoint": "http://localhost:5173/ldaca/oauth/authorize",
-    "token_endpoint": "http://localhost:5173/ldaca/oauth/token",
+    issuer: 'http://localhost:5173',
+    authorization_endpoint: 'http://localhost:5173/ldaca/oauth/authorize',
+    token_endpoint: 'http://localhost:5173/ldaca/oauth/token',
+    userinfo_endpoint: 'http://localhost:5173/ldaca/oauth/userinfo',
     // "revocation_endpoint": "https://data.ldaca.edu.au/oauth/revoke",
     // "introspection_endpoint": "https://data.ldaca.edu.au/oauth/introspect",
-    // "userinfo_endpoint": "https://data.ldaca.edu.au/oauth/userinfo",
     // "jwks_uri": "https://data.ldaca.edu.au/oauth/discovery/keys",
-    "scopes_supported": [
-      "public",
-      "profile",
-      "openid",
-      "email"
-    ],
-    "response_types_supported": [
-      "code",
-      "token",
-      "id_token",
-      "id_token token"
-    ],
-    "response_modes_supported": [
-      "query",
-      "fragment",
-      "form_post"
-    ],
-    "grant_types_supported": [
-      "authorization_code",
-      "client_credentials",
-      "implicit_oidc"
-    ],
-    "token_endpoint_auth_methods_supported": [
-      "client_secret_basic",
-      "client_secret_post"
-    ],
-    "subject_types_supported": [
-      "public"
-    ],
-    "id_token_signing_alg_values_supported": [
-      "RS256"
-    ],
-    "claim_types_supported": [
-      "normal"
-    ],
-    "claims_supported": [
-      "iss",
-      "sub",
-      "aud",
-      "exp",
-      "iat",
-      "email",
-      "given_name",
-      "family_name",
-      "name"
-    ],
-    "code_challenge_methods_supported": [
-      "plain",
-      "S256"
-    ]
+    scopes_supported: ['public', 'profile', 'openid', 'email'],
+    response_types_supported: ['code', 'token', 'id_token', 'id_token token'],
+    response_modes_supported: ['query', 'fragment', 'form_post'],
+    grant_types_supported: ['authorization_code', 'client_credentials', 'implicit_oidc'],
+    token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
+    subject_types_supported: ['public'],
+    id_token_signing_alg_values_supported: ['RS256'],
+    claim_types_supported: ['normal'],
+    claims_supported: ['iss', 'sub', 'aud', 'exp', 'iat', 'email', 'given_name', 'family_name', 'name'],
+    code_challenge_methods_supported: ['plain', 'S256'],
   };
 
   res.status(200).send(body);
 });
 
-
 app.get('/ldaca/oauth/authorize', async (req, res) => {
-   console.log("🪚 ⭐", req.query);
+  console.log('🪚 ⭐', req.query);
 
   const qs = new URLSearchParams(req.query as Record<string, string>).toString();
   const { state } = req.query;
-  console.log("🪚 qs:", qs);
+  console.log('🪚 qs:', qs);
 
   const response = await fetch(`${base_url}/api/oauth/cilogon/login?${qs}`);
 
-  const { url, code_verifier } = await response.json() as { url: string, code_verifier: string };
+  const { url, code_verifier } = (await response.json()) as { url: string; code_verifier: string };
 
   res.cookie('x-code-verifier', code_verifier, { httpOnly: true });
   res.cookie('x-state', state, { httpOnly: true });
@@ -566,30 +609,24 @@ app.get('/ldaca/oauth/intercept', async (req, res) => {
     body: JSON.stringify({ code, state: 'cilogon', code_verifier }),
   });
 
-  const { token } = await response.json() as { token: string };
+  const { token } = (await response.json()) as { token: string };
 
   res.cookie('x-token', token, { httpOnly: true });
 
   res.redirect(301, `http://localhost:5173/auth/callback?code=moo&state=${state}`);
 });
 
-
 app.post('/ldaca/oauth/token', async (req, res) => {
-  console.log("🪚 🟩");
   const access_token = req.cookies['x-token'];
 
-  console.log("🪚 ⭕");
   const response = await fetch(`${base_url}/api/user`, {
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   });
 
-  console.log("🪚 💜");
-  const user = (await response.json() as { user: Record<string, string> }).user;
-  console.log(user);
+  const user = ((await response.json()) as { user: Record<string, string> }).user;
 
-  console.log("🪚 🔲");
   const claims = {
     iss: 'http://localhost:5173',
     sub: user.id,
@@ -599,29 +636,26 @@ app.post('/ldaca/oauth/token', async (req, res) => {
     email_verified: true,
     name: user.name,
   };
-  console.log("🪚 claims:", JSON.stringify(claims, null, 2))
 
-  console.log("🪚 🔵"); 
   const { privateKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
     publicKeyEncoding: {
       type: 'spki',
-      format: 'pem'
+      format: 'pem',
     },
     privateKeyEncoding: {
       type: 'pkcs8',
-      format: 'pem'
-    }
+      format: 'pem',
+    },
   });
 
   const payload = {
     ...claims,
-    auth_time: Math.floor(Date.now() / 1000)
+    auth_time: Math.floor(Date.now() / 1000),
   };
 
   // JWT sign options
   const signOptions: jwt.SignOptions = {
-
     algorithm: 'RS256',
     expiresIn: '365d',
     issuer: claims.iss,
@@ -630,19 +664,18 @@ app.post('/ldaca/oauth/token', async (req, res) => {
     header: {
       typ: 'JWT',
       alg: 'RS256',
-    }
+    },
   };
-  console.log("🪚 signOptions:", JSON.stringify(signOptions, null, 2))
 
-  const { iss, aud, sub, ...payloadWithoutDuplicates } = payload;
+  const { iss: _iss, aud: _aud, sub: _sub, ...payloadWithoutDuplicates } = payload;
 
   const id_token = jwt.sign(payloadWithoutDuplicates, privateKey, signOptions);
 
   const data = {
     access_token,
-    token_type: "Bearer",
+    token_type: 'Bearer',
     expires_in: 720000,
-    scope: "public openid profile email",
+    scope: 'public openid profile email',
     created_at: 1754443546,
     id_token,
   };

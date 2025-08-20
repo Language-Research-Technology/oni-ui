@@ -2,8 +2,6 @@
 
 ## How to Run
 
-Pre: To run this first you need an [OCFL repository](https://ocfl.io) following <https://rrkive.org>
-
 Current guide applies to Mac and Linux:
 
 1. Verify your docker-compose.yml points to the right ocfl repository

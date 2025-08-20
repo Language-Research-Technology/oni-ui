@@ -1,5 +1,23 @@
 # TODO
 
-Somethings to come back and do later
+## Improvements
 
 * Use a query state library in search.ts instead of managing this manually
+
+## Other
+
+* Reconcile the sample config file
+* Dump ui and api from configuration nad make all the ui stuff top level
+* Have login just redirect don't have a login page
+* Make RecordType a scalar
+
+## Files
+
+* src/components/FileResolve.vue
+
+## Things to being back
+
+* Downloads
+* Meta tags
+* Bring bag google tag manager
+* Terms and Conditions

@@ -16,9 +16,11 @@ const takedownLink = `${takedownForm}${currentUrl}`;
     <h4 class="text-1xl font-medium">
       If you see an item on this page that you think should not be made public, you can request that it be taken
       down:
-      <el-link underline="always" type="primary" :href="takedownLink" target="_blank" class="mx-1">
-        Takedown Request Form
-      </el-link>
+      <span style="display: inline-flex; align-items: center;">
+        <el-link underline="always" type="primary" :href="takedownLink" target="_blank" class="mx-1">
+          Takedown Request Form
+        </el-link>
+      </span>
     </h4>
   </el-card>
 </template>

@@ -7,10 +7,11 @@ export const useAuthStore = defineStore(
   'auth',
   () => {
     const isLoggedIn = ref(false);
+    const loginTermsUrl = ref<string>();
     const lastRoute = ref<string>();
     const user = ref<OniUser>();
 
-    return { isLoggedIn, user, lastRoute };
+    return { isLoggedIn, loginTermsUrl, user, lastRoute };
   },
   { persist: true },
 );

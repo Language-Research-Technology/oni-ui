@@ -1,3 +1,5 @@
+import '@/assets/main.css';
+
 import ElementPlus from 'element-plus';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
@@ -18,8 +20,6 @@ import { configuration } from '@/configuration';
 import router from '@/router';
 
 import { ApiService } from '@/services/api';
-
-import '@/assets/main.css';
 
 library.add(fas, far, fab);
 

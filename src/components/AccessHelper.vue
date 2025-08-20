@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUpdated, ref } from 'vue';
+import { inject } from 'vue';
 
-import EnrollmentCard from '@/components/cards/EnrollmentCard.vue';
+import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const { access, license } = defineProps<{
-  access: { hasAccess: boolean; group?: string };
-  license: { '@id': string; name?: string };
+  access: NonNullable<EntityType['extra']['access']>;
+  license: NonNullable<RoCrate['license']>;
 }>();
 
 import { configuration } from '@/configuration';
@@ -13,118 +13,72 @@ import { useAuthStore } from '@/stores/auth';
 
 const { isLoggedIn, user } = useAuthStore();
 
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('api is not provided');
+}
+
 const {
   login: { enabled: isLoginEnabled },
-  licenses,
 } = configuration.ui;
 
-const isLoading = ref(false);
-const errorMessage = ref('');
-const noEnrollment = ref(false);
-const enrollment = ref<{ url: string; label: string; class: string }>();
-
-const getEnrollment = () => {
-  if (licenses.length === 0) {
-    errorMessage.value = 'No licenses configured';
-  }
-
-  const license = licenses.find((l) => {
-    if (l.group === access.group) {
-      return l.enrollment;
-    }
-  });
-
-  // @ts-expect-error Need to fix types
-  enrollment.value = license?.enrollment;
-};
-
-// const refreshAuthorization = () => {
-//   const membershipsStatus = await this.$membership.set();
-//   if (!membershipsStatus.error) {
-//     //await this.$router.push(this.$route.fullPath);
-//     window.location.reload();
-//   }
-// };
-
-const doWork = async () => {
-  isLoading.value = true;
-
-  // await checkUserMemberships(false);
-  getEnrollment();
-
-  isLoading.value = false;
-};
-onUpdated(doWork);
-
-onMounted(doWork);
+if (!license) {
+  console.warn('🪚 WHY: No license');
+}
 </script>
 
-<template v-loading="loading">
-  <template v-if="access['hasAccess'] && access['group']">
+<template>
+  <template v-if="access.files">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
-      <div class="pr-3">
+      <p>
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
-      </div>
-      <div>
-        <p>Access to <a :href="license['@id']" class="font-bold">{{
-          license['name'] || license['@id']
-            }}</a> granted
-          to {{ user?.['name'] || user?.['email'] }}
-        </p>
-      </div>
+        Access to
+        <a :href="license['@id']" class="font-bold">
+          {{ license['name'] || license['@id'] }}
+        </a>
+        granted to
+        {{ user?.['name'] || user?.['email'] }}
+      </p>
     </el-row>
   </template>
 
-  <template v-else-if="!access['hasAccess']">
+  <template v-else>
     <el-row class="px-5 py-6 bg-red-200 text-red-700">
-      <el-row>
-        <p class="items-center">
-          <font-awesome-icon icon="fa-solid fa-5x fa-lock" />&nbsp;You do not have
-          permission to see these files.&nbsp;
+      <el-row body-class="flex gap-4">
+        <p>
+          <font-awesome-icon icon="fa-solid fa-5x fa-lock" />
+          Request access or login for this item.
         </p>
       </el-row>
 
-      <el-row v-if="errorMessage">
-        <p class="items-center">
-          {{ errorMessage }}
-        </p>
-      </el-row>
+      <template v-if="isLoggedIn">
+        <el-row>
+          <p class="items-center">
+            You are logged in and can apply for permission to view these files
+          </p>
+        </el-row>
 
-      <template v-if="isLoggedIn" v-loading="isLoading">
-        <EnrollmentCard v-if="noEnrollment" />
+        <template v-if="access.enrollmentUrl">
+          <el-row class="mt-4">
+            <el-link underline="always" :href="access.enrollmentUrl" target="_blank">
+              Apply for access <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
+            </el-link>
+          </el-row>
+        </template>
 
         <template v-else>
           <el-row>
-            <p class="items-center">You are logged in and you can apply for
-              permission to view these files</p>
-          </el-row>
-
-          <el-row v-if="enrollment?.url">
-            <el-link underline="always" :href="enrollment.url" target="_blank" class="mx-1"
-              title="Will open in a new tab">
-              {{ enrollment.label }}&nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
-            </el-link>
-            <EnrollmentCard v-if="noEnrollment" />
-          </el-row>
-
-          <el-row v-if="enrollment?.url">
-            or
-            <!-- <el-link underline="always" type='default' @click="refreshAuthorization()" class="mx-1"> -->
-            refresh permissions
-            <!-- </el-link> -->
-            <EnrollmentCard v-if="noEnrollment" />
-          </el-row>
-
-          <el-row v-else>
-            <p class="items-center">No access control url has been configured,
-              please contact the administrator</p>
+            <p class="items-center">
+              No access control URL has been configured, please contact the administrator.
+            </p>
           </el-row>
         </template>
       </template>
 
-      <template v-if="!isLoggedIn">
-        <router-link class="underline" v-if="isLoginEnabled" to="/login">Sign up or
-          Login</router-link>
+      <template v-else>
+        <router-link class="underline mt-2" v-if="isLoginEnabled" to="/login">
+          Sign Up or Log In
+        </router-link>
       </template>
     </el-row>
   </template>

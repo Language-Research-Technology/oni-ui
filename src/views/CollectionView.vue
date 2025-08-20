@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
+import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
+import CitationCard from '@/components/cards/CitationCard.vue';
+import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
@@ -40,18 +42,18 @@ const findObjectByRelationship = config.relationships;
 let name: string;
 let nameDisplay: string;
 const tops: { name: string; value: string; display?: string }[] = [];
-const meta: { name: string; data: Record<string, string> }[] = [];
+const meta: { name: string; data: RoCrate[keyof RoCrate] }[] = [];
 
-const populateName = (md: Record<string, object>) => {
-  name = md[config.name.name] as unknown as string;
-  nameDisplay = md[config.name.display] as unknown as string;
+const populateName = (md: RoCrate) => {
+  name = md[config.name.name as keyof RoCrate] as string;
+  nameDisplay = md[config.name.display as keyof RoCrate] as string;
 };
 
 // TODO: Remove the duplication in the populate functions
-const populateTop = (md: Record<string, string>) => {
+const populateTop = (md: RoCrate) => {
   const { top } = config;
   for (const field of top) {
-    const value = md[field.name] || 'Not Defined';
+    const value = (md[field.name as keyof RoCrate] as string) || 'Not Defined';
     tops.push({
       name: field.name,
       display: field.display,
@@ -60,8 +62,8 @@ const populateTop = (md: Record<string, string>) => {
   }
 };
 
-const populateMeta = (md: Record<string, Record<string, string>>) => {
-  const keys = Object.keys(md);
+const populateMeta = (md: RoCrate) => {
+  const keys = Object.keys(md) as (keyof RoCrate)[];
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
     meta.push({ name: filter, data: md[filter] });
@@ -69,11 +71,9 @@ const populateMeta = (md: Record<string, Record<string, string>>) => {
   meta.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-const populate = (md: Record<string, object>) => {
+const populate = (md: RoCrate) => {
   populateName(md);
-  // @ts-expect-error This type is complicated ignore for now
   populateTop(md);
-  // @ts-expect-error This type is complicated ignore for now
   populateMeta(md);
 };
 
@@ -112,27 +112,35 @@ const fetchData = async () => {
     metadata.value = rawMeatadata;
     entity.value = rawEntity;
 
+    console.log(rawMeatadata);
     populate(rawMeatadata);
   } catch (e) {
     console.error(e);
   }
+
+  document.dispatchEvent(
+    new Event('ZoteroItemUpdated', {
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
 };
 
 onMounted(fetchData);
 </script>
 
 <template>
-  <div class="px-10 pt-10 pb-7 bg-white z-10">
+  <div v-if="metadata && entity" class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
-        <MemberOfLink v-if="metadata?.['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
+        <MemberOfLink v-if="metadata['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
         {{ name }}
       </h5>
     </el-row>
     <hr class="divider divider-gray pt-2" />
   </div>
 
-  <el-row :justify="'center'" v-if="metadata" class="m-5 pt2 px-10 pb-7">
+  <el-row :justify="'center'" v-if="metadata && entity" class="m-5 pt2 px-10 pb-7">
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
       <!-- @ts-expect-error Need types on config -->
       <MetaTopCard :tops="tops" :className="'px-5 py-2'" />
@@ -159,16 +167,12 @@ onMounted(fetchData);
 
     <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8">
       <el-row v-if="metadata.license" :gutter="20" class="pb-5">
-        <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+        <el-col class="overflow-visible!">
+          <el-card class="mx-10 !overflow-visible">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2" />
-            <h4 class="text-1xl font-medium">
-              Content in this collection is licensed as:
-            </h4>
-            <ul class="list-disc my-2 mx-3 pl-2">
-              <li> {{ metadata.license.name }} </li>
-            </ul>
+            <AccessHelper v-if="entity.extra.access" :access="entity.extra.access" :license="metadata.license" />
+            <LicenseCard v-if="metadata.license" :license="metadata.license" />
           </el-card>
         </el-col>
       </el-row>
@@ -182,7 +186,7 @@ onMounted(fetchData);
 
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="grid mx-10 p-5">
+          <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Content</h5>
             <hr class="divider divider-gray pt-2" />
             <SummariesCard :entity="entity" />
@@ -192,7 +196,7 @@ onMounted(fetchData);
 
       <el-row :gutter="20" class="pb-5">
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+          <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="id" />
@@ -211,10 +215,16 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
+      <el-row :gutter="20" class="pb-5" v-if="metadata">
+        <el-col>
+          <CitationCard :metadata="metadata" />
+        </el-col>
+      </el-row>
+
       <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship">
 
         <el-col>
-          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+          <el-card class="mx-10">
             <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5>
             <hr class="divider divider-gray pt-2" />
             <SimpleRelationshipCard :id="id" :objectType="relationship.type" :objectName="relationship.name" />

@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   oni-ui:
     image: ghcr.io/nabu/oni-ui:latest

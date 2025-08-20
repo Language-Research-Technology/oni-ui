@@ -4,9 +4,11 @@ import { useRoute, useRouter } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
+import CitationCard from '@/components/cards/CitationCard.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
+import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
@@ -14,7 +16,6 @@ import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { configuration } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
-import { initSnip } from '../tools';
 
 const { object: config, conformsTo } = configuration.ui;
 
@@ -30,16 +31,11 @@ const name = ref('');
 const nameDisplay = ref('');
 const tops = ref<{ name: string; value: string }[]>([]);
 const meta = ref<{ name: string; data: string }[]>([]);
-const license = ref<{ '@id': string; description: string }>({
-  '@id': 'unknown',
-  description: 'No license was provided',
-});
-const licenseText = ref('No license was provided');
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
-const access = ref<{ hasAccess: boolean; group?: string }>({ hasAccess: false });
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
+const entity = ref<EntityType | undefined>();
 
 const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);
@@ -67,17 +63,6 @@ const populateMeta = (md: Record<string, string>) => {
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-const populateLicense = (md: { license?: { '@id': string; description: string } }) => {
-  license.value = md.license || license.value;
-  if (!md.license?.['@id']) {
-    console.log('show alert! no license no!no!');
-
-    return;
-  }
-
-  licenseText.value = md.license.description;
-};
-
 const populateParts = (md: {
   hasPart:
     | { '@id': string; name: string; encodingFormat: string | string[] }[]
@@ -100,16 +85,7 @@ const populateParts = (md: {
   }
 };
 
-const populateAccess = () => {
-  // FIXME: TODO where is this going to come from
-  // access.value = md._access;
-  access.value = { hasAccess: true };
-};
-
 const populate = (md: RoCrate) => {
-  populateAccess();
-  // @ts-expect-error FIX types later
-  populateLicense(md);
   // @ts-expect-error FIX types later
   populateName(md);
   // @ts-expect-error FIX types later
@@ -136,7 +112,7 @@ const fetchdata = async () => {
 
   isLoading.value = true;
 
-  const { metadata: md } = await api.getRoCrate(id);
+  const { entity: e, metadata: md } = await api.getEntity(id);
   if (!md) {
     router.push({
       name: 'NotFound',
@@ -149,6 +125,7 @@ const fetchdata = async () => {
   }
 
   metadata.value = md;
+  entity.value = e;
   populate(md);
 
   isLoading.value = false;
@@ -161,8 +138,6 @@ const fetchdata = async () => {
       })
     )?.entities;
   }
-
-  initSnip({ selector: '#license', button: '#readMoreLicense' });
 };
 
 const isPartActive = (id: string, index: number) => {
@@ -207,7 +182,8 @@ fetchdata();
 
   <el-row :justify="'center'" v-if="metadata" class="m-5 px-10" v-loading="isLoading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
-      <AccessHelper v-if="access && license" :access="access" :license="license" />
+      <AccessHelper v-if="entity?.extra.access && metadata.license" :access="entity.extra.access"
+        :license="metadata.license" />
 
       <div class="px-5 pb-5">
         <MetaTopCard :tops="tops" :className="'py-5'" />
@@ -221,12 +197,39 @@ fetchdata();
 
     <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
       <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
-        <el-col v-if="license?.['@id']">
+        <el-col v-if="metadata.license">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2" />
-            <LicenseCard v-if="license?.['@id']" :license="license" />
+            <LicenseCard :license="metadata.license" />
           </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
+            <hr class="divider divider-gray pt-2" />
+            <RetrieveDataMetadata :id="route.query.id?.toString() || 'FIXME'" />
+            <template v-if="metadata.metadataLicense">
+              <hr class="divider divider-gray mt-4 pb-2" />
+              <h4 class="text-1xl font-medium">
+                Metadata licensed as:
+                <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
+                  class="mx-1">
+                  {{ metadata.metadataLicense.name || metadata.metadataLicense.id }}
+                </el-link>
+              </h4>
+            </template>
+            │
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5" v-if="metadata">
+        <el-col>
+          <CitationCard :metadata="metadata" />
         </el-col>
       </el-row>
 
@@ -275,13 +278,13 @@ fetchdata();
       </el-col>
     </el-row>
 
-    <el-row class="m-5 pl-10 pr-12 pb-7">
+    <el-row v-if="entity && metadata" class="m-5 pl-10 pr-12 pb-7">
       <el-col>
         <ul>
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
             <ObjectPart :parentId="route.query.id?.toString() || ''" :part="part"
-              :active="isPartActive(part['@id'], index)" :license="license" :access="access" />
+              :active="isPartActive(part['@id'], index)" :license="metadata.license" :access="entity.extra.access" />
           </li>
         </ul>
       </el-col>

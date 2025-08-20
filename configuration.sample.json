@@ -31,6 +31,11 @@
     "binderhubRegistry": {
       "registryJson": "https://api.github.com/repos/Language-Research-Technology/BinderHub-registry/contents/BinderHub-registry.json"
     },
+    "citeData": {
+      "help": {
+        "text": "See this <span style=\"display: inline-flex; align-items: center;\"><a class=\"el-link el-link--primary\" target=\"_blank\" href=\"https://www.ldaca.edu.au/resources/user-guides/portal/cite-data/\">help</a></span> page for more detail."
+      }
+    },
     "terms": {
       "text": "Example terms of service",
       "href": "/terms",
@@ -52,7 +57,8 @@
       }
     },
     "login": {
-      "enabled": true
+      "enabled": true,
+      "manageTermsAndConditions": false
     },
     "authorizationProvider": {
       "label": "REMS",
@@ -74,10 +80,6 @@
         "buttonStyle": "background: rgba(76 60 185)"
       }
     ],
-    "enrollment": {
-      "enforced": false,
-      "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
-    },
     "topNavItems": [
       {
         "route": "list?conformsTo=https%3A%2F%2Fpurl.archive.org%2Flanguage-data-commons%2Fprofile%23Collection",
@@ -378,11 +380,6 @@
       "services": {},
       "authorization": {
         "provider": "rems",
-        "enrollment": {
-          "enforced": false,
-          "groups": ["CO:Members:all"],
-          "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
-        },
         "rems": {
           "apiUser": "XXX",
           "apiKey": "XXX",
@@ -433,18 +430,12 @@
         {
           "license": "#agreeToTerms",
           "group": "agree-to-terms",
-          "access": "login",
-          "enrollment": {
-            "url": "https://rems-uat.example.com/application?items=999",
-            "label": "Apply for access",
-            "class": ""
-          }
+          "access": "login"
         },
         {
           "license": "#restricted",
           "group": "restricted-users",
-          "access": "loginPlus",
-          "enrollment": {}
+          "access": "loginPlus"
         }
       ],
       "licenseGroup": "text-commons",

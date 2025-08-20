@@ -1,48 +1,24 @@
 <script setup lang="ts">
-import { onUpdated, ref } from 'vue';
+import Truncate from '@/components/Truncate.vue';
 
-import { initSnip, toggleSnip } from '@/tools';
+import type { RoCrate } from '@/services/api';
 
 const { license } = defineProps<{
-  license: { '@id': string; name?: string; description: string; metadataIsPublic?: boolean; allowTextIndex?: boolean };
+  license: NonNullable<RoCrate['license']>;
 }>();
-
-const licenseSnipped = ref(false);
-
-const doSnip = (selector: string) => {
-  toggleSnip(selector);
-  licenseSnipped.value = true;
-};
-
-onUpdated(() => {
-  if (!licenseSnipped.value) {
-    initSnip({ selector: '#license', button: '#readMoreLicense' });
-  }
-});
 </script>
 
 <template>
-  <p class="whitespace-pre-wrap" id="license">{{ license.description }}</p>
+  <Truncate v-if="license.description" :text="license.description" :lines="2" />
 
-  <span id="readMoreLicense">
-    <el-button v-if="!licenseSnipped" class="justify-self-center mt-2" @click="doSnip('#license')">
-      Read more
-    </el-button>
-  </span>
+  <div class="flex flex-col gap-8 p-4 items-center">
+    <a class="underline" :href="license['@id']" target="_blank">
+      {{ license.name }}
+    </a>
 
-  <div class="grid p-4">
-    <span class="justify-self-center">
-      <a class="underline" :href="license['@id']">
-        {{ license.name }}</a>
-    </span>
-  </div>
-
-  <div class="grid p-4">
-    <div class="justify-self-center">
+    <p>
       {{ license.metadataIsPublic === false ? 'Private Metadata' : 'Public Metadata' }} and
       {{ license.allowTextIndex === false ? 'Cannot Search in Text' : 'Text is Searchable' }}
-    </div>
+    </p>
   </div>
-
-  <div class="bottom justify-self-center"></div>
 </template>

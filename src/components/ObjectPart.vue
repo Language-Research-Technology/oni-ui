@@ -3,12 +3,13 @@ import { ref } from 'vue';
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
 import { configuration } from '@/configuration';
+import type { EntityType, RoCrate } from '@/services/api';
 
 const { part, active, access, license, parentId } = defineProps<{
   part: { '@id': string; name: string; encodingFormat: string[] } & Record<string, string>;
   active: boolean;
-  access: { hasAccess: boolean };
-  license: { '@id': string; description: string };
+  access: EntityType['extra']['access'];
+  license: RoCrate['license'];
   parentId: string;
 }>();
 
@@ -47,7 +48,7 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
       </el-col>
     </el-row>
 
-    <el-row class="p-7" v-show="resolve">
+    <el-row :gutter="20" class="p-7" v-show="resolve">
       <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
         <ul>
           <li v-for="m of meta">
@@ -59,7 +60,7 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
       <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
         <FileResolve class="flex justify-center" :id="id" :parentId="parentId" :filename="part.filename"
           :resolve="resolve" :encodingFormat="part.encodingFormat" :isPreview="true" :access="access"
-          :license="license" />
+          :contentSize="part.contentSize" :license="license" />
       </el-col>
     </el-row>
 

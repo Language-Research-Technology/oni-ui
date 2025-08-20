@@ -45,6 +45,11 @@ export type EntityType = {
     communicationMode: 'Song' | 'Spoken';
     language: Array<string>;
     mediaType: Array<string>;
+    access?: {
+      metadata: boolean;
+      files: boolean;
+      enrollmentUrl?: string;
+    };
   };
   searchExtra?: { score: number; highlight: string[] };
 };
@@ -62,18 +67,38 @@ export type GetSearchResponse = {
   geohashGrid: Record<string, number>;
 };
 
+type ROCratePerson = {
+  '@type': 'Person';
+  description?: string;
+  name: string;
+};
 export type RoCrate = {
+  '@id': string;
+  '@type': ['DataSet', 'RepositoryObject' | 'RepositoryCollection'];
+  name: string;
+  // TODO: Check this
+  creditText: string | string[];
+  datePublished: string;
+  doi?: string;
   'pcdm:memberOf'?: {
     '@id': string;
     name?: string;
   };
   license?: {
+    '@id': string;
+    '@type': string;
     name: string;
+    description?: string;
+    'ldac:access': string;
+    metadataIsPublic?: boolean;
+    allowTextIndex?: boolean;
   };
   metadataLicense?: {
     id: string;
     name: string;
   };
+  author?: ROCratePerson | ROCratePerson[];
+  creator?: ROCratePerson | ROCratePerson[];
 };
 
 export class ApiService {

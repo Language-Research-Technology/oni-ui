@@ -3,7 +3,6 @@
 import esb from 'elastic-builder';
 
 import configuration from '../src/configuration.json';
-import { HTTPService } from './http';
 
 type MultiProps = {
   multi?: string;
@@ -18,7 +17,7 @@ type MultiProps = {
 };
 
 const aggMap = {
-  '_geohash': 'geohash',
+  _geohash: 'geohash',
   '_memberOf.name.@value': 'memberOf',
   '_root.name.@value': 'root',
   '_mainCollection.name.@value': 'mainCollection',
@@ -44,16 +43,12 @@ const aggMap = {
 const aggMapReverse = Object.fromEntries(Object.entries(aggMap).map(([key, value]) => [value, key]));
 
 export class ElasticService {
-  #searchRoute: string;
-  #indexRoute: string;
   #aggs: object;
   #highlightFields: object;
   #highlightConfig: object;
   #fields: object;
 
   constructor() {
-    this.#searchRoute = '/search/index';
-    this.#indexRoute = '/items';
     this.#aggs = this.prepareAggregations(configuration.ui.aggregations);
     this.#highlightFields = ['_text'];
     this.#highlightConfig = { max_analyzer_offset: 1000000 };
@@ -69,7 +64,7 @@ export class ElasticService {
     return a;
   }
 
-  async multi<T>({ multi, searchType, filters, sort, order, operation, pageSize, searchFrom }: MultiProps) {
+  async multi({ multi, searchType, filters, sort, order, operation, pageSize, searchFrom }: MultiProps) {
     const searchFields = this.#fields;
     let sorting: object;
     if (sort === 'relevance') {
@@ -118,13 +113,7 @@ export class ElasticService {
     return body;
   }
 
-  async map({
-    boundingBox,
-    precision = 5,
-    multi,
-    filters,
-    searchFrom,
-  }) {
+  async map({ boundingBox, precision = 5, multi, filters, searchFrom }) {
     const searchFields = this.#fields;
     const geoAggs = esb.geoHashGridAggregation('_geohash', '_centroid').precision(precision);
 
@@ -171,7 +160,6 @@ export class ElasticService {
 
     return body;
   }
-
 
   boolQuery({ searchQuery, fields = {}, filters, operation }) {
     const filterTerms = this.termsQuery(filters);
@@ -229,7 +217,6 @@ export class ElasticService {
     const boolQuery = esb.boolQuery();
 
     let convertedQueryString = queryString;
-    // biome-ignore lint/complexity/noForEach: moo
     Object.entries(aggMapReverse).forEach(([key, value]) => {
       convertedQueryString = convertedQueryString.replace(new RegExp(key, 'g'), value);
     });
@@ -250,6 +237,7 @@ export class ElasticService {
         if (filters[bucket].length > 0 || (filters[bucket]?.v && filters[bucket].v.length > 0)) {
           //TODO: send the type of field in the filters
           let field = '';
+          // biome-ignore lint/suspicious/noImplicitAnyLet: moo
           let type;
           if (!filters[bucket]?.t) {
             if (bucket === '@id') {

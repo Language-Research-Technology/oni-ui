@@ -2,61 +2,61 @@ import { z } from 'zod/v4';
 
 import configurationJSON from './configuration.json';
 
-const helpSchema = z.object({
+const helpSchema = z.strictObject({
   aboutText: z.string(),
   helpUrl: z.url(),
   citationText: z.string(),
 });
 
-const subHelpLinkSchema = z.object({
+const subHelpLinkSchema = z.strictObject({
   name: z.string(),
   href: z.url(),
   target: z.string(),
 });
 
-const googleFormSchema = z.object({
+const googleFormSchema = z.strictObject({
   takedown: z.url(),
 });
 
-// const binderhubRegistrySchema = z.object({
+// const binderhubRegistrySchema = z.strictObject({
 //   registryJson: z.string().url(),
 // });
 
-const termsAndPrivacySchema = z.object({
+const termsAndPrivacySchema = z.strictObject({
   text: z.string(),
   href: z.string(),
   title: z.string(),
 });
 
-// const emailSchema = z.object({
+// const emailSchema = z.strictObject({
 //   help: z.string().email(),
 // });
 
-const footerSchema = z.object({
+const footerSchema = z.strictObject({
   copyright: z.string(),
-  link: z.object({
+  link: z.strictObject({
     href: z.url(),
     text: z.string(),
   }),
 });
 
-const topNavItemSchema = z.object({
+const topNavItemSchema = z.strictObject({
   route: z.string(),
   display: z.string(),
 });
 
-const valueLabelSchema = z.object({
+const valueLabelSchema = z.strictObject({
   value: z.string(),
   label: z.string(),
 });
 
-const fieldLabelSchema = z.object({
+const fieldLabelSchema = z.strictObject({
   field: z.string(),
   label: z.string(),
 });
 
 const searchSchema = z
-  .object({
+  .strictObject({
     sorting: z.array(valueLabelSchema),
     searchSorting: valueLabelSchema,
     ordering: z.array(valueLabelSchema),
@@ -64,27 +64,27 @@ const searchSchema = z
   })
   .optional();
 
-// const mainFieldSchema = z.object({
+// const mainFieldSchema = z.strictObject({
 //   display: z.string(),
 //   name: z.string(),
 // });
 
-const collectionSchema = z.object({
-  name: z.object({
+const collectionSchema = z.strictObject({
+  name: z.strictObject({
     display: z.string(),
     name: z.string(),
   }),
   top: z.array(
-    z.object({
+    z.strictObject({
       display: z.string(),
       name: z.string(),
     }),
   ),
-  meta: z.object({
+  meta: z.strictObject({
     hide: z.array(z.string()),
   }),
   relationships: z.array(
-    z.object({
+    z.strictObject({
       name: z.string(),
       display: z.string(),
       type: z.string(),
@@ -93,28 +93,28 @@ const collectionSchema = z.object({
 });
 
 const objectSchema = z.object({
-  name: z.object({
+  name: z.strictObject({
     display: z.string(),
     name: z.string(),
   }),
   top: z.array(
-    z.object({
+    z.strictObject({
       display: z.string(),
       name: z.string(),
     }),
   ),
-  meta: z.object({
+  meta: z.strictObject({
     hide: z.array(z.string()),
   }),
 });
 
-const fileSchema = z.object({
-  meta: z.object({
+const fileSchema = z.strictObject({
+  meta: z.strictObject({
     hide: z.array(z.string()),
   }),
 });
 
-const splashSchema = z.object({
+const splashSchema = z.strictObject({
   text: z.string(),
   textClass: z.string(),
   image: z.string(),
@@ -122,17 +122,23 @@ const splashSchema = z.object({
   launcher: z.string(),
 });
 
-const mapSchema = z.object({
-  boundingBox: z.object({
-    topRight: z.object({ lat: z.number(), lng: z.number() }),
-    bottomLeft: z.object({ lat: z.number(), lng: z.number() }),
+const mapSchema = z.strictObject({
+  boundingBox: z.strictObject({
+    topRight: z.strictObject({ lat: z.number(), lng: z.number() }),
+    bottomLeft: z.strictObject({ lat: z.number(), lng: z.number() }),
   }),
   precision: z.number(),
-  center: z.object({ lat: z.number(), lng: z.number() }),
+  center: z.strictObject({ lat: z.number(), lng: z.number() }),
   zoom: z.number(),
 });
 
-const uiSchema = z.object({
+const citeData = z.strictObject({
+  help: z.strictObject({
+    text: z.string(),
+  }),
+});
+
+const uiSchema = z.strictObject({
   title: z.string(),
   shortTitle: z.string().optional(),
   splash: splashSchema,
@@ -141,54 +147,39 @@ const uiSchema = z.object({
   navHeight: z.string().optional(),
   help: helpSchema,
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
+  citeData: citeData,
   googleForm: googleFormSchema,
-  // binderhubRegistry: binderhubRegistrySchema,
   terms: termsAndPrivacySchema,
   privacy: termsAndPrivacySchema.optional(),
   // email: emailSchema,
   footer: footerSchema,
-  login: z.object({
+  login: z.strictObject({
     enabled: z.boolean(),
+    manageTermsAndConditions: z.boolean(),
   }),
-  authorizationProvider: z.object({
+  authorizationProvider: z.strictObject({
     label: z.string(),
     url: z.url(),
-  }),
-  enrollment: z.object({
-    enforced: z.boolean(),
-    URL: z.url(),
   }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
   search: searchSchema,
-  main: z.object({
+  main: z.strictObject({
     //   fields: z.array(mainFieldSchema),
-    //   byteFields: z.array(z.string()),
+    byteFields: z.array(z.string()),
     expand: z.array(z.string()),
   }),
+  textReplacements: z.record(z.string(), z.string()),
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
-  conformsTo: z.object({
+  conformsTo: z.strictObject({
     collection: z.url(),
     object: z.url(),
+    notebook: z.url(),
   }),
-  licenses: z.array(
-    z.object({
-      license: z.string(),
-      group: z.string(),
-      access: z.string(),
-      enrollment: z
-        .object({
-          url: z.url().optional(),
-          label: z.string().optional(),
-          class: z.string().optional(),
-        })
-        .optional(),
-    }),
-  ),
   aggregations: z.array(
-    z.object({
+    z.strictObject({
       display: z.string(),
       order: z.number(),
       name: z.string(),
@@ -200,21 +191,21 @@ const uiSchema = z.object({
   ),
   searchFields: z.record(
     z.string(),
-    z.object({
+    z.strictObject({
       label: z.string(),
       checked: z.boolean(),
     }),
   ),
   analytics: z
-    .object({
+    .strictObject({
       gaMeasurementId: z.string(),
     })
     .optional(),
   mapConfig: mapSchema,
 });
 
-const apiSchema = z.object({
-  rocrate: z.object({
+const apiSchema = z.strictObject({
+  rocrate: z.strictObject({
     endpoint: z.url(),
     path: z.string(),
     clientId: z.string().optional(),
@@ -223,7 +214,7 @@ const apiSchema = z.object({
   }),
 });
 
-const configurationSchema = z.object({
+const configurationSchema = z.strictObject({
   ui: uiSchema,
   api: apiSchema,
 });

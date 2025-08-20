@@ -4,7 +4,7 @@ import AccessHelper from '@/components/AccessHelper.vue';
 import CSVWidget from '@/components/widgets/CSVWidget.vue';
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
 import PlainTextWidget from '@/components/widgets/PlainTextWidget.vue';
-import type { ApiService } from '@/services/api';
+import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -29,17 +29,14 @@ const {
   encodingFormat: string[];
   hideOpenLink?: boolean;
   isPreview: boolean;
-  access: { hasAccess: boolean };
-  license: { '@id': string; description: string };
+  access: EntityType['extra']['access'];
+  license: RoCrate['license'];
 }>();
 
 const data = ref();
 const downloadUrl = ref('');
 const streamUrl = ref('');
 const togglePreview = ref(false);
-
-// TODO perform a HEAD to check for access
-const forbidden = ref(false);
 
 const fileUrl = `/file?id=${encodeURIComponent(id)}`;
 
@@ -124,21 +121,16 @@ if (resolve) {
             </div>
 
             <div>
-              <div class="flex justify-center" v-if="forbidden && !access['hasAccess']">
+              <div class="flex justify-center" v-if="access && license">
                 <AccessHelper :access="access" :license="license" />
               </div>
             </div>
           </div>
-          <!-- <div v-else class="p-2"> -->
-          <!--   <div v-show="!isLoading" class="flex justify-center" v-if="forbidden && !access['hasAccess']"> -->
-          <!--     <AccessHelper :access="access" :license="license" /> -->
-          <!--   </div> -->
-          <!-- </div> -->
         </div>
       </el-col>
     </el-row>
 
-    <el-row class="flex justify-center" v-if="access['hasAccess']">
+    <el-row class="flex justify-center" v-if="access?.files">
       <el-button-group class="m-2">
         <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" underline="never">
           <el-button type="default" class="px-2">View File</el-button>

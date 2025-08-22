@@ -86,7 +86,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5">
+      <el-row :gutter="20" class="pb-5" v-if="isOCFL">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
@@ -233,7 +233,8 @@ export default {
       openDownloads: false,
       rootId: '',
       access: null,
-      loading: true
+      loading: true,
+      isOCFL: false
     };
   },
   async mounted() {
@@ -255,6 +256,7 @@ export default {
           _crateId: crateId,
         });
         this.metadata = metadata?._source;
+        this.isOCFL = this.metadata?._isOCFL === 'false' ? false : !!this.metadata?._isOCFL; // double bang to convert truthy to boolean
         console.log('DEBUG COLLECTION');
         console.log(this.metadata.license);
         this.$gtag.event('/collection', {
@@ -303,6 +305,7 @@ export default {
   },
   updated() {
     const id = encodeURIComponent(this.$route.query.id);
+    this.isOCFL = this.metadata?._isOCFL === 'false' ? false : !!this.metadata?._isOCFL; // double bang to convert truthy to boolean
     this.$gtag.event('/collection', {
       event_category: 'collection',
       event_label: 'loaded-collection',

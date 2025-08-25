@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { injectHead } from '@unhead/vue';
 import { inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
@@ -13,11 +15,12 @@ import SummariesCard from '@/components/cards/SummariesCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
-
+import { useHead } from '@/composables/head';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const router = useRouter();
 const route = useRoute();
+const head = injectHead();
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -75,6 +78,7 @@ const populate = (md: RoCrate) => {
   populateName(md);
   populateTop(md);
   populateMeta(md);
+  useHead(head, md);
 };
 
 const fetchData = async () => {

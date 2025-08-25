@@ -5,10 +5,7 @@ type Props = {
   className?: string;
 };
 
-const { className, lines, text } = withDefaults(defineProps<Props>(), {
-  className: '',
-  lines: 7,
-});
+const { className = '', lines = 7, text } = defineProps<Props>();
 
 let clamp = 'line-clamp-7';
 switch (lines) {

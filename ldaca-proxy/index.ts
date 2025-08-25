@@ -2,9 +2,9 @@ import * as crypto from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import cookieParser from 'cookie-parser';
 import express, { type Express } from 'express';
-
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
+import { ROCrate } from 'ro-crate';
 
 const app = express();
 
@@ -89,8 +89,6 @@ const getExtra = async (id: string, typem: string[], license: string, token: str
   const memberships = await getMemberships(token);
 
   const access = memberships.includes(license);
-
-  console.log('🪚 memberships:', JSON.stringify(memberships, null, 2));
 
   const extra = {
     subCollectionCount: subCollections?.total,
@@ -217,12 +215,13 @@ app.get('/ldaca/entities', async (req, res) => {
   }
 
   const { total, data } = await response.json();
-  console.log('🪚 data:', JSON.stringify(data[0], null, 2));
 
   const entities = await Promise.all(
     // @ts-expect-error
     data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => {
-      const roCrate = await getcrate(crateId);
+      const roCrateJson = await getcrate(crateId);
+
+      const roCrate = new ROCrate(roCrateJson, { array: false, link: true }).rootDataset;
 
       const extra = await getExtra(crateId, rest.recordType, roCrate.license['@id'], token);
 
@@ -262,7 +261,6 @@ app.get('/ldaca/entity/:id', async (req, res) => {
   const { id, crateId, license, objectRoot, locked, rootConformsTos, ...rest } = data;
 
   if (rootConformsTos.length > 1) {
-    console.log('🪚 rootConformsTos:', JSON.stringify(rootConformsTos, null, 2));
     throw new Error('Multiple conformsTo found in rootConformsTos');
   }
 
@@ -478,8 +476,6 @@ app.post('/ldaca/search', async (req, res) => {
       result.hits.hits.map(async (hit: any) => {
         const id = hit._source['@id'];
         const typem = hit._source?.['@type'];
-        console.log('🪚 🔲');
-        console.log('🪚 typem:', JSON.stringify(typem, null, 2));
 
         const roCrate = await getcrate(id);
         const extra = await getExtra(id, typem, roCrate.license, token);
@@ -582,11 +578,8 @@ app.get('/.well-known/openid-configuration', async (_req, res) => {
 });
 
 app.get('/ldaca/oauth/authorize', async (req, res) => {
-  console.log('🪚 ⭐', req.query);
-
   const qs = new URLSearchParams(req.query as Record<string, string>).toString();
   const { state } = req.query;
-  console.log('🪚 qs:', qs);
 
   const response = await fetch(`${base_url}/api/oauth/cilogon/login?${qs}`);
 

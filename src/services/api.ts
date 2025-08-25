@@ -99,6 +99,7 @@ export type RoCrate = {
   };
   author?: ROCratePerson | ROCratePerson[];
   creator?: ROCratePerson | ROCratePerson[];
+  hasPart: { '@id': string; name: string; encodingFormat: string | string[] }[];
 };
 
 export class ApiService {
@@ -130,9 +131,6 @@ export class ApiService {
   async getRoCrate(id: string) {
     const crateJson = await this.#get(`/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`);
 
-    if (!crateJson) {
-      return {};
-    }
     if (crateJson.errors) {
       return { errors: crateJson.errors };
     }
@@ -148,7 +146,7 @@ export class ApiService {
       this.getRoCrate(id),
     ]);
 
-    if (!entity) {
+    if (!entity || !crateJson) {
       return {};
     }
 
@@ -156,7 +154,7 @@ export class ApiService {
       return { errors: entity.errors };
     }
 
-    if (crateJson.errors) {
+    if ('errors' in crateJson) {
       return { errors: crateJson.errors };
     }
 
@@ -214,7 +212,7 @@ export class ApiService {
     });
 
     if (response.status === 404) {
-      return null;
+      return { errors: ['Not found'] };
     }
 
     if (response.status === 401) {

@@ -3,10 +3,9 @@ import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 
-const { ui } = configuration;
 const router = useRouter();
 
 const route = useRoute();

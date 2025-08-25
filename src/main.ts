@@ -14,9 +14,10 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { createGtm } from '@gtm-support/vue-gtm';
+import { createHead } from '@unhead/vue/client';
 import { MankuIcon } from 'manku-icon-lib';
 import App from '@/App.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import router from '@/router';
 
 import { ApiService } from '@/services/api';
@@ -24,6 +25,16 @@ import { ApiService } from '@/services/api';
 library.add(fas, far, fab);
 
 const app = createApp(App);
+
+const head = createHead({
+  init: [
+    {
+      title: ui.title,
+      titleTemplate: `%s | ${ui.title}`,
+    },
+  ],
+});
+app.use(head);
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -36,9 +47,9 @@ app.use(ElementPlus);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.component('manku-icon', MankuIcon);
 
-if (configuration.ui?.analytics) {
+if (ui.analytics) {
   const gtm = createGtm({
-    id: configuration.ui.analytics.gaMeasurementId,
+    id: ui.analytics.gaMeasurementId,
     vueRouter: router,
   });
   app.use(gtm);

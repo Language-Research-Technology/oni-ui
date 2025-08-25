@@ -18,19 +18,11 @@ const googleFormSchema = z.strictObject({
   takedown: z.url(),
 });
 
-// const binderhubRegistrySchema = z.strictObject({
-//   registryJson: z.string().url(),
-// });
-
 const termsAndPrivacySchema = z.strictObject({
   text: z.string(),
   href: z.string(),
   title: z.string(),
 });
-
-// const emailSchema = z.strictObject({
-//   help: z.string().email(),
-// });
 
 const footerSchema = z.strictObject({
   copyright: z.string(),
@@ -151,7 +143,6 @@ const uiSchema = z.strictObject({
   googleForm: googleFormSchema,
   terms: termsAndPrivacySchema,
   privacy: termsAndPrivacySchema.optional(),
-  // email: emailSchema,
   footer: footerSchema,
   login: z.strictObject({
     enabled: z.boolean(),
@@ -165,11 +156,14 @@ const uiSchema = z.strictObject({
   topNavHome: z.string().optional(),
   search: searchSchema,
   main: z.strictObject({
-    //   fields: z.array(mainFieldSchema),
     byteFields: z.array(z.string()),
     expand: z.array(z.string()),
   }),
   textReplacements: z.record(z.string(), z.string()),
+  head: z.strictObject({
+    title: z.string(),
+    meta: z.array(z.strictObject({ name: z.string(), content: z.string() })),
+  }),
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
@@ -221,3 +215,4 @@ const configurationSchema = z.strictObject({
 
 export const configuration = configurationSchema.parse(configurationJSON);
 export const ui = configuration.ui;
+export const api = configuration.api;

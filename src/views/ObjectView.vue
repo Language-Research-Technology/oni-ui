@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { injectHead } from '@unhead/vue';
 import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -14,6 +15,7 @@ import MetaField from '@/components/MetaField.vue';
 import ObjectPart from '@/components/ObjectPart.vue';
 import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
+import { useHead } from '@/composables/head';
 import { configuration } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
@@ -26,6 +28,7 @@ if (!api) {
 
 const route = useRoute();
 const router = useRouter();
+const head = injectHead();
 
 const name = ref('');
 const nameDisplay = ref('');
@@ -40,34 +43,30 @@ const entity = ref<EntityType | undefined>();
 const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);
 
-const populateName = (md: Record<string, string>) => {
-  name.value = md[config.name.name];
-  nameDisplay.value = md[config.name.display];
+const populateName = (md: RoCrate) => {
+  name.value = md[config.name.name as keyof RoCrate] as string;
+  nameDisplay.value = md[config.name.display as keyof RoCrate] as string;
 };
 
-const populateTop = (md: Record<string, string>) => {
+const populateTop = (md: RoCrate) => {
   tops.value = [];
   for (const field of config.top) {
-    const value = md[field.name] || 'Not Defined';
-    tops.value.push({ name: field.display, value: value });
+    const value = md[field.name as keyof RoCrate] || 'Not Defined';
+    tops.value.push({ name: field.display, value: value as string });
   }
 };
 
-const populateMeta = (md: Record<string, string>) => {
+const populateMeta = (md: RoCrate) => {
   meta.value = [];
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !config.meta.hide.includes(key));
   for (const filter of filtered) {
-    meta.value.push({ name: filter, data: md[filter] });
+    meta.value.push({ name: filter, data: md[filter as keyof RoCrate] as string });
   }
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-const populateParts = (md: {
-  hasPart:
-    | { '@id': string; name: string; encodingFormat: string | string[] }[]
-    | { '@id': string; name: string; encodingFormat: string | string[] };
-}) => {
+const populateParts = (md: RoCrate) => {
   // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
   const newParts = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];
 
@@ -86,14 +85,11 @@ const populateParts = (md: {
 };
 
 const populate = (md: RoCrate) => {
-  // @ts-expect-error FIX types later
   populateName(md);
-  // @ts-expect-error FIX types later
   populateTop(md);
-  // @ts-expect-error FIX types later
   populateMeta(md);
-  // @ts-expect-error FIX types later
   populateParts(md);
+  useHead(head, md);
 };
 
 const fetchdata = async () => {

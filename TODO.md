@@ -18,6 +18,5 @@
 ## Things to being back
 
 * Downloads
-* Meta tags
 * Bring bag google tag manager
 * Terms and Conditions

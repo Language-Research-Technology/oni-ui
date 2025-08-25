@@ -23,6 +23,10 @@ export const parseContentSize = (value: string | number) => {
     return null;
   }
 
+  if (!match[1] || !match[3]) {
+    return null;
+  }
+
   const number = parseFloat(match[1]);
   const unit = match[3].toLowerCase();
 

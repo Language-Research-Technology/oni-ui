@@ -15,7 +15,7 @@ const { setSearchParams, advancedSearchLines } = defineProps<{
 
 const advancedSearchFields = [{ label: 'All Fields', value: 'all_fields' }];
 Object.keys(searchFields).forEach((f) => {
-  advancedSearchFields.push({ label: searchFields[f].label, value: f });
+  advancedSearchFields.push({ label: searchFields[f]?.label as string, value: f });
 });
 
 const localAdvancedSearchLines = ref<AdvancedSearchLine[]>(advancedSearchLines || [blankAdvancedSearchLine]);

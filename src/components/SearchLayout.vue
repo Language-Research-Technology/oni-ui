@@ -35,7 +35,6 @@ const {
   currentPage,
   isLoading,
   errorDialogText,
-  clearError,
   facets,
 
   updateRoutes,
@@ -74,7 +73,6 @@ const {
   orderResults: (by: string) => void;
   updatePages: (page: number) => void;
   resetSearch: () => void;
-  clearError: () => void;
   setSearchParams: (options: SetSearchParamsOptions) => void;
 }>();
 

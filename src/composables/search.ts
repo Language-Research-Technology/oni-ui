@@ -77,15 +77,18 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const filterButton = ref([]);
   const isBrowse = ref(false);
 
-  const ordering = ui.search?.ordering || [
-    { value: 'asc', label: 'Ascending' },
-    { value: 'desc', label: 'Descending' },
-  ];
+  const ordering =
+    ui.search?.ordering ||
+    ([
+      { value: 'asc', label: 'Ascending' },
+      { value: 'desc', label: 'Descending' },
+    ] as const);
   const defaultOrder = ordering[0];
   const selectedOrder = ref(defaultOrder);
 
-  const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
-  const defaultSorting = ui.search?.searchSorting || sorting[0];
+  const fallbackSorting = { value: 'relevance', label: 'Relevance' };
+  const sorting = ui.search?.sorting || [fallbackSorting];
+  const defaultSorting = ui.search?.searchSorting || sorting[0] || fallbackSorting;
   const selectedSorting = ref(defaultSorting);
 
   // Map Stuff
@@ -264,7 +267,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
       const active = facets?.value?.find((a) => a.name === facet)?.active || info?.active;
       const help = info?.help;
       a.push({
-        buckets: newFacets[facet],
+        buckets: newFacets[facet] || [],
         display: display || facet,
         order: order || 0,
         name: name || facet,
@@ -353,10 +356,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     search();
   };
 
-  const clearError = () => {
-    errorDialogText.value = undefined;
-  };
-
   watch(
     () => route.query,
     async () => {
@@ -399,7 +398,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     sortResults,
     orderResults,
     updatePages,
-    clearError,
     setSearchParams,
   };
 };

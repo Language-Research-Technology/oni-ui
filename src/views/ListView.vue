@@ -14,11 +14,14 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const sorting = ui.search?.sorting?.filter(({ value }) => value !== 'relevance') || [{ value: 'id', label: 'Id' }];
-const ordering = ui.search?.ordering || [
-  { value: 'asc', label: 'Ascending' },
-  { value: 'desc', label: 'Descending' },
-];
+const sorting =
+  ui.search?.sorting?.filter(({ value }) => value !== 'relevance') || ([{ value: 'id', label: 'Id' }] as const);
+const ordering =
+  ui.search?.ordering ||
+  ([
+    { value: 'asc', label: 'Ascending' },
+    { value: 'desc', label: 'Descending' },
+  ] as const);
 
 const currentPage = ref(1);
 const pageSize = ref(10);

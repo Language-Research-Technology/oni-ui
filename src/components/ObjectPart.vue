@@ -23,7 +23,7 @@ const meta: { name: string; data: string }[] = [];
 const keys = Object.keys(part);
 const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));
 for (const filter of filtered) {
-  meta.push({ name: filter, data: part[filter] });
+  meta.push({ name: filter, data: part[filter] as string });
 }
 meta.sort((a, b) => a.name.localeCompare(b.name));
 </script>
@@ -58,7 +58,7 @@ meta.sort((a, b) => a.name.localeCompare(b.name));
       </el-col>
 
       <el-col :xs="24" :sm="24" :md="24" :lg="14" :xl="14">
-        <FileResolve class="flex justify-center" :id="id" :parentId="parentId" :filename="part.filename"
+        <FileResolve class="flex justify-center" :id="id" :parentId="parentId" :filename="part.filename as string"
           :resolve="resolve" :encodingFormat="part.encodingFormat" :isPreview="true" :access="access"
           :contentSize="part.contentSize" :license="license" />
       </el-col>

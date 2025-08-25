@@ -43,7 +43,6 @@ const {
   sortResults,
   orderResults,
   updatePages,
-  clearError,
   setSearchParams,
 } = useSearch('map');
 
@@ -494,7 +493,7 @@ watch(geohashGrid, updateLayers);
 
 <template>
   <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities"
-    :clearFilter="clearFilter" :onInputChange="onInputChange" :clearError="clearError" :filtersChanged="filtersChanged"
+    :clearFilter="clearFilter" :onInputChange="onInputChange" :filtersChanged="filtersChanged"
     :updateRoutes="updateRoutes" :clearFilters=clearFilters :updateFilter="updateFilter" :totals="totals"
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"

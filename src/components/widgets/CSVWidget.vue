@@ -30,7 +30,7 @@ const doWork = async () => {
           if (typeof col === 'undefined' || col === '') {
             col = '__nocolumn__';
           }
-          row[col] = r[index];
+          row[col] = r[index] as string;
         }
         return row;
       });

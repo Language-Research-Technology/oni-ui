@@ -1,13 +1,11 @@
 import { createRouter, createWebHistory, type NavigationGuardWithThis, type RouterOptions } from 'vue-router';
 
-import { getUser } from '@/services/auth';
+import { getUser, login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
 import File from '@/views/FileView.vue';
 import List from '@/views/ListView.vue';
-import Login from '@/views/LoginView.vue';
-import Logout from '@/views/LogoutView.vue';
 import NotFound from '@/views/NotFoundView.vue';
 import CallbackOauth from '@/views/OauthCallbackView.vue';
 import ObjectView from '@/views/ObjectView.vue';
@@ -78,16 +76,6 @@ const routes: RouterOptions['routes'] = [
           requiresAuth: true,
         },
       },
-      {
-        path: '/login',
-        name: 'login',
-        component: Login,
-      },
-      {
-        path: '/logout',
-        name: 'logout',
-        component: Logout,
-      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     ],
   },
@@ -102,27 +90,25 @@ const router = createRouter({
   routes,
 });
 
-const onAuthRequired: NavigationGuardWithThis<undefined> = async (to, _from, next) => {
+const onAuthRequired: NavigationGuardWithThis<undefined> = async (to) => {
   const authStore = useAuthStore();
 
   const user = await getUser();
 
-  if (user && to.path === '/login') {
-    return next({ path: '/' });
-  }
-
   if (user) {
-    return next();
+    return true;
   }
 
   if (to.meta?.requiresAuth) {
     authStore.lastRoute = to.fullPath;
     authStore.isLoggedIn = false;
 
-    return next({ path: '/login' });
+    login();
+
+    return false;
   }
 
-  next();
+  return true;
 };
 
 router.beforeEach(onAuthRequired);

@@ -9,6 +9,7 @@ const { access, license } = defineProps<{
 }>();
 
 import { configuration } from '@/configuration';
+import { login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 
 const { isLoggedIn, user } = useAuthStore();
@@ -76,9 +77,9 @@ if (!license) {
       </template>
 
       <template v-else>
-        <router-link class="underline mt-2" v-if="isLoginEnabled" to="/login">
+        <a-link class="underline mt-2" v-if="isLoginEnabled" @click="login">
           Sign Up or Log In
-        </router-link>
+        </a-link>
       </template>
     </el-row>
   </template>

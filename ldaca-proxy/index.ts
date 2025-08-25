@@ -201,6 +201,18 @@ const getcrate = async (id: string) => {
   return rocrate;
 };
 
+const getScalarRecordType = (recordType: string[]) => {
+  if (recordType.includes('RepositoryCollection')) {
+    return 'RepositoryCollection';
+  }
+
+  if (recordType.includes('RepositoryObject')) {
+    return 'RepositoryObject';
+  }
+
+  throw new Error(`Unknown recordType ${recordType}`);
+};
+
 app.get('/ldaca/entities', async (req, res) => {
   const token = req.cookies['x-token'];
 
@@ -223,11 +235,14 @@ app.get('/ldaca/entities', async (req, res) => {
 
       const roCrate = new ROCrate(roCrateJson, { array: false, link: true }).rootDataset;
 
-      const extra = await getExtra(crateId, rest.recordType, roCrate.license['@id'], token);
+      const recordType = getScalarRecordType(rest.recordType);
+
+      const extra = await getExtra(crateId, recordType, roCrate.license['@id'], token);
 
       return {
         id: crateId,
         ...rest,
+        recordType,
         extra,
       };
     }),

@@ -14,6 +14,7 @@ import SearchLayout from '@/components/SearchLayout.vue';
 import { useSearch } from '@/composables/search';
 import { configuration } from '@/configuration';
 import type { ApiService, EntityType, SearchParams } from '@/services/api';
+import { getEntityUrl } from '@/tools';
 
 const {
   advancedSearchEnabled,
@@ -320,31 +321,10 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
   return results;
 };
 
-const getSearchDetailUrl = (entity: EntityType) => {
-  let url: string;
-
-  const types = entity.recordType || [];
-
-  const repoType = types.find((t) => t === 'RepositoryCollection');
-  const fileType = types.find((t) => t === 'File');
-  const itemType = types.find((t) => t === 'RepositoryObject');
-  const id = encodeURIComponent(entity.id);
-
-  if (repoType) {
-    url = `/collection?id=${id}`;
-  } else if (itemType || fileType) {
-    url = `/object?id=${id}`;
-  } else {
-    url = `/object?id=${id}`;
-  }
-
-  return url;
-};
-
 const getInnerHTMLTooltip = (entity: EntityType) => {
   const title = entity.name;
   const type = entity.recordType;
-  const href = getSearchDetailUrl(entity);
+  const href = getEntityUrl(entity);
   const memberOf = entity.memberOf;
 
   let innerHTML = `

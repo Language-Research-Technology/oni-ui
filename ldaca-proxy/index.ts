@@ -59,14 +59,14 @@ const getMemberships = async (token: string) => {
   return membershipsStatus.memberships.map(({ group }) => group).filter(Boolean);
 };
 
-const getExtra = async (id: string, typem: string[], license: string, token: string) => {
+const getExtra = async (id: string, typem: string, license: string, token: string) => {
   let summaries: Awaited<ReturnType<typeof filter>>;
   let subCollections: Awaited<ReturnType<typeof filter>>;
   let members: Awaited<ReturnType<typeof filter>>;
 
   const conformsTo = configuration.ui.conformsTo;
 
-  if (typem.includes('RepositoryCollection')) {
+  if (typem === 'RepositoryCollection') {
     subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
 
     members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
@@ -74,7 +74,7 @@ const getExtra = async (id: string, typem: string[], license: string, token: str
     summaries = await filter({ collectionStack: [id] });
   }
 
-  if (typem.includes('RepositoryObject')) {
+  if (typem === 'RepositoryObject') {
     summaries = await filter({ parent: [id] });
   }
 
@@ -264,9 +264,7 @@ app.get('/ldaca/entity/:id', async (req, res) => {
     throw new Error('Multiple conformsTo found in rootConformsTos');
   }
 
-  const recordType = rootConformsTos[0].conformsTo.endsWith('Object')
-    ? ['Dataset', 'RepositoryObject']
-    : ['Dataset', 'RepositoryCollection'];
+  const recordType = rootConformsTos[0].conformsTo.endsWith('Object') ? 'RepositoryObject' : 'RepositoryCollection';
 
   const result = {
     id: crateId,
@@ -355,7 +353,7 @@ type EntityType = {
   name: string;
   description: string;
   conformsTo: 'https://w3id.org/ldac/profile#Collection' | 'https://w3id.org/ldac/profile#Object';
-  recordType: Array<'DataSet' | 'RepositoryCollection' | 'RepositoryObject' | 'File'>;
+  recordType: 'RepositoryCollection' | 'RepositoryObject';
   memberOf: string;
   root: string;
   createdAt: string;
@@ -476,16 +474,17 @@ app.post('/ldaca/search', async (req, res) => {
       result.hits.hits.map(async (hit: any) => {
         const id = hit._source['@id'];
         const typem = hit._source?.['@type'];
+        const recordType = typem.includes('RepositoryCollection') ? 'RepositoryCollection' : 'RepositoryObject';
 
         const roCrate = await getcrate(id);
-        const extra = await getExtra(id, typem, roCrate.license, token);
+        const extra = await getExtra(id, recordType, roCrate.license, token);
 
         return {
           id: hit._source['@id'],
           name: hit._source.name?.[0]['@value'],
           description: hit._source.description?.[0]['@value'],
           conformsTo: hit._source.conformsTo?.[0]['@id'],
-          recordType: hit._source?.['@type'],
+          recordType,
           memberOf: hit._source._memberOf?.[0]['@id'],
           root: hit._source._root?.[0]['@id'],
           createdAt: new Date(),

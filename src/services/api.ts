@@ -31,7 +31,7 @@ export type EntityType = {
   name: string;
   description: string;
   conformsTo: 'https://w3id.org/ldac/profile#Collection' | 'https://w3id.org/ldac/profile#Object';
-  recordType: Array<'DataSet' | 'RepositoryCollection' | 'RepositoryObject' | 'File'>;
+  recordType: 'RepositoryCollection' | 'RepositoryObject';
   memberOf: string;
   root: string;
   createdAt: string;

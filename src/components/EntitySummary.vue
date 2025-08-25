@@ -4,6 +4,7 @@ import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
 import { configuration } from '@/configuration';
 import type { EntityType } from '@/services/api';
+import { getEntityUrl } from '@/tools';
 
 const { ui } = configuration;
 
@@ -11,27 +12,6 @@ const { entity } = defineProps<{ entity: EntityType }>();
 
 // TODO: Rename this
 const { searchDetails = [] } = ui.search || {};
-
-const getSearchDetailUrl = () => {
-  // TODO: this is not good, maybe do it with a ConformsTo to specify link.
-  // But have to think about it because not all files have conformsTo!
-  const { recordType } = entity;
-  const repoType = recordType.find((t) => t === 'RepositoryCollection');
-  // const fileType = recordType.find((t) => t === 'File');
-  const itemType = recordType.find((t) => t === 'RepositoryObject');
-
-  const id = encodeURIComponent(entity.id);
-
-  if (repoType) {
-    return `/collection?id=${id}`;
-  }
-
-  if (itemType) {
-    return `/object?id=${id}`;
-  }
-
-  return `/object?id=${id}`;
-};
 </script>
 
 <template>
@@ -40,7 +20,7 @@ const getSearchDetailUrl = () => {
       <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20">
         <el-row :align="'middle'">
           <h5 class="text-2xl font-medium">
-            <router-link :to="getSearchDetailUrl()"
+            <router-link :to="getEntityUrl(entity)"
               class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
               {{ entity.name || entity.id }}
             </router-link>
@@ -50,10 +30,8 @@ const getSearchDetailUrl = () => {
         <el-row :align="'middle'">
           <p class="font-normal text-gray-700">
             Type:
+            <span class="m-2">{{ entity.recordType }}</span>
           </p>
-          <div class="flex flex-wrap">
-            <span class="m-2" v-for="type of entity.recordType">{{ type }}</span>
-          </div>
         </el-row>
 
         <template v-for="special of searchDetails">

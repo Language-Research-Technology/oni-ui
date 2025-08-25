@@ -1,3 +1,5 @@
+import type { EntityType } from './services/api';
+
 const unitMultipliers = {
   bytes: 1,
   b: 1,
@@ -31,4 +33,19 @@ export const parseContentSize = (value: string | number) => {
   const unit = match[3].toLowerCase();
 
   return number * (unitMultipliers[unit as keyof typeof unitMultipliers] || 1);
+};
+
+export const getEntityUrl = (entity: EntityType) => {
+  const { recordType } = entity;
+
+  const id = encodeURIComponent(entity.id);
+
+  switch (recordType) {
+    case 'RepositoryCollection':
+      return `/collection?id=${id}`;
+    case 'RepositoryObject':
+      return `/object?id=${id}`;
+    default:
+      throw new Error(`Unknown recordType ${recordType}`);
+  }
 };

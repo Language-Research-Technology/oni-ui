@@ -213,7 +213,7 @@ export class ApiService {
   }
 
   async acceptTerms(id: number) {
-    const terms = await this.#get<AcceptTermsResponse>(`/user/terms?${id}`);
+    const terms = await this.#get<AcceptTermsResponse>(`/user/terms/accept?id=${id}`);
 
     return terms;
   }

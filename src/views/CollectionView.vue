@@ -21,12 +21,14 @@ import type { ApiService, EntityType, RoCrate } from '@/services/api';
 const router = useRouter();
 const route = useRoute();
 const head = injectHead();
+const gtm = useGtm();
 
 const api = inject<ApiService>('api');
 if (!api) {
   throw new Error('API instance not provided');
 }
 
+import { useGtm } from '@gtm-support/vue-gtm';
 import { ui } from '@/configuration';
 
 const { collection: config, conformsTo } = ui;
@@ -112,6 +114,13 @@ const fetchData = async () => {
 
       return;
     }
+
+    gtm?.trackEvent({
+      event: '/collection',
+      category: 'collection',
+      label: 'loaded-collection',
+      value: id,
+    });
 
     metadata.value = rawMeatadata;
     entity.value = rawEntity;

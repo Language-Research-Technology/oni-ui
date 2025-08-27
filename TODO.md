@@ -7,5 +7,4 @@
 ## Things to being back
 
 * Downloads
-* Bring bag google tag manager
 * Terms and Conditions

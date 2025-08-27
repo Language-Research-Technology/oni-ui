@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
@@ -29,6 +29,7 @@ if (!api) {
 const route = useRoute();
 const router = useRouter();
 const head = injectHead();
+const gtm = useGtm();
 
 const name = ref('');
 const nameDisplay = ref('');
@@ -120,6 +121,13 @@ const fetchdata = async () => {
 
     return;
   }
+
+  gtm?.trackEvent({
+    event: '/object',
+    category: 'object',
+    label: 'loaded-object',
+    value: id,
+  });
 
   metadata.value = md;
   entity.value = e;

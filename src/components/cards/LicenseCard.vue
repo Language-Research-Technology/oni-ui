@@ -6,19 +6,26 @@ import type { RoCrate } from '@/services/api';
 const { license } = defineProps<{
   license: NonNullable<RoCrate['license']>;
 }>();
+
+const localLicense = Array.isArray(license) ? license[0] : license;
+
+if (!localLicense) {
+  console.warn('🪚 WHY: No license');
+  throw new Error('No License');
+}
 </script>
 
 <template>
-  <Truncate v-if="license.description" :text="license.description" :lines="2" />
+  <Truncate v-if="localLicense.description" :text="localLicense.description" :lines="2" />
 
   <div class="flex flex-col gap-8 p-4 items-center">
-    <a class="underline" :href="license['@id']" target="_blank">
-      {{ license.name }}
+    <a class="underline" :href="localLicense['@id']" target="_blank">
+      {{ localLicense.name }}
     </a>
 
     <p>
-      {{ license.metadataIsPublic === false ? 'Private Metadata' : 'Public Metadata' }} and
-      {{ license.allowTextIndex === false ? 'Cannot Search in Text' : 'Text is Searchable' }}
+      {{ localLicense.metadataIsPublic === false ? 'Private Metadata' : 'Public Metadata' }} and
+      {{ localLicense.allowTextIndex === false ? 'Cannot Search in Text' : 'Text is Searchable' }}
     </p>
   </div>
 </template>

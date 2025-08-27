@@ -12,7 +12,7 @@ export const useHead = (head: VueHeadClient, md: RoCrate) => {
   const getValue = (fieldPath: string): string => {
     const value = md[fieldPath as keyof RoCrate];
     if (Array.isArray(value)) {
-      return value.map((item) => (typeof item === 'object' && item.name ? item.name : String(item))).join(', ');
+      return value.map((item) => (typeof item === 'object' && 'name' in item ? item.name : String(item))).join(', ');
     }
 
     if (typeof value === 'object' && value?.name) {

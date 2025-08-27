@@ -45,6 +45,7 @@ const membersFiltered = ref<EntityType[]>([]);
 
 const populateName = (md: RoCrate) => {
   name.value = md[config.name.name as keyof RoCrate] as string;
+  name.value = Array.isArray(name.value) ? name.value[0] : name.value;
   nameDisplay.value = md[config.name.display as keyof RoCrate] as string;
 };
 
@@ -218,7 +219,6 @@ fetchdata();
                 </el-link>
               </h4>
             </template>
-            │
           </el-card>
         </el-col>
       </el-row>

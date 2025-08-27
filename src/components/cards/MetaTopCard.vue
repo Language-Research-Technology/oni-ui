@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { tops, className } = defineProps<{
-  tops: { name: string; value: string }[];
+  tops: { name: string; value: string | string[] }[];
   className: string;
 }>();
 </script>
@@ -13,7 +13,7 @@ const { tops, className } = defineProps<{
       </p>
     </el-col>
     <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-      <p>{{ field.value }}</p>
+      <p>{{ Array.isArray(field.value) ? field.value[0] : field.value }}</p>
     </el-col>
   </el-row>
 </template>

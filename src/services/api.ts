@@ -72,6 +72,17 @@ type ROCratePerson = {
   description?: string;
   name: string;
 };
+
+type RoCrateLicense = {
+  '@id': string;
+  '@type': string;
+  name: string;
+  description?: string;
+  'ldac:access': string;
+  metadataIsPublic?: boolean;
+  allowTextIndex?: boolean;
+};
+
 export type RoCrate = {
   '@id': string;
   '@type': ['DataSet', 'RepositoryObject' | 'RepositoryCollection'];
@@ -84,22 +95,14 @@ export type RoCrate = {
     '@id': string;
     name?: string;
   };
-  license?: {
-    '@id': string;
-    '@type': string;
-    name: string;
-    description?: string;
-    'ldac:access': string;
-    metadataIsPublic?: boolean;
-    allowTextIndex?: boolean;
-  };
+  license?: RoCrateLicense | RoCrateLicense[];
   metadataLicense?: {
     id: string;
     name: string;
   };
   author?: ROCratePerson | ROCratePerson[];
   creator?: ROCratePerson | ROCratePerson[];
-  hasPart: { '@id': string; name: string; encodingFormat: string | string[] }[];
+  hasPart: { '@id': string; filename: string; encodingFormat: string | string[]; contentSize: number }[];
 };
 
 export class ApiService {

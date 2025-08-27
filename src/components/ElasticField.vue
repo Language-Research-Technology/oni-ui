@@ -56,15 +56,19 @@ const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
   return input.length > maxLength ? `${input.slice(0, maxLength)}...` : input;
 };
 
-if (byteFields.includes(title)) {
+if (typeof field === 'undefined') {
+  name = '';
+} else if (byteFields.includes(title)) {
   name = formatFileSize(field);
 } else if (['string', 'number'].includes(typeof field)) {
   name = String(field);
+} else if (Array.isArray(field) && typeof field[0] === 'string') {
+  name = String(field[0]);
 } else {
   id = field['@id'];
   url = testURL(id);
-  name = field.name;
-  description = field.description;
+  name = Array.isArray(field.name) ? field.name[0] : field.name;
+  description = Array.isArray(field.description) ? field.description[0] : field.description;
 
   if (title === 'contentLocation') {
     geometry = field.geo;

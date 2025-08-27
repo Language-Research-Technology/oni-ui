@@ -38,7 +38,7 @@ const downloadUrl = ref('');
 const streamUrl = ref('');
 const togglePreview = ref(false);
 
-const fileUrl = `/file?id=${encodeURIComponent(id)}`;
+const fileUrl = `/file?id=${encodeURIComponent(id)}&parentId=${encodeURIComponent(parentId)}`;
 
 const resolveFile = async () => {
   downloadUrl.value = await api.getFileUrl(parentId, filename, true);
@@ -73,6 +73,7 @@ watch(
 if (resolve) {
   resolveFile();
 }
+console.log('🪚 encodingFormat:', JSON.stringify(encodingFormat, null, 2));
 </script>
 
 <template>
@@ -101,14 +102,14 @@ if (resolve) {
                 <PlainTextWidget :src="streamUrl" :limitText="isPreview ? 700 : undefined" />
               </div>
 
-              <div v-else-if="encodingFormat.some((f) => f.startsWith('audio'))" class="flex justify-center">
+              <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">
                 <audio controls preload="none">
                   <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
                   Your browser does not support the audio element.
                 </audio>
               </div>
 
-              <div v-else-if="encodingFormat.some((f) => f.startsWith('video'))" class="flex justify-center">
+              <div v-else-if="encodingFormat?.some((f) => f?.startsWith('video'))" class="flex justify-center">
                 <video controls>
                   <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('video'))">
                   Your browser does not support the video element.

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { injectHead } from '@unhead/vue';
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, onUpdated, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
@@ -129,6 +129,11 @@ const fetchData = async () => {
     }),
   );
 };
+
+watch(
+  () => route.params,
+  () => fetchData(),
+);
 
 onMounted(fetchData);
 </script>

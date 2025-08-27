@@ -13,31 +13,20 @@ const route = useRoute();
 const router = useRouter();
 
 const id = route.query.id?.toString() as string;
+const parentId = route.query.parentId?.toString() as string;
 
 const title = ref('');
-const parentId = ref<string>();
 const parentTitle = ref<string>();
 const filename = ref('');
 const encodingFormat = ref<string[]>([]);
 const contentSize = ref<number>();
-const access = { hasAccess: true };
-const license: { '@id': string; description: string } = { '@id': 'FIXME', description: 'FIXME' };
+const metadata = ref<RoCrate | undefined>();
+const entity = ref<EntityType | undefined>();
 
-const populateData = (md: RoCrate, entity: EntityType) => {
-  title.value = md.name || md['@id'];
-
-  parentId.value = md.parentId;
-  parentTitle.value = md.parentTitle || md.parentId;
-
-  filename.value = md.filename;
-  encodingFormat.value = [md.encodingFormat];
-  contentSize.value = md.contentSize;
-  license.value = md.license;
-  access.value = entity.extra?.access;
-};
-
-const getFileMetadata = async () => {
-  if (!id) {
+const populateData = (md: RoCrate, e: EntityType) => {
+  const part = md.hasPart.find((part) => part['@id']);
+  console.log('🪚 part:', JSON.stringify(part, null, 2));
+  if (!part) {
     router.push({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
@@ -48,7 +37,30 @@ const getFileMetadata = async () => {
     return;
   }
 
-  const { entity, metadata: md } = await api.getEntity(id);
+  title.value = part.filename || part['@id'];
+
+  parentTitle.value = md.name || md['@id'];
+
+  filename.value = part.filename;
+  encodingFormat.value = Array.isArray(part.encodingFormat) ? part.encodingFormat : [part.encodingFormat];
+  contentSize.value = part.contentSize;
+  metadata.value = md;
+  entity.value = e;
+};
+
+const getFileMetadata = async () => {
+  if (!id || !parentId) {
+    router.push({
+      name: 'NotFound',
+      params: { pathMatch: route.path.substring(1).split('/') },
+      query: route.query,
+      hash: route.hash,
+    });
+
+    return;
+  }
+
+  const { entity, metadata: md } = await api.getEntity(parentId);
   if (!md) {
     router.push({
       name: 'NotFound',
@@ -85,7 +97,8 @@ getFileMetadata();
             class="flex justify-center h-screen overflow-auto">
             <FileResolve :id="id" :parentId="parentId" :filename="filename" :resolve="true"
               :encodingFormat="encodingFormat" :name="title" :parentName="parentTitle" :hideOpenLink="true"
-              :isPreview="false" :access="access" :license="license" :contetnSize="contentSize" />
+              :isPreview="false" :access="entity?.extra.access" :license="metadata?.license"
+              :contetnSize="contentSize" />
           </el-col>
         </el-row>
       </div>

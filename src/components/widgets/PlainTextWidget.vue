@@ -11,7 +11,7 @@ const content = ref('');
 const download = async () => {
   const response = await fetch(src);
   if (!response.ok) {
-    content.value = 'Fetch failed';
+    return;
   }
 
   const data = await response.text();

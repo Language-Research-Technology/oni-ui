@@ -23,8 +23,11 @@ const {
   login: { enabled: isLoginEnabled },
 } = configuration.ui;
 
-if (!license) {
+const localLicense = Array.isArray(license) ? license[0] : license;
+
+if (!localLicense) {
   console.warn('🪚 WHY: No license');
+  throw new Error('No License');
 }
 </script>
 
@@ -34,8 +37,8 @@ if (!license) {
       <p>
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
         Access to
-        <a :href="license['@id']" class="font-bold">
-          {{ license['name'] || license['@id'] }}
+        <a :href="localLicense['@id']" class="font-bold">
+          {{ localLicense['name'] || localLicense['@id'] }}
         </a>
         granted to
         {{ user?.['name'] || user?.['email'] }}
@@ -77,9 +80,9 @@ if (!license) {
       </template>
 
       <template v-else>
-        <a-link class="underline mt-2" v-if="isLoginEnabled" @click="login">
+        <a class="underline mt-2 cursor-pointer" v-if="isLoginEnabled" @click="login">
           Sign Up or Log In
-        </a-link>
+        </a>
       </template>
     </el-row>
   </template>

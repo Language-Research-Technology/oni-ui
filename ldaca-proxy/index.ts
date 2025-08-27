@@ -16,23 +16,36 @@ import { ElasticService } from './elastic';
 
 const es = new ElasticService();
 
-const base_url = 'https://data.ldaca.edu.au';
+const baseUrl = 'https://data-uat.ldaca.edu.au';
 
 const LICENSES: Record<string, string> = {
+  'https://language-research-technology.github.io/qa/licenses/farms-to-freeways/all/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/farms-to-freeways/all/v1/',
+  'https://language-research-technology.github.io/qa/licenses/ice-aus/login/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=XX',
+  'https://language-research-technology.github.io/qa/licenses/ausESL/all/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=XX',
+  '#PLACEHOLDER-License': 'https://test.cadre.ada.edu.au/catalogue/application?id=XX',
   'https://www.ldaca.edu.au/licenses/holmer-fieldnotes/placeholder/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/holmer-fieldnotes/placeholder/all/v1/',
-  'https://www.ldaca.edu.au/licenses/australian-deafblind-signing-corpus/placeholder/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/australian-deafblind-signing-corpus/placeholder/all/v1/',
-  'https://www.ldaca.edu.au/licenses/ausesl/placeholder/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/ausesl/placeholder/all/v1/',
-  'https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/',
-  'https://www.ldaca.edu.au/licenses/the-expanded-auslan-corpus/placeholder/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/the-expanded-auslan-corpus/placeholder/all/v1/',
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://www.ldaca.edu.au/licenses/holmer-fieldnotes/placeholder/all/v1/',
   'https://www.ldaca.edu.au/licenses/sydney-speaks/license-a/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-a/all/v1/',
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-a/all/v1/',
+  'https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://www.ldaca.edu.au/licenses/sydney-speaks/license-b/all/v1/',
   'https://www.ldaca.edu.au/licenses/ausesl/transcriptions-audio/all/v1/':
-    'https://cadre.ada.edu.au/resources/application?id=https://www.ldaca.edu.au/licenses/ausesl/transcriptions-audio/all/v1/',
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://www.ldaca.edu.au/licenses/ausesl/transcriptions-audio/all/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/auto/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/auto/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/manual/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/manual/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/license1/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/license1/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/license2/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/license2/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/license3/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/license3/v1/',
+  'https://language-research-technology.github.io/qa/licenses/udhr/license4/v1/':
+    'https://test.cadre.ada.edu.au/catalogue/application?id=https://language-research-technology.github.io/qa/licenses/udhr/license4/v1/',
 };
 
 const getMemberships = async (token: string) => {
@@ -40,7 +53,8 @@ const getMemberships = async (token: string) => {
     return [];
   }
 
-  const response = await fetch(`${base_url}/user/memberships`, {
+  // const response = await fetch(`${baseUrl}/api/auth/memberships`, {
+  const response = await fetch(`${baseUrl}/api/user/memberships`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -142,7 +156,7 @@ const synthesise = async (id: string) => {
 
   const memberOf = hit._source._memberOf[0]['@id'];
 
-  const parentUrl = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(memberOf)}`;
+  const parentUrl = `${baseUrl}/api/object/meta?id=${encodeURIComponent(memberOf)}`;
   const response2 = await fetch(parentUrl);
 
   if (response2.status === 404) {
@@ -169,7 +183,7 @@ const synthesise = async (id: string) => {
 };
 
 const getcrate = async (id: string) => {
-  const url = `https://data.ldaca.edu.au/api/object/meta?id=${encodeURIComponent(id)}`;
+  const url = `${baseUrl}/api/object/meta?id=${encodeURIComponent(id)}`;
   const response = await fetch(url);
 
   // biome-ignore lint/suspicious/noExplicitAny: foo
@@ -217,7 +231,7 @@ app.get('/ldaca/entities', async (req, res) => {
   const token = req.cookies['x-token'];
 
   const queryString = URL.parse(`http://dummy${req.url}`)?.search || '';
-  const url = `https://data.ldaca.edu.au/api/objects${queryString}`;
+  const url = `${baseUrl}/api/objects${queryString}`;
   const response = await fetch(url, { redirect: 'follow' });
   if (!response.ok) {
     const body = response.text();
@@ -259,7 +273,7 @@ app.get('/ldaca/entities', async (req, res) => {
 app.get('/ldaca/entity/:id', async (req, res) => {
   const token = req.cookies['x-token'];
 
-  const url = `https://data.ldaca.edu.au/api/object?id=${encodeURIComponent(req.params.id)}`;
+  const url = `${baseUrl}/api/object?id=${encodeURIComponent(req.params.id)}`;
   const response = await fetch(url, { redirect: 'follow' });
 
   if (!response.ok) {
@@ -303,7 +317,7 @@ app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
 
   const idUrl = new URL(req.params.id);
   idUrl.pathname = '';
-  const url = `https://data.ldaca.edu.au/api/object/${encodeURIComponent(idUrl.toString())}/${encodeURIComponent(req.params.path)}`;
+  const url = `${baseUrl}/api/object/${encodeURIComponent(idUrl.toString())}/${encodeURIComponent(req.params.path)}`;
   const response = await fetch(url);
 
   res.status(response.status);
@@ -319,7 +333,7 @@ app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
 });
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
-  const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/login`;
+  const url = `${baseUrl}/api/oauth/${req.params.provider}/login`;
   const response = await fetch(url);
 
   res.status(response.status);
@@ -336,7 +350,7 @@ app.get('/ldaca/oauth/:provider/login', async (req, res) => {
 });
 
 app.post('/ldaca/oauth/:provider/code', async (req, res) => {
-  const url = `https://data.ldaca.edu.au/api/oauth/${req.params.provider}/code`;
+  const url = `${baseUrl}/api/oauth/${req.params.provider}/code`;
 
   let data = '';
   req.setEncoding('utf8');
@@ -416,7 +430,7 @@ const aggMap: Record<string, string> = {
   _text: 'text',
 };
 
-const url = 'https://data.ldaca.edu.au/api/search/index/items';
+const url = `${baseUrl}/api/search/index/items`;
 
 const filter = async (filters: Record<string, string[]>) => {
   const body = await es.multi({
@@ -546,7 +560,7 @@ app.post('/ldaca/search', async (req, res) => {
 });
 
 app.post('/api/search/index/items', async (req, res) => {
-  const url = 'https://data.ldaca.edu.au/api/search/index/items';
+  const url = `${baseUrl}/api/search/index/items`;
 
   let data = '';
   req.setEncoding('utf8');
@@ -595,7 +609,7 @@ app.get('/ldaca/oauth/authorize', async (req, res) => {
   const qs = new URLSearchParams(req.query as Record<string, string>).toString();
   const { state } = req.query;
 
-  const response = await fetch(`${base_url}/api/oauth/cilogon/login?${qs}`);
+  const response = await fetch(`${baseUrl}/api/oauth/cilogon/login?${qs}`);
 
   const { url, code_verifier } = (await response.json()) as { url: string; code_verifier: string };
 
@@ -611,7 +625,7 @@ app.get('/ldaca/oauth/intercept', async (req, res) => {
   const code_verifier = req.cookies['x-code-verifier'];
   const state = req.cookies['x-state'];
 
-  const response = await fetch(`${base_url}/api/oauth/cilogon/code`, {
+  const response = await fetch(`${baseUrl}/api/oauth/cilogon/code`, {
     method: 'POST',
     body: JSON.stringify({ code, state: 'cilogon', code_verifier }),
   });
@@ -626,7 +640,7 @@ app.get('/ldaca/oauth/intercept', async (req, res) => {
 app.post('/ldaca/oauth/token', async (req, res) => {
   const access_token = req.cookies['x-token'];
 
-  const response = await fetch(`${base_url}/api/user`, {
+  const response = await fetch(`${baseUrl}/api/user`, {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },

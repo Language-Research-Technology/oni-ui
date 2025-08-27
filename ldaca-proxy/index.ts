@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import cookieParser from 'cookie-parser';
-import express, { type Express } from 'express';
+import express, { type Express, type Request } from 'express';
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
 import { ROCrate } from 'ro-crate';
@@ -330,6 +330,54 @@ app.get('/ldaca/entity/:id/file/:path', async (req, res) => {
 
   // @ts-expect-error
   await pipeline(response.body, res);
+});
+
+app.get('/ldaca/user/terms', async (req, res) => {
+  const token = req.cookies['x-token'];
+
+  const url = `${baseUrl}/api/user/terms`;
+  const response = await fetch(url, {
+    redirect: 'follow',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const body = response.text();
+    res.status(response.status).send(body);
+
+    return;
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: foo
+  const data = (await response.json()) as any;
+
+  return res.json(data);
+});
+
+app.get('/ldaca/user/terms/accept', async (req: Request<{ id: string }>, res) => {
+  const token = req.cookies['x-token'];
+
+  const url = `${baseUrl}/api/user/terms/accept?id=${req.params.id}`;
+  const response = await fetch(url, {
+    redirect: 'follow',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const body = response.text();
+    res.status(response.status).send(body);
+
+    return;
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: foo
+  const data = (await response.json()) as any;
+
+  return res.json(data);
 });
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {

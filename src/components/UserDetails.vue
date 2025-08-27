@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
 const authStore = useAuthStore();
 
 import { ui } from '@/configuration';
+import type { ApiService } from '@/services/api';
 
 const {
   login: { manageTermsAndConditions },
@@ -14,7 +19,11 @@ const loginTermsURL = ref<string>();
 
 onMounted(async () => {
   if (!loginTermsURL && manageTermsAndConditions) {
-    const terms = { url: 'moo' }; // await this.$terms.get();
+    const terms = await api.getTerms();
+    if ('error' in terms) {
+      throw new Error(`could not get terms ${terms.error}`);
+    }
+
     authStore.loginTermsUrl = terms?.url;
   }
   loginTermsURL.value = authStore.loginTermsUrl;

@@ -54,10 +54,16 @@ export type EntityType = {
   searchExtra?: { score: number; highlight: string[] };
 };
 
+type ErrorResponse = {
+  error: string;
+};
+
 export type GetEntitiesResponse = {
   total: number;
   entities: Array<EntityType>;
 };
+
+export type GetEntityResponse = EntityType;
 
 export type GetSearchResponse = {
   total: number;
@@ -65,6 +71,18 @@ export type GetSearchResponse = {
   entities: Array<EntityType>;
   facets: Record<string, { name: string; count: number }[]>;
   geohashGrid: Record<string, number>;
+};
+
+export type GetTermsResponse = {
+  id: number;
+  body: string;
+  url: string;
+  description: string;
+  agreement: boolean;
+};
+
+export type AcceptTermsResponse = {
+  accept: boolean;
 };
 
 type ROCratePerson = {
@@ -120,22 +138,24 @@ export class ApiService {
   }
 
   async getEntities(params: GetEntitiesParams) {
-    const entities = (await this.#get('/entities', params as unknown as Record<string, string>)) as GetEntitiesResponse;
+    const entities = await this.#get<GetEntitiesResponse>('/entities', params as Record<string, string>);
 
     return entities;
   }
 
   async search(params: SearchParams) {
-    const response = (await this.#post('/search', params as unknown as Record<string, string>)) as GetSearchResponse;
+    const response = await this.#post<GetSearchResponse>('/search', params as unknown as Record<string, string>);
 
     return response;
   }
 
   async getRoCrate(id: string) {
-    const crateJson = await this.#get(`/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`);
+    const crateJson = await this.#get<object | ErrorResponse>(
+      `/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`,
+    );
 
-    if (crateJson.errors) {
-      return { errors: crateJson.errors };
+    if ('error' in crateJson) {
+      return { error: crateJson.error };
     }
 
     const crate = new ROCrate(crateJson, { array: false, link: true });
@@ -145,20 +165,16 @@ export class ApiService {
 
   async getEntity(id: string) {
     const [entity, crateJson] = await Promise.all([
-      this.#get(`/entity/${encodeURIComponent(id)}`),
+      this.#get<GetEntityResponse>(`/entity/${encodeURIComponent(id)}`),
       this.getRoCrate(id),
     ]);
 
-    if (!entity || !crateJson) {
-      return {};
+    if ('error' in entity) {
+      return { error: entity.error };
     }
 
-    if (entity.errors) {
-      return { errors: entity.errors };
-    }
-
-    if ('errors' in crateJson) {
-      return { errors: crateJson.errors };
+    if ('error' in crateJson) {
+      return { error: crateJson.error };
     }
 
     return { entity, metadata: crateJson.metadata };
@@ -182,9 +198,24 @@ export class ApiService {
 
     const url = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}`;
 
-    const json = await this.#get(url, { ...params, noRedirect: 'true' });
+    const json = await this.#get<{ location: string } | ErrorResponse>(url, { ...params, noRedirect: 'true' });
+    if ('error' in json) {
+      return;
+    }
 
     return json.location;
+  }
+
+  async getTerms() {
+    const terms = await this.#get<GetTermsResponse>('/user/terms');
+
+    return terms;
+  }
+
+  async acceptTerms(id: number) {
+    const terms = await this.#get<AcceptTermsResponse>(`/user/terms?${id}`);
+
+    return terms;
   }
 
   async #getHeaders() {
@@ -204,9 +235,9 @@ export class ApiService {
     return this.#store.user?.accessToken;
   }
 
-  async #get(route: string, params?: Record<string, string>) {
+  async #get<T extends object>(route: string, params?: Record<string, string>) {
     const headers = await this.#getHeaders();
-    const queryString = new URLSearchParams(params).toString();
+    const queryString = params ? new URLSearchParams(params).toString() : undefined;
 
     const url = `${this.#apiUri}${route}${queryString ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
@@ -215,18 +246,18 @@ export class ApiService {
     });
 
     if (response.status === 404) {
-      return { errors: ['Not found'] };
+      return { error: 'Not found' };
     }
 
     if (response.status === 401) {
       throw new Error('Not authorised');
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as T | ErrorResponse;
 
     if (response.status !== 200) {
-      if (data.errors) {
-        throw new Error(data.errors.join(', '));
+      if ('error' in data) {
+        throw new Error(data.error);
       }
 
       throw new Error((await response.text()) || 'No body present in response');
@@ -235,7 +266,7 @@ export class ApiService {
     return data;
   }
 
-  async #post(route: string, body: object) {
+  async #post<T extends object>(route: string, body: object) {
     const headers = await this.#getHeaders();
     const response = await fetch(`${this.#apiUri}${route}`, {
       method: 'POST',
@@ -247,11 +278,11 @@ export class ApiService {
       return null;
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as T | ErrorResponse;
 
     if (response.status !== 200) {
-      if (data.errors) {
-        throw new Error(data.errors.join(', '));
+      if ('error' in data) {
+        throw new Error(data.error);
       }
 
       throw new Error((await response.text()) || 'No body present in response');

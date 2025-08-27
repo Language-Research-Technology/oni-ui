@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
 
 import { RouterView, useRoute, useRouter } from 'vue-router';
 import FooterView from '@/components/Footer.vue';
@@ -12,8 +12,14 @@ const router = useRouter();
 const route = useRoute();
 
 import { useAuthStore } from '@/stores/auth';
+import type { ApiService, GetTermsResponse } from '@/services/api';
 
 const authStore = useAuthStore();
+
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
 
 const {
   login: { manageTermsAndConditions },
@@ -22,19 +28,11 @@ const {
 const defaultNavRoute = ui?.topNavItems?.[0]?.route || '/search';
 
 const showTerms = ref(false);
-const terms = ref<{ id?: string; description?: string; body?: string; url?: string } | undefined>(undefined);
+const terms = ref<GetTermsResponse>();
 
 const manageTerms = async () => {
-  // TODO
-  const fetchedTerms = {
-    error: undefined,
-    agreement: 'moo',
-    id: '123',
-    description: 'moo',
-    body: 'moo',
-    url: 'https://localhost:6000/moo',
-  }; // await this.$terms.get();
-  if (fetchedTerms.error) {
+  const fetchedTerms = await api.getTerms();
+  if ('error' in fetchedTerms) {
     throw new Error(`Error managing Terms and Conditions: ${fetchedTerms.error}`);
   }
 
@@ -47,14 +45,16 @@ const manageTerms = async () => {
 };
 
 const acceptTerms = async () => {
-  // TODO
-  const response = { error: undefined }; // await this.$terms.accept(this.terms.id);
-  //If there is an error I dont want to alert the user.
-  showTerms.value = false;
+  if (!terms.value) {
+    return;
+  }
 
-  if (response.error) {
+  const response = await api.acceptTerms(terms.value.id);
+  if ('error' in response) {
     throw new Error(`Error accepting Terms and Conditions: ${response.error}`);
   }
+
+  showTerms.value = false;
 };
 
 const doLogout = async () => {

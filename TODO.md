@@ -7,4 +7,3 @@
 ## Things to being back
 
 * Downloads
-* Terms and Conditions

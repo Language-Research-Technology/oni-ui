@@ -1,6 +1,6 @@
 import { ROCrate } from 'ro-crate';
 
-import { configuration } from '@/configuration';
+import { api } from '@/configuration';
 import { useAuthStore } from '@/stores/auth';
 
 // TODO: use zod to validate the response we get back
@@ -112,7 +112,7 @@ export class ApiService {
   #store: ReturnType<typeof useAuthStore>;
 
   constructor() {
-    const { endpoint, path, clientId, usesRedirects } = configuration.api.rocrate;
+    const { endpoint, path, clientId, usesRedirects } = api.rocrate;
     this.#apiUri = `${endpoint}${path}`;
     this.#clientId = clientId;
     this.#store = useAuthStore();

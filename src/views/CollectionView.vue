@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { injectHead } from '@unhead/vue';
-import { inject, onMounted, onUpdated, ref, watch } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
@@ -27,9 +27,9 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
-const { collection: config, conformsTo } = configuration.ui;
+const { collection: config, conformsTo } = ui;
 
 const id = route.query.id as string;
 

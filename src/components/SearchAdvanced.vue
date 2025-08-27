@@ -3,9 +3,8 @@ import { ref } from 'vue';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
 import { type AdvancedSearchLine, blankAdvancedSearchLine, type SetSearchParamsOptions } from '@/composables/search';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
-const { ui } = configuration;
 const { searchFields } = ui;
 
 const { setSearchParams, advancedSearchLines } = defineProps<{

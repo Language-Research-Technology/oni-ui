@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SplashScreen from '@/components/SplashScreen.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
 const {
   footer: {
@@ -11,7 +11,7 @@ const {
   terms,
   privacy,
   splash: { launcher },
-} = configuration.ui;
+} = ui;
 
 const splash = ref(false);
 </script>

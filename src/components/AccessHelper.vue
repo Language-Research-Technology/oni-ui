@@ -8,7 +8,7 @@ const { access, license } = defineProps<{
   license: NonNullable<RoCrate['license']>;
 }>();
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import { login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 
@@ -21,7 +21,7 @@ if (!api) {
 
 const {
   login: { enabled: isLoginEnabled },
-} = configuration.ui;
+} = ui;
 
 const localLicense = Array.isArray(license) ? license[0] : license;
 

@@ -2,12 +2,10 @@
 import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
 import ElasticField from '@/components/ElasticField.vue';
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { RoCrate } from '@/services/api';
 
-const {
-  ui: { textReplacements },
-} = configuration;
+const { textReplacements } = ui;
 
 const startCase = (str: string) => {
   if (typeof str !== 'string' || !str) {

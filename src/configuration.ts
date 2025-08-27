@@ -213,6 +213,6 @@ const configurationSchema = z.strictObject({
   api: apiSchema,
 });
 
-export const configuration = configurationSchema.parse(configurationJSON);
+const configuration = configurationSchema.parse(configurationJSON);
 export const ui = configuration.ui;
 export const api = configuration.api;

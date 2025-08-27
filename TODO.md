@@ -4,11 +4,6 @@
 
 * Use a query state library in search.ts instead of managing this manually
 
-## Other
-
-* Reconcile the sample config file
-* Dump ui and api from configuration nad make all the ui stuff top level
-
 ## Things to being back
 
 * Downloads

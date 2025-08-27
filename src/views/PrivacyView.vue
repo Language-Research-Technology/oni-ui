@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
-const { privacy } = configuration.ui;
+const { privacy } = ui;
 </script>
 
 <template>

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { configuration } from '@/configuration';
-
-const { ui } = configuration;
+import { ui } from '@/configuration';
 
 const takedownForm = ui.googleForm?.takedown;
 

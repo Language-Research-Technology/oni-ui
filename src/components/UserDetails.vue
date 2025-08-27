@@ -4,13 +4,11 @@ import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
 const {
-  ui: {
-    login: { manageTermsAndConditions },
-  },
-} = configuration;
+  login: { manageTermsAndConditions },
+} = ui;
 
 const loginTermsURL = ref<string>();
 

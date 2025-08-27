@@ -5,10 +5,9 @@ import { RouterView, useRoute, useRouter } from 'vue-router';
 import FooterView from '@/components/Footer.vue';
 import MaintenacePage from '@/components/MaintenacePage.vue';
 import NavView from '@/components/Nav.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import { logout } from '@/services/auth';
 
-const { ui } = configuration;
 const router = useRouter();
 const route = useRoute();
 

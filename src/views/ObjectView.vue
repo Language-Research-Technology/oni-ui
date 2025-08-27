@@ -16,10 +16,10 @@ import ObjectPart from '@/components/ObjectPart.vue';
 import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
-const { object: config, conformsTo } = configuration.ui;
+const { object: config, conformsTo } = ui;
 
 const api = inject<ApiService>('api');
 if (!api) {

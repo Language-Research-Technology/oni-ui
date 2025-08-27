@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { EntityType, RoCrate } from '@/services/api';
 
 const { part, active, access, license, parentId } = defineProps<{
@@ -12,8 +12,6 @@ const { part, active, access, license, parentId } = defineProps<{
   license: RoCrate['license'];
   parentId: string;
 }>();
-
-const { ui } = configuration;
 
 const id = part['@id'];
 const resolve = ref(active);

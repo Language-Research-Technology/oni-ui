@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onUpdated, ref } from 'vue';
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import { useSplashStore } from '@/stores/splash';
 
 const props = defineProps({
@@ -10,9 +10,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const {
-  ui: { splash, shortTitle },
-} = configuration;
+const { splash, shortTitle } = ui;
 const splashStore = useSplashStore();
 
 const centerDialogVisible = ref(splash.enabled && !splashStore.splashed);

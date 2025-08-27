@@ -1,6 +1,6 @@
 import { type User, UserManager, type UserManagerSettings } from 'oidc-client-ts';
 
-import { configuration } from '@/configuration';
+import { api } from '@/configuration';
 
 export type OniUser = {
   email: string;
@@ -11,10 +11,8 @@ export type OniUser = {
 };
 
 const {
-  api: {
-    rocrate: { endpoint, clientId, callbackPrefix },
-  },
-} = configuration;
+  rocrate: { endpoint, clientId, callbackPrefix },
+} = api;
 
 let userManager: UserManager | undefined;
 

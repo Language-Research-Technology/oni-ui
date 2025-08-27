@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
-const { terms } = configuration.ui;
+const { terms } = ui;
 </script>
 
 <template>

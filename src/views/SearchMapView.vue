@@ -12,7 +12,7 @@ import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import Geohash from 'latlon-geohash';
 import SearchLayout from '@/components/SearchLayout.vue';
 import { useSearch } from '@/composables/search';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { ApiService, EntityType, SearchParams } from '@/services/api';
 import { getEntityUrl } from '@/tools';
 
@@ -147,7 +147,7 @@ const NumberedDivIcon = L.Icon.extend({
   options: NumberedIconOptions,
 ) => L.Icon;
 
-const { mapConfig } = configuration.ui;
+const { mapConfig } = ui;
 
 const geoHashLayer = L.featureGroup();
 const tooltipLayers = L.layerGroup();

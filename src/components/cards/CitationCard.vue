@@ -7,15 +7,13 @@ const { metadata } = defineProps<{
   metadata: RoCrate;
 }>();
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
 const {
-  ui: {
-    citeData: {
-      help: { text: citeDataText },
-    },
+  citeData: {
+    help: { text: citeDataText },
   },
-} = configuration;
+} = ui;
 
 const dialogVisible = ref(false);
 
@@ -51,7 +49,7 @@ const bibliography = () => {
 
   const title = `<b>Title:</b> ${metadata.name}`;
   const publishedDate = `<b>Date:</b> ${metadata.datePublished}`;
-  const publisher = `<b>Publisher:</b> ${configuration.ui.title}`;
+  const publisher = `<b>Publisher:</b> ${ui.title}`;
   const url = `<b>Locator:</b> ${decodeURIComponent(window.location.href)}`;
   const identifier = `<b>Identifier:</b> ${metadata.doi || metadata['@id']}`;
   const accessDate = `<b>Access Date:</b> ${new Date().toISOString().split('T')[0]}`;

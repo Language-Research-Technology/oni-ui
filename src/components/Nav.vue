@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router';
 import logo from '@/assets/logo.svg';
 import NavUser from '@/components/NavUser.vue';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 
 const route = useRoute();
 
@@ -15,7 +15,7 @@ const {
   topNavItems = [],
   subHelpLinks = [],
   showEllipsis = false,
-} = configuration.ui;
+} = ui;
 </script>
 
 <template>

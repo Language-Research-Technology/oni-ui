@@ -5,10 +5,9 @@ import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
 
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { EntityType } from '@/services/api';
 
-const { ui } = configuration;
 const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
 const ordering = ui.search?.ordering || [
   { value: 'asc', label: 'Ascending' },

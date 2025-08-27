@@ -1,10 +1,10 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { inject, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { configuration } from '@/configuration';
+import { ui } from '@/configuration';
 import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
 
-const { mapConfig } = configuration.ui;
+const { mapConfig } = ui;
 
 export type FacetType = {
   buckets: Array<{ name: string; count: number }>;
@@ -49,7 +49,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     throw new Error('API instance not provided');
   }
 
-  const { ui } = configuration;
   const { searchFields } = ui;
 
   const isMap = searchType === 'map';

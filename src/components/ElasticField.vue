@@ -8,9 +8,7 @@ const { field, title } = defineProps<{
   title: string;
 }>();
 
-import { configuration } from '@/configuration';
-
-const { ui } = configuration;
+import { ui } from '@/configuration';
 
 const { expand = [], byteFields } = ui.main;
 

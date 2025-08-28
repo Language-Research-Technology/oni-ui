@@ -16,7 +16,7 @@ RUN pnpm install --prod --frozen-lockfile
 COPY . .
 
 # Build vocabulary during container build
-RUN pnpm run create-vocabs /app/vocab.json
+RUN pnpm run setup:vocabs /app/vocab.json
 
 # Set environment variables
 ENV CONFIG_PATH=/app/config/configuration.json

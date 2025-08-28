@@ -2,23 +2,26 @@ import { ROCrate } from 'ro-crate';
 
 import { api } from '@/configuration';
 import { useAuthStore } from '@/stores/auth';
+import { parseContentSize } from '@/tools';
 
 // TODO: use zod to validate the response we get back
 
-// TODO: Can we get the types from the API?
-export type GetEntitiesParams = {
+type CommonParams = {
   limit?: number;
   offset?: number;
   sort?: string;
   order?: string;
+};
+// TODO: Can we get the types from the API?
+export type GetEntitiesParams = CommonParams & {
   conformsTo?: string;
   memberOf?: string;
 };
 
-export type SearchParams = GetEntitiesParams & {
+export type SearchParams = CommonParams & {
+  searchType?: 'basic' | 'advanced';
   query: string;
   filters?: Record<string, string[]>;
-  searchType?: 'basic' | 'advanced';
   boundingBox?: {
     topRight: { lat: number; lng: number };
     bottomLeft: { lat: number; lng: number };
@@ -85,6 +88,20 @@ export type AcceptTermsResponse = {
   accept: boolean;
 };
 
+export type GetZipMetaResponse =
+  | {
+      status: 'ok';
+      expandedSize: number | null;
+      numberOfFiles: number;
+      url: string;
+    }
+  | {
+      status: 'noAccess';
+    }
+  | {
+      status: 'notFound';
+    };
+
 type ROCratePerson = {
   '@type': 'Person';
   description?: string;
@@ -94,8 +111,8 @@ type ROCratePerson = {
 type RoCrateLicense = {
   '@id': string;
   '@type': string;
-  name: string;
-  description?: string;
+  name: string | string[];
+  description?: string | string[];
   'ldac:access': string;
   metadataIsPublic?: boolean;
   allowTextIndex?: boolean;
@@ -213,9 +230,36 @@ export class ApiService {
   }
 
   async acceptTerms(id: number) {
-    const terms = await this.#get<AcceptTermsResponse>(`/user/terms/accept?id=${id}`);
+    const terms = await this.#get<AcceptTermsResponse>('/user/terms/accept', { id: String(id) });
 
     return terms;
+  }
+
+  async getZipMeta(id: string): Promise<GetZipMetaResponse> {
+    const response = await this.#head(`/zip/${encodeURIComponent(id)}`);
+
+    if (response.status === 403) {
+      return { status: 'noAccess' };
+    }
+
+    if (response.status === 404) {
+      return { status: 'notFound' };
+    }
+
+    if (response.status !== 200) {
+      throw new Error(`Error fetching zip metadata: ${response.statusText}`);
+    }
+
+    const size = response.headers.get('Content-Length-Estimate') || '0';
+    const expandedSize = parseContentSize(Number.parseInt(size, 10));
+    const numberOfFiles = response.headers.get('Archive-File-Count') || '0';
+
+    return {
+      status: 'ok',
+      expandedSize,
+      numberOfFiles: Number.parseInt(numberOfFiles, 10),
+      url: response.url,
+    };
   }
 
   async #getHeaders() {
@@ -235,11 +279,11 @@ export class ApiService {
     return this.#store.user?.accessToken;
   }
 
-  async #get<T extends object>(route: string, params?: Record<string, string>) {
+  async #get<T extends object>(path: string, params?: Record<string, string>) {
     const headers = await this.#getHeaders();
     const queryString = params ? new URLSearchParams(params).toString() : undefined;
 
-    const url = `${this.#apiUri}${route}${queryString ? `?${queryString}` : ''}`;
+    const url = `${this.#apiUri}${path}${queryString ? `?${queryString}` : ''}`;
     const response = await fetch(url, {
       method: 'GET',
       headers,
@@ -266,16 +310,16 @@ export class ApiService {
     return data;
   }
 
-  async #post<T extends object>(route: string, body: object) {
+  async #post<T extends object>(path: string, body: object) {
     const headers = await this.#getHeaders();
-    const response = await fetch(`${this.#apiUri}${route}`, {
+    const response = await fetch(`${this.#apiUri}${path}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
     });
 
     if (response.status === 404) {
-      return null;
+      return { error: 'Not found' };
     }
 
     const data = (await response.json()) as T | ErrorResponse;
@@ -289,5 +333,18 @@ export class ApiService {
     }
 
     return data;
+  }
+
+  // NOTE: This is a bit different, consider refactoring if anything other than zip uses it
+  async #head(path: string) {
+    const headers = await this.#getHeaders();
+
+    const url = `${this.#apiUri}${path}`;
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers,
+    });
+
+    return response;
   }
 }

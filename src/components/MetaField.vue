@@ -1,33 +1,8 @@
 <script setup lang="ts">
 import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
 import ElasticField from '@/components/ElasticField.vue';
-
-import { ui } from '@/configuration';
 import type { RoCrate } from '@/services/api';
-
-const { textReplacements } = ui;
-
-const startCase = (str: string) => {
-  if (typeof str !== 'string' || !str) {
-    return '';
-  }
-
-  let words = str;
-
-  for (const [pattern, replacement] of Object.entries(textReplacements)) {
-    const regex = new RegExp(pattern, 'g');
-    words = words.replace(regex, replacement);
-  }
-
-  words = words
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .split(/[^a-zA-Z0-9]+/)
-    .filter((word) => word.length > 0)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-
-  return words;
-};
+import { startCase } from '@/tools';
 
 const { meta, isExpand } = defineProps<{
   meta: { name: string; data: RoCrate[keyof RoCrate] };

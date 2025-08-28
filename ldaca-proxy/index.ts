@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import express, { type Express, type Request } from 'express';
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
-import { ROCrate } from 'ro-crate';
 
 const app = express();
 
@@ -73,7 +72,7 @@ const getMemberships = async (token: string) => {
   return membershipsStatus.memberships.map(({ group }) => group).filter(Boolean);
 };
 
-const getExtra = async (id: string, typem: string, license: string, token: string) => {
+const getExtra = async (id: string, typem: string, token: string) => {
   let summaries: Awaited<ReturnType<typeof filter>>;
   let subCollections: Awaited<ReturnType<typeof filter>>;
   let members: Awaited<ReturnType<typeof filter>>;
@@ -102,7 +101,19 @@ const getExtra = async (id: string, typem: string, license: string, token: strin
 
   const memberships = await getMemberships(token);
 
-  const access = memberships.includes(license);
+  const us = await filter({ '@id': [id] });
+  if (!us) {
+    throw new Error('Failed to get data for the current entity');
+  }
+
+  console.log('🪚 us?.data:', JSON.stringify(Object.keys(us.data[0]._source), null, 2));
+  const access = us?.data?.[0]?._source?._access;
+  if (!access) {
+    throw new Error('Failed to get access for the current entity');
+  }
+
+  const extraAccess = 'group' in access ? !!memberships.includes(access.group) : access.hasAccess;
+  console.log('🪚 extraAccess:', JSON.stringify(extraAccess, null, 2));
 
   const extra = {
     subCollectionCount: subCollections?.total,
@@ -110,9 +121,8 @@ const getExtra = async (id: string, typem: string, license: string, token: strin
     fileCount: fileCount?.doc_count,
     accessControl: 'Public',
     access: {
-      // FIXME: How do we determine this
       metadata: true,
-      files: access,
+      files: extraAccess,
     },
     // @ts-expect-error
     communicationMode: summaries?.aggregations['communicationMode.name.@value'].buckets.map(({ key }) => key),
@@ -122,7 +132,7 @@ const getExtra = async (id: string, typem: string, license: string, token: strin
     language: summaries?.aggregations['inLanguage.name.@value'].buckets.map(({ key }) => key),
   };
 
-  const enrollmenrUrl = LICENSES[license];
+  const enrollmenrUrl = LICENSES[access.group];
   if (enrollmenrUrl) {
     // @ts-expect-error
     extra.access.enrollmentUrl = enrollmenrUrl;
@@ -140,7 +150,7 @@ const synthesise = async (id: string) => {
     searchFrom: 0,
   });
 
-  const response = await fetch(url, {
+  const response = await fetch(searchUrl, {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -196,6 +206,10 @@ const getcrate = async (id: string) => {
     rocrate = JSON.parse(await response.text());
   }
 
+  if (!rocrate) {
+    return null;
+  }
+
   // biome-ignore lint/suspicious/noExplicitAny: foo
   const metadata = rocrate['@graph'].find((item: any) => item['@id'] === 'ro-crate-metadata.json');
   // biome-ignore lint/suspicious/noExplicitAny: foo
@@ -245,13 +259,9 @@ app.get('/ldaca/entities', async (req, res) => {
   const entities = await Promise.all(
     // @ts-expect-error
     data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => {
-      const roCrateJson = await getcrate(crateId);
-
-      const roCrate = new ROCrate(roCrateJson, { array: false, link: true }).rootDataset;
-
       const recordType = getScalarRecordType(rest.recordType);
 
-      const extra = await getExtra(crateId, recordType, roCrate.license['@id'], token);
+      const extra = await getExtra(crateId, recordType, token);
 
       return {
         id: crateId,
@@ -288,12 +298,13 @@ app.get('/ldaca/entity/:id', async (req, res) => {
 
   // biome-ignore lint/correctness/noUnusedVariables: foo
   const { id, crateId, license, objectRoot, locked, rootConformsTos, ...rest } = data;
-
   if (rootConformsTos.length > 1) {
     throw new Error('Multiple conformsTo found in rootConformsTos');
   }
 
   const recordType = rootConformsTos[0].conformsTo.endsWith('Object') ? 'RepositoryObject' : 'RepositoryCollection';
+
+  const extra = await getExtra(crateId, recordType, token);
 
   const result = {
     id: crateId,
@@ -301,7 +312,7 @@ app.get('/ldaca/entity/:id', async (req, res) => {
     recordType,
     memberOf: 'Unknown',
     root: 'Unknown',
-    extra: await getExtra(crateId, recordType, license, token),
+    extra,
     ...rest,
   };
 
@@ -378,6 +389,55 @@ app.get('/ldaca/user/terms/accept', async (req: Request<{ id: string }>, res) =>
   const data = (await response.json()) as any;
 
   return res.json(data);
+});
+
+app.head('/ldaca/zip/:id', async (req, res) => {
+  const token = req.cookies['x-token'];
+
+  const url = `${baseUrl}/api/object/${encodeURIComponent(req.params.id)}.zip`;
+  const response = await fetch(url, {
+    method: 'HEAD',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 404) {
+    res.status(404).end();
+
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.statusText}`);
+  }
+
+  res.set('Content-Length-Estimate', response.headers.get('Content-Length-Estimate') || '0');
+  res.set('Archive-File-Count', response.headers.get('Archive-File-Count') || '0');
+
+  res.end();
+});
+
+app.get('/ldaca/zip/:id', async (req, res) => {
+  const token = req.cookies['x-token'];
+
+  const url = `${baseUrl}/api/object/${encodeURIComponent(req.params.id)}.zip`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  res.status(response.status);
+
+  if (!response.body) {
+    res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+
+    return;
+  }
+
+  // @ts-expect-error
+  await pipeline(response.body, res);
 });
 
 app.get('/ldaca/oauth/:provider/login', async (req, res) => {
@@ -478,7 +538,7 @@ const aggMap: Record<string, string> = {
   _text: 'text',
 };
 
-const url = `${baseUrl}/api/search/index/items`;
+const searchUrl = `${baseUrl}/api/search/index/items`;
 
 const filter = async (filters: Record<string, string[]>) => {
   const body = await es.multi({
@@ -487,7 +547,7 @@ const filter = async (filters: Record<string, string[]>) => {
     order: 'desc',
   });
 
-  const response = await fetch(url, {
+  const response = await fetch(searchUrl, {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -538,7 +598,7 @@ app.post('/ldaca/search', async (req, res) => {
       });
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(searchUrl, {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -553,8 +613,7 @@ app.post('/ldaca/search', async (req, res) => {
         const typem = hit._source?.['@type'];
         const recordType = typem.includes('RepositoryCollection') ? 'RepositoryCollection' : 'RepositoryObject';
 
-        const roCrate = await getcrate(id);
-        const extra = await getExtra(id, recordType, roCrate.license, token);
+        const extra = await getExtra(id, recordType, token);
 
         return {
           id: hit._source['@id'],

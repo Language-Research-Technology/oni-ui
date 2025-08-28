@@ -11,8 +11,8 @@ import { logout } from '@/services/auth';
 const router = useRouter();
 const route = useRoute();
 
-import { useAuthStore } from '@/stores/auth';
 import type { ApiService, GetTermsResponse } from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
 

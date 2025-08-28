@@ -20,12 +20,17 @@ const getNextobjects = async () => {
   const items = await api.search({
     query: '',
     filters: {
-      'input.@id': [id],
+      input: [id],
       '@type': [objectType],
     },
     sort: 'relevance',
     order: 'desc',
   });
+
+  if ('error' in items) {
+    console.error('Error fetching objects:', items.error);
+    return;
+  }
 
   objectTotals.value = items.total;
   objects.value = items.entities;

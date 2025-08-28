@@ -19,12 +19,13 @@ type MultiProps = {
 const aggMap = {
   _geohash: 'geohash',
   '_memberOf.name.@value': 'memberOf',
-  '_root.name.@value': 'root',
+  '_root.@id': 'root',
   '_mainCollection.name.@value': 'mainCollection',
   '_subCollection.name.@value': 'subCollection',
   'license.@id': 'licenseId',
   'license.name.@value': 'licenseName',
   '@type': 'type',
+  type: '@type',
   'inLanguage.name.@value': 'inLanguage',
   'communicationMode.name.@value': 'communicationMode',
   'linguisticGenre.name.@value': 'linguisticGenre',
@@ -38,6 +39,8 @@ const aggMap = {
   'description.@value': 'description',
   'name.@value': 'name',
   _text: 'text',
+  input: 'input',
+  _isOCFL: 'isOCFL',
 };
 
 const aggMapReverse = Object.fromEntries(Object.entries(aggMap).map(([key, value]) => [value, key]));
@@ -234,6 +237,10 @@ export class ElasticService {
     const filterTerms = [];
     if (Object.keys(filters).length !== 0) {
       for (const bucket of Object.keys(filters)) {
+        const f = aggMapReverse[bucket];
+        if (!f) {
+          throw new Error(`Unknown filter field: ${bucket}`);
+        }
         if (filters[bucket].length > 0 || (filters[bucket]?.v && filters[bucket].v.length > 0)) {
           //TODO: send the type of field in the filters
           let field = '';
@@ -243,11 +250,11 @@ export class ElasticService {
             if (bucket === '@id') {
               field = bucket;
             } else {
-              field = `${aggMapReverse[bucket]}.keyword`;
+              field = `${f}.keyword`;
             }
           } else {
             type = filters[bucket]?.t;
-            field = `${aggMapReverse[bucket]}.${type}`;
+            field = `${f}.${type}`;
           }
           const values = filters[bucket]?.v || filters[bucket];
           filterTerms.push(esb.termsQuery(field, values));

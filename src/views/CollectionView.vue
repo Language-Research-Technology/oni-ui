@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -6,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
+import DownloadsModal from '@/components/DownloadsModal.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
@@ -16,6 +18,7 @@ import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
+import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const router = useRouter();
@@ -28,15 +31,13 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-import { useGtm } from '@gtm-support/vue-gtm';
-import { ui } from '@/configuration';
-
 const { collection: config, conformsTo } = ui;
 
 const id = route.query.id as string;
 
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
+const openDownloads = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 
@@ -96,9 +97,9 @@ const fetchData = async () => {
   }
 
   try {
-    const { errors, entity: rawEntity, metadata: rawMeatadata } = await api.getEntity(id);
-    if (errors) {
-      errorDialogText.value = errors;
+    const { error, entity: rawEntity, metadata: rawMeatadata } = await api.getEntity(id);
+    if (error) {
+      errorDialogText.value = error;
       errorDialogVisible.value = true;
 
       return;
@@ -125,7 +126,6 @@ const fetchData = async () => {
     metadata.value = rawMeatadata;
     entity.value = rawEntity;
 
-    console.log(rawMeatadata);
     populate(rawMeatadata);
   } catch (e) {
     console.error(e);
@@ -152,7 +152,7 @@ onMounted(fetchData);
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
         <MemberOfLink v-if="metadata['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
-        {{ name }}
+        {{ Array.isArray(name) ? name[0] : name }}
       </h5>
     </el-row>
     <hr class="divider divider-gray pt-2" />
@@ -208,6 +208,22 @@ onMounted(fetchData);
             <h5 class="text-2xl font-medium">Content</h5>
             <hr class="divider divider-gray pt-2" />
             <SummariesCard :entity="entity" />
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5" v-if="name != undefined">
+        <el-col>
+          <el-card class="mx-10">
+            <h5 class="text-2xl font-medium">Downloads</h5>
+            <hr class="divider divider-gray pt-2" />
+
+            <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" v-model="openDownloads" />
+
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
+
+            <DownloadsModal v-if="entity.extra.access" :id="id" :idFieldName="'root'" v-model="openDownloads"
+              :title="name" />
           </el-card>
         </el-col>
       </el-row>

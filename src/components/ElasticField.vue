@@ -9,6 +9,7 @@ const { field, title } = defineProps<{
 }>();
 
 import { ui } from '@/configuration';
+import { formatFileSize, shortenText } from '@/tools';
 
 const { expand = [], byteFields } = ui.main;
 
@@ -26,32 +27,6 @@ const testURL = (url: string) => {
     //TODO: make this a real url test
     return url;
   }
-};
-
-const formatFileSize = (bytes: number, locales = 'en') => {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  const threshold = 1024;
-
-  if (bytes < threshold) return `${bytes} B`;
-
-  const i = Math.floor(Math.log(bytes) / Math.log(threshold));
-  const value = bytes / threshold ** i;
-
-  const formatter = new Intl.NumberFormat(locales, { maximumFractionDigits: 2 });
-
-  return `${formatter.format(value)} ${units[i]}`;
-};
-
-const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
-  if (!input) {
-    return input;
-  }
-
-  if (input.length <= minLength) {
-    return input; // Don't shorten if it's too short
-  }
-
-  return input.length > maxLength ? `${input.slice(0, maxLength)}...` : input;
 };
 
 if (typeof field === 'undefined') {

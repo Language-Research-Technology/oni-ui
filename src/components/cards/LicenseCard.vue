@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import Truncate from '@/components/Truncate.vue';
-
 import type { RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 const { license } = defineProps<{
   license: NonNullable<RoCrate['license']>;
 }>();
 
-const localLicense = Array.isArray(license) ? license[0] : license;
+const localLicense = first(license);
 
 if (!localLicense) {
   console.warn('🪚 WHY: No license');
@@ -16,11 +16,11 @@ if (!localLicense) {
 </script>
 
 <template>
-  <Truncate v-if="localLicense.description" :text="localLicense.description" :lines="2" />
+  <Truncate v-if="localLicense.description" :text="first(localLicense.description)" :lines="2" />
 
   <div class="flex flex-col gap-8 p-4 items-center">
     <a class="underline" :href="localLicense['@id']" target="_blank">
-      {{ localLicense.name }}
+      {{ first(localLicense.name) }}
     </a>
 
     <p>

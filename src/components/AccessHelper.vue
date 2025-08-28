@@ -32,21 +32,20 @@ if (!localLicense) {
 </script>
 
 <template>
-  <template v-if="access.files">
+  <template v-if="access.files && access.enrollmentUrl">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <p>
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
         Access to
         <a :href="localLicense['@id']" class="font-bold">
-          {{ localLicense['name'] || localLicense['@id'] }}
+          {{ localLicense.name || localLicense['@id'] }}
         </a>
         granted to
         {{ user?.['name'] || user?.['email'] }}
       </p>
     </el-row>
   </template>
-
-  <template v-else>
+  <template v-else-if="!access.files">
     <el-row class="px-5 py-6 bg-red-200 text-red-700">
       <el-row body-class="flex gap-4">
         <p>

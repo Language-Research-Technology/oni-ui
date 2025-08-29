@@ -1,3 +1,6 @@
+// NOTE: This fixes types
+// https://github.com/prazdevs/pinia-plugin-persistedstate/issues/373
+import 'pinia-plugin-persistedstate';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 

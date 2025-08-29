@@ -1,6 +1,7 @@
 import { useHead as useUnhead, type VueHeadClient } from '@unhead/vue';
 import { ui } from '@/configuration';
 import type { RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 export const useHead = (head: VueHeadClient, md: RoCrate) => {
   const {
@@ -16,7 +17,7 @@ export const useHead = (head: VueHeadClient, md: RoCrate) => {
     }
 
     if (typeof value === 'object' && value?.name) {
-      return value.name;
+      return first(value.name);
     }
 
     return String(value || '');

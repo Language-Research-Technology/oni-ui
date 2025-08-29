@@ -50,6 +50,12 @@ const fetchEntities = async () => {
 
   try {
     const response = await api.getEntities(params);
+    if ('error' in response) {
+      errorDialogText.value = response.error;
+      loading.value = false;
+
+      return;
+    }
 
     total.value = response.total;
     entities.value = response.entities;

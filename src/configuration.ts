@@ -4,7 +4,6 @@ import configurationJSON from './configuration.json';
 
 const helpSchema = z.strictObject({
   aboutText: z.string(),
-  helpUrl: z.url(),
   citationText: z.string(),
 });
 
@@ -148,10 +147,6 @@ const uiSchema = z.strictObject({
     enabled: z.boolean(),
     manageTermsAndConditions: z.boolean(),
   }),
-  authorizationProvider: z.strictObject({
-    label: z.string(),
-    url: z.url(),
-  }),
   topNavItems: z.array(topNavItemSchema).optional(),
   topNavHome: z.string().optional(),
   search: searchSchema,
@@ -170,7 +165,6 @@ const uiSchema = z.strictObject({
   conformsTo: z.strictObject({
     collection: z.url(),
     object: z.url(),
-    notebook: z.url(),
   }),
   aggregations: z.array(
     z.strictObject({

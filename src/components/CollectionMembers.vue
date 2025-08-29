@@ -37,6 +37,14 @@ const setMembers = async () => {
   isLoading.value = true;
 
   const response = await api.getEntities(params);
+  if ('error' in response) {
+    // TODO: We should have an error dialog
+    console.error('Error fetching entities:', response.error);
+    isLoading.value = false;
+
+    return;
+  }
+
   items.value = response.entities;
   total.value = response.total;
 

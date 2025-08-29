@@ -429,6 +429,11 @@ const initControls = () => {
       pageSize: data.count,
       currentPage: 1,
     });
+    if ('error' in results) {
+      console.error('Error searching geohash:', results.error);
+
+      return;
+    }
 
     const total = results.total;
     const tooltipView = document.createElement('div');

@@ -215,6 +215,12 @@ export const useSearch = (searchType: 'list' | 'map') => {
       }
 
       const results = await api.search(params);
+      if ('error' in results) {
+        errorDialogText.value = results.error;
+        isLoading.value = false;
+
+        return;
+      }
 
       searchTime.value = results.searchTime;
 

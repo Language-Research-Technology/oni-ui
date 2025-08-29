@@ -41,8 +41,8 @@ const togglePreview = ref(false);
 const fileUrl = `/file?id=${encodeURIComponent(id)}&parentId=${encodeURIComponent(parentId)}`;
 
 const resolveFile = async () => {
-  downloadUrl.value = await api.getFileUrl(parentId, filename, true);
-  streamUrl.value = await api.getFileUrl(parentId, filename, false);
+  downloadUrl.value = (await api.getFileUrl(parentId, filename, true)) || '';
+  streamUrl.value = (await api.getFileUrl(parentId, filename, false)) || '';
 
   // Try to display only text and pdfs by default if there is an encodingFormat
   if (encodingFormat.some((format) => String(format).match(/text\/|pdf/))) {

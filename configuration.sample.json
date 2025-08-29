@@ -60,10 +60,6 @@
       "enabled": true,
       "manageTermsAndConditions": false
     },
-    "authorizationProvider": {
-      "label": "REMS",
-      "url": "https://rems-uat.example.com/applications"
-    },
     "loginProviders": [
       {
         "name": "github",

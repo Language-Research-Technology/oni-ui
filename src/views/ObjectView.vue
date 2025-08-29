@@ -136,12 +136,14 @@ const fetchdata = async () => {
   isLoading.value = false;
 
   if (md['pcdm:memberOf']) {
-    membersFiltered.value = (
-      await api.getEntities({
-        memberOf: md['pcdm:memberOf']['@id'],
-        conformsTo: conformsTo.object,
-      })
-    )?.entities;
+    const children = await api.getEntities({
+      memberOf: md['pcdm:memberOf']['@id'],
+      conformsTo: conformsTo.object,
+    });
+
+    if ('entities' in children) {
+      membersFiltered.value = children.entities;
+    }
   }
 };
 

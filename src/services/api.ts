@@ -66,7 +66,7 @@ export type GetEntitiesResponse = {
   entities: Array<EntityType>;
 };
 
-export type GetEntityResponse = EntityType;
+type GetEntityResponse = EntityType;
 
 export type GetSearchResponse = {
   total: number;
@@ -84,7 +84,7 @@ export type GetTermsResponse = {
   agreement: boolean;
 };
 
-export type AcceptTermsResponse = {
+type AcceptTermsResponse = {
   accept: boolean;
 };
 

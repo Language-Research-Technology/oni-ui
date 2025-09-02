@@ -42,7 +42,6 @@ const entity = ref<EntityType | undefined>();
 
 const conformsToCollection = conformsTo.collection;
 const conformsToObject = conformsTo.object;
-const findObjectByRelationship = config.relationships;
 
 let name: string;
 let nameDisplay: string;

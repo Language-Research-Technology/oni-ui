@@ -169,12 +169,9 @@ const uiSchema = z.strictObject({
   aggregations: z.array(
     z.strictObject({
       display: z.string(),
-      order: z.number(),
       name: z.string(),
       active: z.boolean().optional(),
       help: z.string().optional(),
-      hide: z.boolean().optional(),
-      icons: z.boolean().optional(),
     }),
   ),
   searchFields: z.record(

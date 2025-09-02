@@ -109,7 +109,7 @@ const clean = (value: string) => {
 
       <div class="pt-2">
         <div class="flex w-full" v-for="facet of facets" :key="facet.name">
-          <ul v-if="facet.buckets.length > 0 && !facet.hide"
+          <ul v-if="facet.buckets.length > 0"
             class="flex-1 w-full min-w-full bg-white rounded-sm p-2 mb-4 shadow-md border">
             <li @click="facet.active = !facet.active"
               class="hover:cursor-pointer py-3 flex md:flex md:grow flex-row justify-between space-x-1">

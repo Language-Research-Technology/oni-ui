@@ -13,7 +13,6 @@ export type FacetType = {
   name: string;
   active?: boolean;
   help: string;
-  hide?: boolean;
 };
 
 export type AdvancedSearchLine = {
@@ -264,19 +263,23 @@ export const useSearch = (searchType: 'list' | 'map') => {
     const aggInfo = ui.aggregations;
 
     for (const facet of Object.keys(newFacets)) {
-      const info = aggInfo.find((a) => a.name === facet);
-      const display = info?.display;
-      const order = info?.order;
-      const name = info?.name;
-      const hide = info?.hide;
-      const active = facets?.value?.find((a) => a.name === facet)?.active || info?.active;
-      const help = info?.help;
+      const order = aggInfo.findIndex((a) => a.name === facet);
+      if (!order) {
+        return;
+      }
+
+      // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
+      const info = aggInfo[order]!;
+      const display = info.display;
+      const name = info.name;
+      const active = facets.value?.find((a) => a.name === facet)?.active || info.active;
+      const help = info.help;
       a.push({
-        buckets: newFacets[facet] || [],
+        // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
+        buckets: newFacets[facet]!,
         display: display || facet,
-        order: order || 0,
-        name: name || facet,
-        hide: hide,
+        order: order,
+        name: name,
         active: active,
         help: help || '',
       });

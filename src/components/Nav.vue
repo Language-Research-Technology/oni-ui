@@ -54,18 +54,6 @@ const {
       </router-view>
     </el-menu-item>
 
-    <el-menu-item index="search" route="/search">
-      <router-link to="/search">
-        <el-row :gutter="10" class="flex items-center justify-center">
-          <el-col :span="24">
-            <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
-              <span>Browse</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-link>
-    </el-menu-item>
-
     <NavUser v-if="isLoginEnabled" />
 
     <el-sub-menu index="help-sub">
@@ -81,9 +69,9 @@ const {
         </router-link>
       </el-menu-item>
 
-      <el-menu-item index="help-sub-api">
-        <a href="https://johnf.github.io/ro-crate-api/">
-          Oni Api docs
+      <el-menu-item>
+        <a href="https://johnf.github.io/ro-crate-api/" target="_blank">
+          Ro-Crate API Docs
         </a>
       </el-menu-item>
 

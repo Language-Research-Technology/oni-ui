@@ -11,7 +11,6 @@ import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
-import SimpleRelationshipCard from '@/components/cards/SimpleRelationshipCard.vue';
 import SummariesCard from '@/components/cards/SummariesCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import DownloadsModal from '@/components/DownloadsModal.vue';
@@ -31,7 +30,7 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { collection: config, conformsTo } = ui;
+const { collection: config, conformsTo, features } = ui;
 
 const id = route.query.id as string;
 
@@ -212,7 +211,7 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" class="pb-5" v-if="name != undefined">
+      <el-row :gutter="20" class="pb-5" v-if="features?.hasZipDownload && name != undefined">
         <el-col>
           <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Downloads</h5>
@@ -252,17 +251,6 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5" v-if="metadata">
         <el-col>
           <CitationCard :metadata="metadata" />
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20" class="pb-5" v-for="relationship of findObjectByRelationship">
-
-        <el-col>
-          <el-card class="mx-10">
-            <h5 class="text-2xl font-medium ">{{ relationship.display }}</h5>
-            <hr class="divider divider-gray pt-2" />
-            <SimpleRelationshipCard :id="id" :objectType="relationship.type" :objectName="relationship.name" />
-          </el-card>
         </el-col>
       </el-row>
 

@@ -74,13 +74,6 @@ const collectionSchema = z.strictObject({
   meta: z.strictObject({
     hide: z.array(z.string()),
   }),
-  relationships: z.array(
-    z.strictObject({
-      name: z.string(),
-      display: z.string(),
-      type: z.string(),
-    }),
-  ),
 });
 
 const objectSchema = z.object({
@@ -187,6 +180,11 @@ const uiSchema = z.strictObject({
     })
     .optional(),
   mapConfig: mapSchema,
+  features: z
+    .strictObject({
+      hasZipDownload: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 const apiSchema = z.strictObject({

@@ -259,13 +259,12 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
   const populateFacets = (newFacets: GetSearchResponse['facets']) => {
     const a: FacetType[] = [];
-    // NOTE: below is converted to an ordered array not an object.
     const aggInfo = ui.aggregations;
 
     for (const facet of Object.keys(newFacets)) {
       const order = aggInfo.findIndex((a) => a.name === facet);
-      if (!order) {
-        return;
+      if (order < 0) {
+        continue;
       }
 
       // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist

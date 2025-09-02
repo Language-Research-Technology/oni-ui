@@ -142,8 +142,7 @@ const clean = (value: string) => {
       </div>
     </el-col>
 
-    <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
-      class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3" data-scroll-to-top>
+    <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0" class="p-2 px-3" data-scroll-to-top>
 
       <div v-if="errorDialogText" width="100%" center class="mt-4 mb-4">
         <el-alert title="Message" type="warning" :closable="false">

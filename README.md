@@ -12,7 +12,7 @@ Current guide applies to Mac and Linux:
    1. `docker compose up`
    1. Wait for oni to be ready
 1. Develop Portal:
-   1. `cd portal`
+   1. `cd src`
    1. `pnpm i`
    1. `pnpm run dev`
 1. Open a browser to <http://localhost:8000> : This will use nginx features to use the site without nginx features point to <http://localhost:11000>

@@ -12,15 +12,15 @@
   </template>
   <template v-else>
     <template v-if="url">
-      <a class="block break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
+      <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
          target="_blank" rel="nofollow noreferrer">
-        <manku-icon :name="title" height="30">
-          <template #notFound>
+        <!-- <manku-icon :name="title" height="30"> -->
+          <!-- <template #notFound> -->
           <span class="break-all">
             {{ name || id }}
           </span>
-          </template>
-        </manku-icon>
+          <!-- </template> -->
+        <!-- </manku-icon> -->
       </a><br/>
     </template>
     <template v-else-if="value">

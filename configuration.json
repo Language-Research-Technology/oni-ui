@@ -87,15 +87,18 @@
     "topNavItems": [
       {
         "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
-        "display": "Top Collections"
+        "display": "Top Collections",
+        "tooltip": "View all top-level collections, excluding sub-collections."
       },
       {
         "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
-        "display": "Collections"
+        "display": "Collections",
+        "tooltip": "View all collections, including sub-collections."
       },
       {
         "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522SoftwareApplication%2522%255D%257D",
-        "display": "Notebooks"
+        "display": "Notebooks",
+        "tooltip": "View all interactive Jupyter notebooks associated with collections."
       }
     ],
     "search": {
@@ -181,9 +184,12 @@
     },
     "textReplacements": {
       "^_": "",
+      "^isRef_": "",
+      "^isTerm_": "",
       "^ldac:doi$": "DOI",
       "^ldac:isDeIdentified$": "Is De-Identified",
       "^citation$": "Related Works",
+      "^custom:": "",
       "^ldac:": "",
       "^dct:": "",
       "^local:": "",
@@ -194,7 +200,48 @@
       "^url$": "URL",
       "^@id$": "ID",
       "^@type$": "Type",
-      "^arcp://name,custom/terms#": ""
+      "^arcp://name,custom/terms#": "",
+      "^SoftwareApplication$": "Notebook/SoftwareApplication",
+      "^csvw:Table$": "CSV Table",
+      "^csvw:": "",
+      "^application/cmdi+xml$": "CMDI (application/cmdi+xml)",
+      "^application/eaf+xml$": "EAF (application/eaf+xml)",
+      "^application/json$": "JSON (application/json)",
+      "^application/mp4$": "MP4 (application/mp4)",
+      "^application/msword$": "DOC (application/msword)",
+      "^application/mxf$": "MXF (application/mxf)",
+      "^application/pdf$": "PDF (application/pdf)",
+      "^application/pfsx+xml$": "PFSX (application/pfsx+xml)",
+      "^application/tei+xml$": "TEI XML (application/tei+xml)",
+      "^application/vnd.google-earth.kml+xml$": "KML (application/vnd.google-earth.kml+xml)",
+      "^application/vnd.oasis.opendocument.spreadsheet$": "ODS (application/vnd.oasis.opendocument.spreadsheet)",
+      "^application/vnd.openxmlformats-officedocument.spreadsheetml.sheet$": "XLSX (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)",
+      "^application/vnd.openxmlformats-officedocument.wordprocessingml.document$": "DOCX (application/vnd.openxmlformats-officedocument.wordprocessingml.document)",
+      "^application/x-ipynb+json$": "Jupyter Notebook (application/x-ipynb+json)",
+      "^application/x-iso9660-image$": "ISO (application/x-iso9660-image)",
+      "^application/xml$": "XML (application/xml)",
+      "^application/zip$": "ZIP (application/zip)",
+      "^audio/mpeg$": "MP3 (audio/mpeg)",
+      "^audio/vnd.wav$": "WAV (audio/vnd.wav)",
+      "^audio/x-wav$": "WAV (audio/x-wav)",
+      "^image/jpeg$": "JPEG (image/jpeg)",
+      "^image/png$": "PNG (image/png)",
+      "^image/tiff$": "TIFF (image/tiff)",
+      "^text/csv$": "CSV (text/csv)",
+      "^text/html$": "HTML (text/html)",
+      "^text/plain$": "Plain Text (text/plain)",
+      "^text/rtf$": "RTF (text/rtf)",
+      "^text/xml$": "XML (text/xml)",
+      "^video/mp2t$": "MPEG-2 Transport Stream (video/mp2t)",
+      "^video/mp4$": "MP4 (video/mp4)",
+      "^video/mpeg$": "MPEG (video/mpeg)",
+      "^video/quicktime$": "QuickTime (video/quicktime)",
+      "^video/webm$": "WebM (video/webm)",
+      "^video/x-dv$": "DV (video/x-dv)",
+      "^video/x-matroska$": "MKV (video/x-matroska)",
+      "^video/x-msvideo$": "AVI/AVF/DIVX (video/x-msvideo)",
+      "^https://w3id.org/ldac/terms#": "",
+      "^https://w3id.org/ldac/profile#": ""
     },
     "head": {
       "title": "DC.publisher",

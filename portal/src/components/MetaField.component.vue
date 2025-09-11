@@ -19,18 +19,18 @@
       </el-col>
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
         <template v-if="Array.isArray(meta?.data)">
-          <elastic-field :field="d" :title="meta?.name" v-for="d of meta.data" />
+          <elastic-field v-for="d in paginatedMetaData" :key="d['@id'] || d.name || d.id" :field="d" :title="meta?.name" />
+          <el-pagination v-if="sortedMetaData.length > pageSize" class="mt-4" layout="prev, pager, next" :total="sortedMetaData.length" :page-size="pageSize" :current-page="currentPage" @current-change="currentPage = $event" />
         </template>
         <template v-else>
-          <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath"
-            :parentId="parentId" :crateId="crateId" />
+          <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath" :parentId="parentId" :crateId="crateId" />
         </template>
       </el-col>
     </template>
   </el-row>
 </template>
 <script>
-import { first } from 'lodash';
+import { first, sortBy } from 'lodash';
 import ElasticField from './ElasticField.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
@@ -45,12 +45,31 @@ export default {
   data() {
     return {
       textReplacements: this.$store.state.configuration.ui.textReplacements || {},
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   async mounted() {
     try {
     } catch (e) {
       console.error(e);
+    }
+  },
+  computed: {
+    sortedMetaData() {
+      if (Array.isArray(this.meta?.data)) {
+        return sortBy(this.meta.data, d =>
+          (first(d?.name)?.['@value'] || d.name || d['@id'] || '').toLowerCase()
+        );
+      }
+      return [];
+    },
+    paginatedMetaData() {
+      if (this.sortedMetaData.length > this.pageSize) {
+        const start = (this.currentPage - 1) * this.pageSize;
+        return this.sortedMetaData.slice(start, start + this.pageSize);
+      }
+      return this.sortedMetaData;
     }
   },
   methods: {

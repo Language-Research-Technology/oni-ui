@@ -189,8 +189,7 @@ fetchdata();
 
   <el-row :justify="'center'" v-if="metadata" class="m-5 px-10" v-loading="isLoading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
-      <AccessHelper v-if="entity?.extra.access && metadata.license" :access="entity.extra.access"
-        :license="metadata.license" />
+      <AccessHelper v-if="entity?.access && metadata.license" :access="entity.access" :license="metadata.license" />
 
       <div class="px-5 pb-5">
         <MetaTopCard :tops="tops" :className="'py-5'" />
@@ -290,7 +289,7 @@ fetchdata();
           <li v-for="(part, index) of parts">
             <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
             <ObjectPart :parentId="route.query.id?.toString() || ''" :part="part"
-              :active="isPartActive(part['@id'], index)" :license="metadata.license" :access="entity.extra.access" />
+              :active="isPartActive(part['@id'], index)" :license="metadata.license" :access="entity.access" />
           </li>
         </ul>
       </el-col>

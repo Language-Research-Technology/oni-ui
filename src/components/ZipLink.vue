@@ -15,7 +15,7 @@ const {
   id: string;
   name: string;
   asTableRow: boolean;
-  access?: NonNullable<EntityType['extra']['access']>;
+  access: EntityType['access'];
 }>();
 
 const api = inject<ApiService>('api');
@@ -104,7 +104,7 @@ doWork();
             </p>
           </el-row>
           <el-row>
-            <el-link underline="underline" :href="access?.enrollmentUrl" target="_blank">
+            <el-link underline="underline" :href="access.contentAuthorizationUrl" target="_blank">
               Apply for access <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
           </el-row>

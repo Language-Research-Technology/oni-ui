@@ -4,7 +4,7 @@ import { inject } from 'vue';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const { access, license } = defineProps<{
-  access: NonNullable<EntityType['extra']['access']>;
+  access: EntityType['access'];
   license: NonNullable<RoCrate['license']>;
 }>();
 
@@ -32,7 +32,7 @@ if (!localLicense) {
 </script>
 
 <template>
-  <template v-if="access.files && access.enrollmentUrl">
+  <template v-if="access.content && access.contentAuthorizationUrl">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <p>
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
@@ -45,7 +45,7 @@ if (!localLicense) {
       </p>
     </el-row>
   </template>
-  <template v-else-if="!access.files">
+  <template v-else-if="!access.content">
     <el-row class="px-5 py-6 bg-red-200 text-red-700">
       <el-row body-class="flex gap-4">
         <p>
@@ -61,9 +61,9 @@ if (!localLicense) {
           </p>
         </el-row>
 
-        <template v-if="access.enrollmentUrl">
+        <template v-if="access.contentAuthorizationUrl">
           <el-row class="mt-4">
-            <el-link underline="always" :href="access.enrollmentUrl" target="_blank">
+            <el-link underline="always" :href="access.metadataAuthorizationUrl" target="_blank">
               Apply for access <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
           </el-row>

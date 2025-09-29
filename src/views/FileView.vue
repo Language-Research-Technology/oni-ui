@@ -95,10 +95,9 @@ getFileMetadata();
         <el-row>
           <el-col v-if="parentId" :xs="24" :sm="24" :md="24" :lg="24" :xl="24"
             class="flex justify-center h-screen overflow-auto">
-            <FileResolve :id="id" :parentId="parentId" :filename="filename" :resolve="true"
+            <FileResolve v-if="entity" :id="id" :parentId="parentId" :filename="filename" :resolve="true"
               :encodingFormat="encodingFormat" :name="title" :parentName="parentTitle" :hideOpenLink="true"
-              :isPreview="false" :access="entity?.extra.access" :license="metadata?.license"
-              :contetnSize="contentSize" />
+              :isPreview="false" :access="entity.access" :license="metadata?.license" :contetnSize="contentSize" />
           </el-col>
         </el-row>
       </div>

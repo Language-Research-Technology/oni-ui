@@ -29,31 +29,34 @@ export type SearchParams = CommonParams & {
   geohashPrecision?: number;
 };
 
-export type EntityType = {
+type BaseEntityType = {
   id: string;
   name: string;
-  description: string;
-  conformsTo: 'https://w3id.org/ldac/profile#Collection' | 'https://w3id.org/ldac/profile#Object';
-  recordType: 'RepositoryCollection' | 'RepositoryObject';
+  description?: string;
+  entityType: 'http://pcdm.org/models#Collection' | 'http://pcdm.org/models#Object' | 'http://schema.org/MediaObject';
   memberOf: string;
-  root: string;
-  createdAt: string;
-  updatedAt: string;
-  extra: {
-    collectionCount: number;
-    objectCount: number;
-    subCollectionCount: number;
-    fileCount: number;
-    accessControl: 'Public' | 'Restricted';
-    communicationMode: 'Song' | 'Spoken';
-    language: Array<string>;
-    mediaType: Array<string>;
-    access?: {
-      metadata: boolean;
-      files: boolean;
-      enrollmentUrl?: string;
-    };
+  rootCollection: string;
+  metadataLicenseId: string;
+  contentLicenseId: string;
+  access: {
+    metadata: boolean;
+    content: boolean;
+    metadataAuthorizationUrl?: string;
+    contentAuthorizationUrl?: string;
   };
+};
+
+export type EntityType = BaseEntityType & {
+  counts: {
+    collections: number;
+    objects: number;
+    subCollections: number;
+    files: number;
+  };
+  language: Array<string>;
+  communicationMode: 'Song' | 'Spoken';
+  mediaType: Array<string>;
+  accessControl: 'Public' | 'Restricted';
   searchExtra?: { score: number; highlight: string[] };
 };
 

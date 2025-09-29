@@ -187,7 +187,7 @@ onMounted(fetchData);
           <el-card class="mx-10 !overflow-visible">
             <h5 class="text-2xl font-medium">Access</h5>
             <hr class="divider divider-gray pt-2" />
-            <AccessHelper v-if="entity.extra.access" :access="entity.extra.access" :license="metadata.license" />
+            <AccessHelper :access="entity.access" :license="metadata.license" />
             <LicenseCard v-if="metadata.license" :license="metadata.license" />
           </el-card>
         </el-col>
@@ -220,8 +220,7 @@ onMounted(fetchData);
 
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
 
-            <DownloadsModal v-if="entity.extra.access" :id="id" :idFieldName="'root'" v-model="openDownloads"
-              :title="name" />
+            <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" :title="name" />
           </el-card>
         </el-col>
       </el-row>

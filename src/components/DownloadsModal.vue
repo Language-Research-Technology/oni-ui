@@ -21,7 +21,7 @@ const emit = defineEmits(['update:modelValue']);
 type ObjectType = {
   id: string;
   name: string;
-  access?: NonNullable<EntityType['extra']['access']>;
+  access: EntityType['access'];
 };
 
 const loading = ref(false);
@@ -54,17 +54,15 @@ const getObjects = async () => {
   }
 
   objectTotals.value = entities.total;
-  console.log('🪚 objectTotals.value:', JSON.stringify(objectTotals.value, null, 2));
 
   objects.value = [];
   for (const entity of entities.entities) {
     objects.value.push({
       id: entity.id,
       name: entity.name,
-      access: entity.extra.access,
+      access: entity.access,
     });
   }
-  console.log('🪚 objects.value.push:', JSON.stringify(objects.value, null, 2));
 
   loading.value = false;
 };

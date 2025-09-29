@@ -29,7 +29,7 @@ const {
   encodingFormat: string[];
   hideOpenLink?: boolean;
   isPreview: boolean;
-  access: EntityType['extra']['access'];
+  access: EntityType['access'];
   license: RoCrate['license'];
 }>();
 
@@ -131,7 +131,7 @@ console.log('🪚 encodingFormat:', JSON.stringify(encodingFormat, null, 2));
       </el-col>
     </el-row>
 
-    <el-row class="flex justify-center" v-if="access?.files">
+    <el-row class="flex justify-center" v-if="access.content">
       <el-button-group class="m-2">
         <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" underline="never">
           <el-button type="default" class="px-2">View File</el-button>

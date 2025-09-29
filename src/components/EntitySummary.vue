@@ -28,16 +28,16 @@ const { searchDetails = [] } = ui.search || {};
         <el-row :align="'middle'">
           <p class="font-normal text-gray-700">
             Type:
-            <span class="m-2">{{ entity.recordType }}</span>
+            <span class="m-2">{{ entity.entityType }}</span>
           </p>
         </el-row>
 
         <template v-for="special of searchDetails">
-          <el-row v-if="entity.extra?.[special.field as keyof EntityType['extra']]">
+          <el-row v-if="entity[special.field as keyof EntityType]">
             <p class="font-normal text-gray-700">
               {{ special.label }}:&nbsp;
             </p>
-            <p>{{ (entity.extra[special.field as keyof EntityType['extra']] as
+            <p>{{ (entity[special.field as keyof EntityType] as
               string[]).join(', ') }}</p>
           </el-row>
         </template>
@@ -52,18 +52,18 @@ const { searchDetails = [] } = ui.search || {};
           </router-link>
         </el-row>
 
-        <el-row align="middle" v-if="entity.root && entity.root !== entity.memberOf" class="pt-2">
+        <el-row align="middle" v-if="entity.rootCollection && entity.rootCollection !== entity.memberOf" class="pt-2">
           <p class="font-normal text-gray-700">
             &nbsp;In:&nbsp;
           </p>
-          <router-link :to="'/collection?id=' + encodeURIComponent(entity.root)">
-            <el-button>{{ entity.root }}</el-button>
+          <router-link :to="'/collection?id=' + encodeURIComponent(entity.rootCollection)">
+            <el-button>{{ entity.rootCollection }}</el-button>
           </router-link>
         </el-row>
 
         <el-row align="middle">
           <p class="font-normal text-gray-700">
-            {{ entity.conformsTo }}
+            {{ entity.entityType }}
           </p>
         </el-row>
 
@@ -72,12 +72,12 @@ const { searchDetails = [] } = ui.search || {};
         </el-row>
 
         <el-row class="gap-2 flex">
-          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.collectionCount">Collections: {{
-            entity.extra.collectionCount }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.objectCount">Objects: {{
-            entity.extra.objectCount }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.extra?.fileCount">Files: {{
-            entity.extra.fileCount }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.collections">Collections: {{
+            entity.counts.collections }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.objects">Objects: {{
+            entity.counts.objects }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.files">Files: {{
+            entity.counts.files }}</span>
         </el-row>
 
         <el-row align="middle" v-if="entity.searchExtra?.highlight">
@@ -97,14 +97,14 @@ const { searchDetails = [] } = ui.search || {};
       </el-col>
 
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
-        <AccessControlIcon :accessControl="entity.extra?.accessControl" />
+        <AccessControlIcon :accessControl="entity.accessControl" />
         <el-row :span="24" class="flex justify-center">
-          <template v-for="communicationMode of entity.extra?.communicationMode">
+          <template v-for="communicationMode of entity.communicationMode">
             <CommunicationModeIcon :communication-mode="communicationMode" />
           </template>
         </el-row>
         <el-row :span="24" class="flex justify-center">
-          <template v-for="mediaType of entity.extra?.mediaType">
+          <template v-for="mediaType of entity.mediaType">
             <MediaTypeIcon :mediaType="mediaType" />
           </template>
         </el-row>

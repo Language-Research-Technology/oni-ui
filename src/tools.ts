@@ -63,17 +63,17 @@ export const parseContentSize = (value: string | number) => {
 };
 
 export const getEntityUrl = (entity: EntityType) => {
-  const { recordType } = entity;
+  const { entityType } = entity;
 
   const id = encodeURIComponent(entity.id);
 
-  switch (recordType) {
-    case 'RepositoryCollection':
+  switch (entityType) {
+    case 'http://pcdm.org/models#Collection':
       return `/collection?id=${id}`;
-    case 'RepositoryObject':
+    case 'http://pcdm.org/models#Object':
       return `/object?id=${id}`;
     default:
-      throw new Error(`Unknown recordType ${recordType}`);
+      throw new Error(`Unknown recordType ${entityType}`);
   }
 };
 

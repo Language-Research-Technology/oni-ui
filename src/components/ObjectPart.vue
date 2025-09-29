@@ -8,7 +8,7 @@ import type { EntityType, RoCrate } from '@/services/api';
 const { part, active, access, license, parentId } = defineProps<{
   part: { '@id': string; name: string; encodingFormat: string[] } & Record<string, string>;
   active: boolean;
-  access: EntityType['extra']['access'];
+  access: EntityType['access'];
   license: RoCrate['license'];
   parentId: string;
 }>();

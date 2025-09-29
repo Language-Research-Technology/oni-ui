@@ -72,14 +72,14 @@ const getMemberships = async (token: string) => {
   return membershipsStatus.memberships.map(({ group }) => group).filter(Boolean);
 };
 
-const getExtra = async (id: string, typem: string, token: string) => {
+const getExtra = async (id: string, entityType: string, token: string) => {
   let summaries: Awaited<ReturnType<typeof filter>>;
   let subCollections: Awaited<ReturnType<typeof filter>>;
   let members: Awaited<ReturnType<typeof filter>>;
 
   const conformsTo = configuration.ui.conformsTo;
 
-  if (typem === 'RepositoryCollection') {
+  if (entityType === 'http://pcdm.org/models#Collection') {
     subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
 
     members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
@@ -87,7 +87,7 @@ const getExtra = async (id: string, typem: string, token: string) => {
     summaries = await filter({ collectionStack: [id] });
   }
 
-  if (typem === 'RepositoryObject') {
+  if (entityType === 'http://pcdm.org/models#Object') {
     summaries = await filter({ parent: [id] });
   }
 
@@ -106,23 +106,23 @@ const getExtra = async (id: string, typem: string, token: string) => {
     throw new Error('Failed to get data for the current entity');
   }
 
-  console.log('🪚 us?.data:', JSON.stringify(Object.keys(us.data[0]._source), null, 2));
   const access = us?.data?.[0]?._source?._access;
   if (!access) {
     throw new Error('Failed to get access for the current entity');
   }
 
   const extraAccess = 'group' in access ? !!memberships.includes(access.group) : access.hasAccess;
-  console.log('🪚 extraAccess:', JSON.stringify(extraAccess, null, 2));
 
   const extra = {
-    subCollectionCount: subCollections?.total,
-    objectCount: members?.total,
-    fileCount: fileCount?.doc_count,
+    counts: {
+      subCollections: subCollections?.total,
+      objects: members?.total,
+      files: fileCount?.doc_count,
+    },
     accessControl: 'Public',
     access: {
       metadata: true,
-      files: extraAccess,
+      content: extraAccess,
     },
     // @ts-expect-error
     communicationMode: summaries?.aggregations['communicationMode.name.@value'].buckets.map(({ key }) => key),
@@ -135,7 +135,7 @@ const getExtra = async (id: string, typem: string, token: string) => {
   const enrollmenrUrl = LICENSES[access.group];
   if (enrollmenrUrl) {
     // @ts-expect-error
-    extra.access.enrollmentUrl = enrollmenrUrl;
+    extra.access.contentAuthorizationUrl = enrollmenrUrl;
   }
 
   return extra;
@@ -229,13 +229,13 @@ const getcrate = async (id: string) => {
   return rocrate;
 };
 
-const getScalarRecordType = (recordType: string[]) => {
+const getScalarEntityType = (recordType: string) => {
   if (recordType.includes('RepositoryCollection')) {
-    return 'RepositoryCollection';
+    return 'http://pcdm.org/models#Collection';
   }
 
   if (recordType.includes('RepositoryObject')) {
-    return 'RepositoryObject';
+    return 'http://pcdm.org/models#Object';
   }
 
   throw new Error(`Unknown recordType ${recordType}`);
@@ -259,15 +259,15 @@ app.get('/ldaca/entities', async (req, res) => {
   const entities = await Promise.all(
     // @ts-expect-error
     data.map(async ({ crateId, locked, objectRoot, record, url, ...rest }) => {
-      const recordType = getScalarRecordType(rest.recordType);
+      const entityType = getScalarEntityType(rest.recordType);
 
-      const extra = await getExtra(crateId, recordType, token);
+      const extra = await getExtra(crateId, entityType, token);
 
       return {
         id: crateId,
         ...rest,
-        recordType,
-        extra,
+        entityType,
+        ...extra,
       };
     }),
   );
@@ -302,14 +302,15 @@ app.get('/ldaca/entity/:id', async (req, res) => {
     throw new Error('Multiple conformsTo found in rootConformsTos');
   }
 
-  const recordType = rootConformsTos[0].conformsTo.endsWith('Object') ? 'RepositoryObject' : 'RepositoryCollection';
+  const entityType = rootConformsTos[0].conformsTo.endsWith('Object')
+    ? 'http://pcdm.org/models#Object'
+    : 'http://pcdm.org/models#Collection';
 
-  const extra = await getExtra(crateId, recordType, token);
+  const extra = await getExtra(crateId, entityType, token);
 
   const result = {
     id: crateId,
-    conformsTo: rootConformsTos[0].conformsTo,
-    recordType,
+    recordType: entityType,
     memberOf: 'Unknown',
     root: 'Unknown',
     extra,
@@ -489,22 +490,21 @@ type EntityType = {
   id: string;
   name: string;
   description: string;
-  conformsTo: 'https://w3id.org/ldac/profile#Collection' | 'https://w3id.org/ldac/profile#Object';
-  recordType: 'RepositoryCollection' | 'RepositoryObject';
+  entityType: 'http://pcdm.org/models#Collection' | 'http://pcdm.org/models#Object';
   memberOf: string;
-  root: string;
+  rootCollection: string;
   createdAt: string;
   updatedAt: string;
-  extra: {
-    collectionCount: number;
-    objectCount: number;
-    subCollectionCount: number;
-    fileCount: number;
-    language: Array<string>;
-    accessControl: 'Public' | 'Restricted';
-    communicationMode: 'Song' | 'Spoken';
-    mediaType: Array<string>;
+  counts: {
+    collections: number;
+    objects: number;
+    subCollections: number;
+    files: number;
   };
+  language: Array<string>;
+  accessControl: 'Public' | 'Restricted';
+  communicationMode: 'Song' | 'Spoken';
+  mediaType: Array<string>;
 };
 
 type GetSearchResponse = {
@@ -611,16 +611,18 @@ app.post('/ldaca/search', async (req, res) => {
       result.hits.hits.map(async (hit: any) => {
         const id = hit._source['@id'];
         const typem = hit._source?.['@type'];
-        const recordType = typem.includes('RepositoryCollection') ? 'RepositoryCollection' : 'RepositoryObject';
+        const entityType = typem.includes('RepositoryCollection')
+          ? 'http://pcdm.org/models#Collection'
+          : 'http://pcdm.org/models#Object';
 
-        const extra = await getExtra(id, recordType, token);
+        const extra = await getExtra(id, entityType, token);
 
         return {
           id: hit._source['@id'],
           name: hit._source.name?.[0]['@value'],
           description: hit._source.description?.[0]['@value'],
           conformsTo: hit._source.conformsTo?.[0]['@id'],
-          recordType,
+          entityType,
           memberOf: hit._source._memberOf?.[0]['@id'],
           root: hit._source._root?.[0]['@id'],
           createdAt: new Date(),

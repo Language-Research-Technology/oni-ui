@@ -9,7 +9,6 @@ import CollectionMembers from '@/components/CollectionMembers.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
-import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import SummariesCard from '@/components/cards/SummariesCard.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
@@ -45,26 +44,11 @@ const conformsToObject = conformsTo.object;
 
 let name: string;
 let nameDisplay: string;
-const tops: { name: string; value: string; display?: string }[] = [];
 const meta: { name: string; data: RoCrate[keyof RoCrate] }[] = [];
 
 const populateName = (md: RoCrate) => {
   name = md[config.name.name as keyof RoCrate] as string;
   nameDisplay = md[config.name.display as keyof RoCrate] as string;
-};
-
-// TODO: Remove the duplication in the populate functions
-const populateTop = (md: RoCrate) => {
-  if (config.meta.mode === 'filter') {
-    for (const field of config.meta.top) {
-      const value = (md[field.name as keyof RoCrate] as string) || 'Not Defined';
-      tops.push({
-        name: field.name,
-        display: field.display,
-        value: value,
-      });
-    }
-  }
 };
 
 const populateMeta = (md: RoCrate) => {
@@ -75,20 +59,26 @@ const populateMeta = (md: RoCrate) => {
       }
     }
   } else {
+    // Add top fields first
+    for (const field of config.meta.top) {
+      if (field.name in md) {
+        meta.push({ name: field.name, data: md[field.name as keyof RoCrate] });
+      }
+    }
+
+    // Then add remaining fields, sorted alphabetically
     const keys = Object.keys(md) as (keyof RoCrate)[];
-    // NOTE: work around strange typescript issue
-    const foo = config.meta;
-    const filtered = keys.filter((key) => !foo.hide.includes(key));
+    const topFieldNames = config.meta.top.map((f) => f.name);
+    const filtered = keys.filter((key) => !config.meta.hide.includes(key) && !topFieldNames.includes(key));
+    filtered.sort();
     for (const filter of filtered) {
       meta.push({ name: filter, data: md[filter] });
     }
-    meta.sort((a, b) => a.name.localeCompare(b.name));
   }
 };
 
 const populate = (md: RoCrate) => {
   populateName(md);
-  populateTop(md);
   populateMeta(md);
   useHead(head, md);
 };
@@ -169,7 +159,6 @@ onMounted(fetchData);
 
   <el-row :justify="'center'" v-if="metadata && entity" class="m-5 pt2 px-10 pb-7">
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
-      <MetaTopCard :tops="tops" :className="'px-5 py-2'" />
       <el-row class="px-5">
         <el-col v-for="m of meta">
           <MetaField :meta="m" />

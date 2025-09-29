@@ -8,7 +8,6 @@ import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
-import MetaTopCard from '@/components/cards/MetaTopCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
@@ -33,7 +32,6 @@ const gtm = useGtm();
 
 const name = ref('');
 const nameDisplay = ref('');
-const tops = ref<{ name: string; value: string }[]>([]);
 const meta = ref<{ name: string; data: string }[]>([]);
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
@@ -50,16 +48,6 @@ const populateName = (md: RoCrate) => {
   nameDisplay.value = md[config.name.display as keyof RoCrate] as string;
 };
 
-const populateTop = (md: RoCrate) => {
-  tops.value = [];
-  if (config.meta.mode === 'filter') {
-    for (const field of config.meta.top) {
-      const value = md[field.name as keyof RoCrate] || 'Not Defined';
-      tops.value.push({ name: field.display, value: value as string });
-    }
-  }
-};
-
 const populateMeta = (md: RoCrate) => {
   meta.value = [];
 
@@ -71,15 +59,21 @@ const populateMeta = (md: RoCrate) => {
       }
     }
   } else {
-    // Filter mode: show all except hidden, sorted alphabetically
+    // Add top fields first
+    for (const field of config.meta.top) {
+      if (field.name in md) {
+        meta.value.push({ name: field.name, data: md[field.name as keyof RoCrate] as string });
+      }
+    }
+
+    // Then add remaining fields, sorted alphabetically
     const keys = Object.keys(md);
-    // NOTE: work around strange typescript issue
-    const foo = config.meta;
-    const filtered = keys.filter((key) => !foo.hide.includes(key));
+    const topFieldNames = config.meta.top.map((f) => f.name);
+    const filtered = keys.filter((key) => !config.meta.hide.includes(key) && !topFieldNames.includes(key));
+    filtered.sort();
     for (const filter of filtered) {
       meta.value.push({ name: filter, data: md[filter as keyof RoCrate] as string });
     }
-    meta.value.sort((a, b) => a.name.localeCompare(b.name));
   }
 };
 
@@ -103,7 +97,6 @@ const populateParts = (md: RoCrate) => {
 
 const populate = (md: RoCrate) => {
   populateName(md);
-  populateTop(md);
   populateMeta(md);
   populateParts(md);
   useHead(head, md);
@@ -207,7 +200,6 @@ fetchdata();
       <AccessHelper v-if="entity?.access && metadata.license" :access="entity.access" :license="metadata.license" />
 
       <div class="px-5 pb-5">
-        <MetaTopCard :tops="tops" :className="'py-5'" />
         <el-row class="">
           <el-col v-for="m of meta">
             <MetaField :meta="m" />

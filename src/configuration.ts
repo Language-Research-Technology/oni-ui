@@ -61,20 +61,29 @@ const searchSchema = z
   })
   .optional();
 
+const fieldDisplaySchema = z.strictObject({
+  display: z.string(),
+  name: z.string(),
+});
+
+const metaSchema = z.discriminatedUnion('mode', [
+  z.strictObject({
+    mode: z.literal('filter'),
+    top: z.array(fieldDisplaySchema),
+    hide: z.array(z.string()),
+  }),
+  z.strictObject({
+    mode: z.literal('explicit'),
+    show: z.array(z.string()),
+  }),
+]);
+
 const collectionSchema = z.strictObject({
   name: z.strictObject({
     display: z.string(),
     name: z.string(),
   }),
-  top: z.array(
-    z.strictObject({
-      display: z.string(),
-      name: z.string(),
-    }),
-  ),
-  meta: z.strictObject({
-    hide: z.array(z.string()),
-  }),
+  meta: metaSchema,
 });
 
 const objectSchema = z.object({
@@ -82,15 +91,7 @@ const objectSchema = z.object({
     display: z.string(),
     name: z.string(),
   }),
-  top: z.array(
-    z.strictObject({
-      display: z.string(),
-      name: z.string(),
-    }),
-  ),
-  meta: z.strictObject({
-    hide: z.array(z.string()),
-  }),
+  meta: metaSchema,
 });
 
 const fileSchema = z.strictObject({

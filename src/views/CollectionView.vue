@@ -55,24 +55,35 @@ const populateName = (md: RoCrate) => {
 
 // TODO: Remove the duplication in the populate functions
 const populateTop = (md: RoCrate) => {
-  const { top } = config;
-  for (const field of top) {
-    const value = (md[field.name as keyof RoCrate] as string) || 'Not Defined';
-    tops.push({
-      name: field.name,
-      display: field.display,
-      value: value,
-    });
+  if (config.meta.mode === 'filter') {
+    for (const field of config.meta.top) {
+      const value = (md[field.name as keyof RoCrate] as string) || 'Not Defined';
+      tops.push({
+        name: field.name,
+        display: field.display,
+        value: value,
+      });
+    }
   }
 };
 
 const populateMeta = (md: RoCrate) => {
-  const keys = Object.keys(md) as (keyof RoCrate)[];
-  const filtered = keys.filter((key) => !config.meta.hide.includes(key));
-  for (const filter of filtered) {
-    meta.push({ name: filter, data: md[filter] });
+  if (config.meta.mode === 'explicit') {
+    for (const field of config.meta.show) {
+      if (field in md) {
+        meta.push({ name: field, data: md[field as keyof RoCrate] });
+      }
+    }
+  } else {
+    const keys = Object.keys(md) as (keyof RoCrate)[];
+    // NOTE: work around strange typescript issue
+    const foo = config.meta;
+    const filtered = keys.filter((key) => !foo.hide.includes(key));
+    for (const filter of filtered) {
+      meta.push({ name: filter, data: md[filter] });
+    }
+    meta.sort((a, b) => a.name.localeCompare(b.name));
   }
-  meta.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const populate = (md: RoCrate) => {
@@ -158,7 +169,6 @@ onMounted(fetchData);
 
   <el-row :justify="'center'" v-if="metadata && entity" class="m-5 pt2 px-10 pb-7">
     <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="16">
-      <!-- @ts-expect-error Need types on config -->
       <MetaTopCard :tops="tops" :className="'px-5 py-2'" />
       <el-row class="px-5">
         <el-col v-for="m of meta">

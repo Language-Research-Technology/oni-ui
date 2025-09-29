@@ -52,20 +52,35 @@ const populateName = (md: RoCrate) => {
 
 const populateTop = (md: RoCrate) => {
   tops.value = [];
-  for (const field of config.top) {
-    const value = md[field.name as keyof RoCrate] || 'Not Defined';
-    tops.value.push({ name: field.display, value: value as string });
+  if (config.meta.mode === 'filter') {
+    for (const field of config.meta.top) {
+      const value = md[field.name as keyof RoCrate] || 'Not Defined';
+      tops.value.push({ name: field.display, value: value as string });
+    }
   }
 };
 
 const populateMeta = (md: RoCrate) => {
   meta.value = [];
-  const keys = Object.keys(md);
-  const filtered = keys.filter((key) => !config.meta.hide.includes(key));
-  for (const filter of filtered) {
-    meta.value.push({ name: filter, data: md[filter as keyof RoCrate] as string });
+
+  if (config.meta.mode === 'explicit') {
+    // Explicit mode: only show specified fields in order
+    for (const field of config.meta.show) {
+      if (field in md) {
+        meta.value.push({ name: field, data: md[field as keyof RoCrate] as string });
+      }
+    }
+  } else {
+    // Filter mode: show all except hidden, sorted alphabetically
+    const keys = Object.keys(md);
+    // NOTE: work around strange typescript issue
+    const foo = config.meta;
+    const filtered = keys.filter((key) => !foo.hide.includes(key));
+    for (const filter of filtered) {
+      meta.value.push({ name: filter, data: md[filter as keyof RoCrate] as string });
+    }
+    meta.value.sort((a, b) => a.name.localeCompare(b.name));
   }
-  meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const populateParts = (md: RoCrate) => {

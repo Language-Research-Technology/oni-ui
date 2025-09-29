@@ -79,20 +79,15 @@ const metaSchema = z.discriminatedUnion('mode', [
 ]);
 
 const collectionSchema = z.strictObject({
-  name: z.strictObject({
-    display: z.string(),
-    name: z.string(),
-  }),
   meta: metaSchema,
 });
 
 const objectSchema = z.object({
-  name: z.strictObject({
-    display: z.string(),
-    name: z.string(),
-  }),
   meta: metaSchema,
 });
+
+export type CollectionConfig = z.infer<typeof collectionSchema>;
+export type ObjectConfig = z.infer<typeof objectSchema>;
 
 const fileSchema = z.strictObject({
   meta: z.strictObject({

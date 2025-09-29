@@ -2,7 +2,7 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
@@ -15,6 +15,7 @@ import ObjectPart from '@/components/ObjectPart.vue';
 import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
+import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
@@ -26,13 +27,11 @@ if (!api) {
 }
 
 const route = useRoute();
-const router = useRouter();
 const head = injectHead();
 const gtm = useGtm();
 
-const name = ref('');
-const nameDisplay = ref('');
-const meta = ref<{ name: string; data: string }[]>([]);
+const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
+
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
 const isLoading = ref(false);
@@ -41,41 +40,6 @@ const entity = ref<EntityType | undefined>();
 
 const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);
-
-const populateName = (md: RoCrate) => {
-  name.value = md[config.name.name as keyof RoCrate] as string;
-  name.value = Array.isArray(name.value) ? name.value[0] : name.value;
-  nameDisplay.value = md[config.name.display as keyof RoCrate] as string;
-};
-
-const populateMeta = (md: RoCrate) => {
-  meta.value = [];
-
-  if (config.meta.mode === 'explicit') {
-    // Explicit mode: only show specified fields in order
-    for (const field of config.meta.show) {
-      if (field in md) {
-        meta.value.push({ name: field, data: md[field as keyof RoCrate] as string });
-      }
-    }
-  } else {
-    // Add top fields first
-    for (const field of config.meta.top) {
-      if (field.name in md) {
-        meta.value.push({ name: field.name, data: md[field.name as keyof RoCrate] as string });
-      }
-    }
-
-    // Then add remaining fields, sorted alphabetically
-    const keys = Object.keys(md);
-    const topFieldNames = config.meta.top.map((f) => f.name);
-    const filtered = keys.filter((key) => !config.meta.hide.includes(key) && !topFieldNames.includes(key));
-    filtered.sort();
-    for (const filter of filtered) {
-      meta.value.push({ name: filter, data: md[filter as keyof RoCrate] as string });
-    }
-  }
-};
 
 const populateParts = (md: RoCrate) => {
   // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
@@ -106,12 +70,7 @@ const fetchdata = async () => {
   const id = route.query.id?.toString() as string;
 
   if (!id) {
-    router.push({
-      name: 'NotFound',
-      params: { pathMatch: route.path.substring(1).split('/') },
-      query: route.query,
-      hash: route.hash,
-    });
+    handleMissingEntity();
 
     return;
   }
@@ -120,12 +79,7 @@ const fetchdata = async () => {
 
   const { entity: e, metadata: md } = await api.getEntity(id);
   if (!md) {
-    router.push({
-      name: 'NotFound',
-      params: { pathMatch: route.path.substring(1).split('/') },
-      query: route.query,
-      hash: route.hash,
-    });
+    handleMissingEntity();
 
     return;
   }

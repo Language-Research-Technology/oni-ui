@@ -2,7 +2,7 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
@@ -16,10 +16,10 @@ import DownloadsModal from '@/components/DownloadsModal.vue';
 import MetaField from '@/components/MetaField.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
+import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
-const router = useRouter();
 const route = useRoute();
 const head = injectHead();
 const gtm = useGtm();
@@ -42,40 +42,7 @@ const entity = ref<EntityType | undefined>();
 const conformsToCollection = conformsTo.collection;
 const conformsToObject = conformsTo.object;
 
-let name: string;
-let nameDisplay: string;
-const meta: { name: string; data: RoCrate[keyof RoCrate] }[] = [];
-
-const populateName = (md: RoCrate) => {
-  name = md[config.name.name as keyof RoCrate] as string;
-  nameDisplay = md[config.name.display as keyof RoCrate] as string;
-};
-
-const populateMeta = (md: RoCrate) => {
-  if (config.meta.mode === 'explicit') {
-    for (const field of config.meta.show) {
-      if (field in md) {
-        meta.push({ name: field, data: md[field as keyof RoCrate] });
-      }
-    }
-  } else {
-    // Add top fields first
-    for (const field of config.meta.top) {
-      if (field.name in md) {
-        meta.push({ name: field.name, data: md[field.name as keyof RoCrate] });
-      }
-    }
-
-    // Then add remaining fields, sorted alphabetically
-    const keys = Object.keys(md) as (keyof RoCrate)[];
-    const topFieldNames = config.meta.top.map((f) => f.name);
-    const filtered = keys.filter((key) => !config.meta.hide.includes(key) && !topFieldNames.includes(key));
-    filtered.sort();
-    for (const filter of filtered) {
-      meta.push({ name: filter, data: md[filter] });
-    }
-  }
-};
+const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
 
 const populate = (md: RoCrate) => {
   populateName(md);
@@ -85,12 +52,7 @@ const populate = (md: RoCrate) => {
 
 const fetchData = async () => {
   if (!id) {
-    router.push({
-      name: 'NotFound',
-      params: { pathMatch: route.path.substring(1).split('/') },
-      query: route.query,
-      hash: route.hash,
-    });
+    handleMissingEntity();
 
     return;
   }
@@ -105,12 +67,7 @@ const fetchData = async () => {
     }
 
     if (!rawMeatadata) {
-      router.push({
-        name: 'NotFound',
-        params: { pathMatch: route.path.substring(1).split('/') },
-        query: route.query,
-        hash: route.hash,
-      });
+      handleMissingEntity();
 
       return;
     }
@@ -151,7 +108,7 @@ onMounted(fetchData);
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
         <MemberOfLink v-if="metadata['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
-        {{ Array.isArray(name) ? name[0] : name }}
+        {{ name }}
       </h5>
     </el-row>
     <hr class="divider divider-gray pt-2" />

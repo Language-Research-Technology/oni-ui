@@ -44,10 +44,10 @@
             </h5>
             <hr class="divider divider-gray pt-2" />
             <DownloadsModal :access="access" :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
-              v-model="openDownloads" :title="first(name)?.['@value']" />
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
+              v-model="openCrateDownloads" :title="first(name)?.['@value']" />
+            <el-link @click="openRoot" type="primary">Show All Related Downloads</el-link>
             <DownloadsModal v-if="access" :access="access" :id="this.rootId" :idFieldName="'_root.@id'"
-              v-model="openDownloads" :title="first(name)?.['@value']" />
+              v-model="openRootDownloads" :title="first(name)?.['@value']" />
           </el-card>
         </el-col>
       </el-row>
@@ -215,7 +215,8 @@ export default {
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
       fullPath: window.location.href,
       zips: [],
-      openDownloads: false,
+      openCrateDownloads: false,
+      openRootDownloads: false,
       isOCFL: false,
     };
   },
@@ -368,6 +369,9 @@ export default {
         return true;
       }
       return false;
+    },
+    openRoot() {
+      this.openRootDownloads = true;
     },
 
     //TODO: refactor this integrate to multi

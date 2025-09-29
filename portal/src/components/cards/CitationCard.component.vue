@@ -6,12 +6,11 @@
             </el-tooltip>
             </h5>
         <hr class="divider divider-gray pt-2" />
-        <!-- <div v-if="this.creditText">
+        <div v-if="this.creditText">
             <p>{{ suggestedCitation }}</p>
         </div>
-        <br> -->
         <el-link plain @click="dialogVisible = true" type="primary">
-            Show citation details for this item
+            Show All Citation Details
         </el-link>
 
         <el-dialog v-model="dialogVisible" title="Citation" width="40%">

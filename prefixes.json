@@ -1,0 +1,13 @@
+{
+    "prefixes": {
+        "isRef_": "",
+        "isTerm_": "",
+        "csvw:": "",
+        "custom:": "",
+        "dct:": "",
+        "ldac:": "",
+        "local:": "",
+        "pcdm:": "",
+        "prov:": ""
+    }
+}

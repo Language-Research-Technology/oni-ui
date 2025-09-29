@@ -91,10 +91,10 @@
             </h5>
             <hr class="divider divider-gray pt-2" />
             <DownloadsModal :access="access" :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
-              v-model="openDownloads" :title="first(name)?.['@value']" />
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
-            <DownloadsModal v-if="access" :access="access" :id="rootId" :idFieldName="'_root.@id'" v-model="openDownloads"
-              :title="first(name)?.['@value']" />
+              v-model="openCrateDownloads" :title="first(name)?.['@value']"/>
+            <el-link @click="openRoot" type="primary">Show All Related Downloads</el-link>
+            <DownloadsModal v-if="access" :access="access" :id="rootId" :idFieldName="'_root.@id'"
+              v-model="openRootDownloads" :title="first(name)?.['@value']"/>
           </el-card>
         </el-col>
       </el-row>
@@ -250,11 +250,12 @@ export default {
       collectionMembers: [],
       limitMembers: 10,
       aggregations: [],
-      openDownloads: false,
       rootId: '',
       access: null,
       loading: true,
-      isOCFL: false
+      isOCFL: false,
+      openCrateDownloads: false,
+      openRootDownloads: false
     };
   },
   async mounted() {
@@ -446,6 +447,9 @@ export default {
       const currentUrl = encodeURIComponent(window.location.href);
       const form = this.takedownForm;
       return `${form}${currentUrl}`;
+    },
+    openRoot() {
+      this.openRootDownloads = true;
     },
 
     //TODO: refactor this integrate to multi

@@ -34,6 +34,7 @@ import { first, sortBy } from 'lodash';
 import ElasticField from './ElasticField.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
+import prefixesJson from '../../../prefixes.json';
 
 export default {
   components: {
@@ -76,10 +77,19 @@ export default {
     first,
     clean(text) {
       if (text) {
+        // Prefix replacements
+        const prefixes = prefixesJson.prefixes;
+        for (const [prefix, replacement] of Object.entries(prefixes)) {
+          if (text.startsWith(prefix)) {
+            text = replacement + text.slice(prefix.length);
+          }
+        }
+        // Regex text replacements
         for (const [pattern, replacement] of Object.entries(this.textReplacements)) {
           const regex = new RegExp(pattern, 'g');
           text = text.replace(regex, replacement)
         }
+        // Capitalisation and camel case handling
         return this.capitalizeFirstLetter(text.replace(/([a-z])([A-Z])/g, '$1 $2'));
       }
     },

@@ -126,7 +126,7 @@ const uiSchema = z.strictObject({
   title: z.string(),
   shortTitle: z.string().optional(),
   splash: splashSchema,
-  showLogo: z.boolean().optional(),
+  logoFilename: z.string().optional(),
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),
   help: helpSchema,

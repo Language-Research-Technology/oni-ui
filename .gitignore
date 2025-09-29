@@ -5,6 +5,9 @@ configuration.json
 # Generated files
 vocab.json
 
+# Logos used for testing
+public/logo*
+
 #### vue-create
 # Logs
 logs

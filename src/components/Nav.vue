@@ -9,13 +9,15 @@ const route = useRoute();
 const {
   login: { enabled: isLoginEnabled },
   shortTitle = 'Oni',
-  showLogo,
+  logoFilename,
   navHeight = '50px',
   topNavHome = '/search?s=',
   topNavItems = [],
   subHelpLinks = [],
   showEllipsis = false,
 } = ui;
+
+const logoSrc = logoFilename ? `/${logoFilename}` : logo;
 </script>
 
 <template>
@@ -23,19 +25,9 @@ const {
     :style="{ height: navHeight }">
     <el-menu-item index="home" :route="topNavHome + Date.now()">
       <router-view :key="topNavHome">
-        <el-row :gutter="10" class="flex items-center justify-center min-w-md">
-          <el-col :span="4">
-            <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
-              <span>Home</span>
-            </div>
-          </el-col>
-          <el-col :span="18">
-            <span class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
-              <img v-if="showLogo" class="object-fill block" :src="logo" :srcset="logo" :style="{ 'height': navHeight }"
-                :alt="shortTitle || 'Oni'" />
-              <span v-else link>{{ shortTitle || 'Oni' }}</span>
-            </span>
-          </el-col>
+        <el-row :gutter="10" class="flex items-center min-w-md gap-8" :style="{ 'height': navHeight }">
+          <img class="h-full w-auto object-cover py-2" :src="logoSrc" :alt="shortTitle || 'Oni'" />
+          <span>Home</span>
         </el-row>
       </router-view>
     </el-menu-item>

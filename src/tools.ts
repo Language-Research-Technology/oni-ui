@@ -73,7 +73,7 @@ export const getEntityUrl = (entity: EntityType) => {
     case 'http://pcdm.org/models#Object':
       return `/object?id=${id}`;
     default:
-      throw new Error(`Unknown recordType ${entityType}`);
+      throw new Error(`Unknown entitytype ${entityType}`);
   }
 };
 

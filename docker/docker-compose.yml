@@ -1,11 +1,12 @@
-services:
-  oni-ui:
-    image: ghcr.io/nabu/oni-ui:latest
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8080:80"
-    volumes:
-      - ./configuration.json:/app/config/configuration.json
-    restart: unless-stopped
+# FIXME: This needs to be updated to run an arocapi wit data loaded
+# services:
+#   oni-ui:
+#     image: ghcr.io/nabu/oni-ui:latest
+#     build:
+#       context: ..
+#       dockerfile: docker/Dockerfile
+#     ports:
+#       - "8080:80"
+#     volumes:
+#       - ./configuration.json:/app/config/configuration.json
+#     restart: unless-stopped

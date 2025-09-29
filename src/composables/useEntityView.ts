@@ -15,6 +15,22 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
     name.value = Array.isArray(nameValue) ? nameValue[0] : nameValue;
   };
 
+  const isEmpty = (value: object | string | undefined): boolean => {
+    if (value === null || value === undefined || value === '') {
+      return true;
+    }
+
+    if (Array.isArray(value) && value.length === 0) {
+      return true;
+    }
+
+    if (typeof value === 'object' && Object.keys(value).length === 0) {
+      return true;
+    }
+
+    return false;
+  };
+
   const populateMeta = (md: RoCrate) => {
     meta.value = [];
 
@@ -22,24 +38,41 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
       // Explicit mode: only show specified fields in order
       for (const field of config.meta.show || []) {
         if (field in md) {
-          meta.value.push({ name: field, data: md[field as keyof RoCrate] });
+          const data = md[field as keyof RoCrate];
+          if (!isEmpty(data)) {
+            meta.value.push({ name: field, data });
+          }
+        }
+      }
+
+      // Log skipped fields
+      for (const field of Object.keys(md) as (keyof RoCrate)[]) {
+        if (!(config.meta.show || []).includes(field)) {
+          console.debug(`Skipping field ${field} in explicit mode`); // eslint-disable-line no-console
         }
       }
     } else {
       // Add top fields first
       for (const field of config.meta.top) {
         if (field.name in md) {
-          meta.value.push({ name: field.name, data: md[field.name as keyof RoCrate] });
+          const data = md[field.name as keyof RoCrate];
+          if (!isEmpty(data)) {
+            meta.value.push({ name: field.name, data });
+          }
         }
       }
 
       // Then add remaining fields, sorted alphabetically
       const keys = Object.keys(md) as (keyof RoCrate)[];
       const topFieldNames = config.meta.top.map((f) => f.name);
-      const filtered = keys.filter((key) => !config.meta.hide.includes(key) && !topFieldNames.includes(key));
+      const { hide } = config.meta;
+      const filtered = keys.filter((key) => !hide.includes(key) && !topFieldNames.includes(key));
       filtered.sort();
       for (const filter of filtered) {
-        meta.value.push({ name: filter, data: md[filter] });
+        const data = md[filter];
+        if (!isEmpty(data)) {
+          meta.value.push({ name: filter, data });
+        }
       }
     }
   };

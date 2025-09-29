@@ -7,3 +7,8 @@ pre-commit:
       run: pnpm run lint:types
     lint-knip:
       run: pnpm run lint:knip
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit {1}

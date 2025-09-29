@@ -2,6 +2,8 @@
 import { GeoCoordinates, GeoShape } from './geo_schema';
 import { Geometry } from './geo_wkt';
 
+export type Transformers = 'GeoCoordinates' | 'GeoShape' | 'Geometry' | 'http://www.opengis.net/ont/geosparql#Geometry';
+
 // biome-ignore lint/suspicious/noExplicitAny: moo
 export default function (L: any, entity: { '@type': string }) {
   const Transformers = {

@@ -4,15 +4,9 @@ import Facet from '@/components/Facet.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
+import { ordering } from '@/composables/search';
 
-import { ui } from '@/configuration';
 import type { EntityType } from '@/services/api';
-
-const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
-const ordering = ui.search?.ordering || [
-  { value: 'asc', label: 'Ascending' },
-  { value: 'desc', label: 'Descending' },
-];
 
 import { useRoute, useRouter } from 'vue-router';
 
@@ -24,6 +18,7 @@ const {
   advancedSearchLines,
   filters,
   advancedSearchEnabled,
+  sorting,
   entities,
   totals,
   searchTime,
@@ -59,6 +54,7 @@ const {
   filters: Record<string, string[]>;
   filtersChanged: boolean;
   advancedSearchEnabled: boolean;
+  sorting: { value: string; label: string }[];
   selectedSorting: { value: string; label: string };
   selectedOrder: { value: string; label: string };
   pageSize: number;

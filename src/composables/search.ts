@@ -38,6 +38,11 @@ export const blankAdvancedSearchLine: AdvancedSearchLine = {
   searchInput: '',
 };
 
+export const ordering = [
+  { value: 'asc', label: 'Ascending' },
+  { value: 'desc', label: 'Descending' },
+] as const;
+
 export const useSearch = (searchType: 'list' | 'map') => {
   const router = useRouter();
   const route = useRoute();
@@ -75,18 +80,14 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const filterButton = ref([]);
   const isBrowse = ref(false);
 
-  const ordering =
-    ui.search?.ordering ||
-    ([
-      { value: 'asc', label: 'Ascending' },
-      { value: 'desc', label: 'Descending' },
-    ] as const);
-  const defaultOrder = ordering[0];
+  const defaultOrder = ordering.find((o) => o.value === ui.search?.default.ordering) || ordering[0];
   const selectedOrder = ref(defaultOrder);
 
-  const fallbackSorting = { value: 'relevance', label: 'Relevance' };
-  const sorting = ui.search?.sorting || [fallbackSorting];
-  const defaultSorting = ui.search?.searchSorting || sorting[0] || fallbackSorting;
+  const sorting = ui.search?.sorting || [{ value: 'relevance', label: 'Relevance' }];
+  const defaultSorting = sorting.find((s) => s.value === ui.search?.default.sorting) || sorting[0];
+  if (!defaultSorting) {
+    throw new Error('No default sorting option found');
+  }
   const selectedSorting = ref(defaultSorting);
 
   // Map Stuff
@@ -381,6 +382,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     searchInput,
     advancedSearchLines,
     errorDialogText,
+    sorting,
     facets,
     geohashGrid,
     searchFields,

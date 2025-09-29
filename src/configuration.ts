@@ -49,16 +49,17 @@ const fieldLabelSchema = z.strictObject({
 const searchSchema = z
   .strictObject({
     sorting: z.array(valueLabelSchema),
-    searchSorting: valueLabelSchema,
-    ordering: z.array(valueLabelSchema),
+    default: z.object({
+      sorting: z.string(),
+      ordering: z.enum(['asc', 'desc']),
+    }),
     searchDetails: z.array(fieldLabelSchema),
   })
+  .refine((data) => data.sorting.map((s) => s.value).includes(data.default.sorting), {
+    message: 'default sorting must be one of the values in sorting array',
+    path: ['defailt.sorting'], // This will attach the error to the role field
+  })
   .optional();
-
-// const mainFieldSchema = z.strictObject({
-//   display: z.string(),
-//   name: z.string(),
-// });
 
 const collectionSchema = z.strictObject({
   name: z.strictObject({

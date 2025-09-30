@@ -14,7 +14,14 @@ export const useAuthStore = defineStore(
     const lastRoute = ref<string>();
     const user = ref<OniUser>();
 
-    return { isLoggedIn, loginTermsUrl, user, lastRoute };
+    const reset = () => {
+      isLoggedIn.value = false;
+      loginTermsUrl.value = undefined;
+      lastRoute.value = undefined;
+      user.value = undefined;
+    };
+
+    return { isLoggedIn, loginTermsUrl, user, lastRoute, reset };
   },
   { persist: true },
 );

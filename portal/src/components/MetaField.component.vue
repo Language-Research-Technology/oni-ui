@@ -58,10 +58,14 @@ export default {
   },
   computed: {
     sortedMetaData() {
-      if (Array.isArray(this.meta?.data)) {
+      // if is array and metadata is a language field, sort alphabetically
+      if (Array.isArray(this.meta?.data) && this.meta?.name === 'ldac:subjectLanguage' || this.meta?.name === 'inLanguage') {
         return sortBy(this.meta.data, d =>
           (first(d?.name)?.['@value'] || d.name || d['@id'] || '').toLowerCase()
         );
+      // otherwise do nothing
+      } else {
+        return this.meta.data;
       }
       return [];
     },

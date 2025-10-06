@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - esbuild
+  - lefthook
   - oxc-resolver
   - vue-demi

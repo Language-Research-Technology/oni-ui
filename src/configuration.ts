@@ -176,6 +176,15 @@ const uiSchema = z.strictObject({
       gaMeasurementId: z.string(),
     })
     .optional(),
+  sentry: z
+    .strictObject({
+      dsn: z.url(),
+      environment: z.string().optional(),
+      tracesSampleRate: z.number().min(0).max(1).optional(),
+      replaysSessionSampleRate: z.number().min(0).max(1).optional(),
+      replaysOnErrorSampleRate: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
   mapConfig: mapSchema,
   features: z
     .strictObject({

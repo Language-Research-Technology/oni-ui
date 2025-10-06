@@ -31,6 +31,8 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/vue-fontawesome": "^3.1.2",
     "@gtm-support/vue-gtm": "^3.1.0",
+    "@sentry/vite-plugin": "^4.3.0",
+    "@sentry/vue": "^10.17.0",
     "@unhead/vue": "^2.0.17",
     "cookie-parser": "^1.4.7",
     "elastic-builder": "^3.4.0",

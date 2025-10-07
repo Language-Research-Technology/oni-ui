@@ -55,6 +55,7 @@ const resolveFile = async () => {
 };
 
 const extension = filename.split('.').pop() || '';
+console.log('🪚 encodingFormat.filter:', JSON.stringify(encodingFormat, null, 2));
 const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
 const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
 const isTxt =

@@ -2,6 +2,8 @@
 import { inject, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import FileResolve from '@/components/FileResolve.vue';
+import MetaField from '@/components/MetaField.vue';
+import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
 const api = inject<ApiService>('api');
@@ -22,11 +24,12 @@ const encodingFormat = ref<string[]>([]);
 const contentSize = ref<number>();
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
+const part = ref<RoCrate['hasPart'][number] | undefined>();
+const meta = ref<{ name: string; data: string }[]>([]);
 
 const populateData = (md: RoCrate, e: EntityType) => {
-  const part = md.hasPart.find((part) => part['@id']);
-  console.log('🪚 part:', JSON.stringify(part, null, 2));
-  if (!part) {
+  part.value = md.hasPart.find((part) => part['@id']);
+  if (!part.value) {
     router.push({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
@@ -37,15 +40,24 @@ const populateData = (md: RoCrate, e: EntityType) => {
     return;
   }
 
-  title.value = part.filename || part['@id'];
+  title.value = part.value.filename || part.value['@id'];
 
   parentTitle.value = md.name || md['@id'];
 
-  filename.value = part.filename;
-  encodingFormat.value = Array.isArray(part.encodingFormat) ? part.encodingFormat : [part.encodingFormat];
-  contentSize.value = part.contentSize;
+  filename.value = part.value.filename;
+  encodingFormat.value = Array.isArray(part.value.encodingFormat)
+    ? part.value.encodingFormat
+    : [part.value.encodingFormat];
+  contentSize.value = part.value.contentSize;
   metadata.value = md;
   entity.value = e;
+
+  const keys = Object.keys(part.value);
+  const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));
+  for (const filter of filtered) {
+    meta.value.push({ name: filter, data: part.value[filter] as string });
+  }
+  meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 const getFileMetadata = async () => {
@@ -79,7 +91,7 @@ getFileMetadata();
 </script>
 
 <template>
-  <el-row :justify="'center'" class="w-full">
+  <el-row :justify="'center'" class="w-full" v-if="entity && metadata && part">
     <el-col :span="24">
       <div class="container mx-auto">
         <el-row>
@@ -95,8 +107,16 @@ getFileMetadata();
           </el-col>
         </el-row>
         <el-row>
-          <el-col v-if="parentId" :xs="24" :sm="24" :md="24" :lg="24" :xl="24"
-            class="flex justify-center h-screen overflow-auto">
+          <el-col :xs="24" :sm="15" :md="24" :lg="24" :xl="24">
+            <ul>
+              <li v-for="m of meta">
+                <MetaField :meta="m" />
+              </li>
+            </ul>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="flex justify-center h-screen overflow-auto">
             <FileResolve v-if="entity" :id="id" :parentId="parentId" :filename="filename" :resolve="true"
               :encodingFormat="encodingFormat" :name="title" :parentName="parentTitle" :hideOpenLink="true"
               :isPreview="false" :access="entity.access" :license="metadata?.license" :contetnSize="contentSize" />

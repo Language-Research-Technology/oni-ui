@@ -201,7 +201,7 @@ fetchdata();
 
       <el-row :gutter="20" class="pb-5">
         <el-col v-if="metadata['pcdm:memberOf']">
-          <MemberOfCard :routePath="'collection'" :memberOf="metadata['pcdm:memberOf']" />
+          <MemberOfCard routePath="collection" :memberOf="metadata['pcdm:memberOf']" />
         </el-col>
       </el-row>
 
@@ -212,7 +212,7 @@ fetchdata();
             <hr class="divider divider-gray pt-2" />
             <ul>
               <li v-for="d of membersFiltered">
-                <CollectionItem :field="d" :routePath="'object'" />
+                <CollectionItem :field="d" routePath="object" />
               </li>
 
               <li v-if="membersFiltered">

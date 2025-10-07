@@ -85,10 +85,12 @@ getFileMetadata();
         <el-row>
           <el-col :xs="24" :sm="15" :md="24" :lg="24" :xl="24">
             <h3 class="relative space-x-3 font-bold p-3 text-xl select-none text-left">
-              <a class="break-words no-underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                :href="`/object?id=${encodeURIComponent(parentId)}`">
+              <router-link :to="`/object?id=${encodeURIComponent(parentId)}`"
+                class="break-words no-underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
                 <font-awesome-icon icon="fa fa-arrow-left" />
-                {{ parentTitle }}</a>>&nbsp;<span>{{ title || id }}</span>
+                {{ parentTitle }}
+              </router-link>
+              >&nbsp;<span>{{ title || id }}</span>
             </h3>
           </el-col>
         </el-row>

@@ -125,14 +125,13 @@ onMounted(fetchData);
       <el-row>
         <el-col>
           <CollectionMembers title="Sub Collections" :id="id" :conformsTo="conformsToCollection"
-            :routePath="'collection'" />
+            routePath="collection" />
         </el-col>
       </el-row>
 
       <el-row>
         <el-col>
-          <CollectionMembers title="Objects in Collection" :id="id" :conformsTo="conformsToObject"
-            :routePath="'object'" />
+          <CollectionMembers title="Objects in Collection" :id="id" :conformsTo="conformsToObject" routePath="object" />
         </el-col>
       </el-row>
     </el-col>
@@ -151,8 +150,7 @@ onMounted(fetchData);
 
       <el-row :gutter="20" class="pb-5" v-if="metadata['pcdm:memberOf']">
         <el-col>
-          <MemberOfCard v-if="metadata['pcdm:memberOf']" :routePath="'collection'"
-            :memberOf="metadata['pcdm:memberOf']" />
+          <MemberOfCard v-if="metadata['pcdm:memberOf']" routePath="collection" :memberOf="metadata['pcdm:memberOf']" />
         </el-col>
       </el-row>
 

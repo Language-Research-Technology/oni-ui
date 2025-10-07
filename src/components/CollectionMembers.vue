@@ -79,7 +79,7 @@ onMounted(setMembers);
             @update:page-size="pageSize" />
         </div>
         <div v-loading="isLoading">
-          <ul v-for="item of items" :key="item.id">
+          <ul v-for="item of items" :key="item.id" class="list-disc">
             <li>
               <CollectionItem :field="item" :routePath="routePath" />
             </li>

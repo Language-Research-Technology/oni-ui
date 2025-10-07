@@ -9,9 +9,9 @@ const { field, title } = defineProps<{
 }>();
 
 import { ui } from '@/configuration';
-import { formatFileSize, shortenText } from '@/tools';
+import { formatDuration, formatFileSize, shortenText } from '@/tools';
 
-const { expand = [], byteFields } = ui.main;
+const { expand = [], byteFields = [], durationFields = [] } = ui.main;
 
 let id: string;
 let url: string | undefined;
@@ -33,6 +33,8 @@ if (typeof field === 'undefined') {
   name = '';
 } else if (byteFields.includes(title)) {
   name = formatFileSize(field);
+} else if (durationFields.includes(title) && typeof field === 'number') {
+  name = formatDuration(field);
 } else if (['string', 'number'].includes(typeof field)) {
   name = String(field);
 } else if (Array.isArray(field) && typeof field[0] === 'string') {

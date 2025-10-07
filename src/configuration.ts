@@ -141,7 +141,8 @@ const uiSchema = z.strictObject({
   topNavHome: z.string().optional(),
   search: searchSchema,
   main: z.strictObject({
-    byteFields: z.array(z.string()),
+    byteFields: z.array(z.string()).optional(),
+    durationFields: z.array(z.string()).optional(),
     expand: z.array(z.string()),
   }),
   textReplacements: z.record(z.string(), z.string()),

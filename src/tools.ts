@@ -109,3 +109,29 @@ export const startCase = (str: string) => {
 
   return words;
 };
+
+export const formatDuration = (seconds: number) => {
+  if (seconds < 0) {
+    return '0s';
+  }
+
+  const units = [
+    { label: 'd', value: 86400 },
+    { label: 'h', value: 3600 },
+    { label: 'm', value: 60 },
+    { label: 's', value: 1 },
+  ];
+
+  const parts: string[] = [];
+  let remaining = Math.floor(seconds);
+
+  for (const unit of units) {
+    if (remaining >= unit.value) {
+      const count = Math.floor(remaining / unit.value);
+      parts.push(`${count}${unit.label}`);
+      remaining %= unit.value;
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' ') : '0s';
+};

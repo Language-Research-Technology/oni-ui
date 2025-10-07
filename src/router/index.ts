@@ -88,6 +88,20 @@ const routes: RouterOptions['routes'] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  scrollBehavior(to, _from, savedPosition) {
+    return new Promise((resolve) => {
+      if (savedPosition) {
+        // Wait for the DOM to update before scrolling
+        setTimeout(() => {
+          resolve(savedPosition);
+        }, 500);
+      } else if (to.hash) {
+        resolve({ el: to.hash });
+      } else {
+        resolve({ top: 0 });
+      }
+    });
+  },
 });
 
 const onAuthRequired: NavigationGuardWithThis<undefined> = async (to) => {

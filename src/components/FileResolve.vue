@@ -73,7 +73,6 @@ watch(
 if (resolve) {
   resolveFile();
 }
-console.log('🪚 encodingFormat:', JSON.stringify(encodingFormat, null, 2));
 </script>
 
 <template>

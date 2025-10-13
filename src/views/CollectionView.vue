@@ -174,7 +174,7 @@ onMounted(fetchData);
 
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
 
-            <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" :title="name" />
+            <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" />
           </el-card>
         </el-col>
       </el-row>

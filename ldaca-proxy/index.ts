@@ -560,7 +560,7 @@ type GetSearchResponse = {
 
 const aggMap: Record<string, string> = {
   _geohash: 'geohash',
-  '_memberOf.name.@value': 'memberOf',
+  '_memberOf.@id': 'memberOf',
   '_root.name.@value': 'root',
   '_mainCollection.name.@value': 'mainCollection',
   '_subCollection.name.@value': 'subCollection',

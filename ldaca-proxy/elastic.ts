@@ -18,7 +18,7 @@ type MultiProps = {
 
 const aggMap = {
   _geohash: 'geohash',
-  '_memberOf.name.@value': 'memberOf',
+  '_memberOf.@id': 'memberOf',
   '_root.@id': 'root',
   '_mainCollection.name.@value': 'mainCollection',
   '_subCollection.name.@value': 'subCollection',

@@ -37,10 +37,6 @@ const zipName = `${name || id}.zip`;
 
 const processZip = async () => {
   zip.value = await api.getZipMeta(id);
-  console.log('🪚 🔲');
-  console.log('🪚 zip.value:', JSON.stringify(zip.value, null, 2));
-  // const access = { hasAccess: zip.value.status !== 'noAccess', group: license };
-  // emit('accessDetails', accessDetails);
 };
 
 const trackEvent = () => {

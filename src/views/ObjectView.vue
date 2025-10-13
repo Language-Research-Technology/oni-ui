@@ -42,6 +42,13 @@ const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);
 
 const populateParts = (md: RoCrate) => {
+  if (!md.hasPart) {
+    parts.value = [];
+    mediaTypes.value = [];
+
+    return;
+  }
+
   // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
   const newParts = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];
 

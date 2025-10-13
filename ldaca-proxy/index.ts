@@ -353,7 +353,7 @@ app.get('/ldaca/entity/:id', async (req, res) => {
     recordType: entityType,
     memberOf: 'Unknown',
     root: 'Unknown',
-    extra,
+    ...extra,
     ...rest,
   };
 
@@ -440,11 +440,10 @@ app.head('/ldaca/zip/:id', async (req, res) => {
   const token = req.cookies['x-token'];
 
   const url = `${baseUrl}/api/object/${encodeURIComponent(req.params.id)}.zip`;
+  const headers = token ? { Authorization: `Bearer ${token}` } : getBasicAuthHeader();
   const response = await fetch(url, {
     method: 'HEAD',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (response.status === 404) {
@@ -677,7 +676,7 @@ app.post('/ldaca/search', async (req, res) => {
           root: hit._source._root?.[0]['@id'],
           createdAt: new Date(),
           updatedAt: new Date(),
-          extra,
+          ...extra,
           searchExtra: {
             score: hit._score,
             highlight: hit.highlight,

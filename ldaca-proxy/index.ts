@@ -392,11 +392,10 @@ app.get('/ldaca/user/terms', async (req, res) => {
   const token = req.cookies['x-token'];
 
   const url = `${baseUrl}/api/user/terms`;
+  const headers = token ? { Authorization: `Bearer ${token}` } : getBasicAuthHeader();
   const response = await fetch(url, {
     redirect: 'follow',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -415,12 +414,11 @@ app.get('/ldaca/user/terms', async (req, res) => {
 app.get('/ldaca/user/terms/accept', async (req: Request<{ id: string }>, res) => {
   const token = req.cookies['x-token'];
 
+  const headers = token ? { Authorization: `Bearer ${token}` } : getBasicAuthHeader();
   const url = `${baseUrl}/api/user/terms/accept?id=${req.params.id}`;
   const response = await fetch(url, {
     redirect: 'follow',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -446,8 +444,8 @@ app.head('/ldaca/zip/:id', async (req, res) => {
     headers,
   });
 
-  if (response.status === 404) {
-    res.status(404).end();
+  if ([401, 404, 403].includes(response.status)) {
+    res.status(response.status).end();
 
     return;
   }
@@ -466,10 +464,9 @@ app.get('/ldaca/zip/:id', async (req, res) => {
   const token = req.cookies['x-token'];
 
   const url = `${baseUrl}/api/object/${encodeURIComponent(req.params.id)}.zip`;
+  const headers = token ? { Authorization: `Bearer ${token}` } : getBasicAuthHeader();
   const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   res.status(response.status);

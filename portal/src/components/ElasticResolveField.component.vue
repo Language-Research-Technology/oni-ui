@@ -13,7 +13,7 @@
          :href="field" target="_blank">{{field}}</a>
     </template>
     <template v-else>
-      <el-link class="break-words break-all" type="primary" :href="this.link">{{ this.field }}</el-link>
+      <span class="break-words break-all">{{ this.field }}</span>
     </template>
   </template>
 </template>

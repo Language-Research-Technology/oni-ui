@@ -180,7 +180,7 @@ const clean = (value: string) => {
               </el-button-group>
 
               <span id="total_results" class="my-1 mr-2" v-show="totals !== undefined">
-                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects and Files</span>
+                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects and Files)</span>
               </span>
             </el-col>
 

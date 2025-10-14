@@ -119,7 +119,7 @@ doWork();
         <el-link ref="linkElement" :underline="false" type="primary" :href="zip?.url" :download="zipName"
           :onClick="trackEvent">
           <el-button type="primary" circle size="large">
-            <el-tooltip class="box-item" effect="dark" content="Click to download item." placement="bottom">
+            <el-tooltip class="box-item" effect="light" content="Click to download item." placement="bottom">
               <font-awesome-icon icon="fa-solid fa-download" size="lg" />
             </el-tooltip>
           </el-button>

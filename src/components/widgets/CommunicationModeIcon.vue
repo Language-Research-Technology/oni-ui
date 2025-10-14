@@ -28,7 +28,7 @@ switch (communicationMode) {
 <template>
   <span v-if="communicationMode" class="p-1 m-1">
     <span class="justify-center">
-      <el-tooltip class="box-item" effect="dark" :content="`CommunicationMode: ${communicationMode}`"
+      <el-tooltip class="box-item" effect="light" :content="`CommunicationMode: ${communicationMode}`"
         placement="bottom">
         <manku-icon v-if="useMankuIcon" :name="iconName" size="40" fill="grey" />
         <font-awesome-icon v-else :icon="['fa-solid', iconName]" size="2x" style="color: rgba(0,0,0,0.55);" />

@@ -121,7 +121,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5">
+      <!-- <el-row v-if="!metadata['creditText']" :gutter="20" class="pb-5"> -->
         <el-col>
           <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
             :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']"

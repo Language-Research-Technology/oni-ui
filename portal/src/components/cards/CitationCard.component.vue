@@ -1,7 +1,7 @@
 <template>
     <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
         <h5 class="text-2xl font-medium">Citation
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="Bibliographic elements, and suggested citation if applicable, for the current item." placement="top">
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="Bibliographic elements to construct a citation for the current item." placement="top">
               <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
             </el-tooltip>
             </h5>

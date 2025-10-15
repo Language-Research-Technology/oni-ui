@@ -22,10 +22,5 @@ if (!localLicense) {
     <a class="underline" :href="localLicense['@id']" target="_blank">
       {{ first(localLicense.name) }}
     </a>
-
-    <p>
-      {{ localLicense.metadataIsPublic === false ? 'Private Metadata' : 'Public Metadata' }} and
-      {{ localLicense.allowTextIndex === false ? 'Cannot Search in Text' : 'Text is Searchable' }}
-    </p>
   </div>
 </template>

@@ -36,6 +36,7 @@ const id = route.query.id as string;
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
 const openDownloads = ref(false);
+
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 
@@ -140,7 +141,12 @@ onMounted(fetchData);
       <el-row v-if="metadata.license" :gutter="20" class="pb-5">
         <el-col class="overflow-visible!">
           <el-card class="mx-10 !overflow-visible">
-            <h5 class="text-2xl font-medium">Access</h5>
+            <h5 class="text-2xl font-medium">Access
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="License and access conditions for the current collection." placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <AccessHelper :access="entity.access" :license="metadata.license" />
             <LicenseCard v-if="metadata.license" :license="metadata.license" />
@@ -157,7 +163,12 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Content</h5>
+            <h5 class="text-2xl font-medium">Content
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="Summarises some of the key metadata of the current collection." placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <SummariesCard :entity="entity" />
           </el-card>
@@ -167,10 +178,16 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5" v-if="features?.hasZipDownload && name != undefined">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Downloads</h5>
+            <h5 class="text-2xl font-medium">Downloads
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="Downloads associated with the current collection. Select Show All Related Downloads to view the complete list of downloads available for the given collection."
+                placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
 
-            <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" v-model="openDownloads" />
+            <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" />
 
             <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
 
@@ -182,7 +199,13 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
+            <h5 class="text-2xl font-medium">Retrieve Metadata
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="View or download the metadata associated with the current collection, as well as the license and access conditions for this metadata."
+                placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="id" />
             <template v-if="metadata.metadataLicense?.id">
@@ -200,7 +223,7 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" class="pb-5" v-if="metadata">
+      <el-row :gutter="20" class="pb-5" v-if="!metadata['creditText']">
         <el-col>
           <CitationCard :metadata="metadata" />
         </el-col>

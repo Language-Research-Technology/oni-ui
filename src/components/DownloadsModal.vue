@@ -6,7 +6,7 @@ import type { ApiService, EntityType } from '@/services/api';
 const { id, idFieldName, modelValue, simpleView } = defineProps<{
   id: string;
   idFieldName: string;
-  modelValue: boolean;
+  modelValue?: boolean;
   simpleView?: boolean;
   access?: string;
 }>();
@@ -86,7 +86,6 @@ const updatePages = async (page: number) => {
 };
 
 getObjects();
-console.log('🪚 🔲');
 </script>
 
 <template>

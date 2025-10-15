@@ -32,7 +32,7 @@ switch (accessControl) {
 
 <template>
   <div class="flex justify-center" v-if="iconName">
-    <el-tooltip class="box-item" effect="dark" :content="content" placement="bottom">
+    <el-tooltip class="box-item" effect="light" :content="content" placement="bottom">
       <manku-icon :name="iconName" size="40" fill="grey" />
     </el-tooltip>
   </div>

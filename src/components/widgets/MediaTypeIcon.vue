@@ -57,7 +57,7 @@ const iconName = detectIconName();
 <template>
   <span v-if="iconName" class="p-1 m-1">
     <span class="justify-center">
-      <el-tooltip class="box-item" effect="dark" :content="`File Format: ${mediaType}`" placement="bottom">
+      <el-tooltip class="box-item" effect="light" :content="`File Format: ${mediaType}`" placement="bottom">
         <font-awesome-icon :icon="['fa-solid', iconName]" size="2x" style="color: rgba(0,0,0,0.55);" />
       </el-tooltip>
     </span>

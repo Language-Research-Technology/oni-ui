@@ -144,6 +144,7 @@ const uiSchema = z.strictObject({
     byteFields: z.array(z.string()).optional(),
     durationFields: z.array(z.string()).optional(),
     expand: z.array(z.string()),
+    paginatedMeta: z.array(z.string()).optional().default([]),
   }),
   textReplacements: z.record(z.string(), z.string()),
   head: z.strictObject({

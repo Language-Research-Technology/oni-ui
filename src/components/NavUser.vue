@@ -17,7 +17,9 @@ const doLogout = async () => {
 <template>
   <el-menu-item v-show="!isLoggedIn" @click="login">
     <div class="flex flex-col justify-center items-center">
-      <span>Login</span>
+      <el-tooltip class="box-item" effect="light" content="Log in to the portal to apply for access to collections or view your current access." placement="bottom">
+          <span>Login</span>
+        </el-tooltip>
     </div>
   </el-menu-item>
 

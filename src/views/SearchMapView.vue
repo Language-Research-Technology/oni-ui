@@ -336,7 +336,7 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
       <h4>Type: ${type}</h4>
   `;
 
-  if (memberOf.length) {
+  if (memberOf) {
     const innerHTMLMemberOf = `
         <a
            class="text-sm m-1 text-gray-700 underline"

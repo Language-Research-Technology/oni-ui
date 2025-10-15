@@ -65,16 +65,18 @@ const bibliography = () => {
 <template>
   <el-card class="mx-10">
     <h5 class="text-2xl font-medium">Citation
-      <el-tooltip class="box-item" effect="light" trigger="hover" content="Bibliographic elements to construct a citation for the current item." placement="top">
-        <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+      <el-tooltip class="box-item" effect="light" trigger="hover"
+        content="Bibliographic elements to construct a citation for the current item." placement="top">
+        <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
       </el-tooltip>
     </h5>
 
     <hr class="divider divider-gray pt-2" />
-  <!-- <div v-if="this.creditText">
-            <p>{{ suggestedCitation }}</p>
-        </div>
-        <br> -->
+
+    <div v-if="metadata.creditText">
+      <p>{{ suggestedCitation() }}</p>
+    </div>
+
     <el-link plain @click="dialogVisible = true" type="primary">
       Show All Citation Details
     </el-link>

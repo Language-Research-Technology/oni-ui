@@ -35,13 +35,7 @@ const id = route.query.id as string;
 
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
-// const openDownloads = ref(false);
-const openCrateDownloads = ref(false);
-const openRootDownloads = ref(false);
-
-const openRoot = () => {
-  openRootDownloads.value = true;
-};
+const openDownloads = ref(false);
 
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
@@ -148,9 +142,10 @@ onMounted(fetchData);
         <el-col class="overflow-visible!">
           <el-card class="mx-10 !overflow-visible">
             <h5 class="text-2xl font-medium">Access
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="License and access conditions for the current collection." placement="top">
-              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
-            </el-tooltip>
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="License and access conditions for the current collection." placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
             <AccessHelper :access="entity.access" :license="metadata.license" />
@@ -169,9 +164,10 @@ onMounted(fetchData);
         <el-col>
           <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Content
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="Summarises some of the key metadata of the current collection." placement="top">
-              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
-            </el-tooltip>
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="Summarises some of the key metadata of the current collection." placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
             <SummariesCard :entity="entity" />
@@ -183,17 +179,19 @@ onMounted(fetchData);
         <el-col>
           <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Downloads
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="Downloads associated with the current collection. Select Show All Related Downloads to view the complete list of downloads available for the given collection." placement="top">
-              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
-            </el-tooltip>
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="Downloads associated with the current collection. Select Show All Related Downloads to view the complete list of downloads available for the given collection."
+                placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
 
-            <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" v-model="openCrateDownloads" />
+            <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" />
 
-            <el-link @click="openRoot" type="primary">Show All Related Downloads</el-link>
+            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
 
-            <DownloadsModal :id="id" :idFieldName="'root'" v-model="openRootDownloads" />
+            <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" />
           </el-card>
         </el-col>
       </el-row>
@@ -202,9 +200,11 @@ onMounted(fetchData);
         <el-col>
           <el-card class="mx-10">
             <h5 class="text-2xl font-medium">Retrieve Metadata
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="View or download the metadata associated with the current collection, as well as the license and access conditions for this metadata." placement="top">
-              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
-            </el-tooltip>
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="View or download the metadata associated with the current collection, as well as the license and access conditions for this metadata."
+                placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="id" />

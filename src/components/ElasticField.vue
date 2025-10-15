@@ -72,13 +72,9 @@ const collapseName = shortenText(name);
   <template v-else-if="url">
     <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
       target="_blank" rel="nofollow noreferrer">
-      <!-- <manku-icon :name="title" height="30">
-        <template #notFound> -->
-          <span class="break-all">
-            {{ name || id }}
-          </span>
-        <!-- </template>
-      </manku-icon> -->
+      <span class="break-all">
+        {{ name || id }}
+      </span>
     </a><br />
   </template>
 

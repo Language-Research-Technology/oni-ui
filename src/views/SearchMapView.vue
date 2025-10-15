@@ -20,6 +20,7 @@ const {
   advancedSearchEnabled,
   searchInput,
   advancedSearchLines,
+  sorting,
   facets,
   geohashGrid,
   filters,
@@ -477,7 +478,7 @@ watch(geohashGrid, updateLayers);
 </script>
 
 <template>
-  <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities"
+  <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities" :sorting="sorting"
     :clearFilter="clearFilter" :onInputChange="onInputChange" :filtersChanged="filtersChanged"
     :updateRoutes="updateRoutes" :clearFilters=clearFilters :updateFilter="updateFilter" :totals="totals"
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"

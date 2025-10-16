@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
 
-const { mapConfig } = ui;
+const { mapConfig, searchFields } = ui;
 
 export type FacetType = {
   buckets: Array<{ name: string; count: number }>;
@@ -43,6 +43,35 @@ export const ordering = [
   { value: 'desc', label: 'Descending' },
 ] as const;
 
+export const generateQueryString = (lines: AdvancedSearchLine[]) => {
+  let qS = '';
+
+  lines.forEach((sg, i) => {
+    let lastOneSG = false;
+    if (i + 1 === lines.length) {
+      lastOneSG = true;
+    }
+
+    if (sg.field === 'all_fields') {
+      let qqq = '( ';
+      Object.keys(searchFields).forEach((f, index, keys) => {
+        let lastOne = false;
+        if (index + 1 === keys.length) {
+          lastOne = true;
+        }
+        let qq = '';
+        qq = `${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+        qqq += qq;
+      });
+      qS += `${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+    } else {
+      qS += ` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+    }
+  });
+
+  return qS;
+};
+
 export const useSearch = (searchType: 'list' | 'map') => {
   const router = useRouter();
   const route = useRoute();
@@ -53,13 +82,11 @@ export const useSearch = (searchType: 'list' | 'map') => {
     throw new Error('API instance not provided');
   }
 
-  const { searchFields } = ui;
-
   const isMap = searchType === 'map';
 
   // Search state
   const searchInput = ref('');
-  const advancedSearchLines = ref<AdvancedSearchLine[]>([]);
+  const advancedSearchLines = ref<AdvancedSearchLine[]>([{ ...blankAdvancedSearchLine }]);
   const advancedSearchEnabled = ref(false);
   const filters = ref<Record<string, string[]>>({});
 
@@ -197,10 +224,22 @@ export const useSearch = (searchType: 'list' | 'map') => {
     filtersChanged.value = false;
 
     isLoading.value = true;
+    console.log('🪚 advancedSearchLines.value:', JSON.stringify(advancedSearchLines.value, null, 2));
+
+    const query = advancedSearchEnabled.value
+      ? generateQueryString(
+          advancedSearchLines.value.map((l) => {
+            if (l.searchInput === '') {
+              l.searchInput = '*';
+            }
+            return l;
+          }),
+        )
+      : searchInput.value.toString();
 
     try {
       const params: SearchParams = {
-        query: advancedSearchEnabled.value ? advancedSearchLines.value.toString() : searchInput.value.toString(),
+        query,
         searchType: advancedSearchEnabled.value ? 'advanced' : 'basic',
         filters: filters.value,
         limit: pageSize.value,

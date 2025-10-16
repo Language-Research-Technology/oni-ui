@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
-import { type AdvancedSearchLine, blankAdvancedSearchLine, type SetSearchParamsOptions } from '@/composables/search';
+import {
+  type AdvancedSearchLine,
+  blankAdvancedSearchLine,
+  generateQueryString,
+  type SetSearchParamsOptions,
+} from '@/composables/search';
 import { ui } from '@/configuration';
 
 const { searchFields } = ui;
@@ -17,46 +22,14 @@ Object.keys(searchFields).forEach((f) => {
   advancedSearchFields.push({ label: searchFields[f]?.label as string, value: f });
 });
 
-const localAdvancedSearchLines = ref<AdvancedSearchLine[]>(advancedSearchLines || [blankAdvancedSearchLine]);
+const localAdvancedSearchLines = ref<AdvancedSearchLine[]>(advancedSearchLines);
+console.log('🪚 localAdvancedSearchLines:', JSON.stringify(localAdvancedSearchLines.value, null, 2));
 const advancedSearchQuery = ref('');
 const showQueryString = ref(false);
 const showHelp = ref(false);
 
-const generateQueryString = () => {
-  let qS = '';
-
-  localAdvancedSearchLines.value.forEach((sg, i) => {
-    let lastOneSG = false;
-    if (i + 1 === localAdvancedSearchLines.value.length) {
-      lastOneSG = true;
-    }
-
-    if (sg.searchInput.length === 0) {
-      sg.searchInput = '*';
-    }
-
-    if (sg.field === 'all_fields') {
-      let qqq = '( ';
-      Object.keys(searchFields).forEach((f, index, keys) => {
-        let lastOne = false;
-        if (index + 1 === keys.length) {
-          lastOne = true;
-        }
-        let qq = '';
-        qq = `${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
-        qqq += qq;
-      });
-      qS += `${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
-    } else {
-      qS += ` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
-    }
-  });
-
-  advancedSearchQuery.value = qS;
-};
-
 const toggleShowQueryString = () => {
-  generateQueryString();
+  // generateQueryString();
   showQueryString.value = !showQueryString.value;
 };
 
@@ -69,14 +42,22 @@ const removeLine = (index: number) => {
 };
 
 const doAdvancedSearch = () => {
-  generateQueryString();
+  // generateQueryString();
   setSearchParams({ advancedSearchLines: localAdvancedSearchLines.value });
 };
 
 const clearSearch = () => {
-  localAdvancedSearchLines.value = [blankAdvancedSearchLine];
-  generateQueryString();
+  localAdvancedSearchLines.value = [{ ...blankAdvancedSearchLine }];
+  advancedSearchQuery.value = generateQueryString(localAdvancedSearchLines.value);
 };
+
+watch(
+  localAdvancedSearchLines,
+  (newVal) => {
+    advancedSearchQuery.value = generateQueryString(newVal);
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
 <template>

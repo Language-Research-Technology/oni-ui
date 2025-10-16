@@ -146,7 +146,7 @@ const uiSchema = z.strictObject({
     expand: z.array(z.string()),
     paginatedMeta: z.array(z.string()).optional().default([]),
   }),
-  textReplacements: z.record(z.string(), z.string()),
+  textReplacements: z.record(z.string(), z.string()).optional().default({}),
   head: z.strictObject({
     title: z.string(),
     meta: z.array(z.strictObject({ name: z.string(), content: z.string() })),

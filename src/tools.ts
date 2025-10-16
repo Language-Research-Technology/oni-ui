@@ -104,7 +104,14 @@ export const startCase = (str: string) => {
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .split(/[^a-zA-Z0-9]+/)
     .filter((word) => word.length > 0)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => {
+      // NOTE: Don't change the case of words that are in the replacements list
+      if (Object.values(textReplacements).includes(word)) {
+        return word;
+      }
+
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
     .join(' ');
 
   return words;

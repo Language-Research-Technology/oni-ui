@@ -37,6 +37,7 @@ const detectIconName = () => {
     case 'application/x-ipynb+json':
       return 'clipboard';
     case 'application/mp4':
+    case 'application/mxf':
       return 'file-video';
     case 'application/json':
       return 'file-code';

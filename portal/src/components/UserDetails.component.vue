@@ -60,7 +60,7 @@
                 </svg>
               </button>
             </div>
-            <div class="h-10 flex mt-2"><p>API Key will ony be shown once</p></div>
+            <div class="h-10 flex mt-2"><p>API Key will ony be shown once.</p></div>
           </div>
 
           <div class="md:col-span-2">
@@ -71,7 +71,7 @@
                      @click="this.updateApiToken()"/>
             </div>
             <div class="h-10 flex mt-2">
-              <p>Click 'Generate' to register a new API key to access restricted API endpoints</p>
+              <p>Click 'Generate' to register a new API key to access restricted API endpoints.</p>
             </div>
           </div>
 

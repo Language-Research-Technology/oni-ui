@@ -30,7 +30,10 @@
         <el-row :gutter="10" class="flex items-center justify-center">
           <el-col :span="24">
             <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>{{ topNavItem.display }}</span>
+              <el-tooltip v-if="topNavItem.tooltip" :content="topNavItem.tooltip" placement="bottom" effect="light">
+                <span>{{ topNavItem.display }}</span>
+              </el-tooltip>
+              <span v-else>{{ topNavItem.display }}</span>
             </div>
           </el-col>
         </el-row>
@@ -41,17 +44,21 @@
         <el-row :gutter="10" class="flex items-center justify-center">
           <el-col :span="24">
             <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
+              <el-tooltip class="box-item" effect="light" content="View all collections, sub-collections, objects, files and notebooks." placement="bottom">
               <span>Browse</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-link>
+            </el-tooltip>
+          </div>
+        </el-col>
+      </el-row>
+    </router-link>
     </el-menu-item>
     <nav-user v-if="isLoginEnabled"/>
     <el-sub-menu index="help-sub">
       <template #title class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
         <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-          <span>Help</span>
+          <el-tooltip class="box-item" effect="light" content="View help and further information about the Oni portal." placement="right">
+            <span>Help</span>
+          </el-tooltip>
         </div>
       </template>
       <el-menu-item index="help-sub-about" :route="'/about'">

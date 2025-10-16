@@ -19,21 +19,22 @@
       </el-col>
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
         <template v-if="Array.isArray(meta?.data)">
-          <elastic-field :field="d" :title="meta?.name" v-for="d of meta.data" />
+          <elastic-field v-for="d in paginatedMetaData" :key="d['@id'] || d.name || d.id" :field="d" :title="meta?.name" />
+          <el-pagination v-if="sortedMetaData.length > pageSize" class="mt-4" layout="prev, pager, next" :total="sortedMetaData.length" :page-size="pageSize" :current-page="currentPage" @current-change="currentPage = $event" />
         </template>
         <template v-else>
-          <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath"
-            :parentId="parentId" :crateId="crateId" />
+          <elastic-resolve-field :name="meta?.name" :field="meta?.data" :routePath="routePath" :filePath="filePath" :parentId="parentId" :crateId="crateId" />
         </template>
       </el-col>
     </template>
   </el-row>
 </template>
 <script>
-import { first } from 'lodash';
+import { first, sortBy } from 'lodash';
 import ElasticField from './ElasticField.component.vue';
 import ElasticResolveField from './ElasticResolveField.component.vue';
 import FieldHelperCard from './cards/FieldHelperCard.component.vue';
+import prefixesJson from '../../../prefixes.json';
 
 export default {
   components: {
@@ -45,6 +46,8 @@ export default {
   data() {
     return {
       textReplacements: this.$store.state.configuration.ui.textReplacements || {},
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   async mounted() {
@@ -53,14 +56,44 @@ export default {
       console.error(e);
     }
   },
+  computed: {
+    sortedMetaData() {
+      // if is array and metadata is a language field, sort alphabetically
+      if (Array.isArray(this.meta?.data) && this.meta?.name === 'ldac:subjectLanguage' || this.meta?.name === 'inLanguage') {
+        return sortBy(this.meta.data, d =>
+          (first(d?.name)?.['@value'] || d.name || d['@id'] || '').toLowerCase()
+        );
+      // otherwise do nothing
+      } else {
+        return this.meta.data;
+      }
+      return [];
+    },
+    paginatedMetaData() {
+      if (this.sortedMetaData.length > this.pageSize) {
+        const start = (this.currentPage - 1) * this.pageSize;
+        return this.sortedMetaData.slice(start, start + this.pageSize);
+      }
+      return this.sortedMetaData;
+    }
+  },
   methods: {
     first,
     clean(text) {
       if (text) {
+        // Prefix replacements
+        const prefixes = prefixesJson.prefixes;
+        for (const [prefix, replacement] of Object.entries(prefixes)) {
+          if (text.startsWith(prefix)) {
+            text = replacement + text.slice(prefix.length);
+          }
+        }
+        // Regex text replacements
         for (const [pattern, replacement] of Object.entries(this.textReplacements)) {
           const regex = new RegExp(pattern, 'g');
           text = text.replace(regex, replacement)
         }
+        // Capitalisation and camel case handling
         return this.capitalizeFirstLetter(text.replace(/([a-z])([A-Z])/g, '$1 $2'));
       }
     },

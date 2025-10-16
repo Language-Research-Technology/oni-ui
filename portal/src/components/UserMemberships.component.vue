@@ -10,7 +10,7 @@
       <div class="lg:col-span-2">
         <div class="grid gap-4 gap-y-2 text-sm grid-cols-1 md:grid-cols-5">
           <div class="md:col-span-5">
-            <p class="p-1 m-1 text-center">You have access to the following licenses:</p>
+            <p class="p-1 m-1">You have access to the following licenses:</p>
             <br/>
             <ul v-loading="loading" class="divide-y-2 divide-gray-100">
               <li class="p-3" v-for="item in memberships" :key="item">
@@ -22,17 +22,17 @@
 
         <div class="md:col-span-2">
           <label for="key">&nbsp;</label>
-          <div class="h-10 flex rounded items-center mt-1">
+          <div class="h-10 flex rounded mt-1">
             <input type="button" value="Check Memberships" id="key" name="key"
                    class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                    @click="this.getUserMemberships()"/>
           </div>
           <div class="h-10 flex mt-2">
-            <p>Click 'Check Memberships' to refresh your access list</p>
+            <p>Click 'Check Memberships' to refresh your access list.</p>
           </div>
         </div>
       </div>
-      <div class="h-10 flex rounded items-center">
+      <div class="h-10 flex rounded">
         <el-link underline="underline" :href="authorizationProvider?.url" target="_blank" class="mx-1"
                  title="Will open in a new tab">
           Verify your access in {{ authorizationProvider?.label }}&nbsp;<font-awesome-icon

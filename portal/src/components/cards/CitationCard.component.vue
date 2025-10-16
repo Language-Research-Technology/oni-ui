@@ -112,18 +112,18 @@ export default {
             } else {
                 author = `<b>Author:</b> undefined`;
             }
-            let title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
-            let publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;
-            let publisher = `<b>Publisher:</b> ${this.$store.state.configuration.ui.title}`;
-            let url = `<b>Locator:</b> ${decodeURIComponent(window.location.href)}`;
-            let identifier = `<b>Identifier:</b> ${first(this.doi) ? first(this.doi)['@value'] : this.id}`;
+            const title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
+            const publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;
+            const publisher = `<b>Publisher:</b> ${this.$store.state.configuration.ui.title}`;
+            const url = `<b>Locator:</b> ${decodeURIComponent(window.location.href)}`;
+            const identifier = `<b>Identifier:</b> ${first(this.doi) ? first(this.doi)['@value'] : this.id}`;
             const date = new Date();
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
             const day = String(date.getDate()).padStart(2, '0');
-            let accessDate = `<b>Access Date:</b> ${year}-${month}-${day}`;
-            let variables = [author, title, publishedDate, publisher, url, identifier, accessDate];
-            let result = variables.filter(value => !String(value).includes("undefined")).join(", ");
+            const accessDate = `<b>Access Date:</b> ${year}-${month}-${day}`;
+            const variables = [author, title, publishedDate, publisher, url, identifier, accessDate];
+            const result = variables.filter(value => !String(value).includes("undefined")).join(", ");
             return result
         },
         // getRelatedPublishedWork() {

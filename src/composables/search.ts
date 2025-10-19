@@ -311,7 +311,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
       const info = aggInfo[order]!;
       const display = info.display;
       const name = info.name;
-      const active = facets.value?.find((a) => a.name === facet)?.active || info.active;
       const help = info.help;
       a.push({
         // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
@@ -319,7 +318,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
         display: display || facet,
         order: order,
         name: name,
-        active: active,
         help: help || '',
       });
     }

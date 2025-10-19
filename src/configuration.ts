@@ -162,7 +162,6 @@ const uiSchema = z.strictObject({
     z.strictObject({
       display: z.string(),
       name: z.string(),
-      active: z.boolean().optional(),
       help: z.string().optional(),
     }),
   ),

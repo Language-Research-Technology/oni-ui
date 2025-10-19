@@ -55,7 +55,24 @@ export class ElasticService {
     this.#aggs = this.prepareAggregations(configuration.ui.aggregations);
     this.#highlightFields = ['_text'];
     this.#highlightConfig = { max_analyzer_offset: 1000000 };
-    this.#fields = configuration.ui.searchFields;
+    this.#fields = {
+      name: {
+        label: 'Name',
+        checked: true,
+      },
+      description: {
+        label: 'Description',
+        checked: true,
+      },
+      inLanguage: {
+        label: 'Language',
+        checked: true,
+      },
+      text: {
+        label: 'Text',
+        checked: true,
+      },
+    };
   }
 
   prepareAggregations(aggregations: typeof configuration.ui.aggregations) {

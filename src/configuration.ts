@@ -166,13 +166,7 @@ const uiSchema = z.strictObject({
       help: z.string().optional(),
     }),
   ),
-  searchFields: z.record(
-    z.string(),
-    z.strictObject({
-      label: z.string(),
-      checked: z.boolean(),
-    }),
-  ),
+  searchFields: z.record(z.string(), z.string()),
   analytics: z
     .strictObject({
       gaMeasurementId: z.string(),

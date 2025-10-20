@@ -3,14 +3,16 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
+// DOCKER_REMOVE_START
 import { ldacaProxy } from './ldaca-proxy';
-import { ui } from './src/configuration';
+// DOCKER_REMOVE_END
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     vueDevTools(),
+    // DOCKER_REMOVE_START
     {
       // NOTE: Temp so we can transform the old LDaCA API
       name: 'ldaca-proxy',
@@ -18,7 +20,8 @@ export default defineConfig({
         server.middlewares.use(ldacaProxy);
       },
     },
-    ui.sentry?.dsn ? sentryVitePlugin() : undefined,
+    // DOCKER_REMOVE_END
+    mode === 'production' ? sentryVitePlugin() : undefined,
   ],
 
   resolve: {
@@ -30,4 +33,4 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
-});
+}));

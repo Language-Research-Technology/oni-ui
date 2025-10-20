@@ -3,6 +3,7 @@ import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
+import { ordering } from '@/composables/search';
 import { ui } from '@/configuration';
 import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 
@@ -16,12 +17,6 @@ if (!api) {
 
 const sorting =
   ui.search?.sorting?.filter(({ value }) => value !== 'relevance') || ([{ value: 'id', label: 'Id' }] as const);
-const ordering =
-  ui.search?.ordering ||
-  ([
-    { value: 'asc', label: 'Ascending' },
-    { value: 'desc', label: 'Descending' },
-  ] as const);
 
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -30,7 +25,7 @@ const loading = ref(false);
 const errorDialogText = ref<string | undefined>(undefined);
 const entities = ref<GetEntitiesResponse['entities']>([]);
 const selectedSorting = ref(sorting[0]);
-const selectedOrder = ref(ordering[0]);
+const selectedOrder = ref<(typeof ordering)[number]>(ordering[0]);
 
 const fetchEntities = async () => {
   loading.value = true;

@@ -1,36 +1,32 @@
-FROM node:22
+FROM node:lts-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock
-COPY package.json pnpm-lock.yaml pnpm-lock.yaml  pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Enable yarn
-RUN corepack enable
+RUN corepack enable && pnpm install --frozen-lockfile
 
-# Install dependencies
-RUN pnpm install --prod --frozen-lockfile
-
-# Copy project files
 COPY . .
 
-# Build vocabulary during container build
-RUN pnpm run setup:vocabs /app/vocab.json
+# NOTE: In case we are building locally and have put a file here
+RUN rm -f public/configuration.json
 
-# Set environment variables
-ENV CONFIG_PATH=/app/config/configuration.json
+# TODO: Remove this after we dump the proxy
+RUN sed -i '/DOCKER_REMOVE_START/,/DOCKER_REMOVE_END/d' vite.config.ts && \
+  sed -i '/ldaca-proxy/d' tsconfig.node.json
 
-# Create a directory for the configuration file
-RUN mkdir -p /app/config
+RUN pnpm run setup:vocabs /app/vocab.json && \
+  pnpm run build
 
-# Expose port for dev server
-EXPOSE 5173
+FROM nginx:alpine
 
-# Copy the entrypoint script
+EXPOSE 80
+
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
-# Use the entrypoint script to start the dev server
+RUN ln -s /configuration.json /usr/share/nginx/html/configuration.json
+
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["pnpm", "run", "dev", "--host"]
+CMD ["nginx", "-g", "daemon off;"]

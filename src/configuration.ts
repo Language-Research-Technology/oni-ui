@@ -1,7 +1,5 @@
 import { z } from 'zod/v4';
 
-import configurationJSON from './configuration.json';
-
 const helpSchema = z.strictObject({
   aboutText: z.string(),
   citationText: z.string(),
@@ -203,6 +201,24 @@ const configurationSchema = z.strictObject({
   api: apiSchema,
 });
 
+const loadConfig = async () => {
+  try {
+    const response = await fetch('/configuration.json');
+
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as unknown;
+
+    return data;
+  } catch (error) {
+    console.error('Config loading error:', error);
+    throw error;
+  }
+};
+
+const configurationJSON = await loadConfig();
 const configuration = configurationSchema.parse(configurationJSON);
 export const ui = configuration.ui;
 export const api = configuration.api;

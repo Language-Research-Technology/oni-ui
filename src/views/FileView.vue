@@ -55,7 +55,7 @@ const populateData = (md: RoCrate, e: EntityType) => {
   const keys = Object.keys(part.value);
   const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));
   for (const filter of filtered) {
-    meta.value.push({ name: filter, data: part.value[filter] as string });
+    meta.value.push({ name: filter, data: part.value[filter as keyof typeof part.value] as string });
   }
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
 };

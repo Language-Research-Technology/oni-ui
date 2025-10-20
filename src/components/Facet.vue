@@ -5,7 +5,7 @@ const pageStartIndex = ref(0);
 const filter = ref<string | undefined>(undefined);
 const currentPage = ref(1);
 
-const pageSize = 5;
+const pageSize = ref(5);
 
 const { facetName, buckets, initialSelectedFacetValues } = defineProps<{
   facetName: string;
@@ -18,7 +18,7 @@ const selectedFacetValues = ref<string[]>(initialSelectedFacetValues || []);
 const emit = defineEmits(['isActive', 'updated']);
 
 const updatePages = (page: number) => {
-  pageStartIndex.value = (page - 1) * pageSize;
+  pageStartIndex.value = (page - 1) * pageSize.value;
 };
 
 const filteredValues = computed(() => buckets.filter((v) => v.name.match(new RegExp(filter.value as string, 'i'))));

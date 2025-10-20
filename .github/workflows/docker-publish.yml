@@ -2,11 +2,11 @@ name: Docker Image
 
 on:
   push:
-    branches: ["main", "paradisec"]
+    branches: ["main", "new-api"]
     # Publish semver tags as releases
     tags: ["v*.*.*"]
   pull_request:
-    branches: ["main", "paradisec"]
+    branches: ["main", "new-api"]
 
 env:
   GHCR_REGISTRY: ghcr.io
@@ -72,3 +72,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+

@@ -19,7 +19,7 @@ import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
-const { object: config, conformsTo } = ui;
+const { object: config } = ui;
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -107,7 +107,7 @@ const fetchdata = async () => {
   if (md['pcdm:memberOf']) {
     const children = await api.getEntities({
       memberOf: md['pcdm:memberOf']['@id'],
-      conformsTo: conformsTo.object,
+      entityType: 'http://pcdm.org/models#Object',
     });
 
     if ('entities' in children) {
@@ -174,9 +174,10 @@ fetchdata();
         <el-col v-if="metadata.license">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">Access
-            <el-tooltip class="box-item" effect="light" trigger="hover" content="License and access conditions for the current object." placement="top">
-              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
-            </el-tooltip>
+              <el-tooltip class="box-item" effect="light" trigger="hover"
+                content="License and access conditions for the current object." placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
             <LicenseCard :license="metadata.license" />

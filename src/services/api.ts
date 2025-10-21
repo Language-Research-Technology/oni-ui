@@ -14,7 +14,7 @@ type CommonParams = {
 };
 // TODO: Can we get the types from the API?
 export type GetEntitiesParams = CommonParams & {
-  conformsTo?: string;
+  entityType?: string;
   memberOf?: string;
 };
 

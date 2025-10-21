@@ -152,10 +152,6 @@ const uiSchema = z.strictObject({
   collection: collectionSchema,
   object: objectSchema,
   file: fileSchema,
-  conformsTo: z.strictObject({
-    collection: z.url(),
-    object: z.url(),
-  }),
   aggregations: z.array(
     z.strictObject({
       display: z.string(),

@@ -29,7 +29,7 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { collection: config, conformsTo, features } = ui;
+const { collection: config, features } = ui;
 
 const id = route.query.id as string;
 
@@ -39,9 +39,6 @@ const openDownloads = ref(false);
 
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
-
-const conformsToCollection = conformsTo.collection;
-const conformsToObject = conformsTo.object;
 
 const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
 
@@ -125,14 +122,15 @@ onMounted(fetchData);
 
       <el-row>
         <el-col>
-          <CollectionMembers title="Sub Collections" :id="id" :conformsTo="conformsToCollection"
+          <CollectionMembers title="Sub Collections" :id="id" entityType="http://pcdm.org/models#Collection"
             routePath="collection" />
         </el-col>
       </el-row>
 
       <el-row>
         <el-col>
-          <CollectionMembers title="Objects in Collection" :id="id" :conformsTo="conformsToObject" routePath="object" />
+          <CollectionMembers title="Objects in Collection" :id="id" entityType="http://pcdm.org/models#Object"
+            routePath="object" />
         </el-col>
       </el-row>
     </el-col>

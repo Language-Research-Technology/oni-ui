@@ -10,7 +10,6 @@ const app = express();
 app.use(morgan('combined'));
 app.use(cookieParser());
 
-import configuration from '../src/configuration.json';
 import { ElasticService } from './elastic';
 
 const es = new ElasticService();
@@ -100,12 +99,10 @@ const getExtra = async (id: string, entityType: string, token: string) => {
   let subCollections: Awaited<ReturnType<typeof filter>>;
   let members: Awaited<ReturnType<typeof filter>>;
 
-  const conformsTo = configuration.ui.conformsTo;
-
   if (entityType === 'http://pcdm.org/models#Collection') {
-    subCollections = await filter({ memberOf: [id], conformsTo: [conformsTo.collection] });
+    subCollections = await filter({ memberOf: [id], conformsTo: ['http://pcdm.org/models#Collection'] });
 
-    members = await filter({ collectionStack: [id], conformsTo: [conformsTo.object] });
+    members = await filter({ collectionStack: [id], conformsTo: ['http://pcdm.org/models#Object'] });
 
     summaries = await filter({ collectionStack: [id] });
   }

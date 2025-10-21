@@ -36,8 +36,8 @@ const fetchEntities = async () => {
     order: selectedOrder.value.value,
   };
 
-  if (route.query.conformsTo) {
-    params.conformsTo = route.query.conformsTo.toString();
+  if (route.query.entityType) {
+    params.entityType = route.query.entityType.toString();
   }
   if (currentPage.value !== 1) {
     params.offset = (currentPage.value - 1) * pageSize.value;

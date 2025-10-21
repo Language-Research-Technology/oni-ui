@@ -103,7 +103,7 @@ The splash screen appears when users first visit the portal.
         "display": "Search"
       },
       {
-        "route": "list?conformsTo=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
+        "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
         "display": "Collections"
       }
     ]
@@ -119,7 +119,7 @@ The following routes are available for use in navigation items:
 |-------|-------------|------------------|
 | `search` | Search results displayed in list format with filtering, sorting, and pagination | Standard search parameters |
 | `map` | Geographic search results displayed on an interactive map with geohash grid visualisation | Standard search parameters |
-| `list` | Browse all entities with sorting and pagination | `conformsTo` (optional) - Filter by RO-Crate profile URL |
+| `list` | Browse all entities with sorting and pagination | `entityType` (optional) - Filter by RO-Crate profile URL |
 | `collection` | Display detailed information about a collection entity | `id` (required) - Collection identifier |
 | `object` | Display detailed information about an object entity | `id` (required) - Object identifier |
 | `file` | Display detailed information about a file | `id` (required) - File identifier<br/>`parentId` (required) - Parent object identifier |
@@ -139,7 +139,7 @@ The following routes are available for use in navigation items:
 
    ```json
    {
-     "route": "list?conformsTo=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
+     "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
      "display": "Collections"
    }
    ```
@@ -148,7 +148,7 @@ The following routes are available for use in navigation items:
 
    ```json
    {
-     "route": "list?conformsTo=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object",
+     "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object",
      "display": "Items"
    }
    ```
@@ -157,7 +157,7 @@ The following routes are available for use in navigation items:
 
    ```json
    {
-     "route": "list?conformsTo=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object,https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
+     "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object,https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
      "display": "Browse All"
    }
    ```
@@ -174,7 +174,7 @@ The following routes are available for use in navigation items:
    { "route": "about", "display": "About" }
    ```
 
-**Note:** The `conformsTo` parameter values should be URL-encoded. The URLs correspond to the RO-Crate profile URLs defined in `ui.conformsTo.collection` and `ui.conformsTo.object`.
+**Note:** The `entityType` parameter values should be URL-encoded.
 
 #### Help and Information
 
@@ -453,26 +453,6 @@ Configure which fields can be used for faceted filtering in search results.
         "help": "Filter by language of the content"
       }
     ]
-  }
-}
-```
-
-#### Conformance Profiles
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `ui.conformsTo.collection` | URL | Yes | RO-Crate profile URL for collections |
-| `ui.conformsTo.object` | URL | Yes | RO-Crate profile URL for objects |
-
-**Example:**
-
-```json
-{
-  "ui": {
-    "conformsTo": {
-      "collection": "https://w3id.org/ldac/profile#Collection",
-      "object": "https://w3id.org/ldac/profile#Object"
-    }
   }
 }
 ```

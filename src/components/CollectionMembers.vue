@@ -8,10 +8,10 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { title, id, conformsTo, routePath } = defineProps<{
+const { title, id, entityType, routePath } = defineProps<{
   title: string;
   id: string;
-  conformsTo: string;
+  entityType: string;
   routePath: string;
 }>();
 
@@ -24,7 +24,7 @@ const pageSize = ref(10);
 const setMembers = async () => {
   const params: GetEntitiesParams = {
     memberOf: id,
-    conformsTo,
+    entityType,
     limit: pageSize.value,
     sort: 'name',
     order: 'asc',

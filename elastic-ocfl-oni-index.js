@@ -10,7 +10,7 @@ const assert = require('node:assert');
   console.log('Configuring elastic');
   // Init elastic client
   const client = new Client({
-    node: 'http://localhost:9200', //This is different from Oni since we are talking to it directly
+    node: `http://${process.env.SEARCH_HOST || 'localhost'}:9200`, //This is different from Oni since we are talking to it directly
   });
   // Bootstrap index
   const elastic = configuration.api.elastic;
@@ -83,5 +83,6 @@ const assert = require('node:assert');
   // Create an Indexer and index collections
   const indexer = new Indexer({configuration, repository, client});
   await indexer.findOcflObjects({memberOf: null, conformsTo: indexer.conformsToCollection, skip: skipCollections});
+  console.log('Indexing complete');
 })
 ();

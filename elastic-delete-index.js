@@ -20,7 +20,7 @@ function askForConfirmation() {
   console.log('Deleting elastic index');
   // Init elastic client
   const client = new Client({
-    node: 'http://localhost:9200', //This is different from Oni since we are talking to it directly
+    node: `http://${process.env.SEARCH_HOST || 'localhost'}:9200`, //This is different from Oni since we are talking to it directly
   });
   // Bootstrap index
   const elastic = configuration.api.elastic;

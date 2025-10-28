@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, watch } from 'vue';
+import { inject, ref } from 'vue';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CSVWidget from '@/components/widgets/CSVWidget.vue';
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
@@ -13,13 +13,12 @@ if (!api) {
 
 const { entity, metadata } = defineProps<{
   entity: EntityType;
-  metadata: RoCrate['hasPart'][number];
+  metadata: RoCrate['hasPart'][number] & { license?: RoCrate['license'] };
 }>();
 
 const data = ref();
 const downloadUrl = ref('');
 const streamUrl = ref('');
-const togglePreview = ref(false);
 
 const resolveFile = async () => {
   if (entity.entityType !== 'http://schema.org/MediaObject') {
@@ -46,12 +45,7 @@ resolveFile();
     <el-row justify="center">
       <el-col>
         <div class="container max-screen-lg mx-auto">
-          <div v-if="!togglePreview" class="flex justify-center w-full">
-            <el-button size="large" round @click="togglePreview = true">Preview File
-            </el-button>
-          </div>
-
-          <div>
+          <div v-if="entity.access.content">
             <div v-if="isPdf" class="flex justify-center w-full">
               <el-row :span="24">
                 <PDFWidget :src="streamUrl" />
@@ -86,8 +80,8 @@ resolveFile();
           </div>
 
           <div>
-            <div class="flex justify-center" v-if="metadata.access && metadata.license">
-              <AccessHelper :access="metadata.access" :license="metadata.license" />
+            <div class="flex justify-center" v-if="entity.access">
+              <AccessHelper :access="entity.access" :license="metadata.license" />
             </div>
           </div>
         </div>

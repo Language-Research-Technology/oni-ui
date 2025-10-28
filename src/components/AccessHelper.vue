@@ -8,7 +8,7 @@ const { t } = useI18n();
 
 const { access, license } = defineProps<{
   access: EntityType['access'];
-  license: NonNullable<RoCrate['license']>;
+  license: RoCrate['license'];
 }>();
 
 import { ui } from '@/configuration';
@@ -26,7 +26,7 @@ const {
   login: { enabled: isLoginEnabled },
 } = ui;
 
-const localLicense = Array.isArray(license) ? license[0] : license;
+const localLicense = Array.isArray(license) ? license[0] : license || { '@id': 'missing', name: 'Missing' };
 
 if (!localLicense) {
   console.warn('🪚 WHY: No license');

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const emit = defineEmits(['updateSearchInput', 'doSearch', 'setSearchParams']);
 
 const { searchInput } = defineProps<{
@@ -30,7 +32,7 @@ watch(
       <el-row justify="center" :gutter="10" align="middle">
         <label for="searchInput" class="h-14 mx-2 w-full">
           <el-input v-model="localInput" @input="updateSearchInput" @keyup.enter="emit('doSearch')" type="text"
-            class="px-2 h-full w-full" placeholder="Search..." name="searchInput" id="searchInput" ref="searchInput">
+            class="px-2 h-full w-full" :placeholder="t('search.placeholder')" name="searchInput" id="searchInput" ref="searchInput">
 
             <template #append>
               <button v-if="searchInput" @click="updateSearchInput('')"
@@ -49,7 +51,7 @@ watch(
 
       <el-row justify="center" :gutter="20" align="middle" class="pt-2">
         <el-button @click="emit('setSearchParams', { advancedSearchEnabled: true })" class="cursor-pointer">
-          Advanced Search&nbsp;
+          {{ t('search.advanced') }}&nbsp;
           <span class="text-xs text-gray-400 shadow-sm rounded-2xl px-2">beta</span>
         </el-button>
       </el-row>

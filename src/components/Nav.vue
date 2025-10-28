@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import logo from '@/assets/logo.svg';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import NavUser from '@/components/NavUser.vue';
 import { ui } from '@/configuration';
+import { useI18nStore } from '@/stores/i18n';
 
+const { t } = useI18n();
 const route = useRoute();
+const i18nStore = useI18nStore();
 
 const {
   login: { enabled: isLoginEnabled },
@@ -18,6 +24,11 @@ const {
 } = ui;
 
 const logoSrc = logoFilename ? `/${logoFilename}` : logo;
+
+// Show language switcher only if more than one locale is available
+const showLanguageSwitcher = computed(() => {
+  return i18nStore.availableLocales.length > 1;
+});
 </script>
 
 <template>
@@ -25,14 +36,14 @@ const logoSrc = logoFilename ? `/${logoFilename}` : logo;
     :style="{ height: navHeight }">
     <el-menu-item index="home" :route="topNavHome + Date.now()">
       <router-view :key="topNavHome">
-        <el-row :gutter="10" class="flex items-center min-w-md gap-8" :style="{ 'height': navHeight }">
-          <img class="h-full w-auto object-cover py-2" :src="logoSrc" :alt="shortTitle || 'Oni'" />
-          <span>Home</span>
+        <el-row :gutter="10" class="flex items-center gap-8" :style="{ 'height': navHeight }">
+          <img class="h-full object-cover py-2" :src="logoSrc" :alt="shortTitle || 'Oni'" />
+          <span>{{ t('nav.home') }}</span>
         </el-row>
       </router-view>
     </el-menu-item>
 
-    <el-menu-item class="flex-auto" />
+    <div class="flex-auto" />
 
     <el-menu-item v-for="topNavItem of topNavItems" :index="topNavItem.route" :router="topNavItem.route">
       <router-view :key="topNavItem.route">
@@ -51,19 +62,19 @@ const logoSrc = logoFilename ? `/${logoFilename}` : logo;
     <el-sub-menu index="help-sub">
       <template #title class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
         <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
-          <span>Help</span>
+          <span>{{ t('nav.help') }}</span>
         </div>
       </template>
 
       <el-menu-item index="help-sub-about" route="/about">
         <router-link to="/about">
-          About Oni
+          {{ t('nav.aboutOni') }}
         </router-link>
       </el-menu-item>
 
       <el-menu-item>
         <a href="https://johnf.github.io/ro-crate-api/" target="_blank">
-          Ro-Crate API Docs
+          {{ t('nav.roCrateApiDocs') }}
         </a>
       </el-menu-item>
 
@@ -75,6 +86,8 @@ const logoSrc = logoFilename ? `/${logoFilename}` : logo;
         </li>
       </template>
     </el-sub-menu>
+
+    <LanguageSwitcher v-if="showLanguageSwitcher" />
   </el-menu>
 </template>
 

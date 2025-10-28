@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 const { memberOf, routePath } = defineProps<{
   memberOf: { name?: string; '@id': string };
   routePath: string;
@@ -9,8 +12,8 @@ const link = `/${routePath}?id=${encodeURIComponent(memberOf['@id'])}`;
 
 <template>
   <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-    <h5 class="text-2xl font-medium">Member Of
-      <el-tooltip class="box-item" effect="light" trigger="hover" content="The collection or sub-collection the current item is a member of." placement="top">
+    <h5 class="text-2xl font-medium">{{ t('memberOf.title') }}
+      <el-tooltip class="box-item" effect="light" trigger="hover" :content="t('memberOf.tooltip')" placement="top">
         <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
       </el-tooltip>
     </h5>

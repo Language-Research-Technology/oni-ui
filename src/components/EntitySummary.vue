@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import MediaTypeIcon from '@/components//widgets/MediaTypeIcon.vue';
 import AccessControlIcon from '@/components/widgets/AccessControlIcon.vue';
 import CommunicationModeIcon from '@/components/widgets/CommunicationModeIcon.vue';
@@ -6,6 +7,7 @@ import { ui } from '@/configuration';
 import type { EntityType } from '@/services/api';
 import { getEntityUrl } from '@/tools';
 
+const { t } = useI18n();
 const { entity } = defineProps<{ entity: EntityType }>();
 
 // TODO: Rename this
@@ -27,7 +29,7 @@ const { searchDetails = [] } = ui.search || {};
 
         <el-row :align="'middle'">
           <p class="font-normal text-gray-700">
-            Type:
+            {{ t('entity.type') }}
             <span class="m-2">{{ entity.entityType }}</span>
           </p>
         </el-row>
@@ -44,7 +46,7 @@ const { searchDetails = [] } = ui.search || {};
 
         <el-row align="middle" v-if="entity.memberOf">
           <p class="font-normal text-gray-700">
-            Member of:&nbsp;
+            {{ t('entity.memberOf') }}&nbsp;
           </p>
           <router-link class="text-sm m-2 text-gray-700 underline"
             :to="'/collection?id=' + encodeURIComponent(entity.memberOf)">
@@ -54,7 +56,7 @@ const { searchDetails = [] } = ui.search || {};
 
         <el-row align="middle" v-if="entity.rootCollection && entity.rootCollection !== entity.memberOf" class="pt-2">
           <p class="font-normal text-gray-700">
-            &nbsp;In:&nbsp;
+            &nbsp;{{ t('entity.in') }}&nbsp;
           </p>
           <router-link :to="'/collection?id=' + encodeURIComponent(entity.rootCollection)">
             <el-button>{{ entity.rootCollection }}</el-button>
@@ -72,11 +74,11 @@ const { searchDetails = [] } = ui.search || {};
         </el-row>
 
         <el-row class="gap-2 flex">
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.collections">Collections: {{
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.collections">{{ t('entity.collections') }} {{
             entity.counts.collections }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.objects">Objects: {{
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.objects">{{ t('entity.objects') }} {{
             entity.counts.objects }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.files">Files: {{
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.files">{{ t('entity.files') }} {{
             entity.counts.files }}</span>
         </el-row>
 
@@ -90,7 +92,7 @@ const { searchDetails = [] } = ui.search || {};
         <el-row v-if="entity.searchExtra?.score" class="pt-2">
           <div>
             <font-awesome-icon icon="fa-solid fa-5x fa-award" />
-            Relevance Score: {{ entity.searchExtra.score }}
+            {{ t('entity.relevanceScore') }} {{ entity.searchExtra.score }}
           </div>
         </el-row>
 

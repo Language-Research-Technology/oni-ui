@@ -3,6 +3,7 @@ import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
@@ -20,6 +21,7 @@ import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 
+const { t } = useI18n();
 const route = useRoute();
 const head = injectHead();
 const gtm = useGtm();
@@ -122,14 +124,14 @@ onMounted(fetchData);
 
       <el-row>
         <el-col>
-          <CollectionMembers title="Sub Collections" :id="id" entityType="http://pcdm.org/models#Collection"
+          <CollectionMembers :title="t('collection.subCollections')" :id="id" entityType="http://pcdm.org/models#Collection"
             routePath="collection" />
         </el-col>
       </el-row>
 
       <el-row>
         <el-col>
-          <CollectionMembers title="Objects in Collection" :id="id" entityType="http://pcdm.org/models#Object"
+          <CollectionMembers :title="t('collection.objectsInCollection')" :id="id" entityType="http://pcdm.org/models#Object"
             routePath="object" />
         </el-col>
       </el-row>
@@ -139,9 +141,9 @@ onMounted(fetchData);
       <el-row v-if="metadata.license" :gutter="20" class="pb-5">
         <el-col class="overflow-visible!">
           <el-card class="mx-10 !overflow-visible">
-            <h5 class="text-2xl font-medium">Access
+            <h5 class="text-2xl font-medium">{{ t('collection.access') }}
               <el-tooltip class="box-item" effect="light" trigger="hover"
-                content="License and access conditions for the current collection." placement="top">
+                :content="t('collection.accessTooltip')" placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
             </h5>
@@ -161,9 +163,9 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Content
+            <h5 class="text-2xl font-medium">{{ t('collection.content') }}
               <el-tooltip class="box-item" effect="light" trigger="hover"
-                content="Summarises some of the key metadata of the current collection." placement="top">
+                :content="t('collection.contentTooltip')" placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
             </h5>
@@ -176,9 +178,9 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5" v-if="features?.hasZipDownload && name != undefined">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Downloads
+            <h5 class="text-2xl font-medium">{{ t('collection.downloads') }}
               <el-tooltip class="box-item" effect="light" trigger="hover"
-                content="Downloads associated with the current collection. Select Show All Related Downloads to view the complete list of downloads available for the given collection."
+                :content="t('collection.downloadsTooltip')"
                 placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
@@ -187,7 +189,7 @@ onMounted(fetchData);
 
             <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" />
 
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
+            <el-link @click="openDownloads = !openDownloads" type="primary">{{ t('collection.showAllDownloads') }}</el-link>
 
             <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" />
           </el-card>
@@ -197,9 +199,9 @@ onMounted(fetchData);
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card class="mx-10">
-            <h5 class="text-2xl font-medium">Retrieve Metadata
+            <h5 class="text-2xl font-medium">{{ t('collection.retrieveMetadata') }}
               <el-tooltip class="box-item" effect="light" trigger="hover"
-                content="View or download the metadata associated with the current collection, as well as the license and access conditions for this metadata."
+                :content="t('collection.retrieveMetadataTooltip')"
                 placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
@@ -209,7 +211,7 @@ onMounted(fetchData);
             <template v-if="metadata.metadataLicense?.id">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
-                Metadata licensed as:
+                {{ t('collection.metadataLicensedAs') }}
                 <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
                   class="mx-1">
                   {{ metadata.metadataLicense.name ||
@@ -236,12 +238,12 @@ onMounted(fetchData);
   </el-row>
 
   <el-dialog v-model="errorDialogVisible" width="40%" center>
-    <el-alert title="Error" type="warning" :closable="false">
+    <el-alert :title="t('common.error')" type="warning" :closable="false">
       <p class="break-normal">{{ errorDialogText }}</p>
     </el-alert>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+        <el-button type="primary" @click="errorDialogVisible = false">{{ t('common.close') }}</el-button>
       </span>
     </template>
   </el-dialog>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 import alpacaSVG from '@/assets/alpaca.svg';
 
+const { t } = useI18n();
 const router = useRouter();
 </script>
 
@@ -17,9 +19,9 @@ const router = useRouter();
     <el-col :xs="15" :sm="8" :md="8" :lg="8" :xl="8" class="flex items-center justify-center">
       <div class="flex items-center justify-center">
         <div class="text-center text-sm">
-          <p class="text-2xl">404 not found</p>
-          <p class="text-2xl">Hi! It seems you're in the wrong page</p>
-          <p class="text-2xl"><el-link @click="router.push('/')">Go Home</el-link></p>
+          <p class="text-2xl">{{ t('errors.pageNotFound') }}</p>
+          <p class="text-2xl">{{ t('errors.pageNotFoundMessage') }}</p>
+          <p class="text-2xl"><el-link @click="router.push('/')">{{ t('errors.goHome') }}</el-link></p>
         </div>
       </div>
     </el-col>

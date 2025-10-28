@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { useGtm } from '@gtm-support/vue-gtm';
 import { inject, onUpdated, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { ui } from '@/configuration';
 import { type ApiService, type EntityType, type GetZipMetaResponse } from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { formatFileSize } from '@/tools';
+
+const { t } = useI18n();
 
 const {
   id,
@@ -70,7 +73,7 @@ doWork();
       <p>{{ zipName }}</p>
 
       <p v-if="zip?.status == 'ok'">
-        Files: {{ zip.numberOfFiles }}, Size: {{ formatFileSize(zip.expandedSize || 0) }}
+        {{ t('downloads.files') }} {{ zip.numberOfFiles }}, {{ t('common.size') }}: {{ formatFileSize(zip.expandedSize || 0) }}
       </p>
     </el-col>
 
@@ -78,11 +81,11 @@ doWork();
       :xl="asTableRow ? 4 : 24">
       <template v-if="zip?.status === 'noAccess'">
         <el-popover v-if="!isLoggedIn" placement="top" :width="260">
-          <p>Access to this content is restricted.<br>Request Access:<br><br></p>
+          <p>{{ t('downloads.accessRestricted') }}<br>{{ t('downloads.requestAccess') }}<br><br></p>
           <div style="text-align: left; margin: 0">
             <el-button type="primary">
               <template v-if="!isLoggedIn">
-                <router-link v-if="isLoginEnabled" to="/login">Sign Up or Log In</router-link>
+                <router-link v-if="isLoginEnabled" to="/login">{{ t('auth.signUpOrLogin') }}</router-link>
               </template>
             </el-button>
           </div>
@@ -96,12 +99,12 @@ doWork();
         <el-popover v-else placement="top" :width="260">
           <el-row>
             <p class="items-center">
-              You are logged in and can apply for permission to view these files.<br><br>
+              {{ t('downloads.loggedInCanApply') }}<br><br>
             </p>
           </el-row>
           <el-row>
             <el-link underline="underline" :href="access.contentAuthorizationUrl" target="_blank">
-              Apply for access <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
+              {{ t('access.applyForAccess') }} <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
           </el-row>
           <template #reference>
@@ -113,13 +116,13 @@ doWork();
       </template>
 
       <p v-else-if="zip?.status === 'notFound'">
-        Zip file {{ zipName }} not found.
+        {{ t('downloads.zipNotFound', { name: zipName }) }}
       </p>
       <p v-else>
         <el-link ref="linkElement" :underline="false" type="primary" :href="zip?.url" :download="zipName"
           :onClick="trackEvent">
           <el-button type="primary" circle size="large">
-            <el-tooltip class="box-item" effect="light" content="Click to download item." placement="bottom">
+            <el-tooltip class="box-item" effect="light" :content="t('downloads.clickToDownload')" placement="bottom">
               <font-awesome-icon icon="fa-solid fa-download" size="lg" />
             </el-tooltip>
           </el-button>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CloseBold } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import Facet from '@/components/Facet.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
@@ -8,6 +9,7 @@ import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/co
 import { ordering } from '@/composables/search';
 import type { EntityType } from '@/services/api';
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
@@ -95,7 +97,7 @@ const clean = (value: string) => {
         <div class="py-3 px-2">
           <div class="">
             <p class="text-xl text-gray-600 font-semibold py-1 px-2">
-              Filters
+              {{ t('search.filters') }}
             </p>
           </div>
         </div>
@@ -139,7 +141,7 @@ const clean = (value: string) => {
     <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0" class="p-2 px-3" data-scroll-to-top>
 
       <div v-if="errorDialogText" width="100%" center class="mt-4 mb-4">
-        <el-alert title="Message" type="warning" :closable="false">
+        <el-alert :title="t('common.message')" type="warning" :closable="false">
           <p class="break-normal">{{ errorDialogText }}</p>
         </el-alert>
       </div>
@@ -155,12 +157,12 @@ const clean = (value: string) => {
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
               <el-button-group class="mr-1" v-show="filtersChanged">
                 <el-button type="warning" @click="updateRoutes()">
-                  Apply Filters
+                  {{ t('search.applyFilters') }}
                 </el-button>
               </el-button-group>
 
               <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">
-                Filtering by:
+                {{ t('search.filteringBy') }}
               </span>
 
               <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
@@ -176,11 +178,11 @@ const clean = (value: string) => {
               </el-button-group>
 
               <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
-                <el-button @click="clearFilters()">Clear Filters</el-button>
+                <el-button @click="clearFilters()">{{ t('search.clearFilters') }}</el-button>
               </el-button-group>
 
               <span id="total_results" class="my-1 mr-2" v-show="totals !== undefined">
-                Total: <span>{{ totals }} ({{ searchTime }} ms) Index entries (Collections, Objects and Files)</span>
+                {{ t('search.total') }} <span>{{ totals }} ({{ searchTime }} ms) {{ t('search.indexEntriesDescription') }}</span>
               </span>
             </el-col>
 
@@ -189,9 +191,9 @@ const clean = (value: string) => {
                 <span>
                   <font-awesome-icon :icon="`fa-solid fa-${isMap ? 'map-location' : 'list'}`" />
                   &nbsp;
-                  {{ isMap ? 'List' : 'Map' }} View
+                  {{ t(`common.${isMap ? 'list' : 'map'}`) }} {{ t('common.view') }}
                   <el-tooltip
-                    :content="`View the results as a ${isMap ? 'list' : 'map'}. Note that current search and filter options will be reset.`"
+                    :content="t('search.viewToggleTooltip', { view: isMap ? t('common.list') : t('common.map') })"
                     placement="bottom-end" effect="light">
                     <font-awesome-icon icon="fa fa-circle-question" />
                   </el-tooltip>
@@ -201,8 +203,7 @@ const clean = (value: string) => {
             <el-col v-if="isMap">
               <p class="text-sm">
                 <font-awesome-icon icon="fa fa-triangle-exclamation" />
-                Filter and Search results will only show results on the current map view, move or resize the map
-                to view other results.
+                {{ t('search.mapViewWarning') }}
               </p>
             </el-col>
           </el-row>
@@ -210,15 +211,15 @@ const clean = (value: string) => {
 
         <el-row :span="24" class="pt-2 flex gap-4 pb-2" v-if="!isMap">
           <el-button-group class="my-1">
-            <el-button type="default" v-on:click="resetSearch">RESET SEARCH</el-button>
+            <el-button type="default" v-on:click="resetSearch">{{ t('search.resetSearch') }}</el-button>
           </el-button-group>
           <template v-if="!isMap">
             <el-select :model-value="selectedSorting" @change="sortResults" class="my-1 !w-sm">
-              <template #prefix>Sort by:</template>
+              <template #prefix>{{ t('search.sortBy') }}:</template>
               <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
             <el-select :model-value="selectedOrder" @change="orderResults" class="my-1 !w-sm">
-              <template #prefix>Order by:</template>
+              <template #prefix>{{ t('search.orderBy') }}</template>
               <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </template>
@@ -234,12 +235,12 @@ const clean = (value: string) => {
         <div v-loading="isLoading" v-if="!entities.length">
           <el-row class="pb-4 items-center">
             <h5 class="mb-2 text-2xl tracking-tight">
-              <span v-if="!isLoading">No items found</span>
+              <span v-if="!isLoading">{{ t('search.noItemsFound') }}</span>
             </h5>
           </el-row>
           <el-row>
             <p class="text-center">
-              <el-button type="primary" v-on:click="resetSearch">RESET SEARCH</el-button>
+              <el-button type="primary" v-on:click="resetSearch">{{ t('search.resetSearch') }}</el-button>
             </p>
           </el-row>
         </div>
@@ -257,8 +258,8 @@ const clean = (value: string) => {
     <el-row class="p-2">
       <div class="w-full">
         <el-button-group class="self-center">
-          <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes()">Apply Filters</el-button>
+          <el-button @click="clearFilters()">{{ t('search.clearFilters') }}</el-button>
+          <el-button type="warning" @click="updateRoutes()">{{ t('search.applyFilters') }}</el-button>
         </el-button-group>
       </div>
     </el-row>

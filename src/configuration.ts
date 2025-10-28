@@ -180,6 +180,13 @@ const uiSchema = z.strictObject({
       hasZipDownload: z.boolean().optional(),
     })
     .optional(),
+  i18n: z
+    .strictObject({
+      availableLocales: z.array(z.enum(['en', 'de', 'fr', 'es'])).default(['en']),
+      defaultLocale: z.enum(['en', 'de', 'fr', 'es']).default('en'),
+    })
+    .optional()
+    .default({ availableLocales: ['en'], defaultLocale: 'en' }),
 });
 
 const apiSchema = z.strictObject({

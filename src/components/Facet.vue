@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const pageStartIndex = ref(0);
 const filter = ref<string | undefined>(undefined);
 const currentPage = ref(1);
@@ -38,7 +40,7 @@ const updateFacet = () => {
       layout="prev, pager, next" :total="filteredValues.length || 0" @current-change="updatePages"
       :hide-on-single-page="true" />
 
-    <el-input class="pt-1" v-model="filter" placeholder="Filter" clearable @input="updatePages(1)" />
+    <el-input class="pt-1" v-model="filter" :placeholder="t('facets.filterPlaceholder')" clearable @input="updatePages(1)" />
 
     <li class="m-2 mt-4 cursor-pointer"
       v-for="facetValue in filteredValues?.slice(pageStartIndex, pageStartIndex + pageSize)">

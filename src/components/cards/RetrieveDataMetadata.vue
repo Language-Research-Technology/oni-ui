@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { inject } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import type { ApiService } from '@/services/api';
 
+const { t } = useI18n();
 const api = inject<ApiService>('api');
 if (!api) {
   throw new Error('api is not provided');
@@ -33,13 +35,13 @@ const generateDownloadLink = async (onBlank: boolean) => {
   <ul>
     <li class="font-semibold">
       <el-link underline="always" type="primary" href="#" @click.prevent="generateDownloadLink(false)">
-        Download metadata
+        {{ t('metadata.downloadMetadata') }}
       </el-link>
     </li>
     <li class="font-semibold">
       <el-link underline="always" type="primary" href="#" rel="noreferrer noopener"
         @click.prevent="generateDownloadLink(true)">
-        Open metadata in a new window
+        {{ t('metadata.openMetadataNewWindow') }}
       </el-link>
     </li>
   </ul>

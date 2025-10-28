@@ -20,8 +20,10 @@ import { createHead } from '@unhead/vue/client';
 import { MankuIcon } from 'manku-icon-lib';
 import App from '@/App.vue';
 import { ui } from '@/configuration';
+import { setupI18n } from '@/i18n';
 import router from '@/router';
 import { ApiService } from '@/services/api';
+import { useI18nStore } from '@/stores/i18n';
 
 library.add(fas, far, fab);
 
@@ -60,7 +62,14 @@ app.use(pinia);
 app.use(router);
 app.use(VueCookies);
 
+const i18nStore = useI18nStore();
+i18nStore.initializeLocale();
+
+const i18n = await setupI18n(i18nStore.currentLocale);
+app.use(i18n);
+
 app.use(ElementPlus);
+
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.component('manku-icon', MankuIcon);
 

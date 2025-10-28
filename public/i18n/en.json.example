@@ -1,0 +1,10 @@
+{
+  "comment": "This is an example runtime locale file. Rename to en.json to activate.",
+  "nav": {
+    "home": "Homepage"
+  },
+  "custom": {
+    "welcomeMessage": "Welcome to our portal!",
+    "helpText": "Need assistance? Contact us."
+  }
+}

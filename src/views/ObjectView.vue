@@ -3,6 +3,7 @@ import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
@@ -19,6 +20,7 @@ import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
 import { formatEncodingFormat, formatFileSize } from '@/tools';
 
+const { t } = useI18n();
 const { object: config } = ui;
 
 const api = inject<ApiService>('api');
@@ -158,9 +160,9 @@ fetchdata();
       <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col v-if="metadata.license">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">Access
+            <h5 class="text-2xl font-medium">{{ t('object.access') }}
               <el-tooltip class="box-item" effect="light" trigger="hover"
-                content="License and access conditions for the current object." placement="top">
+                :content="t('object.accessTooltip')" placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
             </h5>
@@ -173,13 +175,13 @@ fetchdata();
       <el-row :gutter="20" class="pb-5">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
+            <h5 class="text-2xl font-medium">{{ t('object.retrieveMetadata') }}</h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="route.query.id?.toString() || 'FIXME'" />
             <template v-if="metadata.metadataLicense">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
-                Metadata licensed as:
+                {{ t('object.metadataLicensedAs') }}
                 <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
                   class="mx-1">
                   {{ metadata.metadataLicense.name || metadata.metadataLicense.id }}
@@ -205,7 +207,7 @@ fetchdata();
       <el-row v-if="membersFiltered?.length">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5>
+            <h5 class="text-2xl font-medium ">{{ t('object.otherObjectsInCollection') }}</h5>
             <hr class="divider divider-gray pt-2" />
             <ul>
               <li v-for="d of membersFiltered">
@@ -213,7 +215,7 @@ fetchdata();
               </li>
 
               <li v-if="membersFiltered">
-                <el-link type="primary" :href="`/search?f=${moreObjects()}`">more...</el-link>
+                <el-link type="primary" :href="`/search?f=${moreObjects()}`">{{ t('common.more') }}</el-link>
               </li>
             </ul>
           </el-card>
@@ -233,7 +235,7 @@ fetchdata();
       <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
         <div class="grid-content p-2 m-2">
           <h2 class="text-2xl tracking-tight">
-            Files: {{ parts.length }}
+            {{ t('object.files') }} {{ parts.length }}
             <MediaTypeIcon v-for="mediaType of mediaTypes" :mediaType="mediaType" />
           </h2>
         </div>
@@ -244,28 +246,28 @@ fetchdata();
     <el-row class="m-5 pl-10 pr-12 pb-7">
       <el-col :span="24">
         <el-table :data="parts" stripe style="width: 100%">
-          <el-table-column prop="name" label="Filename" min-width="200">
+          <el-table-column prop="name" :label="t('object.filename')" min-width="200">
             <template #default="scope">
               {{ scope.row.name || scope.row['@id'] }}
             </template>
           </el-table-column>
 
-          <el-table-column prop="contentSize" label="Size" width="120">
+          <el-table-column prop="contentSize" :label="t('common.size')" width="120">
             <template #default="scope">
               {{ formatFileSize(scope.row.contentSize) }}
             </template>
           </el-table-column>
 
-          <el-table-column prop="encodingFormat" label="Encoding Format" min-width="180">
+          <el-table-column prop="encodingFormat" :label="t('object.encodingFormat')" min-width="180">
             <template #default="scope">
               {{ formatEncodingFormat(scope.row.encodingFormat) }}
             </template>
           </el-table-column>
 
-          <el-table-column label="Actions" width="120">
+          <el-table-column :label="t('common.actions')" width="120">
             <template #default="scope">
               <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
-                <el-button type="primary" size="small">View</el-button>
+                <el-button type="primary" size="small">{{ t('common.view') }}</el-button>
               </router-link>
             </template>
           </el-table-column>

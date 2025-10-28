@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import ZipLink from '@/components/ZipLink.vue';
 import type { ApiService, EntityType } from '@/services/api';
+
+const { t } = useI18n();
 
 const { id, idFieldName, modelValue, simpleView } = defineProps<{
   id: string;
@@ -89,17 +92,17 @@ getObjects();
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="Downloads for this Collection" width="50%">
+  <el-dialog v-model="visible" :title="t('downloads.modalTitle')" width="50%">
     <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="objectTotals || 0"
       v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)" />
 
     <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">
         <el-col :xs="24" :sm="10" :md="10" :lg="10" :xl="10">
-          <h3 class="font-bold">Name</h3>
+          <h3 class="font-bold">{{ t('metadata.name') }}</h3>
         </el-col>
         <el-col :xs="24" :sm="4" :md="4" :lg="4" :xl="4">
-          <h3 class="font-bold">Access</h3>
+          <h3 class="font-bold">{{ t('common.access') }}</h3>
         </el-col>
       </el-row>
 
@@ -108,12 +111,12 @@ getObjects();
       </template>
     </div>
     <template v-else>
-      <p><br>No direct downloads associated with this item.</p>
+      <p><br>{{ t('downloads.noDirectDownloads') }}</p>
     </template>
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="closeModal">Close</el-button>
+        <el-button @click="closeModal">{{ t('common.close') }}</el-button>
       </div>
     </template>
   </el-dialog>
@@ -125,7 +128,7 @@ getObjects();
       </template>
     </template>
     <template v-else>
-      <p>This item does not have a direct download link.</p>
+      <p>{{ t('downloads.noDownloadLink') }}</p>
     </template>
   </div>
 </template>

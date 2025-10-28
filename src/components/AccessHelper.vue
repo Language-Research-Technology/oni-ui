@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { inject } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
+
+const { t } = useI18n();
 
 const { access, license } = defineProps<{
   access: EntityType['access'];
@@ -36,11 +39,11 @@ if (!localLicense) {
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <p>
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
-        Access to
+        {{ t('access.accessTo') }}
         <a :href="localLicense['@id']" class="font-bold">
           {{ localLicense.name || localLicense['@id'] }}
         </a>
-        granted to
+        {{ t('access.grantedTo') }}
         {{ user?.['name'] || user?.['email'] }}
       </p>
     </el-row>
@@ -50,21 +53,21 @@ if (!localLicense) {
       <el-row body-class="flex gap-4">
         <p>
           <font-awesome-icon icon="fa-solid fa-5x fa-lock" />
-          Request access or login for this item.
+          {{ t('access.requestAccessOrLogin') }}
         </p>
       </el-row>
 
       <template v-if="isLoggedIn">
         <el-row>
           <p class="items-center">
-            You are logged in and can apply for permission to view these files
+            {{ t('access.loggedInCanApply') }}
           </p>
         </el-row>
 
         <template v-if="access.contentAuthorizationUrl">
           <el-row class="mt-4">
             <el-link underline="always" :href="access.metadataAuthorizationUrl" target="_blank">
-              Apply for access <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
+              {{ t('access.applyForAccess') }} <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
           </el-row>
         </template>
@@ -72,7 +75,7 @@ if (!localLicense) {
         <template v-else>
           <el-row>
             <p class="items-center">
-              No access control URL has been configured, please contact the administrator.
+              {{ t('access.noAccessControlUrl') }}
             </p>
           </el-row>
         </template>
@@ -80,7 +83,7 @@ if (!localLicense) {
 
       <template v-else>
         <a class="underline mt-2 cursor-pointer" v-if="isLoginEnabled" @click="login">
-          Sign Up or Log In
+          {{ t('auth.signUpOrLogin') }}
         </a>
       </template>
     </el-row>

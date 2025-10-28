@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import SearchAdvancedHelp from '@/components/SearchAdvancedHelp.vue';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@/composables/search';
 import { ui } from '@/configuration';
 
+const { t } = useI18n();
 const { searchFields } = ui;
 
 const { setSearchParams, advancedSearchLines } = defineProps<{
@@ -17,7 +19,9 @@ const { setSearchParams, advancedSearchLines } = defineProps<{
   setSearchParams: (params: SetSearchParamsOptions) => void;
 }>();
 
-const advancedSearchFields = [{ label: 'All Fields', value: 'all_fields' }];
+const advancedSearchFields = [
+  { label: t('searchAdvanced.allFields'), value: 'all_fields' },
+];
 Object.entries(searchFields).forEach(([value, label]) => {
   advancedSearchFields.push({ label, value });
 });
@@ -64,9 +68,9 @@ watch(
   <el-row :offset="1" :gutter="10" :align="'bottom'" class="flex flex-wrap content-around p-3">
     <el-col class="h-auto">
       <el-row class="p-2" :gutter="10" :justify="'space-between'">
-        <p>Advanced Search:</p>
+        <p>{{ t('searchAdvanced.title') }}</p>
         <el-button @click="showHelp = !showHelp" class="cursor-pointer">
-          Search Help&nbsp;<font-awesome-icon icon="fa fa-circle-question" />
+          {{ t('searchAdvanced.searchHelp') }}&nbsp;<font-awesome-icon icon="fa fa-circle-question" />
         </el-button>
       </el-row>
       <el-row class="p-2 px-8" :gutter="10" v-if="showHelp">
@@ -74,7 +78,7 @@ watch(
       </el-row>
       <el-row class="px-2 pb-2" :gutter="10" v-for="(as, index) in localAdvancedSearchLines" :key="index">
         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" class="h-auto">
-          <el-select class="w-full m-2" placeholder="Select a Field" :default-first-option="true" v-model="as.field"
+          <el-select class="w-full m-2" :placeholder="t('searchAdvanced.selectField')" :default-first-option="true" v-model="as.field"
             @change="as.field === 'all_fields' || as.field === '@id' ? as.type = 'phrase' : as.type">
             <el-option v-for="field in advancedSearchFields" :key="field.value" :label="field.label"
               :value="field.value">
@@ -93,9 +97,9 @@ watch(
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="h-auto">
           <el-select v-if="index < localAdvancedSearchLines.length - 1" class="w-20 m-2 mt-4" v-model="as.operation"
             :default-first-option="true">
-            <el-option label="AND" value="AND" />
-            <el-option label="OR" value="OR" />
-            <el-option label="NOT" value="NOT" />
+            <el-option :label="t('searchAdvanced.operatorAnd')" value="AND" />
+            <el-option :label="t('searchAdvanced.operatorOr')" value="OR" />
+            <el-option :label="t('searchAdvanced.operatorNot')" value="NOT" />
           </el-select>
         </el-col>
       </el-row>
@@ -105,29 +109,29 @@ watch(
       <el-row class="p-2" :gutter="10" :justify="'space-between'">
         <el-button-group>
           <el-button @click="addNewLine" class="cursor-pointer">
-            <font-awesome-icon icon="fa fa-plus" />&nbsp;Add New Line
+            <font-awesome-icon icon="fa fa-plus" />&nbsp;{{ t('searchAdvanced.addNewLine') }}
           </el-button>
           <el-button @click="clearSearch" class="cursor-pointer">
-            <font-awesome-icon icon="fa fa-rotate-left" />&nbsp;Clear
+            <font-awesome-icon icon="fa fa-rotate-left" />&nbsp;{{ t('common.clear') }}
           </el-button>
         </el-button-group>
         <el-tooltip class="box-item" effect="light" trigger="hover"
-          content="This query string is what it is actually sent to the search engine, click search to update it"
+          :content="t('searchAdvanced.queryStringTooltip')"
           placement="bottom-end">
           <el-button @click="toggleShowQueryString()">
-            {{ showQueryString ? 'Hide Query' : 'Show Query' }}&nbsp;
+            {{ showQueryString ? t('searchAdvanced.hideQuery') : t('searchAdvanced.showQuery') }}&nbsp;
             <font-awesome-icon icon="fa-solid fa-circle-info" />
           </el-button>
         </el-tooltip>
       </el-row>
       <el-row class="p-2" :gutter="10" :justify="'center'">
         <el-button @click="doAdvancedSearch" type="primary" size="large" class="cursor-pointer">
-          <span class="text-xl">Search &nbsp;<font-awesome-icon icon="fa fa-search" /></span>
+          <span class="text-xl">{{ t('common.search') }} &nbsp;<font-awesome-icon icon="fa fa-search" /></span>
         </el-button>
       </el-row>
       <el-row class="p-2" :justify="'start'" :gutter="10" :align="'middle'">
         <el-button @click="setSearchParams({ advancedSearchEnabled: false })" class="cursor-pointer">
-          Switch to basic search
+          {{ t('searchAdvanced.switchToBasic') }}
         </el-button>
       </el-row>
     </el-col>

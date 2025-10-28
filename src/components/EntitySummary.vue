@@ -19,7 +19,7 @@ const { searchDetails = [] } = ui.search || {};
         <el-row :align="'middle'">
           <h5 class="text-2xl font-medium">
             <router-link :to="getEntityUrl(entity)"
-              class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
+              class="text-blue-600 hover:text-blue-800 visited:text-purple-600 wrap-break-word">
               {{ entity.name || entity.id }}
             </router-link>
           </h5>

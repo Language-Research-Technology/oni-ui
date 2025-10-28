@@ -14,54 +14,34 @@ if (!api) {
 const route = useRoute();
 const router = useRouter();
 
+type FileRoCrate = RoCrate['hasPart'][number];
+
 const id = route.query.id?.toString() as string;
-const parentId = route.query.parentId?.toString() as string;
 
 const title = ref('');
 const parentTitle = ref<string>();
-const filename = ref('');
-const encodingFormat = ref<string[]>([]);
-const contentSize = ref<number>();
-const metadata = ref<RoCrate | undefined>();
+const metadata = ref<FileRoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
-const part = ref<RoCrate['hasPart'][number] | undefined>();
 const meta = ref<{ name: string; data: string }[]>([]);
 
-const populateData = (md: RoCrate, e: EntityType) => {
-  part.value = md.hasPart.find((part) => part['@id']);
-  if (!part.value) {
-    router.push({
-      name: 'NotFound',
-      params: { pathMatch: route.path.substring(1).split('/') },
-      query: route.query,
-      hash: route.hash,
-    });
+const populateData = (md: FileRoCrate, e: EntityType) => {
+  title.value = md.filename || md['@id'];
 
-    return;
-  }
+  parentTitle.value = e.memberOf;
 
-  title.value = part.value.filename || part.value['@id'];
-
-  parentTitle.value = md.name || md['@id'];
-
-  filename.value = part.value.filename;
-  encodingFormat.value = Array.isArray(part.value.encodingFormat)
-    ? part.value.encodingFormat
-    : [part.value.encodingFormat];
-  contentSize.value = part.value.contentSize;
-  metadata.value = md;
-  entity.value = e;
-
-  const keys = Object.keys(part.value);
+  const keys = Object.keys(md);
   const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));
   for (const filter of filtered) {
-    meta.value.push({ name: filter, data: part.value[filter as keyof typeof part.value] as string });
+    meta.value.push({ name: filter, data: md[filter as keyof typeof md] as string });
   }
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
+
+  metadata.value = md;
+  entity.value = e;
 };
 
 const getFileMetadata = async () => {
-  if (!id || !parentId) {
+  if (!id) {
     router.push({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
@@ -72,7 +52,7 @@ const getFileMetadata = async () => {
     return;
   }
 
-  const { entity, metadata: md } = await api.getEntity(parentId);
+  const { entity, metadata: md } = await api.getEntity(id);
   if (!md) {
     router.push({
       name: 'NotFound',
@@ -84,21 +64,21 @@ const getFileMetadata = async () => {
     return;
   }
 
-  populateData(md, entity);
+  populateData(md as unknown as FileRoCrate, entity);
 };
 
 getFileMetadata();
 </script>
 
 <template>
-  <el-row :justify="'center'" class="w-full" v-if="entity && metadata && part">
+  <el-row :justify="'center'" class="w-full" v-if="entity && metadata">
     <el-col :span="24">
       <div class="container mx-auto">
         <el-row>
           <el-col :xs="24" :sm="15" :md="24" :lg="24" :xl="24">
             <h3 class="relative space-x-3 font-bold p-3 text-xl select-none text-left">
-              <router-link :to="`/object?id=${encodeURIComponent(parentId)}`"
-                class="break-words no-underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+              <router-link :to="`/object?id=${encodeURIComponent(entity.memberOf)}`"
+                class="wrap-break-word no-underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
                 <font-awesome-icon icon="fa fa-arrow-left" />
                 {{ parentTitle }}
               </router-link>
@@ -117,9 +97,7 @@ getFileMetadata();
         </el-row>
         <el-row>
           <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="flex justify-center h-screen overflow-auto">
-            <FileResolve v-if="entity" :id="id" :parentId="parentId" :filename="filename" :resolve="true"
-              :encodingFormat="encodingFormat" :name="title" :parentName="parentTitle" :hideOpenLink="true"
-              :isPreview="false" :access="entity.access" :license="metadata?.license" :contetnSize="contentSize" />
+            <FileResolve :entity="entity" :metadata="metadata" />
           </el-col>
         </el-row>
       </div>

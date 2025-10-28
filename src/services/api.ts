@@ -33,7 +33,6 @@ type BaseEntityType = {
   id: string;
   name: string;
   description?: string;
-  entityType: 'http://pcdm.org/models#Collection' | 'http://pcdm.org/models#Object' | 'http://schema.org/MediaObject';
   memberOf: string;
   rootCollection: string;
   metadataLicenseId: string;
@@ -46,7 +45,14 @@ type BaseEntityType = {
   };
 };
 
-export type EntityType = BaseEntityType & {
+type EntityTypes = BaseEntityType &
+  (
+    | { entityType: 'http://pcdm.org/models#Collection' }
+    | { entityType: 'http://pcdm.org/models#Object' }
+    | { entityType: 'http://schema.org/MediaObject'; fileId: string }
+  );
+
+export type EntityType = EntityTypes & {
   counts: {
     collections: number;
     objects: number;
@@ -170,9 +176,7 @@ export class ApiService {
   }
 
   async getRoCrate(id: string) {
-    const crateJson = await this.#get<object | ErrorResponse>(
-      `/entity/${encodeURIComponent(id)}/file/ro-crate-metadata.json`,
-    );
+    const crateJson = await this.#get<object | ErrorResponse>(`/entity/${encodeURIComponent(id)}/rocrate`);
 
     if ('error' in crateJson) {
       return { error: crateJson.error };
@@ -209,14 +213,14 @@ export class ApiService {
     if (!this.#usesRedirects) {
       const queryString = new URLSearchParams(params).toString();
 
-      const filePath = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}?${queryString}`;
+      const filePath = `/file/${encodeURIComponent(id)}?${queryString}`;
 
       const url = `${this.#apiUri}${filePath}`;
 
       return url;
     }
 
-    const url = `/entity/${encodeURIComponent(id)}/file/${encodeURIComponent(path)}`;
+    const url = `/file/${encodeURIComponent(id)}`;
 
     const json = await this.#get<{ location: string } | ErrorResponse>(url, { ...params, noRedirect: 'true' });
     if ('error' in json) {

@@ -11,13 +11,13 @@ import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
 import MetaField from '@/components/MetaField.vue';
-import ObjectPart from '@/components/ObjectPart.vue';
 import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
 import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
 import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import { formatEncodingFormat, formatFileSize } from '@/tools';
 
 const { object: config } = ui;
 
@@ -37,8 +37,6 @@ const mediaTypes = ref<string[]>([]);
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
-
-const activePart = ref(false);
 const membersFiltered = ref<EntityType[]>([]);
 
 const populateParts = (md: RoCrate) => {
@@ -114,19 +112,6 @@ const fetchdata = async () => {
       membersFiltered.value = children.entities;
     }
   }
-};
-
-const isPartActive = (id: string, index: number) => {
-  if (route.query.fileId === id) {
-    activePart.value = true;
-    return true;
-  }
-
-  if (index === 0 && !activePart.value) {
-    return true;
-  }
-
-  return false;
 };
 
 const moreObjects = () => {
@@ -256,15 +241,35 @@ fetchdata();
       </el-col>
     </el-row>
 
-    <el-row v-if="entity && metadata" class="m-5 pl-10 pr-12 pb-7">
-      <el-col>
-        <ul>
-          <li v-for="(part, index) of parts">
-            <a :id="'part-' + encodeURIComponent(part['@id'])"></a>
-            <ObjectPart :parentId="route.query.id?.toString() || ''" :part="part"
-              :active="isPartActive(part['@id'], index)" :license="metadata.license" :access="entity.access" />
-          </li>
-        </ul>
+    <el-row class="m-5 pl-10 pr-12 pb-7">
+      <el-col :span="24">
+        <el-table :data="parts" stripe style="width: 100%">
+          <el-table-column prop="name" label="Filename" min-width="200">
+            <template #default="scope">
+              {{ scope.row.name || scope.row['@id'] }}
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="contentSize" label="Size" width="120">
+            <template #default="scope">
+              {{ formatFileSize(scope.row.contentSize) }}
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="encodingFormat" label="Encoding Format" min-width="180">
+            <template #default="scope">
+              {{ formatEncodingFormat(scope.row.encodingFormat) }}
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Actions" width="120">
+            <template #default="scope">
+              <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
+                <el-button type="primary" size="small">View</el-button>
+              </router-link>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-col>
     </el-row>
   </template>

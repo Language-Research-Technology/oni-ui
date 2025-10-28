@@ -11,6 +11,10 @@ const unitMultipliers = {
 };
 
 export const formatFileSize = (bytes: number, locales = 'en') => {
+  if (!bytes || bytes === 0) {
+    return 'N/A';
+  }
+
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const threshold = 1024;
 
@@ -22,6 +26,18 @@ export const formatFileSize = (bytes: number, locales = 'en') => {
   const formatter = new Intl.NumberFormat(locales, { maximumFractionDigits: 2 });
 
   return `${formatter.format(value)} ${units[i]}`;
+};
+
+export const formatEncodingFormat = (formats: string[] | string | undefined) => {
+  if (typeof formats === 'string') {
+    return formats;
+  }
+
+  if (!formats || formats.length === 0) {
+    return 'N/A';
+  }
+
+  return formats.filter((f) => typeof f === 'string').join(', ');
 };
 
 export const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
@@ -65,13 +81,13 @@ export const parseContentSize = (value: string | number) => {
 export const getEntityUrl = (entity: EntityType) => {
   const { entityType } = entity;
 
-  const id = encodeURIComponent(entity.id);
-
   switch (entityType) {
     case 'http://pcdm.org/models#Collection':
-      return `/collection?id=${id}`;
+      return `/collection?id=${entity.id}`;
     case 'http://pcdm.org/models#Object':
-      return `/object?id=${id}`;
+      return `/object?id=${entity.id}`;
+    case 'http://schema.org/MediaObject':
+      return `/file?id=${entity.fileId}`;
     default:
       throw new Error(`Unknown entitytype ${entityType}`);
   }

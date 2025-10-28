@@ -11,26 +11,9 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const {
-  id,
-  parentId,
-  filename,
-  resolve,
-  encodingFormat,
-  hideOpenLink = false,
-  isPreview,
-  access,
-  license,
-} = defineProps<{
-  id: string;
-  parentId: string;
-  filename: string;
-  resolve: boolean;
-  encodingFormat: string[];
-  hideOpenLink?: boolean;
-  isPreview: boolean;
-  access: EntityType['access'];
-  license: RoCrate['license'];
+const { entity, metadata } = defineProps<{
+  entity: EntityType;
+  metadata: RoCrate['hasPart'][number];
 }>();
 
 const data = ref();
@@ -38,42 +21,24 @@ const downloadUrl = ref('');
 const streamUrl = ref('');
 const togglePreview = ref(false);
 
-const fileUrl = `/file?id=${encodeURIComponent(id)}&parentId=${encodeURIComponent(parentId)}`;
-
 const resolveFile = async () => {
-  downloadUrl.value = (await api.getFileUrl(parentId, filename, true)) || '';
-  streamUrl.value = (await api.getFileUrl(parentId, filename, false)) || '';
-
-  // Try to display only text and pdfs by default if there is an encodingFormat
-  if (encodingFormat.some((format) => String(format).match(/text\/|pdf/))) {
-    togglePreview.value = true;
+  if (entity.entityType !== 'http://schema.org/MediaObject') {
+    return;
   }
 
-  if (!isPreview) {
-    togglePreview.value = true;
-  }
+  downloadUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, true)) || '';
+  streamUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, false)) || '';
 };
 
-const extension = filename.split('.').pop() || '';
-console.log('🪚 encodingFormat.filter:', JSON.stringify(encodingFormat, null, 2));
+const extension = metadata.filename.split('.').pop() || '';
+const encodingFormat = [metadata.encodingFormat].flat();
 const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
 const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
 const isTxt =
   plainEncodingFormats.some((ef) => ef.startsWith('text')) || ['txt', 'eaf', 'html', 'xml', 'flab'].includes(extension);
 const isPdf = plainEncodingFormats.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
 
-watch(
-  () => resolve,
-  async () => {
-    if (resolve) {
-      resolveFile();
-    }
-  },
-);
-
-if (resolve) {
-  resolveFile();
-}
+resolveFile();
 </script>
 
 <template>
@@ -86,57 +51,51 @@ if (resolve) {
             </el-button>
           </div>
 
-          <div v-if="togglePreview">
-            <div>
-              <div v-if="isPdf" class="flex justify-center w-full">
-                <el-row :span="24">
-                  <PDFWidget :src="streamUrl" :numPages="isPreview ? 1 : undefined" />
-                </el-row>
-              </div>
-
-              <div v-else-if="isCsv" class="p-4 break-words">
-                <CSVWidget :src="streamUrl" :limitRows="isPreview ? 5 : undefined" />
-              </div>
-
-              <div v-else-if="isTxt" class="p-4 break-words">
-                <PlainTextWidget :src="streamUrl" :limitText="isPreview ? 700 : undefined" />
-              </div>
-
-              <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">
-                <audio controls preload="none">
-                  <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
-                  Your browser does not support the audio element.
-                </audio>
-              </div>
-
-              <div v-else-if="encodingFormat?.some((f) => f?.startsWith('video'))" class="flex justify-center">
-                <video controls>
-                  <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('video'))">
-                  Your browser does not support the video element.
-                </video>
-              </div>
-
-              <div class="p-4" v-else>
-                <img height="500px" :src="data" />
-              </div>
+          <div>
+            <div v-if="isPdf" class="flex justify-center w-full">
+              <el-row :span="24">
+                <PDFWidget :src="streamUrl" />
+              </el-row>
             </div>
 
-            <div>
-              <div class="flex justify-center" v-if="access && license">
-                <AccessHelper :access="access" :license="license" />
-              </div>
+            <div v-else-if="isCsv" class="p-4 wrap-break-word">
+              <CSVWidget :src="streamUrl" />
+            </div>
+
+            <div v-else-if="isTxt" class="p-4 wrap-break-word">
+              <PlainTextWidget :src="streamUrl" />
+            </div>
+
+            <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">
+              <audio controls preload="none">
+                <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+
+            <div v-else-if="encodingFormat?.some((f) => f?.startsWith('video'))" class="flex justify-center">
+              <video controls>
+                <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('video'))">
+                Your browser does not support the video element.
+              </video>
+            </div>
+
+            <div class="p-4" v-else>
+              <img height="500px" :src="data" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-center" v-if="metadata.access && metadata.license">
+              <AccessHelper :access="metadata.access" :license="metadata.license" />
             </div>
           </div>
         </div>
       </el-col>
     </el-row>
 
-    <el-row class="flex justify-center" v-if="access.content">
+    <el-row class="flex justify-center" v-if="entity.access.content">
       <el-button-group class="m-2">
-        <router-link v-if="!hideOpenLink" class="mr-2" :to="fileUrl" underline="never">
-          <el-button type="default" class="px-2">View File</el-button>
-        </router-link>
-
         <el-link class="mr-2" :underline="false" :href="downloadUrl">
           <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
           </el-button>

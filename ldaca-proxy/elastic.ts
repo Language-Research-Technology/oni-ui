@@ -2,7 +2,7 @@
 
 import esb from 'elastic-builder';
 
-import configuration from '../src/configuration.json';
+import configuration from '../public/configuration.json';
 
 type MultiProps = {
   multi?: string;

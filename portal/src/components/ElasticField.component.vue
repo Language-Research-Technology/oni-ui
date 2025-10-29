@@ -7,9 +7,6 @@
       </el-collapse-item>
     </el-collapse>
   </template>
-  <template v-else-if="title === 'base64'">
-    <NotebookViewerWidget :ipynb="value"/>
-  </template>
   <template v-else>
     <template v-if="url">
       <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
@@ -46,7 +43,6 @@ import {defineAsyncComponent} from 'vue';
 
 export default {
   components: {
-    NotebookViewerWidget: defineAsyncComponent(() => import('./widgets/NotebookViewerWidget.component.vue')),
     MetaField: defineAsyncComponent(() => import('@/components/MetaField.component.vue')),
   },
   props: ['field', 'title'],

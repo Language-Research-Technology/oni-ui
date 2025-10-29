@@ -44,9 +44,10 @@ export default {
     }
   },
   updated() {
-    if (this.gitName) {
-      this.registryBinderhubs();
-    }
+    // if (this.gitName) {
+    //   this.registryBinderhubs();
+    // }
+    console.log(`binderhubs: ${this.binderhubs}`);
   },
   data() {
     return {
@@ -105,7 +106,7 @@ export default {
     },
     trafficStyle(element) {
       if (element) {
-        return 'color: #FFD43B;';
+        return 'color: #FFD43B;'
       }
       return 'color: #51c09f';
     },

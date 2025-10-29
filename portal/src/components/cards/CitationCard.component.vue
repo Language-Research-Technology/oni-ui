@@ -110,7 +110,7 @@ export default {
             } else if (Array.isArray(this.creator) && this.creator.length > 0) {
                 author = `<b>Creator:</b> ${this.creator.map(a => a?.name?.[0]?.['@value'] || a?.['@value']).filter(Boolean).join(', ')}`;
             } else {
-                author = `<b>Author:</b> undefined`;
+                author = '<b>Author:</b> undefined';
             }
             const title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
             const publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;

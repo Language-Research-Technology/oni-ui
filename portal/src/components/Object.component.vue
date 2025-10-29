@@ -34,7 +34,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5">
+      <el-row :gutter="20" class="pb-5" v-if="$route.query.id">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
             <h5 class="text-2xl font-medium">Downloads

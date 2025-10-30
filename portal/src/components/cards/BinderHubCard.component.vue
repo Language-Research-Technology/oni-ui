@@ -106,7 +106,7 @@ export default {
     },
     trafficStyle(element) {
       if (element) {
-        return 'color: #FFD43B;'
+        return 'color: #FFD43B;';
       }
       return 'color: #51c09f';
     },

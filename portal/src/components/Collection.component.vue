@@ -121,7 +121,7 @@
           </el-card>
         </el-col>
       </el-row>
-      <!-- <el-row v-if="!metadata['creditText']" :gutter="20" class="pb-5"> -->
+      <el-row v-if="!metadata['creditText']" :gutter="20" class="pb-5">
         <el-col>
           <CitationCard v-if="metadata['name']" :name="metadata['name']" :author="metadata['author']"
             :citation="metadata['citation']" :datePublished="metadata['datePublished']" :id="metadata['@id']"
@@ -140,6 +140,11 @@
             <SimpleRelationshipCard :id="this.$route.query.id" :objectType="relationship.type"
               :objectName="relationship.name" />
           </el-card>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <CustodianshipCard v-if="metadata['name']" :accountablePerson="metadata['accountablePerson']" :dct:rightsHolder="metadata['dct:rightsHolder']"/>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5">
@@ -165,6 +170,7 @@ import RetrieveDataMetadata from './cards/RetrieveDataMetadata.component.vue';
 import SimpleRelationshipCard from './cards/SimpleRelationshipCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
 import TakedownCard from './cards/TakedownCard.component.vue';
+import CustodianshipCard from './cards/CustodianshipCard.component.vue';
 import DownloadsModal from './widgets/DownloadsModal.component.vue';
 import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import CitationCard from './cards/CitationCard.component.vue';
@@ -191,6 +197,7 @@ export default {
     MemberOfLink,
     TakedownCard,
     CitationCard,
+    CustodianshipCard,
   },
   props: [],
   head() {

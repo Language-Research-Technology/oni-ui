@@ -288,7 +288,9 @@
           "_subCollection",
           "_isOCFL",
           "_metadataLicense",
-          "conformsTo"
+          "conformsTo",
+          "accountablePerson",
+          "dct:rightsHolder"
         ],
         "displayHasMember": false,
         "displayHasPart": true
@@ -346,7 +348,9 @@
           "_subCollection",
           "_isOCFL",
           "_metadataLicense",
-          "conformsTo"
+          "conformsTo",
+          "base64",
+          "input"
         ]
       }
     },

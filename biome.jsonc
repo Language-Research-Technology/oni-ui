@@ -11,6 +11,7 @@
       "**",
       "!**/package.json",
       "!**/vocab.json",
+      "!public/configuration.json",
       // We need to review these files
       "!src/components/widgets/geo_wkt.ts",
       "!src/components/widgets/LeafletMap.vue"
@@ -41,7 +42,7 @@
     }
   },
   "overrides": [
-    // FIx partial support for vuew in biome
+    // As per https://biomejs.dev/internals/language-support/#html-super-languages-support
     {
       "includes": ["**/*.vue"],
       "linter": {

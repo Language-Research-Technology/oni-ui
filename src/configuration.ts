@@ -128,7 +128,7 @@ const uiSchema = z.strictObject({
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
   citeData: citeData,
   googleForm: googleFormSchema,
-  terms: termsAndPrivacySchema,
+  terms: termsAndPrivacySchema.optional(),
   privacy: termsAndPrivacySchema.optional(),
   footer: footerSchema,
   login: z.strictObject({

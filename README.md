@@ -211,9 +211,9 @@ The following routes are available for use in navigation items:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `ui.terms.text` | string | Yes | Link text for terms of service |
-| `ui.terms.href` | string | Yes | URL or path to terms of service |
-| `ui.terms.title` | string | Yes | Title attribute for terms link |
+| `ui.terms.text` | string | No | Link text for terms of service |
+| `ui.terms.href` | string | No | URL or path to terms of service |
+| `ui.terms.title` | string | No | Title attribute for terms link |
 | `ui.privacy` | object | No | Privacy notice configuration (same structure as terms) |
 | `ui.footer.copyright` | string | Yes | Copyright text for the footer |
 | `ui.footer.link.href` | URL | Yes | URL for the footer link |

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import logo from '@/assets/logo.svg';
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import NavUser from '@/components/NavUser.vue';

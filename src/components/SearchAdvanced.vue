@@ -19,9 +19,7 @@ const { setSearchParams, advancedSearchLines } = defineProps<{
   setSearchParams: (params: SetSearchParamsOptions) => void;
 }>();
 
-const advancedSearchFields = [
-  { label: t('searchAdvanced.allFields'), value: 'all_fields' },
-];
+const advancedSearchFields = [{ label: t('searchAdvanced.allFields'), value: 'all_fields' }];
 Object.entries(searchFields).forEach(([value, label]) => {
   advancedSearchFields.push({ label, value });
 });

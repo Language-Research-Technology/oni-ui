@@ -2,8 +2,8 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';

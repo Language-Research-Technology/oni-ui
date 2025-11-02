@@ -2,8 +2,8 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
 import { inject, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
@@ -147,26 +147,72 @@ fetchdata();
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
       <AccessHelper v-if="entity?.access && metadata.license" :access="entity.access" :license="metadata.license" />
 
-      <div class="px-5 pb-5">
-        <el-row class="">
-          <el-col v-for="m of meta">
-            <MetaField :meta="m" />
-          </el-col>
-        </el-row>
-      </div>
+      <el-row>
+        <el-col v-for="m of meta">
+          <MetaField :meta="m" />
+        </el-col>
+      </el-row>
+
+      <el-row v-if="parts.length">
+        <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
+          <div class="grid-content py-4">
+            <h2 class="text-2xl tracking-tight">
+              {{ t('object.files') }} {{ parts.length }}
+              <MediaTypeIcon v-for="mediaType of mediaTypes" :mediaType="mediaType" />
+            </h2>
+          </div>
+
+          <div />
+        </el-col>
+      </el-row>
+
+      <el-row class="p-5">
+        <el-col :span="24">
+          <el-table :data="parts" stripe style="width: 100%">
+            <el-table-column prop="name" :label="t('object.filename')" min-width="200">
+              <template #default="scope">
+                {{ scope.row.name || scope.row['@id'] }}
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="contentSize" :label="t('common.size')" width="120">
+              <template #default="scope">
+                {{ formatFileSize(scope.row.contentSize) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="encodingFormat" :label="t('object.encodingFormat')" min-width="180">
+              <template #default="scope">
+                {{ formatEncodingFormat(scope.row.encodingFormat) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column :label="t('common.actions')" width="120">
+              <template #default="scope">
+                <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
+                  <el-button type="primary" size="small">{{ t('common.view') }}</el-button>
+                </router-link>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
     </el-col>
 
     <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
       <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col v-if="metadata.license">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">{{ t('object.access') }}
-              <el-tooltip class="box-item" effect="light" trigger="hover"
-                :content="t('object.accessTooltip')" placement="top">
+            <h5 class="text-2xl font-medium">
+              {{ t('object.access') }}
+              <el-tooltip class="box-item" effect="light" trigger="hover" :content="t('object.accessTooltip')"
+                placement="top">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
               </el-tooltip>
             </h5>
+
             <hr class="divider divider-gray pt-2" />
+
             <LicenseCard :license="metadata.license" />
           </el-card>
         </el-col>
@@ -230,49 +276,4 @@ fetchdata();
     </el-col>
   </el-row>
 
-  <template v-if="parts.length">
-    <el-row class="m-5 pl-10 pr-12">
-      <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
-        <div class="grid-content p-2 m-2">
-          <h2 class="text-2xl tracking-tight">
-            {{ t('object.files') }} {{ parts.length }}
-            <MediaTypeIcon v-for="mediaType of mediaTypes" :mediaType="mediaType" />
-          </h2>
-        </div>
-        <div></div>
-      </el-col>
-    </el-row>
-
-    <el-row class="m-5 pl-10 pr-12 pb-7">
-      <el-col :span="24">
-        <el-table :data="parts" stripe style="width: 100%">
-          <el-table-column prop="name" :label="t('object.filename')" min-width="200">
-            <template #default="scope">
-              {{ scope.row.name || scope.row['@id'] }}
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="contentSize" :label="t('common.size')" width="120">
-            <template #default="scope">
-              {{ formatFileSize(scope.row.contentSize) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="encodingFormat" :label="t('object.encodingFormat')" min-width="180">
-            <template #default="scope">
-              {{ formatEncodingFormat(scope.row.encodingFormat) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column :label="t('common.actions')" width="120">
-            <template #default="scope">
-              <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
-                <el-button type="primary" size="small">{{ t('common.view') }}</el-button>
-              </router-link>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-col>
-    </el-row>
-  </template>
 </template>

@@ -107,7 +107,7 @@ onMounted(fetchData);
   <div v-if="metadata && entity" class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
-        <MemberOfLink v-if="metadata['pcdm:memberOf']" :memberOf="metadata['pcdm:memberOf']" />
+        <MemberOfLink :entity="entity" />
         {{ name }}
       </h5>
     </el-row>
@@ -155,9 +155,9 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" class="pb-5" v-if="metadata['pcdm:memberOf']">
+      <el-row :gutter="20" class="pb-5">
         <el-col>
-          <MemberOfCard v-if="metadata['pcdm:memberOf']" routePath="collection" :memberOf="metadata['pcdm:memberOf']" />
+          <MemberOfCard routePath="collection" :entity="entity" />
         </el-col>
       </el-row>
 
@@ -191,7 +191,7 @@ onMounted(fetchData);
             <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" />
 
             <el-link @click="openDownloads = !openDownloads" type="primary">{{ t('collection.showAllDownloads')
-              }}</el-link>
+            }}</el-link>
 
             <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" />
           </el-card>

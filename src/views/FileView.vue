@@ -27,7 +27,7 @@ const meta = ref<{ name: string; data: string }[]>([]);
 const populateData = (md: FileRoCrate, e: EntityType) => {
   title.value = md.filename || md['@id'];
 
-  parentTitle.value = e.memberOf;
+  parentTitle.value = e.memberOf.name || e.memberOf.id;
 
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));
@@ -77,7 +77,7 @@ getFileMetadata();
         <el-row>
           <el-col :xs="24" :sm="15" :md="24" :lg="24" :xl="24">
             <h3 class="relative space-x-3 font-bold p-3 text-xl select-none text-left">
-              <router-link :to="`/object?id=${encodeURIComponent(entity.memberOf)}`"
+              <router-link :to="`/object?id=${encodeURIComponent(entity.memberOf?.id || '')}`"
                 class="wrap-break-word no-underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
                 <font-awesome-icon icon="fa fa-arrow-left" />
                 {{ parentTitle }}

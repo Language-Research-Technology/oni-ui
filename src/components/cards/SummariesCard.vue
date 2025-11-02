@@ -9,7 +9,8 @@ const { entity } = defineProps<{
 
 const getSearchUrl = (filterName: string, filterValue: string) => {
   const f = {
-    root: [entity?.name],
+    rootCollection: [entity?.rootCollection.name],
+
     [filterName]: [filterValue],
   };
   const stringify = JSON.stringify(f);

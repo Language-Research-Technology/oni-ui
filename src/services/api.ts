@@ -33,8 +33,14 @@ type BaseEntityType = {
   id: string;
   name: string;
   description?: string;
-  memberOf: string;
-  rootCollection: string;
+  memberOf?: {
+    id: string;
+    name?: string;
+  };
+  rootCollection: {
+    id: string;
+    name?: string;
+  };
   metadataLicenseId: string;
   contentLicenseId: string;
   access: {

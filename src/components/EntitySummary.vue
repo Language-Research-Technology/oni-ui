@@ -49,17 +49,17 @@ const { searchDetails = [] } = ui.search || {};
             {{ t('entity.memberOf') }}&nbsp;
           </p>
           <router-link class="text-sm m-2 text-gray-700 underline"
-            :to="'/collection?id=' + encodeURIComponent(entity.memberOf)">
-            {{ entity.memberOf }}
+            :to="'/collection?id=' + encodeURIComponent(entity.memberOf.id)">
+            {{ entity.memberOf.name || entity.memberOf.id }}
           </router-link>
         </el-row>
 
-        <el-row align="middle" v-if="entity.rootCollection && entity.rootCollection !== entity.memberOf" class="pt-2">
+        <el-row align="middle" v-if="entity.rootCollection?.id !== entity.memberOf?.id" class="pt-2">
           <p class="font-normal text-gray-700">
             &nbsp;{{ t('entity.in') }}&nbsp;
           </p>
-          <router-link :to="'/collection?id=' + encodeURIComponent(entity.rootCollection)">
-            <el-button>{{ entity.rootCollection }}</el-button>
+          <router-link :to="'/collection?id=' + encodeURIComponent(entity.rootCollection.id)">
+            <el-button>{{ entity.rootCollection.name || entity.rootCollection.id }}</el-button>
           </router-link>
         </el-row>
 
@@ -74,12 +74,15 @@ const { searchDetails = [] } = ui.search || {};
         </el-row>
 
         <el-row class="gap-2 flex">
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.collections">{{ t('entity.collections') }} {{
-            entity.counts.collections }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.objects">{{ t('entity.objects') }} {{
-            entity.counts.objects }}</span>
-          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.files">{{ t('entity.files') }} {{
-            entity.counts.files }}</span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.collections">
+            {{ t('entity.collections') }} {{ entity.counts.collections }}
+          </span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.objects">
+            {{ t('entity.objects') }} {{ entity.counts.objects }}
+          </span>
+          <span class="after:content-[','] last:after:content-none" v-if="entity.counts.files">
+            {{ t('entity.files') }} {{ entity.counts.files }}
+          </span>
         </el-row>
 
         <el-row align="middle" v-if="entity.searchExtra?.highlight">

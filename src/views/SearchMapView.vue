@@ -326,7 +326,6 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
   const title = entity.name;
   const type = entity.entityType;
   const href = getEntityUrl(entity);
-  const memberOf = entity.memberOf;
 
   let innerHTML = `
     <div>
@@ -336,13 +335,13 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
       <h4>Type: ${type}</h4>
   `;
 
-  if (memberOf) {
+  if (entity.memberOf) {
     const innerHTMLMemberOf = `
         <a
            class="text-sm m-1 text-gray-700 underline"
-           href="/collection?id=${encodeURIComponent(memberOf)}"
+           href="/collection?id=${encodeURIComponent(entity.memberOf.id)}"
         >
-          ${memberOf}
+          ${entity.memberOf.name || entity.memberOf.id}
         </a>
       `;
 

@@ -11,8 +11,8 @@ export type FacetType = {
   display: string;
   order: number;
   name: string;
-  active?: boolean;
-  help: string;
+  active: boolean;
+  help?: string;
 };
 
 export type AdvancedSearchLine = {
@@ -312,13 +312,15 @@ export const useSearch = (searchType: 'list' | 'map') => {
       const display = info.display;
       const name = info.name;
       const help = info.help;
+      const active = !!filters.value[facet] && filters.value[facet].length > 0;
       a.push({
         // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
         buckets: newFacets[facet]!,
         display: display || facet,
-        order: order,
-        name: name,
-        help: help || '',
+        order,
+        name,
+        help,
+        active,
       });
     }
 

@@ -10,7 +10,7 @@ const { entity } = defineProps<{
 const getSearchUrl = (filterName: string, filterValue: string) => {
   const f = {
     root: [entity?.name],
-    [filterName]: filterValue,
+    [filterName]: [filterValue],
   };
   const stringify = JSON.stringify(f);
 
@@ -40,7 +40,7 @@ const getSearchUrl = (filterName: string, filterValue: string) => {
       <li><span class="font-semibold">{{ t('summaries.fileFormats') }}</span></li>
       <li v-for="mediaType in entity.mediaType" class="ml-4 pl-2">
         <el-link underline="always" type="primary">
-          <router-link :to="getSearchUrl('mediaType', mediaType)">
+          <router-link :to="getSearchUrl('encodingFormat', mediaType)">
             {{ mediaType }}
           </router-link>
         </el-link>

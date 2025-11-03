@@ -190,8 +190,9 @@ onMounted(fetchData);
 
             <DownloadsModal :simpleView="true" :id="id" idFieldName="@id" />
 
-            <el-link @click="openDownloads = !openDownloads" type="primary">{{ t('collection.showAllDownloads')
-            }}</el-link>
+            <el-link @click="openDownloads = !openDownloads" type="primary">
+              {{ t('collection.showAllDownloads') }}
+            </el-link>
 
             <DownloadsModal :id="id" :idFieldName="'root'" v-model="openDownloads" />
           </el-card>
@@ -208,7 +209,7 @@ onMounted(fetchData);
               </el-tooltip>
             </h5>
             <hr class="divider divider-gray pt-2" />
-            <RetrieveDataMetadata :id="id" />
+            <RetrieveDataMetadata :id="id" :identifier="metadata.identifier" />
             <template v-if="metadata.metadataLicense?.id">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">

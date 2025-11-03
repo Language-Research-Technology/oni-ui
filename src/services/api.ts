@@ -139,6 +139,7 @@ export type RoCrate = {
   name: string;
   // TODO: Check this
   creditText: string | string[];
+  identifier: { name: string; value: string }[];
   datePublished: string;
   doi?: string;
   'pcdm:memberOf'?: {

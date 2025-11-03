@@ -2,7 +2,7 @@
 import { inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import type { ApiService } from '@/services/api';
+import type { ApiService, RoCrate } from '@/services/api';
 
 const { t } = useI18n();
 const api = inject<ApiService>('api');
@@ -10,7 +10,7 @@ if (!api) {
   throw new Error('api is not provided');
 }
 
-const { id } = defineProps<{ id: string }>();
+const { id, identifier = [] } = defineProps<{ id: string; identifier: RoCrate['identifier'] }>();
 
 const generateDownloadLink = async (onBlank: boolean) => {
   const metadata = await api.getRoCrate(id);
@@ -24,9 +24,11 @@ const generateDownloadLink = async (onBlank: boolean) => {
     return;
   }
 
+  const shortIdentifier = identifier.find((i) => i.name === 'identifier')?.value;
+
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'ro-crate-metadata.json';
+  a.download = shortIdentifier ? `${shortIdentifier}-ro-crate-metadata.json` : `ro-create-metadata.json`;
   a.click();
 };
 </script>

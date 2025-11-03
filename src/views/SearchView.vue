@@ -13,7 +13,6 @@ const {
   entities,
   isLoading,
   totals,
-  searchTime,
   isMap,
   selectedSorting,
   selectedOrder,
@@ -39,7 +38,7 @@ const {
   <SearchLayout :searchInput="searchInput" :filters="filters" :facets="facets" :entities="entities" :sorting="sorting"
     :clearFilter="clearFilter" :onInputChange="onInputChange" :filtersChanged="filtersChanged"
     :updateRoutes="updateRoutes" :clearFilters=clearFilters :updateFilter="updateFilter" :totals="totals"
-    :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :searchTime="searchTime" :sortResults="sortResults"
+    :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
     :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"

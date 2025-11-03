@@ -21,7 +21,6 @@ const {
   sorting,
   entities,
   totals,
-  searchTime,
   isMap,
   selectedSorting,
   selectedOrder,
@@ -47,7 +46,6 @@ const {
   errorDialogText: string | undefined;
   searchInput: string;
   totals: number;
-  searchTime: number;
   isMap: boolean;
   facets: FacetType[] | undefined;
   entities: EntityType[];

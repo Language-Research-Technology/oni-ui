@@ -94,7 +94,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const pageSize = ref(10);
   const currentPage = ref(1);
   const totals = ref(0);
-  const searchTime = ref(0);
 
   // Other
   const facets = ref<FacetType[]>();
@@ -260,8 +259,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
 
         return;
       }
-
-      searchTime.value = results.searchTime;
 
       entities.value = [];
 
@@ -429,7 +426,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     filters,
     isLoading,
     totals,
-    searchTime,
     isMap,
     selectedOrder,
     selectedSorting,

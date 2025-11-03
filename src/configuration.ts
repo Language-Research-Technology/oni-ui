@@ -206,7 +206,7 @@ const configurationSchema = z.strictObject({
 
 const loadConfig = async () => {
   try {
-    const response = await fetch(process.env.ONI_CONFIG_PATH || '/configuration.json');
+    const response = await fetch(import.meta.env.VITE_ONI_CONFIG_PATH || '/configuration.json');
 
     if (!response.ok) {
       throw new Error(`Failed to load config: ${response.statusText}`);

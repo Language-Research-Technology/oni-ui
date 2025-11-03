@@ -14,7 +14,8 @@
       "!public/configuration.json",
       // We need to review these files
       "!src/components/widgets/geo_wkt.ts",
-      "!src/components/widgets/LeafletMap.vue"
+      "!src/components/widgets/LeafletMap.vue",
+      "!dist"
     ]
   },
   "formatter": {

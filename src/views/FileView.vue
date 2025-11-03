@@ -27,7 +27,7 @@ const meta = ref<{ name: string; data: string }[]>([]);
 const populateData = (md: FileRoCrate, e: EntityType) => {
   title.value = md.filename || md['@id'];
 
-  parentTitle.value = e.memberOf.name || e.memberOf.id;
+  parentTitle.value = e.memberOf?.name || e.memberOf?.id;
 
   const keys = Object.keys(md);
   const filtered = keys.filter((key) => !ui.file.meta.hide.includes(key));

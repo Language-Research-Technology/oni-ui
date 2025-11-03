@@ -118,7 +118,7 @@ const fetchdata = async () => {
 
 const moreObjects = () => {
   const filter = {
-    memberOf: [encodeURIComponent(entity.value?.memberOf.id || '')],
+    memberOf: [encodeURIComponent(entity.value?.memberOf?.id || '')],
   };
 
   return encodeURIComponent(JSON.stringify(filter));

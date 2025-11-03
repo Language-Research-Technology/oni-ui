@@ -5,7 +5,7 @@ const { entity } = defineProps<{ entity: EntityType }>();
 
 const id = entity.memberOf?.id;
 const path = entity.entityType === 'http://schema.org/MediaObject' ? 'object' : 'collection';
-const link = `/${path}?id=${encodeURIComponent(id)}`;
+const link = `/${path}?id=${encodeURIComponent(id || '')}`;
 const value = entity.memberOf?.name || id;
 </script>
 

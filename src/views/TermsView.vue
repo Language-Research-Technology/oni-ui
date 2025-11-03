@@ -12,9 +12,9 @@ const { terms } = ui;
       <div class="p-4">
         <div class="text-gray-600">
           <div class="p-2">
-            <p class="font-medium text-2xl">{{ terms.title }}</p>
+            <p class="font-medium text-2xl">{{ terms?.title || 'No T&C Configured' }}</p>
           </div>
-          <div class="p-2" v-html="terms.text"></div>
+          <div class="p-2" v-html="terms?.text"></div>
         </div>
       </div>
     </el-row>

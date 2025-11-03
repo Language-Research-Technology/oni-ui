@@ -12,7 +12,7 @@ const { privacy } = ui;
       <div class="p-4">
         <div class="text-gray-600">
           <div class="p-2">
-            <p class="font-medium text-2xl">{{ privacy?.title || 'Provacy Policy' }}</p>
+            <p class="font-medium text-2xl">{{ privacy?.title || 'No privacy policy configured' }}</p>
           </div>
           <div class="p-2" v-html="privacy?.text"></div>
         </div>

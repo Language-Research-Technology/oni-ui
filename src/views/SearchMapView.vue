@@ -306,8 +306,8 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
 
   const params: SearchParams = {
     // FIXME: advanced search
-    query: advancedSearchEnabled ? '' : searchInput.value.toString(),
-    searchType: advancedSearchEnabled ? 'advanced' : 'basic',
+    query: advancedSearchEnabled.value ? '' : searchInput.value.toString(),
+    searchType: advancedSearchEnabled.value ? 'advanced' : 'basic',
     filters: filters.value,
     limit: pageSize,
     offset: (currentPage.value - 1) * pageSize,
@@ -386,19 +386,16 @@ const searchEvent = () => {
 
 const initControls = () => {
   map.on('zoomend', () => {
-    console.log('🪚 🔲', 'ZOOMED');
     tooltipLayers.clearLayers();
     searchEvent();
   });
 
   map.on('dragend', () => {
-    console.log('🪚 🔲', 'DRAGGED');
     tooltipLayers.clearLayers();
     searchEvent();
   });
 
   geoHashLayer.on('click', async (e) => {
-    console.log('🪚 🔲', 'CLICKED');
     L.DomEvent.stopPropagation(e);
     L.DomEvent.preventDefault(e as unknown as Event);
 

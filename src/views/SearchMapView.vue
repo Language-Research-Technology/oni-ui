@@ -373,8 +373,8 @@ const searchEvent = () => {
   const zoomLevel = map.getZoom();
 
   const bounds = map.getBounds();
-  const ne = bounds.getNorthEast();
-  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast().wrap();
+  const sw = bounds.getSouthWest().wrap();
   const boundingBox = {
     topRight: { lat: ne.lat, lng: ne.lng },
     bottomLeft: { lat: sw.lat, lng: sw.lng },

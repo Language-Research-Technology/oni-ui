@@ -83,5 +83,6 @@ const assert = require('node:assert');
   // Create an Indexer and index collections
   const indexer = new Indexer({configuration, repository, client});
   await indexer.findOcflObjects({memberOf: null, conformsTo: indexer.conformsToCollection, skip: skipCollections});
+  console.log('Indexing complete');
 })
 ();

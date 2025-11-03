@@ -7,6 +7,15 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const host = configuration.api.host || 'localhost:8080';
+const protocol = configuration.api.protocol || 'http';
+const adminToken = configuration.api.tokens.admin;
+const options = {
+  headers: {
+    Authorization: `Bearer ${adminToken}`,
+  },
+};
+
 function askForConfirmation() {
   return new Promise((resolve) => {
     rl.question('Are you sure you want to proceed? (yes/no) ', (answer) => {
@@ -17,29 +26,30 @@ function askForConfirmation() {
 
 (async () => {
   const confirmed = await askForConfirmation();
-  try {
-    if (confirmed) {
-      const host = configuration.api.host || 'localhost:8080';
-      const protocol = configuration.api.protocol || 'http';
-      const adminToken = configuration.api.tokens.admin;
-      const options = {
-        headers: {
-          Authorization: `Bearer ${adminToken}`,
-        },
-      };
-      const url = `${protocol}://${host}/api/admin/index/structural`;
-      const deleteIndex = await fetch(url, { method: 'DELETE', ...options });
-      console.log(`Deleting Index: ${url}`);
-      if (deleteIndex.status === 404) {
-        console.log('Index not found, nothing to delete');
-      } else {
-        const res = await deleteIndex.json();
-        console.log(res);
+  rl.close();
+  if (confirmed) {
+    const objects = process.argv.slice(2);
+    if (objects.length > 0) {
+      for (const object of objects) {
+        await index(object);
       }
+    } else {
+      await index();
     }
-  } catch (e) {
-    console.log('Index does not exist');
-  } finally {
-    rl.close();
   }
 })();
+
+async function index(object) {
+  let url = `${protocol}://${host}/api/admin/index/structural`;
+  if (object) {
+    url += '/' + encodeURIComponent(object);
+  }
+  const deleteIndex = await fetch(url, { method: 'DELETE', ...options });
+  console.log(`Deleting Index: ${url}`);
+  if (deleteIndex.status === 404) {
+    console.log('Index not found, nothing to delete');
+  } else {
+    const res = await deleteIndex.json();
+    console.log(res);
+  }
+}

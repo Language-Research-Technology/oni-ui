@@ -1,16 +1,31 @@
 const configuration = require('./configuration.json');
 const fetch = require('node-fetch');
 
+const host = configuration.api.host || 'localhost:8080';
+const protocol = configuration.api.protocol || 'http';
+const adminToken = configuration.api.tokens.admin;
+const options = {
+  headers: {
+    Authorization: `Bearer ${adminToken}`,
+  },
+};
+
 (async () => {
-  const host = configuration.api.host || 'localhost:8080';
-  const protocol = configuration.api.protocol || 'http';
-  const adminToken = configuration.api.tokens.admin;
-  const options = {
-    headers: {
-      Authorization: `Bearer ${adminToken}`,
-    },
-  };
-  const url = `${protocol}://${host}/api/admin/index/structural`;
+  const objects = process.argv.slice(2);
+  if (objects.length > 0) {
+    for (const object of objects) {
+      await index(object);
+    }
+  } else {
+    await index();
+  }
+})();
+
+async function index(object) {
+  let url = `${protocol}://${host}/api/admin/index/structural`;
+  if (object) {
+    url += '/' + encodeURIComponent(object) + '?force';
+  }
   const structuralIndex = await fetch(url, { method: 'POST', ...options });
   if (structuralIndex.status === 404) {
     console.log(`Cannot index into ${url}`);
@@ -19,4 +34,4 @@ const fetch = require('node-fetch');
     const res = await structuralIndex.json();
     console.log(res);
   }
-})();
+};

@@ -23,14 +23,18 @@ const rootLink = `/collection?id=${encodeURIComponent(entity.rootCollection.id)}
     <ul>
       <li class="font-semibold">
         <template v-if="entity.memberOf?.id !== entity.rootCollection.id">
-          <el-link type="primary" :href="rootLink">
-            {{ entity.rootCollection.name || entity.rootCollection.id }}
+          <el-link type="primary">
+            <router-link :to="rootLink">
+              {{ entity.rootCollection.name || entity.rootCollection.id }}
+            </router-link>
           </el-link>
           <span>&nbsp;:&nbsp;</span>
         </template>
 
-        <el-link type="primary" :href="link">
-          {{ entity.memberOf?.name || entity.memberOf?.id }}
+        <el-link type="primary">
+          <router-link :to="link">
+            {{ entity.memberOf?.name || entity.memberOf?.id }}
+          </router-link>
         </el-link>
       </li>
     </ul>

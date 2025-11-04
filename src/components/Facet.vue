@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Fuse from 'fuse.js';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -15,6 +15,13 @@ const { facetName, buckets, initialSelectedFacetValues } = defineProps<{
 const selectedFacetValues = ref<string[]>(initialSelectedFacetValues || []);
 
 const emit = defineEmits(['isActive', 'updated']);
+
+watch(
+  () => initialSelectedFacetValues,
+  (newValue) => {
+    selectedFacetValues.value = newValue || [];
+  },
+);
 
 const fuse = computed(
   () =>

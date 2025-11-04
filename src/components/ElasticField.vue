@@ -33,6 +33,8 @@ const testURL = (url: string) => {
 const isIdentifier = (item: object) =>
   '@type' in item && item['@type'] === 'PropertyValue' && 'name' in item && 'value' in item;
 
+const isLanguage = (item: object) => '@type' in item && item['@type'] === 'Language' && 'name' in item;
+
 if (typeof field === 'undefined') {
   name = '';
 } else if (byteFields.includes(title)) {
@@ -44,11 +46,16 @@ if (typeof field === 'undefined') {
 } else if (isIdentifier(field)) {
   identifier = field.name;
   name = field.value;
+} else if (isLanguage(field)) {
+  name = field.name;
+  if ('code' in field) {
+    name += ` (${field.code})`;
+  }
+  url = testURL(field['@id']);
 } else if (Array.isArray(field) && typeof field[0] === 'string') {
   name = String(field[0]);
 } else {
-  id = field['@id'];
-  url = testURL(id);
+  url = testURL(field['@id']);
   name = Array.isArray(field.name) ? field.name[0] : field.name;
   description = Array.isArray(field.description) ? field.description[0] : field.description;
 
@@ -84,7 +91,7 @@ const collapseName = shortenText(name);
   </template>
 
   <template v-else-if="url">
-    <a class="wrap-break-word underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
+    <a class="wrap-break-word underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="url"
       target="_blank" rel="nofollow noreferrer">
       <span class="break-all">
         {{ name || id }}

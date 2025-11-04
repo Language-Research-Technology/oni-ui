@@ -57,17 +57,6 @@ const acceptTerms = async () => {
   showTerms.value = false;
 };
 
-const doLogout = async () => {
-  logout();
-
-  authStore.user = undefined;
-  authStore.isLoggedIn = false;
-  authStore.lastRoute = undefined;
-  showTerms.value = false;
-
-  await router.push('/logout');
-};
-
 onMounted(() => {
   if (route.path === '/') {
     router.push(defaultNavRoute);
@@ -134,7 +123,7 @@ if (authStore.isLoggedIn && manageTermsAndConditions) {
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="acceptTerms">Accept Terms</el-button>
-        <el-button type="info" @click="doLogout">Logout</el-button>
+        <el-button type="info" @click="authStore.logout">Logout</el-button>
       </span>
     </template>
   </el-dialog>

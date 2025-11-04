@@ -1,27 +1,20 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { login, logout } from '@/services/auth';
+import { login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 
 const { t } = useI18n();
-const { isLoggedIn, user, lastRoute } = storeToRefs(useAuthStore());
-
-const doLogout = async () => {
-  logout();
-
-  user.value = undefined;
-  isLoggedIn.value = false;
-  lastRoute.value = undefined;
-};
+const authStore = useAuthStore();
+const { isLoggedIn, user } = storeToRefs(useAuthStore());
 </script>
 
 <template>
   <el-menu-item v-show="!isLoggedIn" @click="login">
     <div class="flex flex-col justify-center items-center">
       <el-tooltip class="box-item" effect="light" :content="t('auth.loginTooltip')" placement="bottom">
-          <span>{{ t('auth.login') }}</span>
-        </el-tooltip>
+        <span>{{ t('auth.login') }}</span>
+      </el-tooltip>
     </div>
   </el-menu-item>
 
@@ -37,7 +30,7 @@ const doLogout = async () => {
       </router-link>
     </el-menu-item>
 
-    <el-menu-item @click="doLogout">
+    <el-menu-item @click="authStore.logout">
       {{ t('auth.logout') }}
     </el-menu-item>
   </el-sub-menu>

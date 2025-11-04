@@ -118,7 +118,6 @@ const onAuthRequired: NavigationGuardWithThis<undefined> = async (to) => {
   }
 
   if (to.meta?.requiresAuth) {
-    authStore.lastRoute = to.fullPath;
     authStore.isLoggedIn = false;
 
     login();

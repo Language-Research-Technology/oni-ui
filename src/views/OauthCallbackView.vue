@@ -15,7 +15,7 @@ if (!api) {
 const router = useRouter();
 const authStore = useAuthStore();
 
-const { isLoggedIn, user, lastRoute } = storeToRefs(authStore);
+const { isLoggedIn, user } = storeToRefs(authStore);
 
 const error = ref(false);
 const isLoading = ref(true);
@@ -32,27 +32,21 @@ const setError = (text: string) => {
 
 onMounted(async () => {
   try {
-    const newUser = await handleCallback();
-    if (!newUser) {
+    const data = await handleCallback();
+    if (!data) {
       setError('There was an error trying to login, try again');
       goHome.value = true;
       return;
     }
 
+    const { user: newUser, returnUrl } = data;
     user.value = newUser;
     isLoggedIn.value = true;
+    await router.push(returnUrl);
   } catch (error) {
     console.error('Authentication error:', error);
     setError('There was an error trying to login, try again');
     goHome.value = true;
-  }
-
-  if (lastRoute.value) {
-    const route = lastRoute.value;
-    lastRoute.value = undefined;
-    await router.push(route);
-  } else {
-    await router.push('/');
   }
 });
 </script>

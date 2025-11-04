@@ -2,6 +2,12 @@ import { type User, UserManager, type UserManagerSettings } from 'oidc-client-ts
 
 import { api } from '@/configuration';
 
+declare module 'oidc-client-ts' {
+  interface UserState {
+    returnUrl?: string;
+  }
+}
+
 export type OniUser = {
   email: string;
   firstName?: string;
@@ -47,15 +53,20 @@ const transformUser = (user: User): OniUser => ({
 export const login = async () => {
   const userManager = await getUserManager();
 
-  await userManager.signinRedirect();
+  const returnUrl = window.location.pathname + window.location.search;
+
+  await userManager.signinRedirect({ state: { returnUrl } });
 };
 
 export const handleCallback = async () => {
   const userManager = await getUserManager();
 
   const user = await userManager.signinRedirectCallback();
+  const state = user.state as { returnUrl?: string } | undefined;
+  const returnUrl = state?.returnUrl || '/';
+
   if (user) {
-    return transformUser(user);
+    return { user: transformUser(user), returnUrl };
   }
 };
 

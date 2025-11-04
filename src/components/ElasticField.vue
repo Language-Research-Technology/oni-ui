@@ -21,6 +21,7 @@ let description: string;
 let geometry: any;
 // biome-ignore lint/suspicious/noExplicitAny: FIXME
 let expandField: any;
+let identifier: string | undefined;
 
 const testURL = (url: string) => {
   if (url?.startsWith?.('http')) {
@@ -28,6 +29,9 @@ const testURL = (url: string) => {
     return url;
   }
 };
+
+const isIdentifier = (item: object) =>
+  '@type' in item && item['@type'] === 'PropertyValue' && 'name' in item && 'value' in item;
 
 if (typeof field === 'undefined') {
   name = '';
@@ -37,6 +41,9 @@ if (typeof field === 'undefined') {
   name = formatDuration(field);
 } else if (['string', 'number'].includes(typeof field)) {
   name = String(field);
+} else if (isIdentifier(field)) {
+  identifier = field.name;
+  name = field.value;
 } else if (Array.isArray(field) && typeof field[0] === 'string') {
   name = String(field[0]);
 } else {
@@ -56,7 +63,14 @@ const collapseName = shortenText(name);
 </script>
 
 <template>
-  <template v-if="expandField">
+  <template v-if="identifier">
+    <div class="space-y-2">
+      <span class="font-medium">{{ identifier }}:</span>
+      <span class="ml-2">{{ name }}</span>
+    </div>
+  </template>
+
+  <template v-else-if="expandField">
     <el-collapse>
       <el-collapse-item :title="collapseName" :name="collapseName">
         <MetaField :meta="expandField" :isExpand="true" />
@@ -70,7 +84,7 @@ const collapseName = shortenText(name);
   </template>
 
   <template v-else-if="url">
-    <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
+    <a class="wrap-break-word underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
       target="_blank" rel="nofollow noreferrer">
       <span class="break-all">
         {{ name || id }}

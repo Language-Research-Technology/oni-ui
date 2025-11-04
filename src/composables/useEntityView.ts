@@ -31,13 +31,33 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
     return false;
   };
 
+  const extractPropertyFromIdentifier = (identifiers: { name: string; value: string }[], propertyName: string) => {
+    if (!Array.isArray(identifiers)) {
+      return undefined;
+    }
+
+    const identifier = identifiers.find((id) => id.name === propertyName);
+
+    return identifier?.value;
+  };
+
   const populateMeta = (md: RoCrate) => {
     meta.value = [];
 
     if (config.meta.mode === 'explicit') {
       // Explicit mode: only show specified fields in order
       for (const field of config.meta.show || []) {
-        if (field in md) {
+        // Check if this is a property path (e.g., 'identifier.identifier')
+        if (field.includes('.')) {
+          const [fieldName, propertyName] = field.split('.') as [string, string];
+          if (fieldName in md) {
+            const fieldData = md[fieldName as keyof RoCrate];
+            const data = extractPropertyFromIdentifier(fieldData as { name: string; value: string }[], propertyName);
+            if (!isEmpty(data)) {
+              meta.value.push({ name: propertyName, data });
+            }
+          }
+        } else if (field in md) {
           const data = md[field as keyof RoCrate];
           if (!isEmpty(data)) {
             meta.value.push({ name: field, data });

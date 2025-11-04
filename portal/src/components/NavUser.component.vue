@@ -2,7 +2,9 @@
   <el-menu-item index="login" v-show="!this.isLoggedIn" :route="'/login'">
     <router-link to="/login">
       <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-        <span>Login</span>
+        <el-tooltip class="box-item" effect="light" content="Log in to the portal to apply for access to collections or view your current access." placement="bottom">
+          <span>Login</span>
+        </el-tooltip>
       </div>
     </router-link>
   </el-menu-item>

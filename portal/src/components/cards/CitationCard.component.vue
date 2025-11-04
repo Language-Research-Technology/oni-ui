@@ -1,9 +1,16 @@
 <template>
     <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-        <h5 class="text-2xl font-medium">Citation</h5>
+        <h5 class="text-2xl font-medium">Citation
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="Bibliographic elements to construct a citation for the current item." placement="top">
+              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+            </el-tooltip>
+            </h5>
         <hr class="divider divider-gray pt-2" />
+        <div v-if="this.creditText">
+            <p>{{ suggestedCitation }}</p>
+        </div>
         <el-link plain @click="dialogVisible = true" type="primary">
-            View citation details for this item
+            Show All Citation Details
         </el-link>
 
         <el-dialog v-model="dialogVisible" title="Citation" width="40%">
@@ -103,20 +110,20 @@ export default {
             } else if (Array.isArray(this.creator) && this.creator.length > 0) {
                 author = `<b>Creator:</b> ${this.creator.map(a => a?.name?.[0]?.['@value'] || a?.['@value']).filter(Boolean).join(', ')}`;
             } else {
-                author = `<b>Author:</b> undefined`;
+                author = '<b>Author:</b> undefined';
             }
-            let title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
-            let publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;
-            let publisher = `<b>Publisher:</b> ${this.$store.state.configuration.ui.title}`;
-            let url = `<b>Locator:</b> ${decodeURIComponent(window.location.href)}`;
-            let identifier = `<b>Identifier:</b> ${first(this.doi) ? first(this.doi)['@value'] : this.id}`;
+            const title = `<b>Title:</b> ${first(this.name)?.['@value']}`;
+            const publishedDate = `<b>Date:</b> ${first(this.datePublished)?.['@value']}`;
+            const publisher = `<b>Publisher:</b> ${this.$store.state.configuration.ui.title}`;
+            const url = `<b>Locator:</b> ${decodeURIComponent(window.location.href)}`;
+            const identifier = `<b>Identifier:</b> ${first(this.doi) ? first(this.doi)['@value'] : this.id}`;
             const date = new Date();
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
             const day = String(date.getDate()).padStart(2, '0');
-            let accessDate = `<b>Access Date:</b> ${year}-${month}-${day}`;
-            let variables = [author, title, publishedDate, publisher, url, identifier, accessDate];
-            let result = variables.filter(value => !String(value).includes("undefined")).join(", ");
+            const accessDate = `<b>Access Date:</b> ${year}-${month}-${day}`;
+            const variables = [author, title, publishedDate, publisher, url, identifier, accessDate];
+            const result = variables.filter(value => !String(value).includes("undefined")).join(", ");
             return result
         },
         // getRelatedPublishedWork() {

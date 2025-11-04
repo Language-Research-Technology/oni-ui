@@ -181,7 +181,7 @@ export default {
             this.error = false;
             //this.error = this.responseBlob.statusText; //This message is not used as it is overridden by the AccessHelper
           } else if (this.responseBlob.status === 404) {
-            this.error = 'The file was not found in the path, please contact your Data Provider or Data Steward';
+            this.error = 'The file was not found in the path, please contact your Data Provider or Data Steward.';
           } else {
             this.error = this.responseBlob.statusText;
           }
@@ -271,7 +271,7 @@ export default {
           }
           if (response.status === 404) {
             this.errorDialogText =
-                'The file was not found in the path, please contact your Data Provider or Data Steward';
+                'The file was not found in the path, please contact your Data Provider or Data Steward.';
           } else {
             this.errorDialogText = response.statusText;
           }

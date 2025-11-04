@@ -44,9 +44,10 @@ export default {
     }
   },
   updated() {
-    if (this.gitName) {
-      this.registryBinderhubs();
-    }
+    // if (this.gitName) {
+    //   this.registryBinderhubs();
+    // }
+    console.log(`binderhubs: ${this.binderhubs}`);
   },
   data() {
     return {

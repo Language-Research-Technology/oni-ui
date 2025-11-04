@@ -24,29 +24,41 @@
       <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col v-if="this.license?.['@id']">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">Access</h5>
+            <h5 class="text-2xl font-medium">Access
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="License and access conditions for the current object." placement="top">
+              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+            </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <license-card v-if="this.license?.['@id']" :license="license" />
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" class="pb-5">
+      <el-row :gutter="20" class="pb-5" v-if="$route.query.id">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5" v-if="first(name)?.['@value']">
-            <h5 class="text-2xl font-medium">Downloads</h5>
+            <h5 class="text-2xl font-medium">Downloads
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="Downloads associated with the current object. Select Show All Related Downloads to view the complete list of downloads available for the given collection." placement="top">
+              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+            </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <DownloadsModal :access="access" :simpleView="true" :id="$route.query.id" :idFieldName="'_crateId.@value'"
-              v-model="openDownloads" :title="first(name)?.['@value']" />
-            <el-link @click="openDownloads = !openDownloads" type="primary">Show All Related Downloads</el-link>
+              v-model="openCrateDownloads" :title="first(name)?.['@value']" />
+            <el-link @click="openRoot" type="primary">Show All Related Downloads</el-link>
             <DownloadsModal v-if="access" :access="access" :id="this.rootId" :idFieldName="'_root.@id'"
-              v-model="openDownloads" :title="first(name)?.['@value']" />
+              v-model="openRootDownloads" :title="first(name)?.['@value']" />
           </el-card>
         </el-col>
       </el-row>
       <el-row :gutter="20" class="pb-5" v-if="isOCFL">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium">Retrieve Metadata</h5>
+            <h5 class="text-2xl font-medium">Retrieve Metadata
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="View or download the metadata associated with the current object, as well as the license and access conditions for this metadata." placement="top">
+              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+            </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="this.$route.query.id" />
             <template v-if="metadata._metadataLicense?.id">
@@ -77,7 +89,11 @@
       <el-row v-if="membersFiltered?.data && membersFiltered?.data.length">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium ">Other Objects in this Collection</h5>
+            <h5 class="text-2xl font-medium">Other Objects in this Collection
+            <el-tooltip class="box-item" effect="light" trigger="hover" content="Complete list of objects within this collection." placement="top">
+              <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray"/>
+            </el-tooltip>
+            </h5>
             <hr class="divider divider-gray pt-2" />
             <ul>
               <li v-for="d of membersFiltered.data">
@@ -199,7 +215,8 @@ export default {
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
       fullPath: window.location.href,
       zips: [],
-      openDownloads: false,
+      openCrateDownloads: false,
+      openRootDownloads: false,
       isOCFL: false,
     };
   },
@@ -352,6 +369,9 @@ export default {
         return true;
       }
       return false;
+    },
+    openRoot() {
+      this.openRootDownloads = true;
     },
 
     //TODO: refactor this integrate to multi

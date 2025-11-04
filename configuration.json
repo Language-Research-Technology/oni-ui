@@ -87,15 +87,18 @@
     "topNavItems": [
       {
         "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
-        "display": "Top Collections"
+        "display": "Top Collections",
+        "tooltip": "View all top-level collections, excluding sub-collections."
       },
       {
         "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
-        "display": "Collections"
+        "display": "Collections",
+        "tooltip": "View all collections, including sub-collections."
       },
       {
         "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522SoftwareApplication%2522%255D%257D",
-        "display": "Notebooks"
+        "display": "Notebooks",
+        "tooltip": "View all interactive Jupyter notebooks associated with collections."
       }
     ],
     "search": {
@@ -180,21 +183,18 @@
       ]
     },
     "textReplacements": {
-      "^_": "",
-      "^ldac:doi$": "DOI",
-      "^ldac:isDeIdentified$": "Is De-Identified",
+      "^doi$": "DOI",
+      "^isDeIdentified$": "Is De-Identified",
       "^citation$": "Related Works",
-      "^ldac:": "",
-      "^dct:": "",
-      "^local:": "",
-      "^prov:": "",
-      "^pcdm:": "",
       "^isbn$": "ISBN",
       "^issn$": "ISSN",
       "^url$": "URL",
       "^@id$": "ID",
       "^@type$": "Type",
-      "^arcp://name,custom/terms#": ""
+      "^arcp://name,custom/terms#": "",
+      "^csvw:Table$": "CSV Table",
+      "^https://w3id.org/ldac/terms#": "",
+      "^https://w3id.org/ldac/profile#": ""
     },
     "head": {
       "title": "DC.publisher",
@@ -287,7 +287,10 @@
           "_mainCollection",
           "_subCollection",
           "_isOCFL",
-          "_metadataLicense"
+          "_metadataLicense",
+          "conformsTo",
+          "accountablePerson",
+          "dct:rightsHolder"
         ],
         "displayHasMember": false,
         "displayHasPart": true
@@ -296,7 +299,7 @@
         {
           "name": "notebook",
           "display": "Notebooks",
-          "type": "SoftwareApplication"
+          "type": "Notebook/SoftwareApplication"
         }
       ]
     },
@@ -344,7 +347,10 @@
           "_mainCollection",
           "_subCollection",
           "_isOCFL",
-          "_metadataLicense"
+          "_metadataLicense",
+          "conformsTo",
+          "base64",
+          "input"
         ]
       }
     },

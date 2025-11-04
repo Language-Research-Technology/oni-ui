@@ -3,7 +3,7 @@
       <span class="justify-center" v-if="accessIcon === 'public'">
         <el-tooltip
             class="box-item"
-            effect="dark"
+            effect="light"
             content="You can access this data immediately and by doing so you accept the licence terms specified on the record."
             placement="bottom"
         >
@@ -13,7 +13,7 @@
       <span class="justify-center" v-if="accessIcon === 'login'">
         <el-tooltip
             class="box-item"
-            effect="dark"
+            effect="light"
             content="You can access this data after logging in. You may also have to agree to licence terms in an automatic process."
             placement="bottom"
         >
@@ -23,7 +23,7 @@
       <span class="justify-center" v-if="accessIcon === 'loginPlus'">
         <el-tooltip
             class="box-item"
-            effect="dark"
+            effect="light"
             content="There are restrictions on access to this data. Log in to get further information."
             placement="bottom"
         >
@@ -33,7 +33,7 @@
       <span class="justify-center" v-if="accessIcon === 'loginManual'">
         <el-tooltip
             class="box-item"
-            effect="dark"
+            effect="light"
             content="There are restrictions on access to this data. Log in to get further information."
             placement="bottom"
         >
@@ -45,7 +45,7 @@
       <span class="justify-center">
         <el-tooltip
             class="box-item"
-            effect="dark"
+            effect="light"
             :content="`${field?.display}: ${item}`"
             placement="bottom"
         >

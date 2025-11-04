@@ -3,6 +3,7 @@
   <div class="min-h-screen p-6flex justify-center">
     <div class="container max-w-screen-lg mx-auto">
       <div>
+        <br>
         <h2 class="font-semibold text-xl text-gray-600">User Information</h2>
         <p class="text-gray-500 mb-6"></p>
         <user-details/>

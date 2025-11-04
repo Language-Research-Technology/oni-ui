@@ -17,7 +17,7 @@ import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
 import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
-import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import type { ApiService, EntityType, GetEntitiesParams, RoCrate } from '@/services/api';
 import { formatEncodingFormat, formatFileSize } from '@/tools';
 
 const { t } = useI18n();
@@ -39,9 +39,13 @@ const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntit
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
 const isLoading = ref(false);
+const isLoadingMembers = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 const membersFiltered = ref<EntityType[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalMembers = ref(0);
 
 const populateParts = (md: RoCrate) => {
   if (!md.hasPart) {
@@ -75,6 +79,31 @@ const populate = (md: RoCrate) => {
   useHead(head, md);
 };
 
+const fetchMembers = async () => {
+  if (!entity.value?.memberOf) {
+    return;
+  }
+
+  const params: GetEntitiesParams = {
+    memberOf: entity.value.memberOf.id,
+    entityType: 'http://pcdm.org/models#Object',
+    limit: pageSize.value,
+  };
+
+  if (currentPage.value !== 1) {
+    params.offset = (currentPage.value - 1) * pageSize.value;
+  }
+
+  isLoadingMembers.value = true;
+  const children = await api.getEntities(params);
+
+  if ('entities' in children) {
+    membersFiltered.value = children.entities;
+    totalMembers.value = children.total;
+  }
+  isLoadingMembers.value = false;
+};
+
 const fetchdata = async () => {
   if (!id) {
     handleMissingEntity();
@@ -104,29 +133,20 @@ const fetchdata = async () => {
 
   isLoading.value = false;
 
-  if (e.memberOf) {
-    const children = await api.getEntities({
-      memberOf: e.memberOf.id,
-      entityType: 'http://pcdm.org/models#Object',
-    });
-
-    if ('entities' in children) {
-      membersFiltered.value = children.entities;
-    }
-  }
+  await fetchMembers();
 };
 
-const moreObjects = () => {
-  const filter = {
-    memberOf: [encodeURIComponent(entity.value?.memberOf?.id || '')],
-  };
-
-  return encodeURIComponent(JSON.stringify(filter));
+const updatePage = async (page: number) => {
+  currentPage.value = page;
+  await fetchMembers();
 };
 
 watch(
   () => route.params,
-  () => fetchdata(),
+  () => {
+    currentPage.value = 1;
+    fetchdata();
+  },
 );
 
 fetchdata();
@@ -250,20 +270,25 @@ fetchdata();
         </el-col>
       </el-row>
 
-      <el-row v-if="membersFiltered?.length">
+      <el-row v-if="membersFiltered?.length || totalMembers > 0">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
-            <h5 class="text-2xl font-medium ">{{ t('object.otherObjectsInCollection') }}</h5>
+            <h5 class="text-2xl font-medium ">{{ t('object.otherObjectsInCollection') }} ({{ totalMembers }})</h5>
             <hr class="divider divider-gray pt-2" />
-            <ul>
+            <div v-if="isLoadingMembers" class="my-5">
+              <el-skeleton :rows="4" animated />
+            </div>
+            <ul v-else class="mt-4 space">
               <li v-for="d of membersFiltered">
-                <CollectionItem :field="d" routePath="object" />
-              </li>
-
-              <li v-if="membersFiltered">
-                <el-link type="primary" :href="`/search?f=${moreObjects()}`">{{ t('common.more') }}</el-link>
+                <p v-if="d.id === route.query.id" class="font-bold">
+                  {{ d.name || d.id }}
+                </p>
+                <CollectionItem v-else :field="d" routePath="object" />
               </li>
             </ul>
+            <el-pagination v-if="totalMembers > pageSize" class="mt-4" background layout="prev, pager, next"
+              :total="totalMembers" v-model:page-size="pageSize" v-model:current-page="currentPage"
+              @current-change="updatePage" />
           </el-card>
         </el-col>
       </el-row>

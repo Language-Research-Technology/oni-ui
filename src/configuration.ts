@@ -11,10 +11,6 @@ const subHelpLinkSchema = z.strictObject({
   target: z.string(),
 });
 
-const googleFormSchema = z.strictObject({
-  takedown: z.url(),
-});
-
 const termsAndPrivacySchema = z.strictObject({
   text: z.string(),
   href: z.string(),
@@ -127,7 +123,7 @@ const uiSchema = z.strictObject({
   help: helpSchema,
   subHelpLinks: z.array(subHelpLinkSchema).optional(),
   citeData: citeData,
-  googleForm: googleFormSchema,
+  takedown: z.url(),
   terms: termsAndPrivacySchema.optional(),
   privacy: termsAndPrivacySchema.optional(),
   footer: footerSchema,

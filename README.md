@@ -502,23 +502,37 @@ When using `type: "date_histogram"`:
 }
 ```
 
-#### Google Forms Integration
+#### Takedown Requests
+
+Configure how users can request content to be taken down from the portal.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `ui.googleForm.takedown` | URL | Yes | URL to Google Form for takedown requests |
+| `ui.takedown` | string | Yes | URL or mailto link for takedown requests. Use `{url}` placeholder which will be replaced with the current page URL (URL-encoded). |
 
-**Example:**
+**URL Placeholder:**
 
-```json
-{
-  "ui": {
-    "googleForm": {
-      "takedown": "https://docs.google.com/forms/d/e/1FAIpQLSc3wWGY.../viewform?usp=pp_url&entry.812577446="
-    }
-  }
-}
-```
+The `{url}` placeholder is automatically replaced with the URL-encoded current page URL. This allows you to pre-fill forms or email bodies with the specific page being reported.
+
+**Examples:**
+
+1. **Google Form:**
+   ```json
+   {
+     "ui": {
+       "takedown": "https://docs.google.com/forms/d/e/1FAIpQLSc3wWGY.../viewform?usp=pp_url&entry.812577446={url}"
+     }
+   }
+   ```
+
+2. **Email (mailto):**
+   ```json
+   {
+     "ui": {
+       "takedown": "mailto:takedown@example.com?subject=Takedown Request&body=Page URL: {url}"
+     }
+   }
+   ```
 
 #### Citation Help
 

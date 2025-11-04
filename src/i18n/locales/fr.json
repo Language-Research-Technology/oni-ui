@@ -65,6 +65,7 @@
     "indexEntriesDescription": "Entrées d'index (Collections, Objets et Fichiers)",
     "mapViewWarning": "Les résultats de filtre et de recherche n'afficheront que les résultats dans la vue de carte actuelle, déplacez ou redimensionnez la carte pour voir d'autres résultats.",
     "noItemsFound": "Aucun élément trouvé",
+    "noFacetsAvailable": "Aucune facette disponible",
     "orderBy": "Trier par :",
     "resetSearch": "RÉINITIALISER LA RECHERCHE",
     "total": "Total :",

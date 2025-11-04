@@ -2,6 +2,7 @@
 import { CloseBold } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import DateFacet from '@/components/DateFacet.vue';
 import Facet from '@/components/Facet.vue';
 import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
@@ -76,6 +77,14 @@ const clean = (value: string) => {
   if (value === 'false') {
     return 'No';
   }
+
+  // Check if value is an ISO timestamp range (date filter)
+  // Format: "YYYY-01-01T00:00:00.000Z TO YYYY-12-31T23:59:59.999Z"
+  const dateRangeMatch = value.match(/^(\d{4})-\d{2}-\d{2}T/);
+  if (dateRangeMatch) {
+    return dateRangeMatch[1]; // Return just the year
+  }
+
   return value.replace(/@|_|(\..*)/g, '');
 };
 </script>
@@ -127,8 +136,13 @@ const clean = (value: string) => {
                 </span>
               </span>
             </li>
+
             <li v-if="facet.buckets.length <= 0" class="w-full min-w-full">&nbsp;</li>
-            <Facet :buckets="facet.buckets" :facetName="facet.name" :ref="facet.name" v-show="facet.active"
+
+            <DateFacet v-if="facet.type === 'hierarchical'" :buckets="facet.buckets" :facetName="facet.name"
+              :ref="facet.name" v-show="facet.active" :initialSelectedFacetValues="filters[facet.name]"
+              @is-active="facet.active = true" @updated="updateFilter" />
+            <Facet v-else :buckets="facet.buckets" :facetName="facet.name" :ref="facet.name" v-show="facet.active"
               :initialSelectedFacetValues="filters[facet.name]" @is-active="facet.active = true"
               @updated="updateFilter" />
           </ul>

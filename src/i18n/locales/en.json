@@ -65,6 +65,7 @@
     "indexEntriesDescription": "Index entries (Collections, Objects and Files)",
     "mapViewWarning": "Filter and Search results will only show results on the current map view, move or resize the map to view other results.",
     "noItemsFound": "No items found",
+    "noFacetsAvailable": "No facets available",
     "orderBy": "Order by:",
     "resetSearch": "RESET SEARCH",
     "total": "Total:",

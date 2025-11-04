@@ -435,6 +435,16 @@ Configure which fields can be used for faceted filtering in search results.
 | `ui.aggregations[].display` | string | Yes | Display name for the facet |
 | `ui.aggregations[].name` | string | Yes | Field name to aggregate on |
 | `ui.aggregations[].help` | string | No | Help text for the facet |
+| `ui.aggregations[].type` | string | No | Aggregation type (e.g., "date_histogram" for hierarchical date facets) |
+
+**Facet Types:**
+
+- **Standard facets** (default): Simple term aggregations displayed as a flat list
+- **Date histogram facets** (`type: "date_histogram"`): Hierarchical date facets that:
+  - Group dates by decades (e.g., 1990s, 2000s)
+  - Allow drill-down to individual years within each decade
+  - Auto-select all years when a decade is selected
+  - Convert year selections to ISO timestamp ranges for API queries
 
 **Example:**
 
@@ -443,7 +453,7 @@ Configure which fields can be used for faceted filtering in search results.
   "ui": {
     "aggregations": [
       {
-        "display": "License",
+        "display": "Licence",
         "name": "license"
       },
       {
@@ -451,11 +461,26 @@ Configure which fields can be used for faceted filtering in search results.
         "name": "inLanguage",
         "active": true,
         "help": "Filter by language of the content"
+      },
+      {
+        "display": "Date",
+        "name": "originatedOn",
+        "type": "date_histogram",
+        "help": "Filter by the year the content originated."
       }
     ]
   }
 }
 ```
+
+**Date Histogram Requirements:**
+
+When using `type: "date_histogram"`:
+- The API must return date buckets with Unix timestamps (in seconds) as bucket names
+- The field should contain date values in the backend
+- Negative timestamps (dates before 1970) are supported
+- Year buckets are automatically aggregated into decades on the client side
+- Filter values are sent to the API as ISO timestamp ranges (e.g., `2020-01-01T00:00:00.000Z TO 2020-12-31T23:59:59.999Z`)
 
 #### Login Configuration
 

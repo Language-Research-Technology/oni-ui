@@ -65,6 +65,7 @@
     "indexEntriesDescription": "Indexeinträge (Sammlungen, Objekte und Dateien)",
     "mapViewWarning": "Filter- und Suchergebnisse zeigen nur Ergebnisse in der aktuellen Kartenansicht. Verschieben oder vergrößern Sie die Karte, um andere Ergebnisse anzuzeigen.",
     "noItemsFound": "Keine Einträge gefunden",
+    "noFacetsAvailable": "Keine Facetten verfügbar",
     "orderBy": "Sortieren nach:",
     "resetSearch": "SUCHE ZURÜCKSETZEN",
     "total": "Gesamt:",

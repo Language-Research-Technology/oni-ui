@@ -65,6 +65,7 @@
     "indexEntriesDescription": "Entradas de índice (Colecciones, Objetos y Archivos)",
     "mapViewWarning": "Los resultados de filtro y búsqueda solo mostrarán resultados en la vista de mapa actual, mueva o cambie el tamaño del mapa para ver otros resultados.",
     "noItemsFound": "No se encontraron elementos",
+    "noFacetsAvailable": "No hay facetas disponibles",
     "orderBy": "Ordenar por:",
     "resetSearch": "REINICIAR BÚSQUEDA",
     "total": "Total:",

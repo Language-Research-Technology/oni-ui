@@ -157,6 +157,7 @@ const uiSchema = z.strictObject({
       display: z.string(),
       name: z.string(),
       help: z.string().optional(),
+      type: z.enum(['standard', 'date_histogram']).optional().default('standard'),
     }),
   ),
   searchFields: z.record(z.string(), z.string()),

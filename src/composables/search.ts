@@ -6,13 +6,20 @@ import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/
 
 const { mapConfig, searchFields } = ui;
 
+type HierarchicalBucket = {
+  name: string;
+  count: number;
+  children: Array<{ name: string; count: number }>;
+};
+
 export type FacetType = {
-  buckets: Array<{ name: string; count: number }>;
+  buckets: Array<{ name: string; count: number }> | HierarchicalBucket[];
   display: string;
   order: number;
   name: string;
   active: boolean;
   help?: string;
+  type?: 'standard' | 'hierarchical';
 };
 
 export type AdvancedSearchLine = {
@@ -223,7 +230,6 @@ export const useSearch = (searchType: 'list' | 'map') => {
     filtersChanged.value = false;
 
     isLoading.value = true;
-    console.log('🪚 advancedSearchLines.value:', JSON.stringify(advancedSearchLines.value, null, 2));
 
     const query = advancedSearchEnabled.value
       ? generateQueryString(
@@ -294,6 +300,54 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
   };
 
+  const aggregateIntoDecades = (yearBuckets: Array<{ name: string; count: number }>): HierarchicalBucket[] => {
+    const decadeMap = new Map<string, { count: number; years: Array<{ name: string; count: number }> }>();
+
+    for (const bucket of yearBuckets) {
+      // Parse the timestamp (in seconds since epoch)
+      const timestamp = Number.parseInt(bucket.name, 10);
+
+      // Skip invalid timestamps
+      if (Number.isNaN(timestamp)) {
+        continue;
+      }
+
+      // Convert timestamp (seconds) to milliseconds and create Date object
+      const date = new Date(timestamp);
+      const year = date.getFullYear();
+
+      // Skip invalid years
+      if (Number.isNaN(year)) {
+        continue;
+      }
+
+      const decadeStart = Math.floor(year / 10) * 10;
+      const decadeName = `${decadeStart}s`;
+
+      const decade = decadeMap.get(decadeName);
+      const yearBucket = { name: String(year), count: bucket.count };
+
+      if (decade) {
+        decade.count += bucket.count;
+        decade.years.push(yearBucket);
+      } else {
+        decadeMap.set(decadeName, { count: bucket.count, years: [yearBucket] });
+      }
+    }
+
+    const hierarchicalBuckets: HierarchicalBucket[] = [];
+
+    for (const [decadeName, data] of decadeMap.entries()) {
+      hierarchicalBuckets.push({
+        name: decadeName,
+        count: data.count,
+        children: data.years.sort((a, b) => Number.parseInt(a.name, 10) - Number.parseInt(b.name, 10)),
+      });
+    }
+
+    return hierarchicalBuckets;
+  };
+
   const populateFacets = (newFacets: GetSearchResponse['facets']) => {
     const a: FacetType[] = [];
     const aggInfo = ui.aggregations;
@@ -309,15 +363,23 @@ export const useSearch = (searchType: 'list' | 'map') => {
       const display = info.display;
       const name = info.name;
       const help = info.help;
+      const type = info.type;
       const active = !!filters.value[facet] && filters.value[facet].length > 0;
+
+      // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
+      const rawBuckets = newFacets[facet]!;
+
+      // Process date histogram facets into hierarchical decade structure
+      const buckets = type === 'date_histogram' ? aggregateIntoDecades(rawBuckets) : rawBuckets;
+
       a.push({
-        // biome-ignore lint/style/noNonNullAssertion: impossible for it to not exist
-        buckets: newFacets[facet]!,
+        buckets,
         display: display || facet,
         order,
         name,
         help,
         active,
+        type: type === 'date_histogram' ? 'hierarchical' : 'standard',
       });
     }
 

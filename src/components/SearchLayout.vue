@@ -108,6 +108,34 @@ const clean = (value: string) => {
             </p>
           </div>
         </div>
+
+        <div class="py-2 px-2">
+          <el-button-group class="mr-1 mb-2" v-show="filtersChanged">
+            <el-button type="warning" @click="updateRoutes()">
+              {{ t('search.applyFilters') }}
+            </el-button>
+          </el-button-group>
+
+          <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">
+            {{ t('search.filteringBy') }}
+          </span>
+
+          <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
+            :key="filterKey">
+            <el-button plain>{{ clean(filterKey) }}</el-button>
+            <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
+              @click="clearFilter(f, filterKey)" class="text-2xl">
+              {{ clean(f) }}
+              <el-icon class="el-icon--right">
+                <CloseBold />
+              </el-icon>
+            </el-button>
+          </el-button-group>
+
+          <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
+            <el-button @click="clearFilters()">{{ t('search.clearFilters') }}</el-button>
+          </el-button-group>
+        </div>
       </div>
 
       <div class="pt-2">
@@ -167,32 +195,6 @@ const clean = (value: string) => {
         <div class="top-20 z-10 bg-white pb-3">
           <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
-              <el-button-group class="mr-1" v-show="filtersChanged">
-                <el-button type="warning" @click="updateRoutes()">
-                  {{ t('search.applyFilters') }}
-                </el-button>
-              </el-button-group>
-
-              <span class="my-1 mr-1" v-show="!filtersChanged" v-if="Object.keys(filters || {}).length > 0">
-                {{ t('search.filteringBy') }}
-              </span>
-
-              <el-button-group v-show="!filtersChanged" class="my-1 mr-2" v-for="(filter, filterKey) of filters"
-                :key="filterKey">
-                <el-button plain>{{ clean(filterKey) }}</el-button>
-                <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                  @click="clearFilter(f, filterKey)" class="text-2xl">
-                  {{ clean(f) }}
-                  <el-icon class="el-icon--right">
-                    <CloseBold />
-                  </el-icon>
-                </el-button>
-              </el-button-group>
-
-              <el-button-group v-show="Object.keys(filters || {}).length > 0" class="mr-1">
-                <el-button @click="clearFilters()">{{ t('search.clearFilters') }}</el-button>
-              </el-button-group>
-
               <span id="total_results" class="my-1 mr-2" v-show="totals !== undefined">
                 {{ t('search.total') }}
                 <span>{{ totals }} {{ t('search.indexEntriesDescription') }}</span>

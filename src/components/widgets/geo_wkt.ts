@@ -2,13 +2,8 @@ import { wktToGeoJSON } from '@terraformer/wkt';
 import type { Position } from 'geojson';
 import { type GeoEntity, LocationDivIcon, type LType, type Transformer } from './geo_types';
 
-const convertCoords = ([lng, lat]: Position): L.LatLngTuple => {
-  if (!lng || !lat) {
-    throw new Error(`Invalid coordinates: [${lng}, ${lat}]`);
-  }
-
-  return [lat, lng];
-};
+// biome-ignore lint/style/noNonNullAssertion: we don't care if they are defined here we just need to swap them
+const convertCoords = ([lng, lat]: Position): L.LatLngTuple => [lat!, lng!];
 
 /**
  * Read a WKT formatted string and return a leaflet layer object

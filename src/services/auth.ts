@@ -55,7 +55,7 @@ const transformUser = (user: User): OniUser => ({
 export const login = async () => {
   const userManager = await getUserManager();
 
-  const returnUrl = window.location.pathname + window.location.search;
+  const returnUrl = window.location.pathname.replace(new RegExp(`^${urlPrefix}`), '') + window.location.search;
 
   await userManager.signinRedirect({ state: { returnUrl } });
 };

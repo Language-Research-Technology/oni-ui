@@ -54,9 +54,11 @@ const { searchDetails = [] } = ui.search || {};
           </router-link>
         </el-row>
 
-        <el-row align="middle" v-if="entity.rootCollection?.id !== entity.memberOf?.id" class="pt-2">
+        <el-row align="middle"
+          v-if="entity.rootCollection?.id !== entity.memberOf?.id && entity.rootCollection?.id !== entity.id"
+          class="pt-2">
           <p class="font-normal text-gray-700">
-            &nbsp;{{ t('entity.in') }}&nbsp;
+            {{ t('entity.in') }}&nbsp;
           </p>
           <router-link :to="'/collection?id=' + encodeURIComponent(entity.rootCollection.id)">
             <el-button>{{ entity.rootCollection.name || entity.rootCollection.id }}</el-button>

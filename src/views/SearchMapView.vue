@@ -10,6 +10,7 @@ import { GestureHandling } from 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 
 import Geohash from 'latlon-geohash';
+import { useRouter } from 'vue-router';
 import SearchLayout from '@/components/SearchLayout.vue';
 import { LocationDivIcon, NumberedDivIcon } from '@/components/widgets/geo_types';
 import { useSearch } from '@/composables/search';
@@ -52,6 +53,8 @@ const api = inject<ApiService>('api');
 if (!api) {
   throw new Error('API instance not provided');
 }
+
+const router = useRouter();
 
 L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
@@ -281,25 +284,26 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
 const getInnerHTMLTooltip = (entity: EntityType) => {
   const title = entity.name;
   const type = entity.entityType;
-  const href = `${urlPrefix}/${getEntityUrl(entity)}`;
+  const href = getEntityUrl(entity);
 
   let innerHTML = `
     <div>
       <h3 class="mb-2 mt-1 text-2xl">
-        <a href="${href}">${title}</a>
+        <a href="${href}" data-route="${href}">${title}</a>
       </h3>
       <h4>Type: ${type}</h4>
   `;
 
   if (entity.memberOf) {
     const innerHTMLMemberOf = `
-        <a
-           class="text-sm m-1 text-gray-700 underline"
-           href="${urlPrefix}/collection?id=${encodeURIComponent(entity.memberOf.id)}"
-        >
-          ${entity.memberOf.name || entity.memberOf.id}
-        </a>
-      `;
+      <a
+        class="text-sm m-1 text-gray-700 underline"
+        href="/collection?id=${encodeURIComponent(entity.memberOf.id)}"
+        data-route="/collection?id=${encodeURIComponent(entity.memberOf.id)}"
+      >
+        ${entity.memberOf.name || entity.memberOf.id}
+      </a>
+    `;
 
     innerHTML += `
       <div :align="'middle'" v-if="" class="">
@@ -314,7 +318,7 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
 
   innerHTML += `
         <p class="justify-self-end">
-          <a href="${href}">See more</a>
+          <a href="${href}" data-route="${href}">See more</a>
         </p>
       </div>
     </div>
@@ -411,6 +415,19 @@ const initControls = () => {
     const tooltip = new L.Popup({
       maxWidth: 400,
       maxHeight: 400,
+    });
+
+    tooltip.on('add', () => {
+      const links = document.querySelectorAll('a[data-route]');
+      links.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const route = (e.currentTarget as HTMLElement).getAttribute('data-route');
+          if (route) {
+            router.push(route);
+          }
+        });
+      });
     });
 
     tooltip.setContent(tooltipView.outerHTML);

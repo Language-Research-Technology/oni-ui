@@ -104,7 +104,7 @@ const SearchControl = L.Control.extend({
   },
 });
 
-const { mapConfig } = ui;
+const { mapConfig, urlPrefix } = ui;
 
 const geoHashLayer = L.featureGroup();
 const tooltipLayers = L.layerGroup();
@@ -281,7 +281,7 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
 const getInnerHTMLTooltip = (entity: EntityType) => {
   const title = entity.name;
   const type = entity.entityType;
-  const href = getEntityUrl(entity);
+  const href = `${urlPrefix}/${getEntityUrl(entity)}`;
 
   let innerHTML = `
     <div>
@@ -295,7 +295,7 @@ const getInnerHTMLTooltip = (entity: EntityType) => {
     const innerHTMLMemberOf = `
         <a
            class="text-sm m-1 text-gray-700 underline"
-           href="/collection?id=${encodeURIComponent(entity.memberOf.id)}"
+           href="${urlPrefix}/collection?id=${encodeURIComponent(entity.memberOf.id)}"
         >
           ${entity.memberOf.name || entity.memberOf.id}
         </a>

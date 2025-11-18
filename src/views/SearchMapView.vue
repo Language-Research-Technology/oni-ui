@@ -11,6 +11,7 @@ import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 
 import Geohash from 'latlon-geohash';
 import SearchLayout from '@/components/SearchLayout.vue';
+import { LocationDivIcon, NumberedDivIcon } from '@/components/widgets/geo_types';
 import { useSearch } from '@/composables/search';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, SearchParams } from '@/services/api';
@@ -102,50 +103,6 @@ const SearchControl = L.Control.extend({
     return container;
   },
 });
-
-const LocationDivIcon = L.Icon.extend({
-  options: {
-    ref: '<a href="https://www.flaticon.com/free-icons/red" title="red icons">Red icons created by hqrloveq - Flaticon</a>',
-    iconSize: [24, 26], // size of the icon
-    shadowSize: null, // size of the shadow
-    iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-    shadowAnchor: null, // the same for the shadow
-    popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
-  },
-});
-
-type NumberedIconOptions = {
-  number: number | string;
-};
-const NumberedDivIcon = L.Icon.extend({
-  options: {
-    iconRetinaUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
-    iconUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
-    shadowUrl: new URL('@/assets/marker-empty-icon.png', import.meta.url).href,
-    number: '',
-    iconSize: new L.Point(25, 40),
-    iconAnchor: new L.Point(12, 16),
-    popupAnchor: new L.Point(0, -13),
-    className: 'leaflet-div-icon',
-  },
-  createIcon: function () {
-    const div = document.createElement('div');
-    const img = this._createImg(this.options.iconUrl);
-    const numdiv = document.createElement('div');
-
-    numdiv.setAttribute('class', 'number');
-    numdiv.innerHTML = this.options.number || '';
-    div.appendChild(img);
-    div.appendChild(numdiv);
-    this._setIconStyles(div, 'icon');
-
-    return div;
-  },
-  //you could change this to add a shadow like in the normal marker if you really wanted
-  createShadow: () => null,
-}) as new (
-  options: NumberedIconOptions,
-) => L.Icon;
 
 const { mapConfig } = ui;
 

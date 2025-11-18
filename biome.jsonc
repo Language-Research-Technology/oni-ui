@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -9,13 +9,14 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "!dist",
       "!**/package.json",
       "!**/vocab.json",
       "!public/configuration.json",
       // We need to review these files
-      "!src/components/widgets/geo_wkt.ts",
-      "!src/components/widgets/LeafletMap.vue",
-      "!dist"
+      // "!src/components/widgets/geo_wkt.ts",
+      // Ignore the proxy as it is going away soon
+      "!ldaca-proxy/elastic.ts"
     ]
   },
   "formatter": {

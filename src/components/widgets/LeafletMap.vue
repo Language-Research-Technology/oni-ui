@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as L from 'leaflet';
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { GestureHandling } from 'leaflet-gesture-handling';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import 'leaflet.path.drag';
 import 'leaflet/dist/leaflet.css';
@@ -10,9 +10,10 @@ import iconUrl from 'leaflet/dist/images/marker-icon.png';
 
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import transformer, { type Transformers } from '@/components/widgets/geo';
+import transformer from '@/components/widgets/geo';
+import type { GeoEntity } from './geo_types';
 
-// @ts-expect-error FIXME
+// @ts-expect-error Upstream issue
 L.Icon.Default.prototype._getIconUrl = undefined;
 
 L.Icon.Default.mergeOptions({
@@ -24,11 +25,7 @@ L.Icon.Default.mergeOptions({
 const mapRef = ref();
 
 const props = defineProps<{
-  modelValue: {
-    '@id': string,
-    '@type': Transformers,
-    asWKT: string
-  },
+  modelValue: GeoEntity;
 }>();
 
 const transform = computed(() => transformer(L, props.modelValue));
@@ -41,7 +38,7 @@ const initMap = () => {
   L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
   map = L.map(mapRef.value, {
-    // @ts-expect-error FIXME
+    // @ts-expect-error Upstream issue
     gestureHandling: true,
   });
 

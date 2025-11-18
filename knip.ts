@@ -5,9 +5,10 @@ const config: KnipConfig = {
   ignore: [
     // https://github.com/webpro-nl/knip/issues/504#issuecomment-2532321511
     'env.d.ts',
+    'src/reset.d.ts',
   ],
   ignoreBinaries: ['scripts/fetch-vocabs.mts'],
-  ignoreDependencies: ['@tsconfig/node-lts'],
+  ignoreDependencies: ['@tsconfig/node-lts', '@total-typescript/ts-reset'],
   compilers: {
     // For tailwind
     css: (text: string) => [...text.matchAll(/(?<=@)import[^;]+/g)].join('\n'),

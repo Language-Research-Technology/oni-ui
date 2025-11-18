@@ -32,10 +32,11 @@ watch(
       <el-row justify="center" :gutter="10" align="middle">
         <label for="searchInput" class="h-14 mx-2 w-full">
           <el-input v-model="localInput" @input="updateSearchInput" @keyup.enter="emit('doSearch')" type="text"
-            class="px-2 h-full w-full" :placeholder="t('search.placeholder')" name="searchInput" id="searchInput" ref="searchInput">
+            class="px-2 h-full w-full" :placeholder="t('search.placeholder')" name="searchInput" id="searchInput"
+            ref="searchInput">
 
             <template #append>
-              <button v-if="searchInput" @click="updateSearchInput('')"
+              <button v-if="searchInput" @click="updateSearchInput(''); emit('doSearch')"
                 class="flex items-center justify-center pr-3 hover:text-red-600 mr-3 border-0 border-r-[1px] border-solid border-gray-300">
                 <font-awesome-icon icon="fa-solid fa-xmark" />
               </button>

@@ -95,7 +95,7 @@ const clean = (value: string) => {
       class="h-full max-h-screen overflow-y-auto flex flex-col p-2" data-scroll-to-top>
       <div v-show="!advancedSearchEnabled"
         class="flex-1 w-full min-w-full bg-white rounded-sm mt-4 mb-4 shadow-md border">
-        <SearchBar ref='searchBar' :searchInput="searchInput" class="grow justify-items-center items-center m-4"
+        <SearchBar ref="searchBar" :searchInput="searchInput" class="grow justify-items-center items-center m-4"
           @set-search-params="setSearchParams" @update-search-input="onInputChange" @do-search="updateRoutes"
           searchPath="search" />
       </div>

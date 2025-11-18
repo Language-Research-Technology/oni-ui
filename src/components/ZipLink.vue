@@ -73,7 +73,8 @@ doWork();
       <p>{{ zipName }}</p>
 
       <p v-if="zip?.status == 'ok'">
-        {{ t('downloads.files') }} {{ zip.numberOfFiles }}, {{ t('common.size') }}: {{ formatFileSize(zip.expandedSize || 0) }}
+        {{ t('downloads.files') }} {{ zip.numberOfFiles }}, {{ t('common.size') }}: {{ formatFileSize(zip.expandedSize
+          || 0) }}
       </p>
     </el-col>
 
@@ -103,7 +104,7 @@ doWork();
             </p>
           </el-row>
           <el-row>
-            <el-link underline="underline" :href="access.contentAuthorizationUrl" target="_blank">
+            <el-link underline="always" :href="access.contentAuthorizationUrl" target="_blank">
               {{ t('access.applyForAccess') }} <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
           </el-row>
@@ -119,7 +120,7 @@ doWork();
         {{ t('downloads.zipNotFound', { name: zipName }) }}
       </p>
       <p v-else>
-        <el-link ref="linkElement" :underline="false" type="primary" :href="zip?.url" :download="zipName"
+        <el-link ref="linkElement" underline="never" type="primary" :href="zip?.url" :download="zipName"
           :onClick="trackEvent">
           <el-button type="primary" circle size="large">
             <el-tooltip class="box-item" effect="light" :content="t('downloads.clickToDownload')" placement="bottom">

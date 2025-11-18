@@ -90,7 +90,7 @@ resolveFile();
 
     <el-row class="flex justify-center" v-if="entity.access.content">
       <el-button-group class="m-2">
-        <el-link class="mr-2" :underline="false" :href="downloadUrl">
+        <el-link class="mr-2" underline="never" :href="downloadUrl">
           <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
           </el-button>
         </el-link>

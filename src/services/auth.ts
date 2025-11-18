@@ -1,6 +1,6 @@
 import { type User, UserManager, type UserManagerSettings } from 'oidc-client-ts';
 
-import { api } from '@/configuration';
+import { api, ui } from '@/configuration';
 
 declare module 'oidc-client-ts' {
   interface UserState {
@@ -17,8 +17,10 @@ export type OniUser = {
 };
 
 const {
-  rocrate: { endpoint, clientId, callbackPrefix },
+  rocrate: { endpoint, clientId },
 } = api;
+
+const { urlPrefix } = ui;
 
 let userManager: UserManager | undefined;
 
@@ -27,7 +29,7 @@ const getUserManager = async () => {
     return userManager;
   }
 
-  const prefix = callbackPrefix || '';
+  const prefix = urlPrefix || '';
 
   const config: UserManagerSettings = {
     authority: endpoint,

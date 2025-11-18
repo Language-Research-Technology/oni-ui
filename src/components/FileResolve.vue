@@ -61,7 +61,7 @@ resolveFile();
             </div>
 
             <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">
-              <audio controls preload="none">
+              <audio controls>
                 <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
                 Your browser does not support the audio element.
               </audio>

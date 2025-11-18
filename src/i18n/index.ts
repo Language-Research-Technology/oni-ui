@@ -1,6 +1,10 @@
 import type { I18n, I18nOptions } from 'vue-i18n';
 import { createI18n } from 'vue-i18n';
 
+import { ui } from '@/configuration';
+
+const { urlPrefix = '' } = ui;
+
 import deMessages from '@/i18n/locales/de.json';
 import enMessages from '@/i18n/locales/en.json';
 import esMessages from '@/i18n/locales/es.json';
@@ -34,7 +38,7 @@ const localeMerge = (target: Messages, source: Messages): Messages => {
 
 const loadRuntimeLocale = async (locale: Locale): Promise<Messages | null> => {
   try {
-    const response = await fetch(`/i18n/${locale}.json`);
+    const response = await fetch(`${urlPrefix}/i18n/${locale}.json`);
 
     if (!response.ok) {
       return null;

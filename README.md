@@ -476,6 +476,7 @@ Configure which fields can be used for faceted filtering in search results.
 **Date Histogram Requirements:**
 
 When using `type: "date_histogram"`:
+
 - The API must return date buckets with Unix timestamps (in seconds) as bucket names
 - The field should contain date values in the backend
 - Negative timestamps (dates before 1970) are supported
@@ -517,6 +518,7 @@ The `{url}` placeholder is automatically replaced with the URL-encoded current p
 **Examples:**
 
 1. **Google Form:**
+
    ```json
    {
      "ui": {
@@ -526,6 +528,7 @@ The `{url}` placeholder is automatically replaced with the URL-encoded current p
    ```
 
 2. **Email (mailto):**
+
    ```json
    {
      "ui": {
@@ -665,7 +668,6 @@ Enable or disable specific features.
 | `api.rocrate.endpoint` | URL | Yes | Base URL of the RO-Crate API endpoint |
 | `api.rocrate.path` | string | Yes | Path to the API (appended to endpoint) |
 | `api.rocrate.clientId` | string | No | OAuth client ID for authentication |
-| `api.rocrate.callbackPrefix` | string | No | Prefix for OAuth callback URLs |
 | `api.rocrate.usesRedirects` | boolean | No | Whether the API uses redirects |
 
 **Example:**
@@ -677,7 +679,6 @@ Enable or disable specific features.
       "endpoint": "https://catalog.example.com",
       "path": "/api/v1/oni",
       "clientId": "your-client-id",
-      "callbackPrefix": "https://your-portal.com",
       "usesRedirects": false
     }
   }

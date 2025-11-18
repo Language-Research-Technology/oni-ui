@@ -114,6 +114,7 @@ const citeData = z.strictObject({
 });
 
 const uiSchema = z.strictObject({
+  urlPrefix: z.string().startsWith('/').optional(),
   title: z.string(),
   shortTitle: z.string().optional(),
   splash: splashSchema,
@@ -191,7 +192,6 @@ const apiSchema = z.strictObject({
     endpoint: z.url(),
     path: z.string(),
     clientId: z.string().optional(),
-    callbackPrefix: z.string().optional(),
     usesRedirects: z.boolean().optional(),
   }),
 });

@@ -65,7 +65,10 @@ const { searchDetails = [] } = ui.search || {};
 
         <el-row align="middle">
           <p class="font-normal text-gray-700">
-            {{ entity.entityType }}
+            ID: &nbsp;
+          </p>
+          <p class="font-normal text-gray-700">
+            {{ entity.id }}
           </p>
         </el-row>
 

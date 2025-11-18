@@ -74,6 +74,10 @@ resolveFile();
               </video>
             </div>
 
+            <div v-else-if="encodingFormat?.some((f) => f?.startsWith('image'))" class="flex justify-center">
+              <img v-if="streamUrl" :src="streamUrl" />
+            </div>
+
             <div class="p-4" v-else>
               <img height="500px" :src="data" />
             </div>

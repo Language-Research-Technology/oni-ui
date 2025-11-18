@@ -156,14 +156,15 @@ export const useSearch = (searchType: 'list' | 'map') => {
     }
 
     if (route.query.a) {
-      advancedSearchLines.value = JSON.parse(decodeURIComponent(route.query.a.toString()));
+      // TODO: We should really use zod to validate
+      advancedSearchLines.value = JSON.parse(decodeURIComponent(route.query.a.toString())) as AdvancedSearchLine[];
       advancedSearchEnabled.value = true;
     }
 
     zoomLevel.value = route.query.z ? Number.parseInt(route.query.z.toString(), 10) : mapConfig.zoom;
 
     boundingBox.value = route.query.bb
-      ? JSON.parse(decodeURIComponent(route.query.bb.toString()))
+      ? (JSON.parse(decodeURIComponent(route.query.bb.toString())) as typeof mapConfig.boundingBox)
       : mapConfig.boundingBox;
   };
 

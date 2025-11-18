@@ -193,7 +193,7 @@ const clean = (value: string) => {
             :setSearchParams="setSearchParams" />
         </div>
         <div class="top-20 z-10 bg-white pb-3">
-          <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
+          <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-2 border-solid border-red-700 text-2xl">
             <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
               <span id="total_results" class="my-1 mr-2" v-show="totals !== undefined">
                 {{ t('search.total') }}
@@ -229,11 +229,11 @@ const clean = (value: string) => {
             <el-button type="default" v-on:click="resetSearch">{{ t('search.resetSearch') }}</el-button>
           </el-button-group>
           <template v-if="!isMap">
-            <el-select :model-value="selectedSorting" @change="sortResults" class="my-1 !w-sm">
+            <el-select :model-value="selectedSorting" @change="sortResults" class="my-1 w-sm!">
               <template #prefix>{{ t('search.sortBy') }}:</template>
               <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
-            <el-select :model-value="selectedOrder" @change="orderResults" class="my-1 !w-sm">
+            <el-select :model-value="selectedOrder" @change="orderResults" class="my-1 w-sm!">
               <template #prefix>{{ t('search.orderBy') }}</template>
               <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>

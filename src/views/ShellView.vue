@@ -59,7 +59,7 @@ const acceptTerms = async () => {
 
 onMounted(() => {
   if (route.path === '/') {
-    router.push(defaultNavRoute);
+    router.replace(defaultNavRoute);
   }
 });
 
@@ -67,7 +67,7 @@ watch(
   () => route.path,
   (path) => {
     if (path === '/') {
-      router.push(defaultNavRoute);
+      router.replace(defaultNavRoute);
     }
   },
 );

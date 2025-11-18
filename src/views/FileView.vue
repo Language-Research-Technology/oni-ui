@@ -42,7 +42,7 @@ const populateData = (md: FileRoCrate, e: EntityType) => {
 
 const getFileMetadata = async () => {
   if (!id) {
-    router.push({
+    router.replace({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
       query: route.query,
@@ -54,7 +54,7 @@ const getFileMetadata = async () => {
 
   const { entity, metadata: md } = await api.getEntity(id);
   if (!md) {
-    router.push({
+    router.replace({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
       query: route.query,

@@ -42,7 +42,7 @@ onMounted(async () => {
     const { user: newUser, returnUrl } = data;
     user.value = newUser;
     isLoggedIn.value = true;
-    await router.push(returnUrl);
+    await router.replace(returnUrl);
   } catch (error) {
     console.error('Authentication error:', error);
     setError('There was an error trying to login, try again');

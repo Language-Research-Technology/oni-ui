@@ -98,7 +98,7 @@ fetchEntities();
   <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0 p-2 px-3">
     <div class="pr-0">
       <div class="top-20 z-10 bg-white pb-3">
-        <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
+        <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-2 border-solid border-red-700 text-2xl">
           <el-col>
             <span id="total_results" class="my-1 mr-2" v-show="total">Total:
               <span>{{ total }} entries</span></span>

@@ -11,8 +11,7 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
   const meta = ref<{ name: string; data: RoCrate[keyof RoCrate] }[]>([]);
 
   const populateName = (md: RoCrate) => {
-    const nameValue = md.name as string;
-    name.value = Array.isArray(nameValue) ? nameValue[0] : nameValue;
+    name.value = Array.isArray(md.name) ? md.name[0] || '' : md.name;
   };
 
   const isEmpty = (value: object | string | undefined): boolean => {
@@ -98,7 +97,7 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
   };
 
   const handleMissingEntity = () => {
-    router.push({
+    router.replace({
       name: 'NotFound',
       params: { pathMatch: route.path.substring(1).split('/') },
       query: route.query,

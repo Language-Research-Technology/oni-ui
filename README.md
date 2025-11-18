@@ -41,6 +41,12 @@ The configuration file has two main sections:
 | `ui.showEllipsis` | boolean | No | Whether to show ellipsis for truncated text |
 | `ui.navHeight` | string | No | CSS height value for the navigation bar (e.g., "80px") |
 
+#### Management
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ui.management.editUrl` | string | No | URL template for editing content. Use `{id}` placeholder which will be replaced with the entity ID |
+
 **Example:**
 
 ```json

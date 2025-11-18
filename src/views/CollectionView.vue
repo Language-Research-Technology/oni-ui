@@ -9,6 +9,7 @@ import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionMembers from '@/components/CollectionMembers.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
+import ManagementCard from '@/components/cards/ManagementCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import SummariesCard from '@/components/cards/SummariesCard.vue';
@@ -138,6 +139,12 @@ onMounted(fetchData);
     </el-col>
 
     <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8">
+      <el-row v-if="ui.management" :gutter="20" class="pb-5">
+        <el-col>
+          <ManagementCard :entity="entity" />
+        </el-col>
+      </el-row>
+
       <el-row v-if="metadata.license" :gutter="20" class="pb-5">
         <el-col class="overflow-visible!">
           <el-card class="mx-10 overflow-visible!">

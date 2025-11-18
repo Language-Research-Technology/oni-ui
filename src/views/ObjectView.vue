@@ -8,6 +8,7 @@ import AccessHelper from '@/components/AccessHelper.vue';
 import CollectionItem from '@/components/CollectionItem.vue';
 import CitationCard from '@/components/cards/CitationCard.vue';
 import LicenseCard from '@/components/cards/LicenseCard.vue';
+import ManagementCard from '@/components/cards/ManagementCard.vue';
 import MemberOfCard from '@/components/cards/MemberOfCard.vue';
 import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
 import TakedownCard from '@/components/cards/TakedownCard.vue';
@@ -152,7 +153,7 @@ watch(
 fetchdata();
 </script>
 
-<template v-if="entity">
+<template>
   <div v-if="entity" class="px-10 pt-10 pb-7 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>
@@ -163,7 +164,7 @@ fetchdata();
     <hr class="divider divider-gray pt-2" />
   </div>
 
-  <el-row :justify="'center'" v-if="metadata" class="m-5 px-10" v-loading="isLoading">
+  <el-row :justify="'center'" v-if="metadata && entity" class="m-5 px-10" v-loading="isLoading">
     <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
       <AccessHelper v-if="entity?.access && metadata.license" :access="entity.access" :license="metadata.license" />
 
@@ -220,6 +221,12 @@ fetchdata();
     </el-col>
 
     <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
+      <el-row v-if="ui.management" :gutter="20" class="pb-5">
+        <el-col>
+          <ManagementCard :entity="entity" />
+        </el-col>
+      </el-row>
+
       <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
         <el-col v-if="metadata.license">
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">

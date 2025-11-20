@@ -115,9 +115,12 @@ const citeData = z.strictObject({
 
 const uiSchema = z.strictObject({
   urlPrefix: z.string().startsWith('/').optional().default(''),
-  management: z.strictObject({
-    editUrl: z.string().optional(),
-  }),
+  management: z
+    .strictObject({
+      editUrl: z.string().optional(),
+    })
+    .optional()
+    .default({}),
   title: z.string(),
   shortTitle: z.string().optional(),
   splash: splashSchema,

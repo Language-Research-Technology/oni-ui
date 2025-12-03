@@ -68,7 +68,7 @@ const showLanguageSwitcher = computed(() => {
 
       <el-menu-item index="help-sub-about" route="/about">
         <router-link to="/about">
-          {{ t('nav.aboutOni') }}
+          {{ t('nav.about') }}
         </router-link>
       </el-menu-item>
 

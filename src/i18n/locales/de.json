@@ -34,7 +34,7 @@
   "nav": {
     "home": "Startseite",
     "help": "Hilfe",
-    "aboutOni": "Über Oni",
+    "about": "Über",
     "roCrateApiDocs": "Ro-Crate API Dokumentation",
     "language": "Sprache",
     "selectLanguage": "Sprache auswählen"

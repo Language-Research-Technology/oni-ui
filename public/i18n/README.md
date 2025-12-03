@@ -17,9 +17,6 @@ Each locale file should follow the same nested structure as the built-in locale 
   "common": {
     "home": "Custom Home Text"
   },
-  "nav": {
-    "aboutOni": "Custom About Text"
-  },
   "custom": {
     "myKey": "My Custom Translation"
   }
@@ -31,6 +28,7 @@ Each locale file should follow the same nested structure as the built-in locale 
 ### Override an existing translation
 
 Create `public/i18n/en.json`:
+
 ```json
 {
   "nav": {
@@ -44,6 +42,7 @@ This will change the "Home" text to "Homepage" in English.
 ### Add new custom translations
 
 Create `public/i18n/en.json`:
+
 ```json
 {
   "custom": {

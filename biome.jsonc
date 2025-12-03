@@ -7,17 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!dist",
-      "!**/package.json",
-      "!**/vocab.json",
-      "!public/configuration.json",
-      // We need to review these files
-      // "!src/components/widgets/geo_wkt.ts",
-      // Ignore the proxy as it is going away soon
-      "!ldaca-proxy/elastic.ts"
-    ]
+    "includes": ["**", "!dist", "!**/package.json", "!**/vocab.json", "!public/configuration.json"]
   },
   "formatter": {
     "enabled": true,

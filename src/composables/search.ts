@@ -77,7 +77,7 @@ export const generateQueryString = (lines: AdvancedSearchLine[]) => {
       });
       qS += `${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
     } else {
-      qS += ` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
+      qS += ` ( ${sg.field}: (${sg.searchInput}) ) ${!lastOneSG ? sg.operation : ''}`;
     }
   });
 

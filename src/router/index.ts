@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
 import File from '@/views/FileView.vue';
+import Home from '@/views/HomeView.vue';
 import List from '@/views/ListView.vue';
 import NotFound from '@/views/NotFoundView.vue';
 import CallbackOauth from '@/views/OauthCallbackView.vue';
@@ -22,6 +23,11 @@ const routes: RouterOptions['routes'] = [
     name: 'root',
     component: Shell,
     children: [
+      {
+        path: '',
+        name: 'home',
+        component: Home,
+      },
       {
         path: '/search',
         name: 'search',

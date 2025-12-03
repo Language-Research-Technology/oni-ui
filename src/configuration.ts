@@ -97,6 +97,23 @@ const splashSchema = z.strictObject({
   launcher: z.string(),
 });
 
+const homeSchema = z.strictObject({
+  enabled: z.boolean().default(true),
+  hero: z.strictObject({
+    title: z.string(),
+    subtitle: z.string().optional(),
+    backgroundImage: z.string().optional(),
+    backgroundClass: z.string().optional(),
+  }),
+  search: z
+    .strictObject({
+      enabled: z.boolean().default(true),
+      placeholder: z.string().optional(),
+    })
+    .optional(),
+  content: z.string().optional(),
+});
+
 const mapSchema = z.strictObject({
   boundingBox: z.strictObject({
     topRight: z.strictObject({ lat: z.number(), lng: z.number() }),
@@ -124,6 +141,7 @@ const uiSchema = z.strictObject({
   title: z.string(),
   shortTitle: z.string().optional(),
   splash: splashSchema,
+  home: homeSchema.optional(),
   logoFilename: z.string().optional(),
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),

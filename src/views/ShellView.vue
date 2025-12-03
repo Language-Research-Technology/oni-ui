@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { inject, onMounted, ref, watch } from 'vue';
+import { inject, ref } from 'vue';
 
-import { RouterView, useRoute, useRouter } from 'vue-router';
+import { RouterView } from 'vue-router';
 import FooterView from '@/components/Footer.vue';
 import MaintenacePage from '@/components/MaintenacePage.vue';
 import NavView from '@/components/Nav.vue';
 import { ui } from '@/configuration';
-import { logout } from '@/services/auth';
-
-const router = useRouter();
-const route = useRoute();
 
 import type { ApiService, GetTermsResponse } from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
@@ -24,8 +20,6 @@ if (!api) {
 const {
   login: { manageTermsAndConditions },
 } = ui;
-
-const defaultNavRoute = ui?.topNavItems?.[0]?.route || '/search';
 
 const showTerms = ref(false);
 const terms = ref<GetTermsResponse>();
@@ -56,21 +50,6 @@ const acceptTerms = async () => {
 
   showTerms.value = false;
 };
-
-onMounted(() => {
-  if (route.path === '/') {
-    router.replace(defaultNavRoute);
-  }
-});
-
-watch(
-  () => route.path,
-  (path) => {
-    if (path === '/') {
-      router.replace(defaultNavRoute);
-    }
-  },
-);
 
 if (authStore.isLoggedIn && manageTermsAndConditions) {
   manageTerms();

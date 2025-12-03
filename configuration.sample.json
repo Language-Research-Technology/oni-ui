@@ -9,6 +9,19 @@
       "enabled": true,
       "launcher": "Acknowledgement of Country"
     },
+    "home": {
+      "enabled": true,
+      "hero": {
+        "title": "Welcome to the Discovery Portal",
+        "subtitle": "Explore language data collections from across the Pacific and Australia",
+        "backgroundClass": "bg-gray-100"
+      },
+      "search": {
+        "enabled": true,
+        "placeholder": "Search collections, items, or files..."
+      },
+      "content": "<p class='text-gray-600'>Discover and explore our extensive collection of language resources.</p>"
+    },
     "logoFilename": "logo.jpg",
     "navHeight": "80px",
     "showEllipsis": true,

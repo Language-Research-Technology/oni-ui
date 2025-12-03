@@ -1,23 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import type { Bucket, FacetType, HierarchicalBucket } from '@/composables/search';
 
 const { t } = useI18n();
 
-type YearBucket = {
-  name: string;
-  count: number;
-};
-
-type DecadeBucket = {
-  name: string;
-  count: number;
-  children: YearBucket[];
-};
-
 const props = defineProps<{
   facetName: string;
-  buckets: DecadeBucket[];
+  buckets: FacetType['buckets'];
   initialSelectedFacetValues: string[] | undefined;
 }>();
 
@@ -64,10 +54,10 @@ watch(
   },
 );
 
-const isDecadeFullySelected = (decade: DecadeBucket) =>
+const isDecadeFullySelected = (decade: HierarchicalBucket) =>
   decade.children.every((year) => selectedYears.value.has(year.name));
 
-const isDecadePartiallySelected = (decade: DecadeBucket) => {
+const isDecadePartiallySelected = (decade: HierarchicalBucket) => {
   const selectedCount = decade.children.filter((year) => selectedYears.value.has(year.name)).length;
 
   return selectedCount > 0 && selectedCount < decade.children.length;
@@ -81,7 +71,7 @@ const toggleDecadeExpansion = (decadeName: string) => {
   }
 };
 
-const toggleDecade = (decade: DecadeBucket) => {
+const toggleDecade = (decade: HierarchicalBucket) => {
   const isFullySelected = isDecadeFullySelected(decade);
 
   if (isFullySelected) {
@@ -99,7 +89,7 @@ const toggleDecade = (decade: DecadeBucket) => {
   updateFacet();
 };
 
-const toggleYear = (year: YearBucket) => {
+const toggleYear = (year: Bucket) => {
   if (selectedYears.value.has(year.name)) {
     selectedYears.value.delete(year.name);
   } else {
@@ -122,7 +112,7 @@ const updateFacet = () => {
 
 // Sort decades in descending order (most recent first)
 const sortedBuckets = computed(() => {
-  return [...props.buckets].sort((a, b) => b.name.localeCompare(a.name));
+  return [...props.buckets].sort((a, b) => b.name.localeCompare(a.name)).filter((decade) => 'children' in decade);
 });
 </script>
 

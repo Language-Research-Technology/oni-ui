@@ -6,14 +6,19 @@ import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/
 
 const { mapConfig, searchFields } = ui;
 
-type HierarchicalBucket = {
+export type Bucket = {
   name: string;
   count: number;
-  children: Array<{ name: string; count: number }>;
+};
+
+export type HierarchicalBucket = {
+  name: string;
+  count: number;
+  children: Bucket[];
 };
 
 export type FacetType = {
-  buckets: Array<{ name: string; count: number }> | HierarchicalBucket[];
+  buckets: Bucket[] | HierarchicalBucket[];
   display: string;
   order: number;
   name: string;

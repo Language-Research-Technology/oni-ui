@@ -17,7 +17,7 @@ const {
   shortTitle = 'Oni',
   logoFilename,
   navHeight = '50px',
-  topNavHome = '/search?s=',
+  topNavHome = '/',
   topNavItems = [],
   subHelpLinks = [],
   showEllipsis = false,

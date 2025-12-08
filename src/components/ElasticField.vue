@@ -111,3 +111,10 @@ const collapseName = shortenText(name);
     </p>
   </template>
 </template>
+
+<style>
+.el-collapse-item__title {
+  font-weight: normal;
+  font-size: var(--el-font-size-medium);
+}
+</style>

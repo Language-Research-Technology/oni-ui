@@ -16,11 +16,11 @@ if (!localLicense) {
 </script>
 
 <template>
-  <Truncate v-if="localLicense.description" :text="first(localLicense.description)" :lines="2" />
-
   <div class="flex flex-col gap-8 p-4 items-center">
     <a class="underline" :href="localLicense['@id']" target="_blank">
       {{ first(localLicense.name) }}
     </a>
+
+    <Truncate v-if="localLicense.description" :text="first(localLicense.description)" :lines="2" />
   </div>
 </template>

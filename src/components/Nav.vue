@@ -34,7 +34,7 @@ const showLanguageSwitcher = computed(() => {
 <template>
   <el-menu id="top_menu" mode="horizontal" :ellipsis="showEllipsis" :default-active="route.name" :router="true"
     :style="{ height: navHeight }">
-    <el-menu-item index="home" :route="topNavHome + Date.now()">
+    <el-menu-item index="home" :route="topNavHome">
       <router-view :key="topNavHome">
         <el-row :gutter="10" class="flex items-center gap-8" :style="{ 'height': navHeight }">
           <img class="h-full object-cover py-2" :src="logoSrc" :alt="shortTitle || 'Oni'" />

@@ -140,7 +140,7 @@ const uiSchema = z.strictObject({
     .default({}),
   title: z.string(),
   shortTitle: z.string().optional(),
-  splash: splashSchema,
+  splash: splashSchema.optional(),
   home: homeSchema.optional(),
   logoFilename: z.string().optional(),
   showEllipsis: z.boolean().optional(),

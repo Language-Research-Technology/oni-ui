@@ -70,7 +70,6 @@ The splash screen appears when users first visit the portal.
 | `ui.splash.text` | string | Yes | Main text content for the splash screen |
 | `ui.splash.textClass` | string | Yes | CSS classes for styling the splash text |
 | `ui.splash.image` | string | Yes | Background image filename for the splash screen |
-| `ui.splash.enabled` | boolean | Yes | Whether to display the splash screen |
 | `ui.splash.launcher` | string | Yes | Text for the button that launches/dismisses the splash |
 
 **Example:**
@@ -82,7 +81,6 @@ The splash screen appears when users first visit the portal.
       "text": "Welcome to our portal...",
       "textClass": "text-5xl text-[#F4EDE4] pb-10",
       "image": "splash-background-1.png",
-      "enabled": true,
       "launcher": "Acknowledgement of Country"
     }
   }

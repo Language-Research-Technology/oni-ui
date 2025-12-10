@@ -10,10 +10,10 @@ const {
   },
   terms,
   privacy,
-  splash: { launcher },
+  splash,
 } = ui;
 
-const splash = ref(false);
+const showSplash = ref(false);
 </script>
 
 <template>
@@ -32,8 +32,9 @@ const splash = ref(false);
           </router-link>
         </el-link>
 
-        <el-link v-if="launcher" class="text-gray-600 font-semibold" href="#" @click="splash = true" underline="never">
-          {{ launcher || 'Splash' }}
+        <el-link v-if="splash" class="text-gray-600 font-semibold" href="#" @click="showSplash = true"
+          underline="never">
+          {{ splash.launcher }}
         </el-link>
 
         <el-link v-if="privacy" class="text-gray-600 font-semibold" :href="privacy?.href" underline="never">
@@ -45,5 +46,5 @@ const splash = ref(false);
     </el-row>
   </div>
 
-  <SplashScreen :launch="splash" @close="splash = false" />
+  <SplashScreen :launch="showSplash" @close="showSplash = false" />
 </template>

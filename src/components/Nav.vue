@@ -23,7 +23,7 @@ const {
   showEllipsis = false,
 } = ui;
 
-const logoSrc = logoFilename ? `/${logoFilename}` : logo;
+const logoSrc = logoFilename || logo;
 
 // Show language switcher only if more than one locale is available
 const showLanguageSwitcher = computed(() => {

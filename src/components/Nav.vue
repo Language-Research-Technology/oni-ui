@@ -72,12 +72,6 @@ const showLanguageSwitcher = computed(() => {
         </router-link>
       </el-menu-item>
 
-      <el-menu-item>
-        <a href="https://johnf.github.io/ro-crate-api/" target="_blank">
-          {{ t('nav.roCrateApiDocs') }}
-        </a>
-      </el-menu-item>
-
       <template v-for="helpLink of subHelpLinks">
         <li class="el-menu-item">
           <a class="w-full block" :href="helpLink.href" :target="helpLink.target">

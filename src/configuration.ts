@@ -146,7 +146,7 @@ const uiSchema = z.strictObject({
   showEllipsis: z.boolean().optional(),
   navHeight: z.string().optional(),
   help: helpSchema,
-  subHelpLinks: z.array(subHelpLinkSchema).optional(),
+  subHelpLinks: z.array(subHelpLinkSchema).default([]),
   citeData: citeData,
   takedown: z.url(),
   terms: termsAndPrivacySchema.optional(),

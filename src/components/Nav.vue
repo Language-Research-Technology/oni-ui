@@ -19,7 +19,7 @@ const {
   navHeight = '50px',
   topNavHome = '/',
   topNavItems = [],
-  subHelpLinks = [],
+  subHelpLinks,
   showEllipsis = false,
 } = ui;
 

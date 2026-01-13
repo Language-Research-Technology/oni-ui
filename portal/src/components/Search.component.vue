@@ -569,6 +569,7 @@ export default {
       this.filters = {};
     },
     async search() {
+      this.errorDialogVisible = false;
       this.loading = true;
       if (this.isStart) {
         //Revert start to sorting by the startSorting

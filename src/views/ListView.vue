@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as Sentry from '@sentry/vue';
 import { inject, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -57,6 +58,9 @@ const fetchEntities = async () => {
   } catch (e) {
     const err = e as Error;
     errorDialogText.value = err.message;
+    if (ui.sentry?.dsn) {
+      Sentry.captureException(err);
+    }
   }
 
   loading.value = false;

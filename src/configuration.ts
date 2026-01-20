@@ -105,12 +105,6 @@ const homeSchema = z.strictObject({
     backgroundImage: z.string().optional(),
     backgroundClass: z.string().optional(),
   }),
-  search: z
-    .strictObject({
-      enabled: z.boolean().default(true),
-      placeholder: z.string().optional(),
-    })
-    .optional(),
   content: z.string().optional(),
 });
 

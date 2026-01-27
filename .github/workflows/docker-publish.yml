@@ -2,7 +2,8 @@ name: Docker Image
 
 on:
   push:
-    branches: ["main", "new-api"]
+    # TODO: Remove this once we merge new-api into main
+    branches: ["new-api"]
     # Publish semver tags as releases
     tags: ["v*.*.*"]
   pull_request:

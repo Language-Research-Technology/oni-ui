@@ -211,7 +211,9 @@ fetchdata();
             <el-table-column :label="t('common.actions')" width="120">
               <template #default="scope">
                 <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
-                  <el-button type="primary" size="small">{{ t('common.view') }}</el-button>
+                  <el-button type="primary" size="small" :disabled="!entity.access.content">
+                    {{ t('common.view') }}
+                  </el-button>
                 </router-link>
               </template>
             </el-table-column>

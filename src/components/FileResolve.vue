@@ -17,7 +17,6 @@ const { entity, metadata } = defineProps<{
 }>();
 
 const data = ref();
-const downloadUrl = ref('');
 const streamUrl = ref('');
 
 const resolveFile = async () => {
@@ -25,8 +24,18 @@ const resolveFile = async () => {
     return;
   }
 
-  downloadUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, true)) || '';
   streamUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, false)) || '';
+};
+
+const handleDownload = async () => {
+  if (entity.entityType !== 'http://schema.org/MediaObject') {
+    return;
+  }
+
+  const url = await api.getFileUrl(entity.fileId, metadata.filename, true);
+  if (url) {
+    window.location.href = url;
+  }
 };
 
 const extension = metadata.filename.split('.').pop() || '';
@@ -94,10 +103,8 @@ resolveFile();
 
     <el-row class="flex justify-center" v-if="entity.access.content">
       <el-button-group class="m-2">
-        <el-link class="mr-2" underline="never" :href="downloadUrl">
-          <el-button type="default">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
-          </el-button>
-        </el-link>
+        <el-button type="default" @click="handleDownload">Download File&nbsp;<font-awesome-icon icon="fa fa-download" />
+        </el-button>
       </el-button-group>
     </el-row>
   </el-col>

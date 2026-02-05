@@ -47,3 +47,9 @@ Check the status of the structural index
 ```bash
 node structural-status.js
 ```
+
+Windows and Linux configuration:
+If running in WSL2 in Windows, need to change docker-compose.yml `opensearch` environment to:
+```bash
+- _JAVA_OPTIONS=     # This fix Windows WSL2 bug
+```

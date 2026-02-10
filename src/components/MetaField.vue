@@ -35,9 +35,9 @@ const paginatedMetaData = computed(() => {
     <template v-if="isExpand">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <el-row v-for="(value, key) in meta.data">
-          <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ startCase(key) }}</el-col>
+          <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ startCase(key as string) }}</el-col>
           <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-            <ElasticField :field="value" :title="key" />
+            <ElasticField :field="value" :title="key as string" />
           </el-col>
         </el-row>
       </el-col>
@@ -49,7 +49,7 @@ const paginatedMetaData = computed(() => {
       </el-col>
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
         <template v-if="Array.isArray(meta.data)">
-          <ElasticField :field="d" :title="meta.name" :key="d" v-for="d of paginatedMetaData" />
+          <ElasticField :field="d" :title="meta.name" :key="d as string" v-for="d of paginatedMetaData" />
           <el-pagination v-if="meta.data.length > pageSize" class="mt-4" layout="prev, pager, next"
             :total="meta.data.length" :page-size="pageSize" :current-page="currentPage"
             @current-change="currentPage = $event" />

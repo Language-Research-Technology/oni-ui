@@ -84,6 +84,11 @@
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.4"
   },
+  "pnpm": {
+    "overrides": {
+      "vue-router": "^5"
+    }
+  },
   "engines": {
     "node": ">=22.18.0"
   },

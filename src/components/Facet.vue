@@ -44,6 +44,10 @@ const filteredValues = computed(() => {
   const selected = results.filter((v) => selectedFacetValues.value.includes(v.name));
   const unselected = results.filter((v) => !selectedFacetValues.value.includes(v.name));
 
+  if (!filter.value || filter.value?.trim() === '') {
+    unselected.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
   return [...selected, ...unselected];
 });
 

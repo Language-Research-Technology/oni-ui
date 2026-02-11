@@ -25,7 +25,7 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN ln -s /configuration.json /usr/share/nginx/html/configuration.json
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -qO /dev/null http://localhost:80/ || exit 1
+  CMD wget -qO /dev/null http://127.0.0.1:80/ || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

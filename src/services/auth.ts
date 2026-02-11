@@ -1,6 +1,7 @@
 import { type User, UserManager, type UserManagerSettings } from 'oidc-client-ts';
 
 import { api, ui } from '@/configuration';
+import { useAuthStore } from '@/stores/auth';
 
 declare module 'oidc-client-ts' {
   interface UserState {
@@ -25,6 +26,8 @@ const { urlPrefix } = ui;
 let userManager: UserManager | undefined;
 
 const getUserManager = async () => {
+  const store = useAuthStore();
+
   if (userManager) {
     return userManager;
   }
@@ -40,6 +43,16 @@ const getUserManager = async () => {
   };
 
   userManager = new UserManager(config);
+
+  userManager.events.addUserLoaded((user) => {
+    console.log('Token renewed');
+    store.user = transformUser(user);
+  });
+
+  userManager.events.addSilentRenewError((error) => {
+    console.error('Silent Renew Failed');
+    console.error(error);
+  });
 
   return userManager;
 };

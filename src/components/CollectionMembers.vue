@@ -56,6 +56,13 @@ const updatePages = (page: number) => {
   setMembers();
 };
 
+const handlePageSizeChange = () => {
+  currentPage.value = 1;
+  setMembers();
+};
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+
 onMounted(setMembers);
 </script>
 
@@ -74,9 +81,10 @@ onMounted(setMembers);
     <el-row class="p-10">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <div class="py-2 w-full">
-          <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="total"
+          <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
+            :page-sizes="PAGE_SIZE_OPTIONS"
             v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)"
-            @update:page-size="pageSize" />
+            @size-change="handlePageSizeChange" />
         </div>
         <div v-loading="isLoading">
           <ul v-for="item of items" :key="item.id" class="list-disc">
@@ -84,6 +92,12 @@ onMounted(setMembers);
               <CollectionItem :field="item" :routePath="routePath" />
             </li>
           </ul>
+        </div>
+        <div class="py-2 w-full">
+          <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
+            :page-sizes="PAGE_SIZE_OPTIONS"
+            v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)"
+            @size-change="handlePageSizeChange" />
         </div>
       </el-col>
     </el-row>

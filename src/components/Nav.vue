@@ -38,7 +38,7 @@ const showLanguageSwitcher = computed(() => {
       <router-view :key="topNavHome">
         <el-row :gutter="10" class="flex items-center gap-8" :style="{ 'height': navHeight }">
           <img class="h-full object-cover py-2" :src="logoSrc" :alt="shortTitle || 'Oni'" />
-          <span>{{ t('nav.home') }}</span>
+          <span class="hidden md:inline">{{ t('nav.home') }}</span>
         </el-row>
       </router-view>
     </el-menu-item>

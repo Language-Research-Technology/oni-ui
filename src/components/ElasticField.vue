@@ -86,7 +86,7 @@ const collapseName = shortenText(name);
   </template>
 
   <template v-else-if="geometry">
-    <LeafletMap class="h-72 flex grow min-w-[200px] mr-4" :modelValue="geometry" :enableDrawing="false" />
+    <LeafletMap class="h-72 flex grow min-w-50 mr-4" :modelValue="geometry" :enableDrawing="false" />
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>
   </template>
 

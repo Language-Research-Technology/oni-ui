@@ -82,9 +82,8 @@ onMounted(setMembers);
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <div class="py-2 w-full">
           <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
-            :page-sizes="PAGE_SIZE_OPTIONS"
-            v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)"
-            @size-change="handlePageSizeChange" />
+            :page-sizes="PAGE_SIZE_OPTIONS" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+            @current-change="updatePages($event)" @size-change="handlePageSizeChange" />
         </div>
         <div v-loading="isLoading">
           <ul v-for="item of items" :key="item.id" class="list-disc">
@@ -95,9 +94,8 @@ onMounted(setMembers);
         </div>
         <div class="py-2 w-full">
           <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
-            :page-sizes="PAGE_SIZE_OPTIONS"
-            v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)"
-            @size-change="handlePageSizeChange" />
+            :page-sizes="PAGE_SIZE_OPTIONS" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+            @current-change="updatePages($event)" @size-change="handlePageSizeChange" />
         </div>
       </el-col>
     </el-row>

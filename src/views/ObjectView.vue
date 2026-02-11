@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGtm } from '@gtm-support/vue-gtm';
 import { injectHead } from '@unhead/vue';
-import { inject, ref, watch } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import AccessHelper from '@/components/AccessHelper.vue';
@@ -40,13 +40,33 @@ const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntit
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
 const mediaTypes = ref<string[]>([]);
 const isLoading = ref(false);
-const isLoadingMembers = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
-const membersFiltered = ref<EntityType[]>([]);
+const allMembers = ref<EntityType[]>([]);
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalMembers = ref(0);
+
+const totalMembers = computed(() => allMembers.value.length);
+
+const currentMemberIndex = computed(() => allMembers.value.findIndex((e) => e.id === route.query.id));
+
+const previousObject = computed(() => {
+  const idx = currentMemberIndex.value;
+
+  return idx > 0 ? allMembers.value[idx - 1] : undefined;
+});
+
+const nextObject = computed(() => {
+  const idx = currentMemberIndex.value;
+
+  return idx >= 0 && idx < allMembers.value.length - 1 ? allMembers.value[idx + 1] : undefined;
+});
+
+const membersFiltered = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+
+  return allMembers.value.slice(start, start + pageSize.value);
+});
 
 const populateParts = (md: RoCrate) => {
   if (!md.hasPart) {
@@ -80,29 +100,44 @@ const populate = (md: RoCrate) => {
   useHead(head, md);
 };
 
+const FETCH_LIMIT = 1000;
+
 const fetchMembers = async () => {
   if (!entity.value?.memberOf) {
     return;
   }
 
-  const params: GetEntitiesParams = {
+  const baseParams: GetEntitiesParams = {
     memberOf: entity.value.memberOf.id,
     entityType: 'http://pcdm.org/models#Object',
-    limit: pageSize.value,
+    limit: FETCH_LIMIT,
+    sort: 'name',
+    order: 'asc',
   };
 
-  if (currentPage.value !== 1) {
-    params.offset = (currentPage.value - 1) * pageSize.value;
-  }
+  let collected: EntityType[] = [];
+  let offset = 0;
+  let total = 0;
 
-  isLoadingMembers.value = true;
-  const children = await api.getEntities(params);
+  do {
+    const params: GetEntitiesParams = { ...baseParams, offset };
+    const children = await api.getEntities(params);
 
-  if ('entities' in children) {
-    membersFiltered.value = children.entities;
-    totalMembers.value = children.total;
+    if (!('entities' in children)) {
+      break;
+    }
+
+    collected = collected.concat(children.entities);
+    total = children.total;
+    offset += FETCH_LIMIT;
+  } while (offset < total);
+
+  allMembers.value = collected;
+
+  const currentIndex = collected.findIndex((e) => e.id === route.query.id);
+  if (currentIndex >= 0) {
+    currentPage.value = Math.floor(currentIndex / pageSize.value) + 1;
   }
-  isLoadingMembers.value = false;
 };
 
 const fetchdata = async () => {
@@ -137,15 +172,13 @@ const fetchdata = async () => {
   await fetchMembers();
 };
 
-const updatePage = async (page: number) => {
+const updatePage = (page: number) => {
   currentPage.value = page;
-  await fetchMembers();
 };
 
 watch(
   () => route.params,
   () => {
-    currentPage.value = 1;
     fetchdata();
   },
 );
@@ -279,16 +312,23 @@ fetchdata();
         </el-col>
       </el-row>
 
-      <el-row v-if="membersFiltered?.length || totalMembers > 0">
+      <el-row v-if="totalMembers > 0">
         <el-col>
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium ">{{ t('object.otherObjectsInCollection') }} ({{ totalMembers }})</h5>
             <hr class="divider divider-gray pt-2" />
-            <div v-if="isLoadingMembers" class="my-5">
-              <el-skeleton :rows="4" animated />
+            <div v-if="allMembers.length > 1" class="flex justify-between items-center mt-4">
+              <router-link v-if="previousObject" :to="`/object?id=${encodeURIComponent(previousObject.id)}`">
+                <el-button size="small">{{ t('common.previous') }}</el-button>
+              </router-link>
+              <span v-else />
+              <router-link v-if="nextObject" :to="`/object?id=${encodeURIComponent(nextObject.id)}`">
+                <el-button size="small">{{ t('common.next') }}</el-button>
+              </router-link>
+              <span v-else />
             </div>
-            <ul v-else class="mt-4 space">
-              <li v-for="d of membersFiltered">
+            <ul class="mt-4 space">
+              <li v-for="d of membersFiltered" :key="d.id">
                 <p v-if="d.id === route.query.id" class="font-bold">
                   {{ d.name || d.id }}
                 </p>

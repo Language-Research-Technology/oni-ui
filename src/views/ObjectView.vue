@@ -330,7 +330,7 @@ fetchdata();
             <ul class="mt-4 space">
               <li v-for="d of membersFiltered" :key="d.id">
                 <p v-if="d.id === route.query.id" class="font-bold">
-                  {{ d.name || d.id }}
+                  {{ d.identifiers?.shortIdentifier ? `${d.identifiers.shortIdentifier} - ${d.name || d.id}` : d.name || d.id }}
                 </p>
                 <CollectionItem v-else :field="d" routePath="object" />
               </li>

@@ -33,6 +33,11 @@ type BaseEntityType = {
   id: string;
   name: string;
   description?: string;
+  identifiers?: {
+    collectionIdentifier: string;
+    itemIdentifier: string;
+    shortIdentifier: string;
+  };
   memberOf?: {
     id: string;
     name?: string;

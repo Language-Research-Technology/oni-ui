@@ -282,7 +282,8 @@ const searchGeoHash = async ({ geohash, pageSize }: { geohash: string; pageSize:
 };
 
 const getInnerHTMLTooltip = (entity: EntityType) => {
-  const title = entity.name;
+  const name = entity.name || entity.id;
+  const title = entity.identifiers?.shortIdentifier ? `${entity.identifiers.shortIdentifier} - ${name}` : name;
   const type = entity.entityType;
   const href = getEntityUrl(entity);
 

@@ -22,7 +22,7 @@ const { searchDetails = [] } = ui.search || {};
           <h5 class="text-2xl font-medium">
             <router-link :to="getEntityUrl(entity)"
               class="text-blue-600 hover:text-blue-800 visited:text-purple-600 wrap-break-word">
-              {{ entity.name || entity.id }}
+              {{ entity.identifiers?.shortIdentifier ? `${entity.identifiers.shortIdentifier} - ${entity.name || entity.id}` : entity.name || entity.id }}
             </router-link>
           </h5>
         </el-row>

@@ -66,7 +66,7 @@ resolveFile();
             </div>
 
             <div v-else-if="isTxt" class="p-4 wrap-break-word">
-              <PlainTextWidget :src="streamUrl" />
+              <PlainTextWidget :src="streamUrl" v-if="streamUrl" />
             </div>
 
             <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">

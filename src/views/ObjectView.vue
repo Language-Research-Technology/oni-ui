@@ -111,7 +111,7 @@ const fetchMembers = async () => {
     memberOf: entity.value.memberOf.id,
     entityType: 'http://pcdm.org/models#Object',
     limit: FETCH_LIMIT,
-    sort: 'name',
+    sort: config.memberSort,
     order: 'asc',
   };
 

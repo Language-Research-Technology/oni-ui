@@ -74,10 +74,12 @@ const metaSchema = z.discriminatedUnion('mode', [
 
 const collectionSchema = z.strictObject({
   meta: metaSchema,
+  memberSort: z.string().optional().default('name'),
 });
 
 const objectSchema = z.object({
   meta: metaSchema,
+  memberSort: z.string().optional().default('name'),
 });
 
 export type CollectionConfig = z.infer<typeof collectionSchema>;

@@ -126,14 +126,14 @@ onMounted(fetchData);
       <el-row>
         <el-col>
           <CollectionMembers :title="t('collection.subCollections')" :id="id"
-            entityType="http://pcdm.org/models#Collection" routePath="collection" />
+            entityType="http://pcdm.org/models#Collection" routePath="collection" :sort="config.memberSort" />
         </el-col>
       </el-row>
 
       <el-row>
         <el-col>
           <CollectionMembers :title="t('collection.objectsInCollection')" :id="id"
-            entityType="http://pcdm.org/models#Object" routePath="object" />
+            entityType="http://pcdm.org/models#Object" routePath="object" :sort="config.memberSort" />
         </el-col>
       </el-row>
     </el-col>

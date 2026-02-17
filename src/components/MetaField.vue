@@ -16,17 +16,26 @@ const { meta, isExpand } = defineProps<{
 const currentPage = ref(1);
 const pageSize = ref(10);
 
-if (meta.data && Array.isArray(meta.data) && paginatedMeta.includes(meta.name)) {
-  (meta.data as { name: string }[]).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-}
+const name = computed(() => meta.name);
+const data = computed(() => meta.data);
 
-const paginatedMetaData = computed(() => {
-  if (Array.isArray(meta.data) && meta.data?.length > pageSize.value) {
-    const start = (currentPage.value - 1) * pageSize.value;
-    return meta.data.slice(start, start + pageSize.value);
+const sortedData = computed(() => {
+  if (Array.isArray(meta.data) && paginatedMeta.includes(meta.name)) {
+    return [...(meta.data as { name: string }[])].sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+    );
   }
 
   return meta.data;
+});
+
+const paginatedMetaData = computed(() => {
+  if (Array.isArray(sortedData.value) && sortedData.value.length > pageSize.value) {
+    const start = (currentPage.value - 1) * pageSize.value;
+    return sortedData.value.slice(start, start + pageSize.value);
+  }
+
+  return sortedData.value;
 });
 </script>
 
@@ -34,7 +43,7 @@ const paginatedMetaData = computed(() => {
   <el-row :gutter="10" class="py-2">
     <template v-if="isExpand">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-        <el-row v-for="(value, key) in meta.data">
+        <el-row v-for="(value, key) in data">
           <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ startCase(key as string) }}</el-col>
           <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
             <ElasticField :field="value" :title="key as string" />
@@ -44,18 +53,18 @@ const paginatedMetaData = computed(() => {
     </template>
     <template v-else>
       <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7" class="mt-1">
-        <span class="font-bold break-words">{{ startCase(meta.name) }}</span>
+        <span class="font-bold wrap-break-word">{{ startCase(name) }}</span>
         <FieldHelperCard :meta="meta" />
       </el-col>
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-        <template v-if="Array.isArray(meta.data)">
-          <ElasticField :field="d" :title="meta.name" :key="d as string" v-for="d of paginatedMetaData" />
-          <el-pagination v-if="meta.data.length > pageSize" class="mt-4" layout="prev, pager, next"
-            :total="meta.data.length" :page-size="pageSize" :current-page="currentPage"
+        <template v-if="Array.isArray(sortedData)">
+          <ElasticField :field="d" :title="name" :key="d as string" v-for="d of paginatedMetaData" />
+          <el-pagination v-if="(sortedData as unknown[]).length > pageSize" class="mt-4" layout="prev, pager, next"
+            :total="(sortedData as unknown[]).length" :page-size="pageSize" :current-page="currentPage"
             @current-change="currentPage = $event" />
         </template>
         <template v-else>
-          <ElasticField :field="meta.data" :title="meta.name" />
+          <ElasticField :field="data" :title="name" />
         </template>
       </el-col>
     </template>

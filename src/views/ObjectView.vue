@@ -33,8 +33,6 @@ const route = useRoute();
 const head = injectHead();
 const gtm = useGtm();
 
-const id = route.query.id as string;
-
 const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
 
 const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
@@ -141,6 +139,7 @@ const fetchMembers = async () => {
 };
 
 const fetchdata = async () => {
+  const id = route.query.id?.toString();
   if (!id) {
     handleMissingEntity();
 
@@ -285,7 +284,7 @@ fetchdata();
           <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
             <h5 class="text-2xl font-medium">{{ t('object.retrieveMetadata') }}</h5>
             <hr class="divider divider-gray pt-2" />
-            <RetrieveDataMetadata :id="id" :identifier="metadata.identifier" />
+            <RetrieveDataMetadata :id="String(route.query.id ?? '')" :identifier="metadata.identifier" />
             <template v-if="metadata.metadataLicense">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">

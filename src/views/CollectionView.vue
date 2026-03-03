@@ -232,7 +232,7 @@ onMounted(fetchData);
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" class="pb-5" v-if="!metadata['creditText']">
+      <el-row :gutter="20" class="pb-5" v-if="metadata">
         <el-col>
           <CitationCard :metadata="metadata" />
         </el-col>

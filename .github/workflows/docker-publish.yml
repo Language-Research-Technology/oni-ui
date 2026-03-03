@@ -11,23 +11,32 @@ on:
 
 env:
   GHCR_REGISTRY: ghcr.io
-  # DOCKERHUB_REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
       id-token: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Prepare
+        id: platform
+        run: echo "pair=${platform//\//-}" >> "$GITHUB_OUTPUT"
+        env:
+          platform: ${{ matrix.platform }}
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3
@@ -41,14 +50,73 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Login to Docker Hub
-      # - name: Log into Docker Hub
-      #   if: github.event_name != 'pull_request'
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ${{ env.DOCKERHUB_REGISTRY }}
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
+            # ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: ${{ github.event_name != 'pull_request' }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=buildkit-${{ steps.platform.outputs.pair }}
+          cache-to: type=gha,mode=max,scope=buildkit-${{ steps.platform.outputs.pair }}
+          outputs: ${{ github.event_name != 'pull_request' && format('type=image,"name={0}/{1}",push-by-digest=true,name-canonical=true,push=true', env.GHCR_REGISTRY, env.IMAGE_NAME) || '' }}
+
+      - name: Export digest
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p "${RUNNER_TEMP}/digests"
+          digest="${DIGEST}"
+          touch "${RUNNER_TEMP}/digests/${digest#sha256:}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          RUNNER_TEMP: ${{ runner.temp }}
+
+      - name: Upload digest
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ steps.platform.outputs.pair }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login to GitHub Container Registry
+      - name: Log into GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Docker metadata
         id: meta
@@ -65,15 +133,18 @@ jobs:
             type=sha,format=short
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf "${GHCR_REGISTRY}/${IMAGE_NAME}@sha256:%s " *)
+        env:
+          GHCR_REGISTRY: ${{ env.GHCR_REGISTRY }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+
+      - name: Inspect image
+        run: docker buildx imagetools inspect "${GHCR_REGISTRY}/${IMAGE_NAME}:${VERSION}"
+        env:
+          GHCR_REGISTRY: ${{ env.GHCR_REGISTRY }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          VERSION: ${{ steps.meta.outputs.version }}

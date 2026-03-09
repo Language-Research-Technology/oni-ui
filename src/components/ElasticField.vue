@@ -109,7 +109,7 @@ const derived = computed(() => {
   </template>
 
   <template v-else>
-    <p>
+    <p class="whitespace-pre-wrap">
       {{ derived.name || derived.id }}
       <el-tooltip v-if="derived.description" class="box-item" effect="light" trigger="click"
         :content="derived.description" placement="top">

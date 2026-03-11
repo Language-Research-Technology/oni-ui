@@ -18,7 +18,9 @@ export const formatFileSize = (bytes: number, locales = 'en') => {
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const threshold = 1024;
 
-  if (bytes < threshold) return `${bytes} B`;
+  if (bytes < threshold) {
+    return `${bytes} B`;
+  }
 
   const i = Math.floor(Math.log(bytes) / Math.log(threshold));
   const value = bytes / threshold ** i;

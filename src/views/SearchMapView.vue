@@ -224,10 +224,18 @@ const updateLayers = () => {
         countMarker.addTo(geoHashLayer);
 
         let color = '#ffffff';
-        if (count <= 1) color = '#ffea1f';
-        if (count > 1 && count <= 10) color = '#4470a2';
-        if (count > 10 && count <= 30) color = '#14a848';
-        if (count > 30) color = '#ff0000';
+        if (count <= 1) {
+          color = '#ffea1f';
+        }
+        if (count > 1 && count <= 10) {
+          color = '#4470a2';
+        }
+        if (count > 10 && count <= 30) {
+          color = '#14a848';
+        }
+        if (count > 30) {
+          color = '#ff0000';
+        }
 
         shape = L.rectangle(
           [

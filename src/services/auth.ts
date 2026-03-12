@@ -1,4 +1,4 @@
-import { type User, UserManager, type UserManagerSettings } from 'oidc-client-ts';
+import { type User, UserManager, type UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts';
 
 import { api, ui } from '@/configuration';
 import { useAuthStore } from '@/stores/auth';
@@ -40,6 +40,7 @@ const getUserManager = async () => {
     redirect_uri: `${window.location.origin}${prefix}/auth/callback`,
     scope: 'public openid profile email',
     response_type: 'code',
+    userStore: new WebStorageStateStore({ store: window.localStorage }),
   };
 
   userManager = new UserManager(config);

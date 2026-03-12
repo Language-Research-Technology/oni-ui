@@ -196,6 +196,7 @@ const uiSchema = z.strictObject({
   features: z
     .strictObject({
       hasZipDownload: z.boolean().optional(),
+      errorPageImage: z.union([z.boolean(), z.string()]).optional().default(true),
     })
     .optional(),
   i18n: z

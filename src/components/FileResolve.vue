@@ -1,23 +1,32 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 import AccessHelper from '@/components/AccessHelper.vue';
 import CSVWidget from '@/components/widgets/CSVWidget.vue';
+import EafTranscriptionWidget from '@/components/widgets/EafTranscriptionWidget.vue';
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
 import PlainTextWidget from '@/components/widgets/PlainTextWidget.vue';
-import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import type { AnnotationRef, ApiService, EntityType, RoCrate } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { entity, metadata } = defineProps<{
+const {
+  entity,
+  metadata,
+  annotations = [],
+} = defineProps<{
   entity: EntityType;
   metadata: RoCrate['hasPart'][number] & { license?: RoCrate['license'] };
+  annotations?: AnnotationRef[];
 }>();
 
 const data = ref();
 const streamUrl = ref('');
+const annotationUrls = ref<string[]>([]);
+const currentTime = ref<number>(0);
+const mediaRef = ref<HTMLAudioElement | HTMLVideoElement | null>(null);
 
 const resolveFile = async () => {
   if (entity.entityType !== 'http://schema.org/MediaObject') {
@@ -25,6 +34,30 @@ const resolveFile = async () => {
   }
 
   streamUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, false)) || '';
+};
+
+const resolveAnnotations = async () => {
+  if (annotations.length === 0) {
+    return;
+  }
+
+  const results = await Promise.all(
+    annotations.map(async (ann) => {
+      const result = await api.getEntity(ann['@id']);
+      if ('error' in result) {
+        return null;
+      }
+
+      const annEntity = result.entity;
+      if (annEntity.entityType !== 'http://schema.org/MediaObject') {
+        return null;
+      }
+
+      const filename = ann.filename || annEntity.name;
+      return api.getFileUrl(annEntity.fileId, filename, false);
+    }),
+  );
+  annotationUrls.value = results.filter((url): url is string => !!url);
 };
 
 const handleDownload = async () => {
@@ -38,15 +71,36 @@ const handleDownload = async () => {
   }
 };
 
+const handleTimeUpdate = (event: Event) => {
+  const el = event.target as HTMLMediaElement;
+  currentTime.value = el.currentTime;
+};
+
+const handleSeek = (seconds: number) => {
+  if (mediaRef.value) {
+    mediaRef.value.currentTime = seconds;
+  }
+};
+
 const extension = metadata.filename.split('.').pop() || '';
 const encodingFormat = [metadata.encodingFormat].flat();
 const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
 const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
+const isEaf = extension === 'eaf';
 const isTxt =
-  plainEncodingFormats.some((ef) => ef.startsWith('text')) || ['txt', 'eaf', 'html', 'xml', 'flab'].includes(extension);
+  !isEaf &&
+  (plainEncodingFormats.some((ef) => ef.startsWith('text')) || ['txt', 'html', 'xml', 'flab'].includes(extension));
 const isPdf = plainEncodingFormats.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
+const isAudio = encodingFormat.some((f) => f?.startsWith('audio'));
+const isVideo = encodingFormat.some((f) => f?.startsWith('video'));
 
 resolveFile();
+
+onMounted(() => {
+  if ((isAudio || isVideo) && annotations.length > 0) {
+    resolveAnnotations();
+  }
+});
 </script>
 
 <template>
@@ -65,22 +119,32 @@ resolveFile();
               <CSVWidget :src="streamUrl" />
             </div>
 
+            <div v-else-if="isEaf" class="p-4">
+              <EafTranscriptionWidget :src="streamUrl" v-if="streamUrl" show-header />
+            </div>
+
             <div v-else-if="isTxt" class="p-4 wrap-break-word">
               <PlainTextWidget :src="streamUrl" v-if="streamUrl" />
             </div>
 
-            <div v-else-if="encodingFormat.some((f) => f?.startsWith('audio'))" class="flex justify-center">
-              <audio controls v-if="streamUrl">
+            <div v-else-if="isAudio" class="flex flex-col items-center">
+              <audio ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate">
                 <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
                 Your browser does not support the audio element.
               </audio>
+              <div v-for="(url, index) in annotationUrls" :key="index" class="w-full mt-4">
+                <EafTranscriptionWidget :src="url" :current-time="currentTime" @seek="handleSeek" />
+              </div>
             </div>
 
-            <div v-else-if="encodingFormat?.some((f) => f?.startsWith('video'))" class="flex justify-center">
-              <video controls v-if="streamUrl">
+            <div v-else-if="isVideo" class="flex flex-col items-center">
+              <video ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate">
                 <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('video'))">
                 Your browser does not support the video element.
               </video>
+              <div v-for="(url, index) in annotationUrls" :key="index" class="w-full mt-4">
+                <EafTranscriptionWidget :src="url" :current-time="currentTime" @seek="handleSeek" />
+              </div>
             </div>
 
             <div v-else-if="encodingFormat?.some((f) => f?.startsWith('image'))" class="flex justify-center">

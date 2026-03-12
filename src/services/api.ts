@@ -138,6 +138,8 @@ type RoCrateLicense = {
   allowTextIndex?: boolean;
 };
 
+export type AnnotationRef = { '@id': string; filename?: string };
+
 export type RoCrate = {
   '@id': string;
   '@type': ['DataSet', 'RepositoryObject' | 'RepositoryCollection'];
@@ -158,7 +160,14 @@ export type RoCrate = {
   };
   author?: ROCratePerson | ROCratePerson[];
   creator?: ROCratePerson | ROCratePerson[];
-  hasPart: { '@id': string; filename: string; encodingFormat: string | string[]; contentSize: number }[];
+  hasPart: {
+    '@id': string;
+    filename: string;
+    encodingFormat: string | string[];
+    contentSize: number;
+    hasAnnotation?: { '@id': string; filename?: string }[] | { '@id': string; filename?: string };
+    annotationOf?: { '@id': string; filename?: string }[] | { '@id': string; filename?: string };
+  }[];
 };
 
 export class ApiService {

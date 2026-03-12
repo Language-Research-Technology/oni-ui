@@ -62,7 +62,7 @@ const derived = computed(() => {
     name = String(field[0]);
   } else {
     url = testURL(field['@id']);
-    name = Array.isArray(field.name) ? field.name[0] : field.name;
+    name = Array.isArray(field.name) ? field.name[0] : field.name || field['@id'];
     description = Array.isArray(field.description) ? field.description[0] : field.description;
 
     if (title === 'contentLocation') {

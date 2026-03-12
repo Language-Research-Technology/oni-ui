@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
 import { ui } from '@/configuration';
-import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import type { AnnotationRef, ApiService, EntityType, RoCrate } from '@/services/api';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -23,6 +23,7 @@ const parentTitle = ref<string>();
 const metadata = ref<FileRoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 const meta = ref<{ name: string; data: string }[]>([]);
+const annotations = ref<AnnotationRef[]>([]);
 
 const populateData = (md: FileRoCrate, e: EntityType) => {
   title.value = md.filename || md['@id'];
@@ -35,6 +36,11 @@ const populateData = (md: FileRoCrate, e: EntityType) => {
     meta.value.push({ name: filter, data: md[filter as keyof typeof md] as string });
   }
   meta.value.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Extract annotation references
+  if (md.hasAnnotation) {
+    annotations.value = Array.isArray(md.hasAnnotation) ? md.hasAnnotation : [md.hasAnnotation];
+  }
 
   metadata.value = md;
   entity.value = e;
@@ -97,7 +103,7 @@ getFileMetadata();
         </el-row>
         <el-row>
           <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="flex justify-center h-screen overflow-auto">
-            <FileResolve :entity="entity" :metadata="metadata" />
+            <FileResolve :entity="entity" :metadata="metadata" :annotations="annotations" />
           </el-col>
         </el-row>
       </div>

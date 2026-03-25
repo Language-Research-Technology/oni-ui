@@ -1,5 +1,6 @@
 import { wktToGeoJSON } from '@terraformer/wkt';
 import type { Position } from 'geojson';
+import { first } from '@/tools';
 import { type GeoEntity, LocationDivIcon, type LType, type Transformer } from './geo_types';
 
 // biome-ignore lint/style/noNonNullAssertion: we don't care if they are defined here we just need to swap them
@@ -43,7 +44,11 @@ export const Geometry: Transformer<GeoEntity> = (L) => {
    */
   return {
     from(entity) {
-      const wkt = entity['http://www.opengis.net/ont/geosparql#asWKT'] || entity.asWKT || entity['geo:asWKT'] || '';
+      const wkt =
+        first(entity['http://www.opengis.net/ont/geosparql#asWKT']) ||
+        first(entity.asWKT) ||
+        first(entity['geo:asWKT']) ||
+        '';
       return read(L, wkt);
     },
   };

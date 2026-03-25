@@ -21,6 +21,7 @@ import { useHead } from '@/composables/head';
 import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import { joinAll } from '@/tools';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -217,14 +218,14 @@ onMounted(fetchData);
             </h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="id" :identifier="metadata.identifier" />
-            <template v-if="metadata.metadataLicense?.id">
+            <template v-if="metadata.metadataLicense?.length">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
                 {{ t('collection.metadataLicensedAs') }}
-                <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
+                <el-link underline="always" type="primary" :href="metadata.metadataLicense[0]['@id']" target="_blank"
                   class="mx-1">
-                  {{ metadata.metadataLicense.name ||
-                    metadata.metadataLicense.id }}
+                  {{ joinAll(metadata.metadataLicense[0].name) ||
+                    metadata.metadataLicense[0]['@id'] }}
                 </el-link>
               </h4>
             </template>

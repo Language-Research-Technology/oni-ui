@@ -8,19 +8,18 @@ export const useHead = (head: VueHeadClient, md: RoCrate) => {
     head: { title: titleField, meta: configMeta },
   } = ui;
 
-  const title = String(md[titleField as keyof RoCrate] || 'Research Object');
+  const titleValue = md[titleField as keyof RoCrate];
+  const title = String((Array.isArray(titleValue) ? titleValue[0] : titleValue) || 'Research Object');
 
   const getValue = (fieldPath: string): string => {
     const value = md[fieldPath as keyof RoCrate];
-    if (Array.isArray(value)) {
-      return value.map((item) => (typeof item === 'object' && 'name' in item ? item.name : String(item))).join(', ');
+    if (!Array.isArray(value)) {
+      return String(value || '');
     }
 
-    if (typeof value === 'object' && value?.name) {
-      return first(value.name);
-    }
-
-    return String(value || '');
+    return value
+      .map((item) => (typeof item === 'object' && 'name' in item ? first(item.name) : String(item)))
+      .join(', ');
   };
 
   // Build meta tags from configuration

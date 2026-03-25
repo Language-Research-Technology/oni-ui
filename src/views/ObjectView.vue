@@ -19,7 +19,7 @@ import { useHead } from '@/composables/head';
 import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
 import type { ApiService, EntityType, GetEntitiesParams, RoCrate } from '@/services/api';
-import { formatEncodingFormat, formatFileSize } from '@/tools';
+import { first, formatEncodingFormat, formatFileSize, joinAll } from '@/tools';
 
 const { t } = useI18n();
 const { object: config } = ui;
@@ -67,26 +67,18 @@ const membersFiltered = computed(() => {
 });
 
 const populateParts = (md: RoCrate) => {
-  if (!md.hasPart) {
+  if (!md.hasPart || md.hasPart.length === 0) {
     parts.value = [];
     mediaTypes.value = [];
 
     return;
   }
 
-  // TODO: Fix ro-crate-js so it returns arrays for things that are arrays even with array: false
-  const newParts = md.hasPart && Array.isArray(md.hasPart) ? md.hasPart : [md.hasPart];
-
-  const newParts2 = newParts.map((part) => ({
-    ...part,
-    encodingFormat: Array.isArray(part.encodingFormat) ? part.encodingFormat : [part.encodingFormat],
-  }));
-
-  // @ts-expect-error FIX types later
-  parts.value = newParts2;
+  // @ts-expect-error hasPart properties are arrays with array: true, but parts ref expects scalar name
+  parts.value = md.hasPart;
 
   if (parts.value.length) {
-    const up = parts.value.flatMap((p) => p.encodingFormat).filter((p) => typeof p === 'string');
+    const up = md.hasPart.flatMap((p) => p.encodingFormat).filter((p) => typeof p === 'string');
     mediaTypes.value = [...new Set(up)];
   }
 };
@@ -224,13 +216,13 @@ fetchdata();
           <el-table :data="parts" stripe style="width: 100%">
             <el-table-column prop="name" :label="t('object.filename')" min-width="200">
               <template #default="scope">
-                {{ scope.row.name || scope.row['@id'] }}
+                {{ joinAll(scope.row.name) || scope.row['@id'] }}
               </template>
             </el-table-column>
 
             <el-table-column prop="contentSize" :label="t('common.size')" width="120">
               <template #default="scope">
-                {{ formatFileSize(scope.row.contentSize) }}
+                {{ formatFileSize(first(scope.row.contentSize)) }}
               </template>
             </el-table-column>
 
@@ -285,13 +277,13 @@ fetchdata();
             <h5 class="text-2xl font-medium">{{ t('object.retrieveMetadata') }}</h5>
             <hr class="divider divider-gray pt-2" />
             <RetrieveDataMetadata :id="String(route.query.id ?? '')" :identifier="metadata.identifier" />
-            <template v-if="metadata.metadataLicense">
+            <template v-if="metadata.metadataLicense?.length">
               <hr class="divider divider-gray mt-4 pb-2" />
               <h4 class="text-1xl font-medium">
                 {{ t('object.metadataLicensedAs') }}
-                <el-link underline="always" type="primary" :href="metadata.metadataLicense.id" target="_blank"
+                <el-link underline="always" type="primary" :href="metadata.metadataLicense[0]['@id']" target="_blank"
                   class="mx-1">
-                  {{ metadata.metadataLicense.name || metadata.metadataLicense.id }}
+                  {{ joinAll(metadata.metadataLicense[0].name) || metadata.metadataLicense[0]['@id'] }}
                 </el-link>
               </h4>
             </template>

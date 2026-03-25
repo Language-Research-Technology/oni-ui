@@ -4,7 +4,7 @@ import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
 import ElasticField from '@/components/ElasticField.vue';
 import { ui } from '@/configuration';
 import type { RoCrate } from '@/services/api';
-import { startCase } from '@/tools';
+import { first, startCase } from '@/tools';
 
 const { paginatedMeta } = ui.main;
 
@@ -21,9 +21,11 @@ const data = computed(() => meta.data);
 
 const sortedData = computed(() => {
   if (Array.isArray(meta.data) && paginatedMeta.includes(meta.name)) {
-    return [...(meta.data as { name: string }[])].sort((a, b) =>
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-    );
+    return [...(meta.data as { name: string | string[] }[])].sort((a, b) => {
+      const aName = String(first(a.name) || '').toLowerCase();
+      const bName = String(first(b.name) || '').toLowerCase();
+      return aName.localeCompare(bName);
+    });
   }
 
   return meta.data;

@@ -3,6 +3,7 @@ import { inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { ApiService, EntityType, RoCrate } from '@/services/api';
+import { joinAll } from '@/tools';
 
 const { t } = useI18n();
 
@@ -26,7 +27,7 @@ const {
   login: { enabled: isLoginEnabled },
 } = ui;
 
-const localLicense = Array.isArray(license) ? license[0] : license || { '@id': 'missing', name: 'Missing' };
+const localLicense = license?.[0] || { '@id': 'missing', name: ['Missing'] as string[] };
 
 if (!localLicense) {
   console.warn('🪚 WHY: No license');
@@ -41,7 +42,7 @@ if (!localLicense) {
         <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
         {{ t('access.accessTo') }}
         <a :href="localLicense['@id']" class="font-bold">
-          {{ localLicense.name || localLicense['@id'] }}
+          {{ joinAll(localLicense.name) || localLicense['@id'] }}
         </a>
         {{ t('access.grantedTo') }}
         {{ user?.['name'] || user?.['email'] }}

@@ -1,4 +1,5 @@
 import type { GeoCoordinates as GeoCoordinatesType, GeoShape as GeoShapeType } from 'schema-dts';
+import { first } from '@/tools';
 import type { L, LType, Transformer } from './geo_types';
 
 const spaceDelimitedToLatLng = (text: string): L.LatLngTuple[] => {
@@ -20,31 +21,38 @@ const spaceDelimitedToLatLng = (text: string): L.LatLngTuple[] => {
 
 export const GeoCoordinates: Transformer<GeoCoordinatesType> = (L) => ({
   from(entity) {
-    if (!entity.latitude || !entity.longitude) {
+    const lat = first(entity.latitude);
+    const lng = first(entity.longitude);
+    if (!lat || !lng) {
       return;
     }
 
-    return L.marker([+entity.latitude, +entity.longitude]);
+    return L.marker([+lat, +lng]);
   },
 });
 
 export const GeoShape: Transformer<GeoShapeType> = (L: LType) => ({
   from: (entity) => {
-    if (entity.box) {
-      return L.rectangle(spaceDelimitedToLatLng(entity.box as string));
+    const box = first(entity.box) as string | undefined;
+    const circle = first(entity.circle) as string | undefined;
+    const polygon = first(entity.polygon) as string | undefined;
+    const line = first(entity.line) as string | undefined;
+
+    if (box) {
+      return L.rectangle(spaceDelimitedToLatLng(box));
     }
 
-    if (entity.circle) {
-      const vals = (entity.circle as string).split(' ');
+    if (circle) {
+      const vals = circle.split(' ');
       if (!vals[0] || !vals[1] || !vals[2]) {
-        throw new Error(`Invalid circle definition: ${entity.circle}`);
+        throw new Error(`Invalid circle definition: ${circle}`);
       }
 
       return L.circle([+vals[0], +vals[1]], { radius: +vals[2] });
     }
 
-    if (entity.polygon || entity.line) {
-      return L.polyline(spaceDelimitedToLatLng((entity.polygon as string) || (entity.line as string)));
+    if (polygon || line) {
+      return L.polyline(spaceDelimitedToLatLng(polygon || line || ''));
     }
   },
 });

@@ -3,6 +3,7 @@ import { inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { ApiService, RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 const { t } = useI18n();
 const api = inject<ApiService>('api');
@@ -24,7 +25,7 @@ const generateDownloadLink = async (onBlank: boolean) => {
     return;
   }
 
-  const shortIdentifier = identifier.find((i) => i.name === 'identifier')?.value;
+  const shortIdentifier = first(identifier.find((i) => first(i.name) === 'identifier')?.value);
 
   const a = document.createElement('a');
   a.href = url;

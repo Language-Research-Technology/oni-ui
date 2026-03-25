@@ -6,6 +6,7 @@ import EafTranscriptionWidget from '@/components/widgets/EafTranscriptionWidget.
 import PDFWidget from '@/components/widgets/PDFWidget.vue';
 import PlainTextWidget from '@/components/widgets/PlainTextWidget.vue';
 import type { AnnotationRef, ApiService, EntityType, RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -33,7 +34,7 @@ const resolveFile = async () => {
     return;
   }
 
-  streamUrl.value = (await api.getFileUrl(entity.fileId, metadata.filename, false)) || '';
+  streamUrl.value = (await api.getFileUrl(entity.fileId, first(metadata.filename), false)) || '';
 };
 
 const resolveAnnotations = async () => {
@@ -53,7 +54,7 @@ const resolveAnnotations = async () => {
         return null;
       }
 
-      const filename = ann.filename || annEntity.name;
+      const filename = first(ann.filename) || annEntity.name;
       return api.getFileUrl(annEntity.fileId, filename, false);
     }),
   );
@@ -65,7 +66,7 @@ const handleDownload = async () => {
     return;
   }
 
-  const url = await api.getFileUrl(entity.fileId, metadata.filename, true);
+  const url = await api.getFileUrl(entity.fileId, first(metadata.filename), true);
   if (url) {
     window.location.href = url;
   }
@@ -82,8 +83,8 @@ const handleSeek = (seconds: number) => {
   }
 };
 
-const extension = metadata.filename.split('.').pop() || '';
-const encodingFormat = [metadata.encodingFormat].flat();
+const extension = (first(metadata.filename) || '').split('.').pop() || '';
+const encodingFormat = metadata.encodingFormat;
 const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
 const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
 const isEaf = extension === 'eaf';

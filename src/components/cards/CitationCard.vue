@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 const { t } = useI18n();
 
@@ -21,12 +22,11 @@ const {
 const dialogVisible = ref(false);
 
 const suggestedCitation = () => {
-  if (!metadata.creditText) {
+  if (!metadata.creditText?.length) {
     return '';
   }
 
-  const texts = Array.isArray(metadata.creditText) ? metadata.creditText : [metadata.creditText];
-  const result = texts.join('<br><br>');
+  const result = metadata.creditText.join('<br><br>');
 
   return result;
 };
@@ -34,27 +34,25 @@ const suggestedCitation = () => {
 const bibliography = () => {
   let author = '';
 
-  if (metadata.author) {
-    const mdAuthors = Array.isArray(metadata.author) ? metadata.author : [metadata.author];
-    author = `<b>${t('citation.author')}</b> ${mdAuthors
-      .map((a) => a.name)
+  if (metadata.author?.length) {
+    author = `<b>${t('citation.author')}</b> ${metadata.author
+      .map((a) => first(a.name))
       .filter(Boolean)
       .join(', ')}`;
-  } else if (metadata.creator) {
-    const mdCreators = Array.isArray(metadata.creator) ? metadata.creator : [metadata.creator];
-    author = `<b>${t('citation.creator')}</b> ${mdCreators
-      .map((a) => a.name)
+  } else if (metadata.creator?.length) {
+    author = `<b>${t('citation.creator')}</b> ${metadata.creator
+      .map((a) => first(a.name))
       .filter(Boolean)
       .join(', ')}`;
   } else {
     author = `<b>${t('citation.author')}</b> undefined`;
   }
 
-  const title = `<b>${t('citation.titleField')}</b> ${metadata.name}`;
-  const publishedDate = `<b>${t('citation.date')}</b> ${metadata.datePublished}`;
+  const title = `<b>${t('citation.titleField')}</b> ${first(metadata.name)}`;
+  const publishedDate = `<b>${t('citation.date')}</b> ${first(metadata.datePublished)}`;
   const publisher = `<b>${t('citation.publisher')}</b> ${ui.title}`;
   const url = `<b>${t('citation.locator')}</b> ${decodeURIComponent(window.location.href)}`;
-  const identifier = `<b>${t('citation.identifier')}</b> ${metadata.doi || metadata['@id']}`;
+  const identifier = `<b>${t('citation.identifier')}</b> ${first(metadata.doi) || metadata['@id']}`;
   const accessDate = `<b>${t('citation.accessDate')}</b> ${new Date().toISOString().split('T')[0]}`;
 
   const variables = [author, title, publishedDate, publisher, url, identifier, accessDate];
@@ -75,7 +73,7 @@ const bibliography = () => {
 
     <hr class="divider divider-gray pt-2" />
 
-    <div v-if="metadata.creditText">
+    <div v-if="metadata.creditText?.length">
       <p>{{ suggestedCitation() }}</p>
     </div>
 
@@ -84,7 +82,7 @@ const bibliography = () => {
     </el-link>
 
     <el-dialog v-model="dialogVisible" :title="t('citation.title')" width="40%" body-class="flex flex-col gap-4">
-      <div v-if="metadata.creditText" class="flex flex-col gap-4">
+      <div v-if="metadata.creditText?.length" class="flex flex-col gap-4">
         <h4 class="text-1xl font-medium">
           {{ t('citation.suggestedCitation') }}
         </h4>

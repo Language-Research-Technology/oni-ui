@@ -5,7 +5,7 @@ import MetaField from '@/components/MetaField.vue';
 import LeafletMap from '@/components/widgets/LeafletMap.vue';
 
 import { ui } from '@/configuration';
-import { formatDuration, formatFileSize, shortenText } from '@/tools';
+import { first, formatDuration, formatFileSize, joinAll, shortenText } from '@/tools';
 
 const props = defineProps<{
   // biome-ignore lint/suspicious/noExplicitAny: FIXME
@@ -23,9 +23,15 @@ const testURL = (url: string) => {
 };
 
 const isIdentifier = (item: object) =>
-  '@type' in item && item['@type'] === 'PropertyValue' && 'name' in item && 'value' in item;
+  '@type' in item &&
+  (Array.isArray(item['@type']) ? item['@type'].includes('PropertyValue') : item['@type'] === 'PropertyValue') &&
+  'name' in item &&
+  'value' in item;
 
-const isLanguage = (item: object) => '@type' in item && item['@type'] === 'Language' && 'name' in item;
+const isLanguage = (item: object) =>
+  '@type' in item &&
+  (Array.isArray(item['@type']) ? item['@type'].includes('Language') : item['@type'] === 'Language') &&
+  'name' in item;
 
 const derived = computed(() => {
   const field = props.field;
@@ -50,23 +56,23 @@ const derived = computed(() => {
   } else if (['string', 'number'].includes(typeof field)) {
     name = String(field);
   } else if (isIdentifier(field)) {
-    identifier = field.name;
-    name = field.value;
+    identifier = first(field.name);
+    name = first(field.value);
   } else if (isLanguage(field)) {
-    name = field.name;
+    name = joinAll(field.name);
     if ('code' in field) {
-      name += ` (${field.code})`;
+      name += ` (${joinAll(field.code, ', ')})`;
     }
     url = testURL(field['@id']);
   } else if (Array.isArray(field) && typeof field[0] === 'string') {
-    name = String(field[0]);
+    name = field.join(' | ');
   } else {
     url = testURL(field['@id']);
-    name = Array.isArray(field.name) ? field.name[0] : field.name || field['@id'];
-    description = Array.isArray(field.description) ? field.description[0] : field.description;
+    name = joinAll(field.name) || field['@id'];
+    description = joinAll(field.description, '\n\n');
 
     if (title === 'contentLocation') {
-      geometry = field.geo;
+      geometry = first(field.geo);
     } else if (expand.includes(title)) {
       expandField = { name: title, data: field };
     }

@@ -5,6 +5,7 @@ import FileResolve from '@/components/FileResolve.vue';
 import MetaField from '@/components/MetaField.vue';
 import { ui } from '@/configuration';
 import type { AnnotationRef, ApiService, EntityType, RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 const api = inject<ApiService>('api');
 if (!api) {
@@ -26,7 +27,7 @@ const meta = ref<{ name: string; data: string }[]>([]);
 const annotations = ref<AnnotationRef[]>([]);
 
 const populateData = (md: FileRoCrate, e: EntityType) => {
-  title.value = md.filename || md['@id'];
+  title.value = first(md.filename) || md['@id'];
 
   parentTitle.value = e.memberOf?.name || e.memberOf?.id;
 
@@ -39,7 +40,7 @@ const populateData = (md: FileRoCrate, e: EntityType) => {
 
   // Extract annotation references
   if (md.hasAnnotation) {
-    annotations.value = Array.isArray(md.hasAnnotation) ? md.hasAnnotation : [md.hasAnnotation];
+    annotations.value = md.hasAnnotation;
   }
 
   metadata.value = md;

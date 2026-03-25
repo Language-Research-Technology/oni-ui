@@ -104,6 +104,18 @@ export const first = <T>(arr: T | T[]) => {
   return arr[0] as T;
 };
 
+export const joinAll = (arr: string | string[] | undefined, separator = ' | '): string => {
+  if (!arr) {
+    return '';
+  }
+
+  if (!Array.isArray(arr)) {
+    return arr;
+  }
+
+  return arr.filter(Boolean).join(separator);
+};
+
 const textReplacements = ui.textReplacements;
 
 export const startCase = (str: string) => {

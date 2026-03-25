@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { CollectionConfig, ObjectConfig } from '@/configuration';
 import type { RoCrate } from '@/services/api';
+import { first } from '@/tools';
 
 export function useEntityView(config: CollectionConfig | ObjectConfig) {
   const router = useRouter();
@@ -11,7 +12,7 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
   const meta = ref<{ name: string; data: RoCrate[keyof RoCrate] }[]>([]);
 
   const populateName = (md: RoCrate) => {
-    name.value = Array.isArray(md.name) ? md.name[0] || '' : md.name;
+    name.value = first(md.name) || '';
   };
 
   const isEmpty = (value: object | string | undefined): boolean => {
@@ -30,14 +31,14 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
     return false;
   };
 
-  const extractPropertyFromIdentifier = (identifiers: { name: string; value: string }[], propertyName: string) => {
+  const extractPropertyFromIdentifier = (identifiers: { name: string[]; value: string[] }[], propertyName: string) => {
     if (!Array.isArray(identifiers)) {
       return undefined;
     }
 
-    const identifier = identifiers.find((id) => id.name === propertyName);
+    const identifier = identifiers.find((id) => first(id.name) === propertyName);
 
-    return identifier?.value;
+    return first(identifier?.value);
   };
 
   const populateMeta = (md: RoCrate) => {
@@ -51,7 +52,10 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
           const [fieldName, propertyName] = field.split('.') as [string, string];
           if (fieldName in md) {
             const fieldData = md[fieldName as keyof RoCrate];
-            const data = extractPropertyFromIdentifier(fieldData as { name: string; value: string }[], propertyName);
+            const data = extractPropertyFromIdentifier(
+              fieldData as { name: string[]; value: string[] }[],
+              propertyName,
+            );
             if (!isEmpty(data)) {
               meta.value.push({ name: propertyName, data });
             }

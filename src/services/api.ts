@@ -123,50 +123,43 @@ export type GetZipMetaResponse =
     };
 
 type ROCratePerson = {
-  '@type': 'Person';
-  description?: string;
-  name: string;
+  '@type': string[];
+  description?: string[];
+  name: string[];
 };
 
 type RoCrateLicense = {
   '@id': string;
-  '@type': string;
-  name: string | string[];
-  description?: string | string[];
-  'ldac:access': string;
-  metadataIsPublic?: boolean;
-  allowTextIndex?: boolean;
+  '@type': string[];
+  name: string[];
+  description?: string[];
+  'ldac:access': string[];
+  metadataIsPublic?: boolean[];
+  allowTextIndex?: boolean[];
 };
 
-export type AnnotationRef = { '@id': string; filename?: string };
+export type AnnotationRef = { '@id': string; filename?: string[] };
 
 export type RoCrate = {
   '@id': string;
-  '@type': ['DataSet', 'RepositoryObject' | 'RepositoryCollection'];
-  name: string;
-  // TODO: Check this
-  creditText: string | string[];
-  identifier: { name: string; value: string }[];
-  datePublished: string;
-  doi?: string;
-  'pcdm:memberOf'?: {
-    '@id': string;
-    name?: string;
-  };
-  license?: RoCrateLicense | RoCrateLicense[];
-  metadataLicense?: {
-    id: string;
-    name: string;
-  };
-  author?: ROCratePerson | ROCratePerson[];
-  creator?: ROCratePerson | ROCratePerson[];
+  '@type': string[];
+  name: string[];
+  creditText: string[];
+  identifier: { name: string[]; value: string[] }[];
+  datePublished: string[];
+  doi?: string[];
+  'pcdm:memberOf'?: { '@id': string; name?: string[] }[];
+  license?: RoCrateLicense[];
+  metadataLicense?: { '@id': string; name: string[] }[];
+  author?: ROCratePerson[];
+  creator?: ROCratePerson[];
   hasPart: {
     '@id': string;
-    filename: string;
-    encodingFormat: string | string[];
-    contentSize: number;
-    hasAnnotation?: { '@id': string; filename?: string }[] | { '@id': string; filename?: string };
-    annotationOf?: { '@id': string; filename?: string }[] | { '@id': string; filename?: string };
+    filename: string[];
+    encodingFormat: string[];
+    contentSize: number[];
+    hasAnnotation?: AnnotationRef[];
+    annotationOf?: AnnotationRef[];
   }[];
 };
 
@@ -203,7 +196,7 @@ export class ApiService {
       return { error: crateJson.error };
     }
 
-    const crate = new ROCrate(crateJson, { array: false, link: true });
+    const crate = new ROCrate(crateJson, { array: true, link: true });
 
     return { metadata: crate.rootDataset as RoCrate };
   }

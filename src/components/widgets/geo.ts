@@ -1,9 +1,9 @@
 import { first } from '@/tools';
 import { GeoCoordinates, GeoShape } from './geo_schema';
-import type { LType } from './geo_types';
+import type { GeoEntity, LType } from './geo_types';
 import { Geometry } from './geo_wkt';
 
-export default (L: LType, entity: { '@type': string[] }) => {
+export default (L: LType, entity: GeoEntity) => {
   const transformers = {
     GeoCoordinates: GeoCoordinates(L),
     GeoShape: GeoShape(L),
@@ -19,7 +19,7 @@ export default (L: LType, entity: { '@type': string[] }) => {
 
   return {
     fromEntity() {
-      // @ts-expect-error FIXME
+      // @ts-expect-error GeoEntity is not assignable to schema-dts transformer types
       return transformer.from(entity);
     },
   };

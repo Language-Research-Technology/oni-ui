@@ -35,7 +35,7 @@ const gtm = useGtm();
 
 const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
 
-const parts = ref<({ '@id': string; name: string; encodingFormat: string[] } & Record<string, string>)[]>([]);
+const parts = ref<RoCrate['hasPart']>([]);
 const mediaTypes = ref<string[]>([]);
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
@@ -74,7 +74,6 @@ const populateParts = (md: RoCrate) => {
     return;
   }
 
-  // @ts-expect-error hasPart properties are arrays with array: true, but parts ref expects scalar name
   parts.value = md.hasPart;
 
   if (parts.value.length) {

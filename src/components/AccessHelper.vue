@@ -28,11 +28,6 @@ const {
 } = ui;
 
 const localLicense = license?.[0] || { '@id': 'missing', name: ['Missing'] as string[] };
-
-if (!localLicense) {
-  console.warn('🪚 WHY: No license');
-  throw new Error('No License');
-}
 </script>
 
 <template>

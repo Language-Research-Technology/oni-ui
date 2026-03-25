@@ -46,9 +46,9 @@ const paginatedMetaData = computed(() => {
     <template v-if="isExpand">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <el-row v-for="(value, key) in data">
-          <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ startCase(key as string) }}</el-col>
+          <el-col :xs="24" :sm="24" :md="7" :lg="7" :xl="7">{{ startCase(String(key)) }}</el-col>
           <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
-            <ElasticField :field="value" :title="key as string" />
+            <ElasticField :field="value" :title="String(key)" />
           </el-col>
         </el-row>
       </el-col>

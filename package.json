@@ -11,7 +11,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint:biome": "biome check .",
-    "lint:types": "tsc --noEmit",
+    "lint:types": "vue-tsc --noEmit",
     "lint:knip": "knip",
     "setup:vocabs": "scripts/fetch-vocabs.mts"
   },

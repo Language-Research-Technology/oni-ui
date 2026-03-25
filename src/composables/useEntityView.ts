@@ -32,10 +32,6 @@ export function useEntityView(config: CollectionConfig | ObjectConfig) {
   };
 
   const extractPropertyFromIdentifier = (identifiers: { name: string[]; value: string[] }[], propertyName: string) => {
-    if (!Array.isArray(identifiers)) {
-      return undefined;
-    }
-
     const identifier = identifiers.find((id) => first(id.name) === propertyName);
 
     return first(identifier?.value);

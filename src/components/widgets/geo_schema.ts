@@ -19,10 +19,13 @@ const spaceDelimitedToLatLng = (text: string): L.LatLngTuple[] => {
   return result;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: schema-dts SchemaValue types are incompatible with first()
+const firstVal = (val: any): string | undefined => first(val);
+
 export const GeoCoordinates: Transformer<GeoCoordinatesType> = (L) => ({
   from(entity) {
-    const lat = first(entity.latitude);
-    const lng = first(entity.longitude);
+    const lat = firstVal(entity.latitude);
+    const lng = firstVal(entity.longitude);
     if (!lat || !lng) {
       return;
     }
@@ -33,10 +36,10 @@ export const GeoCoordinates: Transformer<GeoCoordinatesType> = (L) => ({
 
 export const GeoShape: Transformer<GeoShapeType> = (L: LType) => ({
   from: (entity) => {
-    const box = first(entity.box) as string | undefined;
-    const circle = first(entity.circle) as string | undefined;
-    const polygon = first(entity.polygon) as string | undefined;
-    const line = first(entity.line) as string | undefined;
+    const box = firstVal(entity.box);
+    const circle = firstVal(entity.circle);
+    const polygon = firstVal(entity.polygon);
+    const line = firstVal(entity.line);
 
     if (box) {
       return L.rectangle(spaceDelimitedToLatLng(box));

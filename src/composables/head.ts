@@ -8,8 +8,7 @@ export const useHead = (head: VueHeadClient, md: RoCrate) => {
     head: { title: titleField, meta: configMeta },
   } = ui;
 
-  const titleValue = md[titleField as keyof RoCrate];
-  const title = String((Array.isArray(titleValue) ? titleValue[0] : titleValue) || 'Research Object');
+  const title = String(first(md[titleField as keyof RoCrate] as string[]) || 'Research Object');
 
   const getValue = (fieldPath: string): string => {
     const value = md[fieldPath as keyof RoCrate];

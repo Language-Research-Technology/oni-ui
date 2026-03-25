@@ -6,10 +6,10 @@ export type LType = typeof L;
 type Transformers = 'GeoCoordinates' | 'GeoShape' | 'Geometry' | 'http://www.opengis.net/ont/geosparql#Geometry';
 export type GeoEntity = {
   '@id': string;
-  '@type': Transformers;
-  asWKT?: string;
-  'http://www.opengis.net/ont/geosparql#asWKT'?: string;
-  'geo:asWKT'?: string;
+  '@type': Transformers | Transformers[];
+  asWKT?: string | string[];
+  'http://www.opengis.net/ont/geosparql#asWKT'?: string | string[];
+  'geo:asWKT'?: string | string[];
 };
 
 export type Transformer<T> = (L: LType) => {

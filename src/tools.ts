@@ -30,16 +30,20 @@ export const formatFileSize = (bytes: number, locales = 'en') => {
   return `${formatter.format(value)} ${units[i]}`;
 };
 
+export const joinAll = (arr: string | string[] | undefined, separator = ' | '): string => {
+  if (!arr) {
+    return '';
+  }
+
+  if (!Array.isArray(arr)) {
+    return arr;
+  }
+
+  return arr.filter(Boolean).join(separator);
+};
+
 export const formatEncodingFormat = (formats: string[] | string | undefined) => {
-  if (typeof formats === 'string') {
-    return formats;
-  }
-
-  if (!formats || formats.length === 0) {
-    return 'N/A';
-  }
-
-  return formats.filter((f) => typeof f === 'string').join(', ');
+  return joinAll(formats, ', ') || 'N/A';
 };
 
 export const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
@@ -102,18 +106,6 @@ export const first = <T>(arr: T | T[]) => {
   }
 
   return arr[0] as T;
-};
-
-export const joinAll = (arr: string | string[] | undefined, separator = ' | '): string => {
-  if (!arr) {
-    return '';
-  }
-
-  if (!Array.isArray(arr)) {
-    return arr;
-  }
-
-  return arr.filter(Boolean).join(separator);
 };
 
 const textReplacements = ui.textReplacements;

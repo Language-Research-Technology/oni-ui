@@ -22,16 +22,12 @@ const testURL = (url: string) => {
   }
 };
 
-const isIdentifier = (item: object) =>
-  '@type' in item &&
-  (Array.isArray(item['@type']) ? item['@type'].includes('PropertyValue') : item['@type'] === 'PropertyValue') &&
-  'name' in item &&
-  'value' in item;
+const hasType = (item: object, typeName: string) =>
+  '@type' in item && Array.isArray(item['@type']) && item['@type'].includes(typeName);
 
-const isLanguage = (item: object) =>
-  '@type' in item &&
-  (Array.isArray(item['@type']) ? item['@type'].includes('Language') : item['@type'] === 'Language') &&
-  'name' in item;
+const isIdentifier = (item: object) => hasType(item, 'PropertyValue') && 'name' in item && 'value' in item;
+
+const isLanguage = (item: object) => hasType(item, 'Language') && 'name' in item;
 
 const derived = computed(() => {
   const field = props.field;

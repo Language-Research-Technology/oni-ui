@@ -108,7 +108,7 @@
     "viewObject": "View Object",
     "access": "Access",
     "accessTooltip": "Licence and access conditions for the current object.",
-    "encodingFormat": "Encoding Format",
+    "mediaType": "Media Type",
     "filename": "Filename",
     "files": "Files:",
     "metadataLicensedAs": "Metadata licensed as:",

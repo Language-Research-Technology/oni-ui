@@ -9,7 +9,7 @@ const { entity } = defineProps<{
 
 const getSearchUrl = (filterName: string, filterValue: string) => {
   const f = {
-    rootCollection: [entity?.rootCollection.name],
+    rootCollection: [entity?.rootCollection?.name],
 
     [filterName]: [filterValue],
   };

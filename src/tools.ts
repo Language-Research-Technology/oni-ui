@@ -42,10 +42,6 @@ export const joinAll = (arr: string | string[] | undefined, separator = ' | '): 
   return arr.filter(Boolean).join(separator);
 };
 
-export const formatEncodingFormat = (formats: string[] | string | undefined) => {
-  return joinAll(formats, ', ') || 'N/A';
-};
-
 export const shortenText = (input: string, { minLength = 0, maxLength = 24 } = {}) => {
   if (!input) {
     return input;
@@ -93,7 +89,7 @@ export const getEntityUrl = (entity: EntityType) => {
     case 'http://pcdm.org/models#Object':
       return `/object?id=${entity.id}`;
     case 'http://schema.org/MediaObject':
-      return `/file?id=${entity.fileId}`;
+      return `/file?id=${entity.id}`;
     default:
       throw new Error(`Unknown entitytype ${entityType}`);
   }

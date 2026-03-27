@@ -34,7 +34,7 @@ const resolveFile = async () => {
     return;
   }
 
-  streamUrl.value = (await api.getFileUrl(entity.fileId, first(metadata.filename), false)) || '';
+  streamUrl.value = (await api.getFileUrl(entity.id, first(metadata.filename), false)) || '';
 };
 
 const resolveAnnotations = async () => {
@@ -55,7 +55,7 @@ const resolveAnnotations = async () => {
       }
 
       const filename = first(ann.filename) || annEntity.name;
-      return api.getFileUrl(annEntity.fileId, filename, false);
+      return api.getFileUrl(annEntity.id, filename, false);
     }),
   );
   annotationUrls.value = results.filter((url): url is string => !!url);
@@ -66,7 +66,7 @@ const handleDownload = async () => {
     return;
   }
 
-  const url = await api.getFileUrl(entity.fileId, first(metadata.filename), true);
+  const url = await api.getFileUrl(entity.id, first(metadata.filename), true);
   if (url) {
     window.location.href = url;
   }

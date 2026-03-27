@@ -55,7 +55,7 @@ const { searchDetails = [] } = ui.search || {};
         </el-row>
 
         <el-row align="middle"
-          v-if="entity.rootCollection?.id !== entity.memberOf?.id && entity.rootCollection?.id !== entity.id"
+          v-if="entity.rootCollection && entity.rootCollection?.id !== entity.memberOf?.id && entity.rootCollection?.id !== entity.id"
           class="pt-2">
           <p class="font-normal text-gray-700">
             {{ t('entity.in') }}&nbsp;
@@ -92,7 +92,7 @@ const { searchDetails = [] } = ui.search || {};
 
         <el-row align="middle" v-if="entity.searchExtra?.highlight">
           <ul>
-            <li v-for="hl of Object.values(entity.searchExtra.highlight || {})" v-html="'...' + hl + '...'" class="p-2">
+            <li v-for="hl of Object.values(entity.searchExtra.highlight || {}).flat()" v-html="'...' + hl + '...'" class="p-2">
             </li>
           </ul>
         </el-row>

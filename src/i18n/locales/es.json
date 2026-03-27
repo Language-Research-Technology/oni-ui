@@ -108,7 +108,7 @@
     "viewObject": "Ver objeto",
     "access": "Acceso",
     "accessTooltip": "Licencia y condiciones de acceso para el objeto actual.",
-    "encodingFormat": "Formato de codificación",
+    "mediaType": "Tipo de medio",
     "filename": "Nombre de archivo",
     "files": "Archivos:",
     "metadataLicensedAs": "Metadatos con licencia como:",

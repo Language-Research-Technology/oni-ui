@@ -12,9 +12,13 @@ type CommonParams = {
   sort?: string;
   order?: string;
 };
-// TODO: Can we get the types from the API?
+
 export type GetEntitiesParams = CommonParams & {
   entityType?: string;
+  memberOf?: string;
+};
+
+export type GetFilesParams = CommonParams & {
   memberOf?: string;
 };
 
@@ -29,7 +33,8 @@ export type SearchParams = CommonParams & {
   geohashPrecision?: number;
 };
 
-type BaseEntityType = {
+// TODO: Can we get the types from the API?
+export type EntityType = {
   id: string;
   name: string;
   description?: string;
@@ -38,14 +43,15 @@ type BaseEntityType = {
     itemIdentifier: string;
     shortIdentifier: string;
   };
+  entityType: 'http://pcdm.org/models#Collection' | 'http://pcdm.org/models#Object' | 'http://schema.org/MediaObject';
   memberOf?: {
     id: string;
     name?: string;
-  };
-  rootCollection: {
+  } | null;
+  rootCollection?: {
     id: string;
     name?: string;
-  };
+  } | null;
   metadataLicenseId: string;
   contentLicenseId: string;
   access: {
@@ -54,16 +60,6 @@ type BaseEntityType = {
     metadataAuthorizationUrl?: string;
     contentAuthorizationUrl?: string;
   };
-};
-
-type EntityTypes = BaseEntityType &
-  (
-    | { entityType: 'http://pcdm.org/models#Collection' }
-    | { entityType: 'http://pcdm.org/models#Object' }
-    | { entityType: 'http://schema.org/MediaObject'; fileId: string }
-  );
-
-export type EntityType = EntityTypes & {
   counts: {
     collections: number;
     objects: number;
@@ -74,7 +70,16 @@ export type EntityType = EntityTypes & {
   communicationMode: 'Song' | 'Spoken';
   mediaType: Array<string>;
   accessControl: 'Public' | 'Restricted';
-  searchExtra?: { score: number; highlight: string[] };
+  searchExtra?: { score: number; highlight: Record<string, string[]> };
+};
+
+type ApiErrorBody = {
+  error: {
+    code: string;
+    message: string;
+    details?: object;
+    requestId?: string;
+  };
 };
 
 type ErrorResponse = {
@@ -94,6 +99,22 @@ export type GetSearchResponse = {
   entities: Array<EntityType>;
   facets: Record<string, { name: string; count: number }[]>;
   geohashGrid: Record<string, number>;
+};
+
+export type FileType = {
+  id: string;
+  filename: string;
+  mediaType: string;
+  size: number;
+  access: {
+    content: boolean;
+    contentAuthorizationUrl?: string;
+  };
+};
+
+type GetFilesResponse = {
+  total: number;
+  files: Array<FileType>;
 };
 
 export type GetTermsResponse = {
@@ -181,6 +202,12 @@ export class ApiService {
     const entities = await this.#get<GetEntitiesResponse>('/entities', params as Record<string, string>);
 
     return entities;
+  }
+
+  async getFiles(params: GetFilesParams) {
+    const files = await this.#get<GetFilesResponse>('/files', params as Record<string, string>);
+
+    return files;
   }
 
   async search(params: SearchParams) {
@@ -300,7 +327,17 @@ export class ApiService {
     return this.#store.user?.accessToken;
   }
 
-  async #get<T extends object>(path: string, params?: Record<string, string>) {
+  #throwOnApiError(data: unknown): never {
+    if (data && typeof data === 'object' && 'error' in data) {
+      const body = data as ApiErrorBody;
+      if (typeof body.error === 'object' && body.error !== null && 'message' in body.error) {
+        throw new Error(body.error.message);
+      }
+    }
+    throw new Error('Unexpected error response');
+  }
+
+  async #get<T extends object>(path: string, params?: Record<string, string>): Promise<T | ErrorResponse> {
     const headers = await this.#getHeaders();
     const queryString = params ? new URLSearchParams(params).toString() : undefined;
 
@@ -318,20 +355,16 @@ export class ApiService {
       throw new Error('Not authorised');
     }
 
-    const data = (await response.json()) as T | ErrorResponse;
+    const data = (await response.json()) as T | ApiErrorBody;
 
     if (response.status !== 200) {
-      if ('error' in data) {
-        throw new Error(data.error);
-      }
-
-      throw new Error((await response.text()) || 'No body present in response');
+      this.#throwOnApiError(data);
     }
 
-    return data;
+    return data as T;
   }
 
-  async #post<T extends object>(path: string, body: object) {
+  async #post<T extends object>(path: string, body: object): Promise<T | ErrorResponse> {
     const headers = await this.#getHeaders();
     const response = await fetch(`${this.#apiUri}${path}`, {
       method: 'POST',
@@ -343,17 +376,13 @@ export class ApiService {
       return { error: 'Not found' };
     }
 
-    const data = (await response.json()) as T | ErrorResponse;
+    const data = (await response.json()) as T | ApiErrorBody;
 
     if (response.status !== 200) {
-      if ('error' in data) {
-        throw new Error(data.error);
-      }
-
-      throw new Error((await response.text()) || 'No body present in response');
+      this.#throwOnApiError(data);
     }
 
-    return data;
+    return data as T;
   }
 
   // NOTE: This is a bit different, consider refactoring if anything other than zip uses it

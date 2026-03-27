@@ -6,12 +6,12 @@ oni-ui is a Vue 3 + TypeScript discovery portal for browsing research metadata i
 
 ## Commands
 
-- `pnpm run dev` — start dev server (Vite, port 5173)
-- `pnpm run build` — production build (type-check + vite build in parallel)
-- `pnpm run test:unit` — run tests (Vitest with jsdom)
-- `pnpm run lint:biome` — lint and format check (Biome)
-- `pnpm run lint:types` — type checking (`vue-tsc`)
-- `pnpm run lint:knip` — detect unused exports/dependencies
+- `pnpm dev` — start dev server (Vite, port 5173)
+- `pnpm build` — production build (type-check + vite build in parallel)
+- `pnpm test:unit` — run tests (Vitest with jsdom)
+- `pnpm lint:biome` — lint and format check (Biome)
+- `pnpm lint:types` — type checking (`vue-tsc`)
+- `pnpm lint:knip` — detect unused exports/dependencies
 
 Pre-commit hooks (lefthook) run `lint:biome`, `lint:types`, and `lint:knip` in parallel. Commit messages must follow conventional commits (`commitlint`).
 

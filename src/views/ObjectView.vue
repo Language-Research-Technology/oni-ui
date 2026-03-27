@@ -18,8 +18,10 @@ import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
 import { useHead } from '@/composables/head';
 import { useEntityView } from '@/composables/useEntityView';
 import { ui } from '@/configuration';
-import type { ApiService, EntityType, GetEntitiesParams, RoCrate } from '@/services/api';
-import { first, formatEncodingFormat, formatFileSize, joinAll } from '@/tools';
+import type { ApiService, EntityType, FileType, GetEntitiesParams, GetFilesParams, RoCrate } from '@/services/api';
+import { formatFileSize, joinAll } from '@/tools';
+
+const FETCH_LIMIT = 1000;
 
 const { t } = useI18n();
 const { object: config } = ui;
@@ -35,8 +37,8 @@ const gtm = useGtm();
 
 const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
 
-const parts = ref<RoCrate['hasPart']>([]);
-const mediaTypes = ref<string[]>([]);
+const files = ref<FileType[]>([]);
+const mediaTypes = computed(() => [...new Set(files.value.map((f) => f.mediaType))]);
 const isLoading = ref(false);
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
@@ -66,64 +68,62 @@ const membersFiltered = computed(() => {
   return allMembers.value.slice(start, start + pageSize.value);
 });
 
-const populateParts = (md: RoCrate) => {
-  if (!md.hasPart || md.hasPart.length === 0) {
-    parts.value = [];
-    mediaTypes.value = [];
+const fetchAllPages = async <T>(
+  fetcher: (params: Record<string, string>) => Promise<Record<string, unknown>>,
+  baseParams: Record<string, string>,
+  itemsKey: string,
+): Promise<T[]> => {
+  let collected: T[] = [];
+  let offset = 0;
+  let total = 0;
 
-    return;
-  }
+  do {
+    const params = { ...baseParams, offset: String(offset), limit: String(FETCH_LIMIT) };
+    const result = await fetcher(params);
 
-  parts.value = md.hasPart;
+    if (!(itemsKey in result)) {
+      break;
+    }
 
-  if (parts.value.length) {
-    const up = md.hasPart.flatMap((p) => p.encodingFormat).filter((p) => typeof p === 'string');
-    mediaTypes.value = [...new Set(up)];
-  }
+    collected = collected.concat(result[itemsKey] as T[]);
+    total = result.total as number;
+    offset += FETCH_LIMIT;
+  } while (offset < total);
+
+  return collected;
+};
+
+const fetchFiles = async (id: string) => {
+  files.value = await fetchAllPages<FileType>(
+    (params) => api.getFiles(params as GetFilesParams),
+    { memberOf: id },
+    'files',
+  );
 };
 
 const populate = (md: RoCrate) => {
   populateName(md);
   populateMeta(md);
-  populateParts(md);
   useHead(head, md);
 };
-
-const FETCH_LIMIT = 1000;
 
 const fetchMembers = async () => {
   if (!entity.value?.memberOf) {
     return;
   }
 
-  const baseParams: GetEntitiesParams = {
-    memberOf: entity.value.memberOf.id,
-    entityType: 'http://pcdm.org/models#Object',
-    limit: FETCH_LIMIT,
-    sort: config.memberSort,
-    order: 'asc',
-  };
+  allMembers.value = await fetchAllPages<EntityType>(
+    (params) => api.getEntities(params as GetEntitiesParams),
+    {
+      memberOf: entity.value.memberOf.id,
+      entityType: 'http://pcdm.org/models#Object',
+      sort: config.memberSort || '',
+      order: 'asc',
+    },
+    'entities',
+  );
 
-  let collected: EntityType[] = [];
-  let offset = 0;
-  let total = 0;
-
-  do {
-    const params: GetEntitiesParams = { ...baseParams, offset };
-    const children = await api.getEntities(params);
-
-    if (!('entities' in children)) {
-      break;
-    }
-
-    collected = collected.concat(children.entities);
-    total = children.total;
-    offset += FETCH_LIMIT;
-  } while (offset < total);
-
-  allMembers.value = collected;
-
-  const currentIndex = collected.findIndex((e) => e.id === route.query.id);
+  const currentIndex = allMembers.value.findIndex((e) => e.id === route.query.id);
   if (currentIndex >= 0) {
     currentPage.value = Math.floor(currentIndex / pageSize.value) + 1;
   }
@@ -157,9 +157,9 @@ const fetchdata = async () => {
   entity.value = e;
   populate(md);
 
-  isLoading.value = false;
+  await Promise.all([fetchFiles(id), fetchMembers()]);
 
-  await fetchMembers();
+  isLoading.value = false;
 };
 
 const updatePage = (page: number) => {
@@ -197,12 +197,12 @@ fetchdata();
         </el-col>
       </el-row>
 
-      <el-row v-if="parts.length">
+      <el-row v-if="files.length">
         <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
           <div class="grid-content py-4">
             <h2 class="text-2xl tracking-tight">
-              {{ t('object.files') }} {{ parts.length }}
-              <MediaTypeIcon v-for="mediaType of mediaTypes" :mediaType="mediaType" />
+              {{ t('object.files') }} {{ files.length }}
+              <MediaTypeIcon v-for="mt of mediaTypes" :mediaType="mt" />
             </h2>
           </div>
 
@@ -212,29 +212,23 @@ fetchdata();
 
       <el-row class="p-5">
         <el-col :span="24">
-          <el-table :data="parts" stripe style="width: 100%">
-            <el-table-column prop="name" :label="t('object.filename')" min-width="200">
+          <el-table :data="files" stripe style="width: 100%">
+            <el-table-column prop="filename" :label="t('object.filename')" min-width="200">
+            </el-table-column>
+
+            <el-table-column prop="size" :label="t('common.size')" width="120">
               <template #default="scope">
-                {{ joinAll(scope.row.name) || scope.row['@id'] }}
+                {{ formatFileSize(scope.row.size) }}
               </template>
             </el-table-column>
 
-            <el-table-column prop="contentSize" :label="t('common.size')" width="120">
-              <template #default="scope">
-                {{ formatFileSize(first(scope.row.contentSize)) }}
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="encodingFormat" :label="t('object.encodingFormat')" min-width="180">
-              <template #default="scope">
-                {{ formatEncodingFormat(scope.row.encodingFormat) }}
-              </template>
+            <el-table-column prop="mediaType" :label="t('object.mediaType')" min-width="180">
             </el-table-column>
 
             <el-table-column :label="t('common.actions')" width="120">
               <template #default="scope">
-                <router-link :to="`/file?id=${encodeURIComponent(scope.row['@id'])}`">
-                  <el-button type="primary" size="small" :disabled="!entity.access.content">
+                <router-link :to="`/file?id=${encodeURIComponent(scope.row.id)}`">
+                  <el-button type="primary" size="small" :disabled="!scope.row.access.content">
                     {{ t('common.view') }}
                   </el-button>
                 </router-link>

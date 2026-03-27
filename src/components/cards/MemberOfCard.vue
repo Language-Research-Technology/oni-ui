@@ -9,7 +9,7 @@ const { entity, routePath } = defineProps<{
 }>();
 
 const link = `/${routePath}?id=${encodeURIComponent(entity.memberOf?.id || '')}`;
-const rootLink = `/collection?id=${encodeURIComponent(entity.rootCollection.id)}`;
+const rootLink = entity.rootCollection ? `/collection?id=${encodeURIComponent(entity.rootCollection.id)}` : '';
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const rootLink = `/collection?id=${encodeURIComponent(entity.rootCollection.id)}
     <hr class="divider divider-gray pt-2" />
     <ul>
       <li class="font-semibold">
-        <template v-if="entity.memberOf?.id !== entity.rootCollection.id">
+        <template v-if="entity.rootCollection && entity.memberOf?.id !== entity.rootCollection.id">
           <el-link type="primary">
             <router-link :to="rootLink">
               {{ entity.rootCollection.name || entity.rootCollection.id }}

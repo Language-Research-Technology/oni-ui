@@ -1,5 +1,10 @@
 {
   "permissions": {
-    "allow": ["Bash(pnpm lint:*)", "Bash(pnpm run lint:*)"]
+    "allow": [
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm run lint:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs"
+    ]
   }
 }

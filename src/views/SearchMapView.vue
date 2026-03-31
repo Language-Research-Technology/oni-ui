@@ -6,8 +6,12 @@ import * as L from 'leaflet';
 import 'leaflet.path.drag';
 import 'leaflet-editable';
 
-import { GestureHandling } from 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+
+// leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
+// We must set window.L before dynamically importing it so production builds work.
+window.L = L;
+const { GestureHandling } = await import('leaflet-gesture-handling');
 
 import Geohash from 'latlon-geohash';
 import { useRouter } from 'vue-router';

@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import * as L from 'leaflet';
-import { GestureHandling } from 'leaflet-gesture-handling';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import 'leaflet.path.drag';
 import 'leaflet/dist/leaflet.css';
+
+// leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
+// We must set window.L before dynamically importing it so production builds work.
+window.L = L;
+const { GestureHandling } = await import('leaflet-gesture-handling');
 
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 

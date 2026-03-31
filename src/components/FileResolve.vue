@@ -27,6 +27,7 @@ const data = ref();
 const streamUrl = ref('');
 const annotationUrls = ref<string[]>([]);
 const currentTime = ref<number>(0);
+const mediaDuration = ref<number>(0);
 const mediaRef = ref<HTMLAudioElement | HTMLVideoElement | null>(null);
 
 const resolveFile = async () => {
@@ -77,6 +78,11 @@ const handleTimeUpdate = (event: Event) => {
   currentTime.value = el.currentTime;
 };
 
+const handleLoadedMetadata = (event: Event) => {
+  const el = event.target as HTMLMediaElement;
+  mediaDuration.value = el.duration;
+};
+
 const handleSeek = (seconds: number) => {
   if (mediaRef.value) {
     mediaRef.value.currentTime = seconds;
@@ -94,6 +100,8 @@ const isTxt =
 const isPdf = plainEncodingFormats.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
 const isAudio = encodingFormat.some((f) => f?.startsWith('audio'));
 const isVideo = encodingFormat.some((f) => f?.startsWith('video'));
+const mediaTag = isVideo ? 'video' : 'audio';
+const mediaType = encodingFormat.find((f) => f?.startsWith(isVideo ? 'video' : 'audio'));
 
 resolveFile();
 
@@ -128,23 +136,15 @@ onMounted(() => {
               <PlainTextWidget :src="streamUrl" v-if="streamUrl" />
             </div>
 
-            <div v-else-if="isAudio" class="flex flex-col items-center">
-              <audio ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate">
-                <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('audio'))">
-                Your browser does not support the audio element.
-              </audio>
+            <div v-else-if="isAudio || isVideo" class="flex flex-col items-center">
+              <component :is="mediaTag" ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate"
+                @loadedmetadata="handleLoadedMetadata">
+                <source :src="streamUrl" :type="mediaType">
+                Your browser does not support the {{ mediaTag }} element.
+              </component>
               <div v-for="(url, index) in annotationUrls" :key="index" class="w-full mt-4">
-                <EafTranscriptionWidget :src="url" :current-time="currentTime" @seek="handleSeek" />
-              </div>
-            </div>
-
-            <div v-else-if="isVideo" class="flex flex-col items-center">
-              <video ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate">
-                <source :src="streamUrl" :type="encodingFormat.find((f) => f.startsWith('video'))">
-                Your browser does not support the video element.
-              </video>
-              <div v-for="(url, index) in annotationUrls" :key="index" class="w-full mt-4">
-                <EafTranscriptionWidget :src="url" :current-time="currentTime" @seek="handleSeek" />
+                <EafTranscriptionWidget :src="url" :current-time="currentTime" :duration="mediaDuration"
+                  @seek="handleSeek" />
               </div>
             </div>
 

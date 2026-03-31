@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
+import EafTimelineView from '@/components/widgets/EafTimelineView.vue';
 import { type EafDocument, parseEaf } from '@/composables/useEafParser';
 
 const props = defineProps<{
   src: string;
   currentTime?: number;
   showHeader?: boolean;
+  duration?: number;
 }>();
+
+const viewMode = ref<'table' | 'timeline'>('timeline');
+const canShowTimeline = computed(() => props.currentTime !== undefined && props.duration);
 
 const emit = defineEmits<{
   seek: [seconds: number];
@@ -47,17 +52,6 @@ const mergedRows = computed<MergedRow[]>(() => {
 });
 
 const showTierLabels = computed(() => selectedTierIds.value.length > 1);
-
-const languageLabelMap = computed(() => {
-  const map = new Map<string, string>();
-  if (!eafDoc.value) {
-    return map;
-  }
-  for (const lang of eafDoc.value.languages) {
-    map.set(lang.langId, lang.langLabel || lang.langId);
-  }
-  return map;
-});
 
 const fetchAndParse = async (url: string) => {
   loading.value = true;
@@ -178,47 +172,56 @@ const tableRowClassName = ({ rowIndex }: { row: MergedRow; rowIndex: number }) =
       </div>
     </div>
 
-    <div class="flex" style="height: 400px;">
-      <div v-if="tiers.length > 1" class="pr-4 shrink-0 overflow-y-auto">
-        <h4 class="text-lg font-semibold mb-2">Tiers ({{ tiers.length }})</h4>
+    <!-- Tier selector (independent height, not constrained by viewer) -->
+    <div v-if="tiers.length > 1" class="mb-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-sm font-semibold text-gray-600">Tiers ({{ tiers.length }}):</span>
         <el-checkbox :model-value="selectedTierIds.length === tiers.length"
-          :indeterminate="selectedTierIds.length > 0 && selectedTierIds.length < tiers.length" class="mb-2"
+          :indeterminate="selectedTierIds.length > 0 && selectedTierIds.length < tiers.length" size="small"
           @change="(val: boolean) => selectedTierIds = val ? tiers.map((t) => t.tierId) : []">
-          Select all
+          All
         </el-checkbox>
-        <el-checkbox-group v-model="selectedTierIds" class="flex flex-col gap-2">
-          <div v-for="tier in tiers" :key="tier.tierId">
-            <el-checkbox :label="tier.tierId" :value="tier.tierId" />
-            <div class="ml-6 text-xs text-gray-500">
-              <div v-if="tier.annotations.length">Start: {{ formatTime(tier.annotations[0].startMs) }}</div>
-              <div v-if="tier.participant">{{ tier.participant }}</div>
-              <div v-if="tier.annotator">Annotator: {{ tier.annotator }}</div>
-              <div v-if="tier.langRef && languageLabelMap.get(tier.langRef)">{{ languageLabelMap.get(tier.langRef) }}
-              </div>
-            </div>
-          </div>
+        <el-checkbox-group v-model="selectedTierIds" class="flex flex-wrap gap-x-4 gap-y-1">
+          <el-checkbox v-for="tier in tiers" :key="tier.tierId" :label="tier.tierId" :value="tier.tierId"
+            size="small" />
         </el-checkbox-group>
       </div>
+    </div>
 
-      <div class="flex-1 min-w-0">
-        <el-table ref="tableRef" :data="mergedRows" :row-class-name="tableRowClassName" @row-click="handleRowClick"
-          class="cursor-pointer" height="100%">
-          <el-table-column label="Start" width="120">
-            <template #default="{ row }">{{ formatTime(row.startMs) }}</template>
-          </el-table-column>
-          <el-table-column label="End" width="120">
-            <template #default="{ row }">{{ formatTime(row.endMs) }}</template>
-          </el-table-column>
-          <el-table-column label="Text">
-            <template #default="{ row }">
-              <div v-for="(text, i) in row.texts" :key="i">
-                <span v-if="showTierLabels" class="text-xs text-gray-400 mr-1">{{ text.tierId }}:</span>
-                <span>{{ text.value }}</span>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+    <div v-if="canShowTimeline" class="flex justify-end mb-2">
+      <el-button-group size="small">
+        <el-button :type="viewMode === 'table' ? 'primary' : 'default'" @click="viewMode = 'table'">
+          <font-awesome-icon icon="fa fa-list" />
+        </el-button>
+        <el-button :type="viewMode === 'timeline' ? 'primary' : 'default'" @click="viewMode = 'timeline'">
+          <font-awesome-icon icon="fa fa-bars-staggered" />
+        </el-button>
+      </el-button-group>
+    </div>
+
+    <div v-if="canShowTimeline && viewMode === 'timeline'">
+      <EafTimelineView :tiers="selectedTiers" :current-time-ms="currentTimeMs" :duration="props.duration! * 1000"
+        @seek="(s) => emit('seek', s)" />
+    </div>
+
+    <div v-else style="height: 400px;">
+      <el-table ref="tableRef" :data="mergedRows" :row-class-name="tableRowClassName" @row-click="handleRowClick"
+        class="cursor-pointer" height="100%">
+        <el-table-column label="Start" width="120">
+          <template #default="{ row }">{{ formatTime(row.startMs) }}</template>
+        </el-table-column>
+        <el-table-column label="End" width="120">
+          <template #default="{ row }">{{ formatTime(row.endMs) }}</template>
+        </el-table-column>
+        <el-table-column label="Text">
+          <template #default="{ row }">
+            <div v-for="(text, i) in row.texts" :key="i">
+              <span v-if="showTierLabels" class="text-xs text-gray-400 mr-1">{{ text.tierId }}:</span>
+              <span>{{ text.value }}</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>

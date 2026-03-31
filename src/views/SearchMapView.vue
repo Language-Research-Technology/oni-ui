@@ -46,6 +46,7 @@ const {
   sortResults,
   orderResults,
   updatePages,
+  updatePageSize,
   setSearchParams,
 } = useSearch('map');
 
@@ -462,7 +463,7 @@ watch(geohashGrid, updateLayers);
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
-    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
+    :updatePageSize="updatePageSize" :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
     :advancedSearchLines="advancedSearchLines">
     <div id="map" class="flex-1 h-[calc(100vh-200px)]" v-once></div>
     <p class="text-sm">This map is not designed or suitable for Native Title research.</p>

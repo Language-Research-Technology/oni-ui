@@ -30,6 +30,7 @@ const {
   sortResults,
   orderResults,
   updatePages,
+  updatePageSize,
   setSearchParams,
 } = useSearch('list');
 </script>
@@ -41,7 +42,7 @@ const {
     :resetSearch="resetSearch" :isMap="isMap" :isLoading="isLoading" :sortResults="sortResults"
     :selectedOrder="selectedOrder" :selectedSorting="selectedSorting" :orderResults="orderResults" :pageSize="pageSize"
     :errorDialogText="errorDialogText" :currentPage="currentPage" :updatePages="updatePages"
-    :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
+    :updatePageSize="updatePageSize" :setSearchParams="setSearchParams" :advancedSearchEnabled="advancedSearchEnabled"
     :advancedSearchLines="advancedSearchLines">
     <div v-for="entity of entities" :key="entity.id" class="z-0 mt-0 mb-4 w-full" v-loading="isLoading">
       <EntitySummary :entity="entity" />

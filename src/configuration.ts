@@ -126,6 +126,15 @@ const citeData = z.strictObject({
   }),
 });
 
+const defaultPageSizes = [10, 25, 50, 100] as const;
+
+const paginationSchema = z
+  .strictObject({
+    pageSizes: z.array(z.number()).default([...defaultPageSizes]),
+  })
+  .optional()
+  .default({ pageSizes: [...defaultPageSizes] });
+
 const uiSchema = z.strictObject({
   urlPrefix: z.string().startsWith('/').optional().default(''),
   management: z
@@ -199,6 +208,7 @@ const uiSchema = z.strictObject({
       errorPageImage: z.union([z.boolean(), z.string()]).optional().default(true),
     })
     .optional(),
+  pagination: paginationSchema,
   i18n: z
     .strictObject({
       availableLocales: z.array(z.enum(['en', 'de', 'fr', 'es'])).default(['en']),
@@ -243,3 +253,5 @@ const configurationJSON = await loadConfig();
 const configuration = configurationSchema.parse(configurationJSON);
 export const ui = configuration.ui;
 export const api = configuration.api;
+// biome-ignore lint/style/noNonNullAssertion: pageSizes is guaranteed non-empty by Zod defaults
+export const defaultPageSize = ui.pagination.pageSizes[0]!;

@@ -8,6 +8,7 @@ import SearchAdvanced from '@/components/SearchAdvanced.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import type { AdvancedSearchLine, FacetType, SetSearchParamsOptions } from '@/composables/search';
 import { ordering } from '@/composables/search';
+import { ui } from '@/configuration';
 import type { EntityType } from '@/services/api';
 
 const { t } = useI18n();
@@ -40,6 +41,7 @@ const {
   sortResults,
   orderResults,
   updatePages,
+  updatePageSize,
   setSearchParams,
 } = defineProps<{
   isLoading: boolean;
@@ -66,6 +68,7 @@ const {
   sortResults: (by: string) => void;
   orderResults: (by: string) => void;
   updatePages: (page: number) => void;
+  updatePageSize: (size: number) => void;
   resetSearch: () => void;
   setSearchParams: (options: SetSearchParamsOptions) => void;
 }>();
@@ -241,8 +244,9 @@ const clean = (value: string) => {
         </el-row>
 
         <div class="py-0 w-full pb-2" v-if="!isMap">
-          <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals"
-            :page-size="pageSize" :currentPage="currentPage" @current-change="updatePages($event)" />
+          <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="totals"
+            :page-sizes="ui.pagination.pageSizes" :page-size="pageSize" :currentPage="currentPage"
+            @current-change="updatePages($event)" @size-change="updatePageSize($event)" />
         </div>
 
         <slot />
@@ -261,8 +265,9 @@ const clean = (value: string) => {
         </div>
 
         <div class="py-2 w-full" v-if="!isMap">
-          <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals"
-            :page-size="pageSize" :currentPage="currentPage" @current-change="updatePages($event)" />
+          <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="totals"
+            :page-sizes="ui.pagination.pageSizes" :page-size="pageSize" :currentPage="currentPage"
+            @current-change="updatePages($event)" @size-change="updatePageSize($event)" />
         </div>
       </div>
     </el-col>

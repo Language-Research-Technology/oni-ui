@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from 'vue';
 import CollectionItem from '@/components/CollectionItem.vue';
+import { defaultPageSize, ui } from '@/configuration';
 import type { ApiService, EntityType, GetEntitiesParams } from '@/services/api';
 
 const api = inject<ApiService>('api');
@@ -20,7 +21,7 @@ const items = ref<EntityType[]>([]);
 const total = ref(0);
 const currentPage = ref(1);
 const isLoading = ref(false);
-const pageSize = ref(10);
+const pageSize = ref(defaultPageSize);
 
 const setMembers = async () => {
   const params: GetEntitiesParams = {
@@ -62,8 +63,6 @@ const handlePageSizeChange = () => {
   setMembers();
 };
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
-
 onMounted(setMembers);
 </script>
 
@@ -83,7 +82,7 @@ onMounted(setMembers);
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <div class="py-2 w-full">
           <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
-            :page-sizes="PAGE_SIZE_OPTIONS" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+            :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" v-model:currentPage="currentPage"
             @current-change="updatePages($event)" @size-change="handlePageSizeChange" />
         </div>
         <div v-loading="isLoading">
@@ -95,7 +94,7 @@ onMounted(setMembers);
         </div>
         <div class="py-2 w-full">
           <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
-            :page-sizes="PAGE_SIZE_OPTIONS" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+            :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" v-model:currentPage="currentPage"
             @current-change="updatePages($event)" @size-change="handlePageSizeChange" />
         </div>
       </el-col>

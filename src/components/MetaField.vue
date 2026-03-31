@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import FieldHelperCard from '@/components/cards/FieldHelperCard.vue';
 import ElasticField from '@/components/ElasticField.vue';
-import { ui } from '@/configuration';
+import { defaultPageSize, ui } from '@/configuration';
 import type { RoCrate } from '@/services/api';
 import { first, startCase } from '@/tools';
 
@@ -14,7 +14,7 @@ const { meta, isExpand } = defineProps<{
 }>();
 
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(defaultPageSize);
 
 const name = computed(() => meta.name);
 const data = computed(() => meta.data);
@@ -61,9 +61,10 @@ const paginatedMetaData = computed(() => {
       <el-col :xs="24" :sm="24" :md="17" :lg="17" :xl="17">
         <template v-if="Array.isArray(sortedData)">
           <ElasticField :field="d" :title="name" :key="d as string" v-for="d of paginatedMetaData" />
-          <el-pagination v-if="(sortedData as unknown[]).length > pageSize" class="mt-4" layout="prev, pager, next"
-            :total="(sortedData as unknown[]).length" :page-size="pageSize" :current-page="currentPage"
-            @current-change="currentPage = $event" />
+          <el-pagination v-if="(sortedData as unknown[]).length > pageSize" class="mt-4"
+            layout="sizes, prev, pager, next" :total="(sortedData as unknown[]).length"
+            :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" :current-page="currentPage"
+            @current-change="currentPage = $event" @size-change="currentPage = 1" />
         </template>
         <template v-else>
           <ElasticField :field="data" :title="name" />

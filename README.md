@@ -665,6 +665,28 @@ Enable or disable specific features.
 }
 ```
 
+#### Pagination (Optional)
+
+Configure the page size options available across all paginated views (search results, list view, object view, collection members, downloads modal, and metadata fields). The first value in the array is used as the default page size.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ui.pagination.pageSizes` | number[] | No | Available page size options. First value is the default. (default: `[10, 25, 50, 100]`) |
+
+**Example:**
+
+```json
+{
+  "ui": {
+    "pagination": {
+      "pageSizes": [10, 25, 50, 100]
+    }
+  }
+}
+```
+
+**Note:** If the `pagination` section is omitted, the default page sizes `[10, 25, 50, 100]` are used automatically.
+
 ### API Configuration
 
 | Field | Type | Required | Description |

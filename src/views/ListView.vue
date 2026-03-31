@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import EntitySummary from '@/components/EntitySummary.vue';
 import { ordering } from '@/composables/search';
-import { ui } from '@/configuration';
+import { defaultPageSize, ui } from '@/configuration';
 import type { ApiService, GetEntitiesParams, GetEntitiesResponse } from '@/services/api';
 
 const router = useRouter();
@@ -20,7 +20,7 @@ const sorting =
   ui.search?.sorting?.filter(({ value }) => value !== 'relevance') || ([{ value: 'id', label: 'Id' }] as const);
 
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(defaultPageSize);
 const total = ref(0);
 const loading = ref(false);
 const errorDialogText = ref<string | undefined>(undefined);
@@ -86,6 +86,12 @@ const updatePages = async (page: number, scrollTo: string) => {
   document.querySelector(`#${scrollTo}`)?.scrollIntoView();
 };
 
+const updatePageSize = async (size: number) => {
+  pageSize.value = size;
+  currentPage.value = 1;
+  await fetchEntities();
+};
+
 const showMap = () => {
   router.push('/map');
 };
@@ -134,9 +140,9 @@ fetchEntities();
         </el-col>
       </el-row>
       <div class="py-0 w-full pb-2">
-        <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="total"
-          v-model:page-size="pageSize" @update:page-size="pageSize" v-model:currentPage="currentPage"
-          @current-change="updatePages($event, 'top_menu')" />
+        <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
+          :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+          @current-change="updatePages($event, 'top_menu')" @size-change="updatePageSize($event)" />
       </div>
       <div v-for="entity of entities" :key="entity.id" class="z-0 mt-0 mb-4 w-full" v-loading="loading">
         <EntitySummary :entity="entity" />
@@ -150,9 +156,9 @@ fetchEntities();
         </el-row>
       </div>
       <div class="py-2 w-full">
-        <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="total"
-          v-model:page-size="pageSize" @update:page-size="pageSize" v-model:currentPage="currentPage"
-          @current-change="updatePages($event, 'total_results')" />
+        <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="total"
+          :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+          @current-change="updatePages($event, 'total_results')" @size-change="updatePageSize($event)" />
       </div>
     </div>
   </el-row>

@@ -1,7 +1,7 @@
 import { useGtm } from '@gtm-support/vue-gtm';
 import { inject, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ui } from '@/configuration';
+import { defaultPageSize, ui } from '@/configuration';
 import type { ApiService, EntityType, GetSearchResponse, SearchParams } from '@/services/api';
 
 const { mapConfig, searchFields } = ui;
@@ -103,7 +103,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
   const filters = ref<Record<string, string[]>>({});
 
   // Pagination
-  const pageSize = ref(10);
+  const pageSize = ref(defaultPageSize);
   const currentPage = ref(1);
   const totals = ref(0);
 
@@ -447,6 +447,13 @@ export const useSearch = (searchType: 'list' | 'map') => {
     scrollToTop();
   };
 
+  const updatePageSize = async (size: number) => {
+    pageSize.value = size;
+    currentPage.value = 1;
+    await search();
+    scrollToTop();
+  };
+
   const clearFilters = async () => {
     filters.value = {};
     await syncStateToUrlAndNavigate();
@@ -510,6 +517,7 @@ export const useSearch = (searchType: 'list' | 'map') => {
     sortResults,
     orderResults,
     updatePages,
+    updatePageSize,
     setSearchParams,
   };
 };

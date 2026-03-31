@@ -2,6 +2,7 @@
 import { computed, inject, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ZipLink from '@/components/ZipLink.vue';
+import { defaultPageSize, ui } from '@/configuration';
 import type { ApiService, EntityType } from '@/services/api';
 
 const { t } = useI18n();
@@ -30,7 +31,7 @@ type ObjectType = {
 const loading = ref(false);
 const objects = ref<ObjectType[]>([]);
 const objectTotals = ref(0);
-const pageSize = ref(10);
+const pageSize = ref(defaultPageSize);
 const currentPage = ref(1);
 
 const getObjects = async () => {
@@ -88,13 +89,19 @@ const updatePages = async (page: number) => {
   await getObjects();
 };
 
+const updatePageSize = async () => {
+  currentPage.value = 1;
+  await getObjects();
+};
+
 getObjects();
 </script>
 
 <template>
   <el-dialog v-model="visible" :title="t('downloads.modalTitle')" width="50%">
-    <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="objectTotals || 0"
-      v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)" />
+    <el-pagination class="items-center w-full" background layout="sizes, prev, pager, next" :total="objectTotals || 0"
+      :page-sizes="ui.pagination.pageSizes" v-model:page-size="pageSize" v-model:currentPage="currentPage"
+      @current-change="updatePages($event)" @size-change="updatePageSize" />
 
     <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">

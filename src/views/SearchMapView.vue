@@ -8,11 +8,6 @@ import 'leaflet-editable';
 
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 
-// leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
-// We must set window.L before dynamically importing it so production builds work.
-window.L = L;
-const { GestureHandling } = await import('leaflet-gesture-handling');
-
 import Geohash from 'latlon-geohash';
 import { useRouter } from 'vue-router';
 import SearchLayout from '@/components/SearchLayout.vue';
@@ -60,8 +55,6 @@ if (!api) {
 }
 
 const router = useRouter();
-
-L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: new URL('@/assets/marker-circle-icon-2x.png', import.meta.url).href,
@@ -118,7 +111,13 @@ const geoHashLayer = L.featureGroup();
 const tooltipLayers = L.layerGroup();
 let map: L.Map;
 
-const initMap = () => {
+const initMap = async () => {
+  // leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
+  // We must set window.L before dynamically importing it so production builds work.
+  window.L = L;
+  const { GestureHandling } = await import('leaflet-gesture-handling');
+  L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
+
   map = L.map('map', {
     // @ts-expect-error No types
     gestureHandling: true,
@@ -450,8 +449,8 @@ const initControls = () => {
   });
 };
 
-onMounted(() => {
-  initMap();
+onMounted(async () => {
+  await initMap();
   initControls();
 });
 

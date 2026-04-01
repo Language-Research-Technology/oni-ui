@@ -26,14 +26,16 @@ switch (accessControl) {
     content = 'There are restrictions on access to this data. Log in to get further information.';
     break;
   default:
-    throw new Error(`Unknown access control type: ${accessControl}`);
+    iconName = '';
+    content = `Unknown access control type. ${accessControl}`;
+    console.log(`Unknown access control type: ${accessControl}`);
 }
 </script>
 
 <template>
   <div class="flex justify-center" v-if="iconName">
     <el-tooltip class="box-item" effect="light" :content="content" placement="bottom">
-      <manku-icon :name="iconName" size="40" fill="grey" />
+      <manku-icon v-if="iconName" :name="iconName" size="40" fill="grey" />
     </el-tooltip>
   </div>
 </template>

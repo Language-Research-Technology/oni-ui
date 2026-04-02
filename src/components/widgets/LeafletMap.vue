@@ -5,11 +5,6 @@ import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import 'leaflet.path.drag';
 import 'leaflet/dist/leaflet.css';
 
-// leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
-// We must set window.L before dynamically importing it so production builds work.
-window.L = L;
-const { GestureHandling } = await import('leaflet-gesture-handling');
-
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -38,7 +33,11 @@ let map: L.Map;
 
 onBeforeUnmount(() => map?.remove());
 
-const initMap = () => {
+const initMap = async () => {
+  // leaflet-gesture-handling is UMD-only and accesses the global `L` directly.
+  // We must set window.L before dynamically importing it so production builds work.
+  window.L = L;
+  const { GestureHandling } = await import('leaflet-gesture-handling');
   L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
   map = L.map(mapRef.value, {
@@ -84,7 +83,7 @@ const initMap = () => {
   );
 };
 
-onMounted(async () => initMap());
+onMounted(() => initMap());
 </script>
 
 <template>

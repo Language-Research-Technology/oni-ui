@@ -1,8 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm lint:*)",
-      "Bash(pnpm run lint:*)",
+      "Bash(pnpm lint:biome:*)",
+      "Bash(pnpm lint:types:*)",
+      "Bash(pnpm lint:knip:*)",
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs"
     ]

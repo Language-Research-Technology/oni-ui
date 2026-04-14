@@ -1,6 +1,7 @@
 import { ROCrate } from 'ro-crate';
 
 import { api } from '@/configuration';
+import { forceRenewToken, getValidAccessToken } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 import { parseContentSize } from '@/tools';
 
@@ -315,16 +316,38 @@ export class ApiService {
       'Content-Type': 'application/json',
     };
     if (this.#clientId) {
-      const token = await this.#getToken();
-      headers.authorization = `Bearer ${token}`;
+      const token = await getValidAccessToken();
+      if (token) {
+        headers.authorization = `Bearer ${token}`;
+      }
     }
 
     return headers;
   }
 
-  async #getToken() {
-    // TODO Do we deal with expiry?
-    return this.#store.user?.accessToken;
+  async #fetchWithRetry(
+    url: string,
+    init: Omit<RequestInit, 'headers'> & { headers: Record<string, string> },
+  ): Promise<Response> {
+    const response = await fetch(url, init);
+
+    if (response.status === 401 && this.#clientId) {
+      // Server rejected the token — force a renewal (bypasses client-side expiry check)
+      const newToken = await forceRenewToken();
+      if (newToken) {
+        const retryHeaders = { ...init.headers, authorization: `Bearer ${newToken}` };
+        const retryResponse = await fetch(url, { ...init, headers: retryHeaders });
+
+        if (retryResponse.status !== 401) {
+          return retryResponse;
+        }
+      }
+
+      this.#store.reset();
+      throw new Error('Not authorised');
+    }
+
+    return response;
   }
 
   #throwOnApiError(data: unknown): never {
@@ -342,10 +365,7 @@ export class ApiService {
     const queryString = params ? new URLSearchParams(params).toString() : undefined;
 
     const url = `${this.#apiUri}${path}${queryString ? `?${queryString}` : ''}`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers,
-    });
+    const response = await this.#fetchWithRetry(url, { method: 'GET', headers });
 
     if (response.status === 404) {
       return { error: 'Not found' };
@@ -366,7 +386,7 @@ export class ApiService {
 
   async #post<T extends object>(path: string, body: object): Promise<T | ErrorResponse> {
     const headers = await this.#getHeaders();
-    const response = await fetch(`${this.#apiUri}${path}`, {
+    const response = await this.#fetchWithRetry(`${this.#apiUri}${path}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -390,10 +410,7 @@ export class ApiService {
     const headers = await this.#getHeaders();
 
     const url = `${this.#apiUri}${path}`;
-    const response = await fetch(url, {
-      method: 'HEAD',
-      headers,
-    });
+    const response = await this.#fetchWithRetry(url, { method: 'HEAD', headers });
 
     return response;
   }

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, type NavigationGuardWithThis, type RouterOptions } from 'vue-router';
 
-import { getUser, login } from '@/services/auth';
+import { authReady, getUser, login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
@@ -111,21 +111,25 @@ const router = createRouter({
 });
 
 const onAuthRequired: NavigationGuardWithThis<undefined> = async (to) => {
-  const authStore = useAuthStore();
+  // For protected routes, wait for initAuth() to finish so we don't
+  // incorrectly bounce the user to login during the startup window.
+  if (to.meta?.requiresAuth) {
+    await authReady;
+  }
 
+  const authStore = useAuthStore();
   const user = await getUser();
 
   if (user) {
     return true;
   }
 
+  // OIDC says no valid user — reset Pinia store if it's out of sync
   if (authStore.isLoggedIn) {
     authStore.reset();
   }
 
   if (to.meta?.requiresAuth) {
-    authStore.isLoggedIn = false;
-
     login();
 
     return false;

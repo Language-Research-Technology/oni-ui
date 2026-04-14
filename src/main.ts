@@ -23,6 +23,7 @@ import { ui } from '@/configuration';
 import { setupI18n } from '@/i18n';
 import router from '@/router';
 import { ApiService } from '@/services/api';
+import { initAuth } from '@/services/auth';
 import { useI18nStore } from '@/stores/i18n';
 
 library.add(fas, far, fab);
@@ -85,3 +86,8 @@ const api = new ApiService();
 app.provide('api', api);
 
 app.mount('#app');
+
+// Hydrate auth state from OIDC UserManager after mount.
+// Non-blocking: the app renders in anonymous state immediately,
+// then reactively updates when auth resolves.
+initAuth();

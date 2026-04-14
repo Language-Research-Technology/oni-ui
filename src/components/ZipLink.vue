@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useGtm } from '@gtm-support/vue-gtm';
+import { storeToRefs } from 'pinia';
 import { inject, onUpdated, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ui } from '@/configuration';
@@ -26,7 +27,7 @@ if (!api) {
   throw new Error('API instance not provided');
 }
 
-const { isLoggedIn } = useAuthStore();
+const { isLoggedIn } = storeToRefs(useAuthStore());
 const gtm = useGtm();
 
 const emit = defineEmits(['accessDetails']);

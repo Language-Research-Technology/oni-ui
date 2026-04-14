@@ -12,11 +12,13 @@ const { access, license } = defineProps<{
   license: RoCrate['license'];
 }>();
 
+import { storeToRefs } from 'pinia';
+
 import { ui } from '@/configuration';
 import { login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 
-const { isLoggedIn, user } = useAuthStore();
+const { isLoggedIn, user } = storeToRefs(useAuthStore());
 
 const api = inject<ApiService>('api');
 if (!api) {

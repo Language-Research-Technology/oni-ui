@@ -24,6 +24,12 @@ const {
 const { urlPrefix } = ui;
 
 let userManager: UserManager | undefined;
+let isRedirecting = false;
+
+let authReadyResolve: () => void;
+export const authReady: Promise<void> = new Promise((resolve) => {
+  authReadyResolve = resolve;
+});
 
 const getUserManager = async () => {
   const store = useAuthStore();
@@ -41,18 +47,32 @@ const getUserManager = async () => {
     scope: 'public openid profile email',
     response_type: 'code',
     userStore: new WebStorageStateStore({ store: window.localStorage }),
+    automaticSilentRenew: true,
   };
 
   userManager = new UserManager(config);
 
   userManager.events.addUserLoaded((user) => {
-    console.log('Token renewed');
     store.user = transformUser(user);
+    store.isLoggedIn = true;
   });
 
-  userManager.events.addSilentRenewError((error) => {
-    console.error('Silent Renew Failed');
-    console.error(error);
+  userManager.events.addUserUnloaded(() => {
+    store.reset();
+  });
+
+  userManager.events.addAccessTokenExpired(async () => {
+    try {
+      await userManager?.signinSilent();
+    } catch {
+      store.reset();
+      await login();
+    }
+  });
+
+  userManager.events.addSilentRenewError(async () => {
+    store.reset();
+    await login();
   });
 
   return userManager;
@@ -66,12 +86,100 @@ const transformUser = (user: User): OniUser => ({
   accessToken: user.access_token,
 });
 
+export const initAuth = async () => {
+  // Skip auth hydration on the OAuth callback page — OauthCallbackView handles that flow
+  if (!clientId || window.location.pathname.endsWith('/auth/callback')) {
+    authReadyResolve();
+    return;
+  }
+
+  // Clean up stale Pinia auth data from localStorage (previously persisted by pinia-plugin-persistedstate)
+  localStorage.removeItem('auth');
+
+  try {
+    const manager = await getUserManager();
+    const store = useAuthStore();
+    const user = await manager.getUser();
+
+    if (user && !user.expired) {
+      store.user = transformUser(user);
+      store.isLoggedIn = true;
+    } else if (user?.expired) {
+      try {
+        await manager.signinSilent();
+        // addUserLoaded event handler updates the store
+      } catch {
+        await manager.removeUser();
+        await login();
+      }
+    }
+  } finally {
+    authReadyResolve();
+  }
+};
+
+export const getValidAccessToken = async (): Promise<string | undefined> => {
+  if (!clientId) {
+    return undefined;
+  }
+
+  const store = useAuthStore();
+  const manager = await getUserManager();
+  const user = await manager.getUser();
+
+  if (!user) {
+    return undefined;
+  }
+
+  if (!user.expired) {
+    return user.access_token;
+  }
+
+  try {
+    const renewedUser = await manager.signinSilent();
+    return renewedUser?.access_token;
+  } catch {
+    store.reset();
+    await login();
+    return undefined;
+  }
+};
+
+// Force a token renewal via signinSilent, bypassing client-side expiry checks.
+// Used by the 401 retry path where the server rejects a token the client considers valid.
+export const forceRenewToken = async (): Promise<string | undefined> => {
+  if (!clientId) {
+    return undefined;
+  }
+
+  const store = useAuthStore();
+  const manager = await getUserManager();
+
+  try {
+    const renewedUser = await manager.signinSilent();
+    return renewedUser?.access_token;
+  } catch {
+    store.reset();
+    await login();
+    return undefined;
+  }
+};
+
 export const login = async () => {
-  const userManager = await getUserManager();
+  if (isRedirecting) {
+    return;
+  }
+  isRedirecting = true;
 
-  const returnUrl = window.location.pathname.replace(new RegExp(`^${urlPrefix}`), '') + window.location.search;
+  try {
+    const userManager = await getUserManager();
 
-  await userManager.signinRedirect({ state: { returnUrl } });
+    const returnUrl = window.location.pathname.replace(new RegExp(`^${urlPrefix}`), '') + window.location.search;
+
+    await userManager.signinRedirect({ state: { returnUrl } });
+  } catch {
+    isRedirecting = false;
+  }
 };
 
 export const handleCallback = async () => {
@@ -89,7 +197,7 @@ export const handleCallback = async () => {
 export const getUser = async () => {
   const userManager = await getUserManager();
   const user = await userManager.getUser();
-  if (user) {
+  if (user && !user.expired) {
     return transformUser(user);
   }
 };

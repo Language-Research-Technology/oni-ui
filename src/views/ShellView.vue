@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 
 import { RouterView } from 'vue-router';
 import FooterView from '@/components/Footer.vue';
@@ -51,8 +51,16 @@ const acceptTerms = async () => {
   showTerms.value = false;
 };
 
-if (authStore.isLoggedIn && manageTermsAndConditions) {
-  manageTerms();
+if (manageTermsAndConditions) {
+  watch(
+    () => authStore.isLoggedIn,
+    (loggedIn) => {
+      if (loggedIn) {
+        manageTerms();
+      }
+    },
+    { immediate: true },
+  );
 }
 </script>
 

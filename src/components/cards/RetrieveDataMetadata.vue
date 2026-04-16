@@ -14,8 +14,7 @@ if (!api) {
 const { id, identifier = [] } = defineProps<{ id: string; identifier: RoCrate['identifier'] }>();
 
 const generateDownloadLink = async (onBlank: boolean) => {
-  const metadata = await api.getRoCrate(id);
-  const json = JSON.stringify(metadata, null, 2);
+  const json = await api.getRoCrateJSON(id);
   const blob = new Blob([json], { type: 'application/json' });
 
   const url = URL.createObjectURL(blob);

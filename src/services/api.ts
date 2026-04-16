@@ -217,6 +217,12 @@ export class ApiService {
     return response;
   }
 
+  async getRoCrateJSON(id: string) {
+    const crateJson = await this.#get<object | ErrorResponse>(`/entity/${encodeURIComponent(id)}/rocrate`);
+
+    return JSON.stringify(crateJson);
+  }
+
   async getRoCrate(id: string) {
     const crateJson = await this.#get<object | ErrorResponse>(`/entity/${encodeURIComponent(id)}/rocrate`);
 

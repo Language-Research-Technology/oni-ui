@@ -40,6 +40,7 @@ const id = route.query.id as string;
 const errorDialogText = ref('');
 const errorDialogVisible = ref(false);
 const openDownloads = ref(false);
+const isLoading = ref(true);
 
 const metadata = ref<RoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
@@ -58,6 +59,8 @@ const fetchData = async () => {
 
     return;
   }
+
+  isLoading.value = true;
 
   try {
     const { error, entity: rawEntity, metadata: rawMeatadata } = await api.getEntity(id);
@@ -86,7 +89,13 @@ const fetchData = async () => {
 
     populate(rawMeatadata);
   } catch (e) {
-    console.error(e);
+    // 'Not authorised' from the API's 401-retry path triggers a login redirect;
+    // don't surface it — the view is about to unload.
+    if (!(e instanceof Error && e.message === 'Not authorised')) {
+      console.error(e);
+    }
+  } finally {
+    isLoading.value = false;
   }
 
   document.dispatchEvent(
@@ -106,6 +115,7 @@ onMounted(fetchData);
 </script>
 
 <template>
+  <div v-if="isLoading && (!entity || !metadata)" v-loading="true" class="min-h-[400px] w-full" />
   <div v-if="metadata && entity" class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>

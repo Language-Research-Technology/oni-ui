@@ -139,27 +139,35 @@ const fetchdata = async () => {
 
   isLoading.value = true;
 
-  const { entity: e, metadata: md } = await api.getEntity(id);
-  if (!md) {
-    handleMissingEntity();
+  try {
+    const { entity: e, metadata: md } = await api.getEntity(id);
+    if (!md) {
+      handleMissingEntity();
 
-    return;
+      return;
+    }
+
+    gtm?.trackEvent({
+      event: '/object',
+      category: 'object',
+      label: 'loaded-object',
+      value: id,
+    });
+
+    metadata.value = md;
+    entity.value = e;
+    populate(md);
+
+    await Promise.all([fetchFiles(id), fetchMembers()]);
+  } catch (e) {
+    // 'Not authorised' from the API's 401-retry path triggers a login redirect;
+    // swallow it so the (about-to-unload) view doesn't surface an uncaught rejection.
+    if (!(e instanceof Error && e.message === 'Not authorised')) {
+      throw e;
+    }
+  } finally {
+    isLoading.value = false;
   }
-
-  gtm?.trackEvent({
-    event: '/object',
-    category: 'object',
-    label: 'loaded-object',
-    value: id,
-  });
-
-  metadata.value = md;
-  entity.value = e;
-  populate(md);
-
-  await Promise.all([fetchFiles(id), fetchMembers()]);
-
-  isLoading.value = false;
 };
 
 const updatePage = (page: number) => {
@@ -177,6 +185,7 @@ fetchdata();
 </script>
 
 <template>
+  <div v-if="isLoading && (!entity || !metadata)" v-loading="true" class="min-h-[400px] w-full" />
   <div v-if="entity" class="px-10 pt-10 pb-7 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
       <h5>

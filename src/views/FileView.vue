@@ -25,6 +25,7 @@ const metadata = ref<FileRoCrate | undefined>();
 const entity = ref<EntityType | undefined>();
 const meta = ref<{ name: string; data: string }[]>([]);
 const annotations = ref<AnnotationRef[]>([]);
+const isLoading = ref(true);
 
 const populateData = (md: FileRoCrate, e: EntityType) => {
   title.value = first(md.filename) || md['@id'];
@@ -59,25 +60,36 @@ const getFileMetadata = async () => {
     return;
   }
 
-  const { entity, metadata: md } = await api.getEntity(id);
-  if (!md) {
-    router.replace({
-      name: 'NotFound',
-      params: { pathMatch: route.path.substring(1).split('/') },
-      query: route.query,
-      hash: route.hash,
-    });
+  try {
+    const { entity, metadata: md } = await api.getEntity(id);
+    if (!md) {
+      router.replace({
+        name: 'NotFound',
+        params: { pathMatch: route.path.substring(1).split('/') },
+        query: route.query,
+        hash: route.hash,
+      });
 
-    return;
+      return;
+    }
+
+    populateData(md as unknown as FileRoCrate, entity);
+  } catch (e) {
+    // 'Not authorised' from the API's 401-retry path triggers a login redirect;
+    // swallow it so the (about-to-unload) view doesn't surface an uncaught rejection.
+    if (!(e instanceof Error && e.message === 'Not authorised')) {
+      throw e;
+    }
+  } finally {
+    isLoading.value = false;
   }
-
-  populateData(md as unknown as FileRoCrate, entity);
 };
 
 getFileMetadata();
 </script>
 
 <template>
+  <div v-if="isLoading && (!entity || !metadata)" v-loading="true" class="min-h-[400px] w-full" />
   <el-row :justify="'center'" class="w-full" v-if="entity && metadata">
     <el-col :span="24">
       <div class="container mx-auto">

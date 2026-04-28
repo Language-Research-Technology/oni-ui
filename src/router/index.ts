@@ -111,11 +111,10 @@ const router = createRouter({
 });
 
 const onAuthRequired: NavigationGuardWithThis<undefined> = async (to) => {
-  // For protected routes, wait for initAuth() to finish so we don't
-  // incorrectly bounce the user to login during the startup window.
-  if (to.meta?.requiresAuth) {
-    await authReady;
-  }
+  // Wait for initAuth() on every navigation so views don't fire API calls
+  // before startup auth hydration (e.g. expired-token refresh) has settled.
+  // Anonymous startups resolve authReady immediately, so the cost is negligible.
+  await authReady;
 
   const authStore = useAuthStore();
   const user = await getUser();

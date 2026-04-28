@@ -154,6 +154,15 @@ export const forceRenewToken = async (): Promise<string | undefined> => {
 
   const store = useAuthStore();
   const manager = await getUserManager();
+  const user = await manager.getUser();
+
+  // No stored session — signinSilent has nothing to renew from and will hang
+  // until the iframe timeout (~10s). Skip it and redirect straight to login.
+  if (!user) {
+    store.reset();
+    await login();
+    return undefined;
+  }
 
   try {
     const renewedUser = await manager.signinSilent();

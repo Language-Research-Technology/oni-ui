@@ -220,7 +220,7 @@ const uiSchema = z.strictObject({
 
 const apiSchema = z.strictObject({
   rocrate: z.strictObject({
-    endpoint: z.url(),
+    endpoint: z.url().optional().default('').or(z.literal('')),
     path: z.string().optional().default(''),
     clientId: z.string().optional(),
     usesRedirects: z.boolean().optional(),

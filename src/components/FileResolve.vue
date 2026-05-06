@@ -90,23 +90,56 @@ const handleSeek = (seconds: number) => {
 };
 
 const extension = (first(metadata.filename) || '').split('.').pop() || '';
-const encodingFormat = metadata.encodingFormat;
-const plainEncodingFormats = encodingFormat.filter((ef) => typeof ef === 'string');
-const isCsv = plainEncodingFormats.some((ef) => ef.endsWith('csv')) || extension === 'csv';
-const isEaf = extension === 'eaf';
-const isTxt =
-  !isEaf &&
-  (plainEncodingFormats.some((ef) => ef.startsWith('text')) || ['txt', 'html', 'xml', 'flab'].includes(extension));
-const isPdf = plainEncodingFormats.some((ef) => ef.endsWith('pdf')) || extension === 'pdf';
-const isAudio = encodingFormat.some((f) => f?.startsWith('audio'));
-const isVideo = encodingFormat.some((f) => f?.startsWith('video'));
-const mediaTag = isVideo ? 'video' : 'audio';
-const mediaType = encodingFormat.find((f) => f?.startsWith(isVideo ? 'video' : 'audio'));
+
+enum PreviewerType {
+  pdf,
+  csv,
+  eaf,
+  text,
+  audio,
+  video,
+  image,
+  other,
+}
+
+// detect type from encoding format first
+let [previewerType, encodingFormat] = (() => {
+  for (const format of metadata.encodingFormat) {
+    if (typeof format !== 'string') {
+      continue;
+    }
+    for (const suffix of ['pdf', 'csv']) {
+      if (format.endsWith(suffix)) {
+        return [PreviewerType[suffix as keyof typeof PreviewerType], format];
+      }
+    }
+    for (const prefix of ['text', 'image', 'audio', 'video']) {
+      if (format.startsWith(prefix)) {
+        return [PreviewerType[prefix as keyof typeof PreviewerType], format];
+      }
+    }
+  }
+  return [PreviewerType.other, ''];
+})();
+// detect type from file extension as fallback
+if (previewerType === PreviewerType.other || previewerType === PreviewerType.text) {
+  if (extension === 'csv') {
+    previewerType = PreviewerType.csv;
+  } else if (extension === 'eaf') {
+    previewerType = PreviewerType.eaf;
+  } else if (previewerType === PreviewerType.other && ['txt', 'html', 'xml', 'flab'].includes(extension)) {
+    previewerType = PreviewerType.text;
+  } else if (previewerType === PreviewerType.other && extension === 'pdf') {
+    previewerType = PreviewerType.pdf;
+  }
+}
+const mediaTag = PreviewerType[previewerType as number] as 'audio' | 'video';
+const mediaType = encodingFormat;
 
 resolveFile();
 
 onMounted(() => {
-  if ((isAudio || isVideo) && annotations.length > 0) {
+  if ((previewerType === PreviewerType.audio || previewerType === PreviewerType.video) && annotations.length > 0) {
     resolveAnnotations();
   }
 });
@@ -118,25 +151,25 @@ onMounted(() => {
       <el-col>
         <div class="container max-screen-lg mx-auto">
           <div v-if="entity.access.content">
-            <div v-if="isPdf" class="flex justify-center w-full">
+            <div v-if="previewerType === PreviewerType.pdf" class="flex justify-center w-full">
               <el-row :span="24">
                 <PDFWidget :src="streamUrl" />
               </el-row>
             </div>
 
-            <div v-else-if="isCsv" class="p-4 wrap-break-word">
+            <div v-else-if="previewerType === PreviewerType.csv" class="p-4 wrap-break-word">
               <CSVWidget :src="streamUrl" />
             </div>
 
-            <div v-else-if="isEaf" class="p-4">
+            <div v-else-if="previewerType === PreviewerType.eaf" class="p-4">
               <EafTranscriptionWidget :src="streamUrl" v-if="streamUrl" show-header />
             </div>
 
-            <div v-else-if="isTxt" class="p-4 wrap-break-word">
+            <div v-else-if="previewerType === PreviewerType.text" class="p-4 wrap-break-word">
               <PlainTextWidget :src="streamUrl" v-if="streamUrl" />
             </div>
 
-            <div v-else-if="isAudio || isVideo" class="flex flex-col items-center">
+            <div v-else-if="previewerType === PreviewerType.audio || previewerType === PreviewerType.video" class="flex flex-col items-center">
               <component :is="mediaTag" ref="mediaRef" controls v-if="streamUrl" @timeupdate="handleTimeUpdate"
                 @loadedmetadata="handleLoadedMetadata">
                 <source :src="streamUrl" :type="mediaType">
@@ -148,7 +181,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div v-else-if="encodingFormat?.some((f) => f?.startsWith('image'))" class="flex justify-center">
+            <div v-else-if="previewerType === PreviewerType.image" class="flex justify-center">
               <img v-if="streamUrl" :src="streamUrl" />
             </div>
 

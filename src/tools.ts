@@ -82,16 +82,16 @@ export const parseContentSize = (value: string | number) => {
 
 export const getEntityUrl = (entity: EntityType) => {
   const { entityType } = entity;
-
+  const id = encodeURIComponent(entity.id);
   switch (entityType) {
     case 'http://pcdm.org/models#Collection':
-      return `/collection?id=${entity.id}`;
+      return `/collection?id=${id}`;
     case 'http://pcdm.org/models#Object':
-      return `/object?id=${entity.id}`;
+      return `/object?id=${id}`;
     case 'http://schema.org/MediaObject':
-      return `/file?id=${entity.id}`;
+      return `/file?id=${id}`;
     default:
-      throw new Error(`Unknown entitytype ${entityType}`);
+      return `/entity?id=${id}`;
   }
 };
 

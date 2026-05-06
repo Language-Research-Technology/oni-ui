@@ -77,7 +77,7 @@
           "label": "Relevance"
         },
         {
-          "value": "identifier",
+          "value": "id",
           "label": "Collections"
         },
         {

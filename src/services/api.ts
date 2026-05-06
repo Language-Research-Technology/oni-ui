@@ -44,7 +44,7 @@ export type EntityType = {
     itemIdentifier: string;
     shortIdentifier: string;
   };
-  entityType: 'http://pcdm.org/models#Collection' | 'http://pcdm.org/models#Object' | 'http://schema.org/MediaObject';
+  entityType: string;
   memberOf?: {
     id: string;
     name?: string;

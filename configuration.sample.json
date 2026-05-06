@@ -18,7 +18,6 @@
       },
       "content": "<p class='text-gray-600'>Discover and explore our extensive collection of language resources.</p>"
     },
-    "logoFilename": "logo.jpg",
     "navHeight": "80px",
     "showEllipsis": true,
     "help": {
@@ -59,15 +58,15 @@
         "display": "Search"
       },
       {
-        "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
+        "route": "list?entityType=http%3A%2F%2Fpcdm.org%2Fmodels%23Collection",
         "display": "Collections"
       },
       {
-        "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object",
+        "route": "list?entityType=http%3A%2F%2Fpcdm.org%2Fmodels%23Object",
         "display": "Items"
       },
       {
-        "route": "list?entityType=https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Object,https%3A%2F%2Fw3id.org%2Fldac%2Fprofile%23Collection",
+        "route": "list?entityType=http%3A%2F%2Fpcdm.org%2Fmodels%23Object,http%3A%2F%2Fpcdm.org%2Fmodels%23Collection",
         "display": "Both"
       }
     ],
@@ -362,8 +361,8 @@
   },
   "api": {
     "rocrate": {
-      "endpoint": "https://catalog.paradisec.org.au",
-      "path": "/api/v1/oni",
+      "endpoint": "http://localhost:8080",
+      "path": "/api",
       "clientId": "REPLACE_ME"
     }
   }

@@ -14,7 +14,8 @@
     "lint:types": "vue-tsc --noEmit",
     "lint:knip": "knip",
     "setup:vocabs": "scripts/fetch-vocabs.mts",
-    "docker:test": "sh docker/test.sh"
+    "docker:test": "sh docker/test.sh",
+    "postinstall": "pnpm run setup:vocabs vocab.json"
   },
   "keywords": [
     "Oni",

@@ -150,6 +150,7 @@ onMounted(() => {
     <el-row justify="center">
       <el-col>
         <div class="container max-screen-lg mx-auto">
+          {{  streamUrl }}
           <div v-if="entity.access.content">
             <div v-if="previewerType === PreviewerType.pdf" class="flex justify-center w-full">
               <el-row :span="24">

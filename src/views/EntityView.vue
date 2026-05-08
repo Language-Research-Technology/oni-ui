@@ -1,0 +1,338 @@
+<script setup lang="ts">
+import { useGtm } from '@gtm-support/vue-gtm';
+import { injectHead } from '@unhead/vue';
+import { computed, inject, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
+import AccessHelper from '@/components/AccessHelper.vue';
+import CollectionItem from '@/components/CollectionItem.vue';
+import CitationCard from '@/components/cards/CitationCard.vue';
+import LicenseCard from '@/components/cards/LicenseCard.vue';
+import ManagementCard from '@/components/cards/ManagementCard.vue';
+import MemberOfCard from '@/components/cards/MemberOfCard.vue';
+import RetrieveDataMetadata from '@/components/cards/RetrieveDataMetadata.vue';
+import TakedownCard from '@/components/cards/TakedownCard.vue';
+import MetaField from '@/components/MetaField.vue';
+import MediaTypeIcon from '@/components/widgets/MediaTypeIcon.vue';
+import MemberOfLink from '@/components/widgets/MemberOfLink.vue';
+import { useHead } from '@/composables/head';
+import { useEntityView } from '@/composables/useEntityView';
+import { ui } from '@/configuration';
+import type { ApiService, EntityType, FileType, GetEntitiesParams, GetFilesParams, RoCrate } from '@/services/api';
+import { formatFileSize, joinAll } from '@/tools';
+
+const FETCH_LIMIT = 1000;
+
+const { t } = useI18n();
+const { object: config } = ui;
+
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
+
+const route = useRoute();
+const head = injectHead();
+const gtm = useGtm();
+
+const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(config);
+
+const files = ref<FileType[]>([]);
+const mediaTypes = computed(() => [...new Set(files.value.map((f) => f.mediaType))]);
+const isLoading = ref(false);
+const metadata = ref<RoCrate | undefined>();
+const entity = ref<EntityType | undefined>();
+const allMembers = ref<EntityType[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+const totalMembers = computed(() => allMembers.value.length);
+
+const currentMemberIndex = computed(() => allMembers.value.findIndex((e) => e.id === route.query.id));
+
+const previousObject = computed(() => {
+  const idx = currentMemberIndex.value;
+
+  return idx > 0 ? allMembers.value[idx - 1] : undefined;
+});
+
+const nextObject = computed(() => {
+  const idx = currentMemberIndex.value;
+
+  return idx >= 0 && idx < allMembers.value.length - 1 ? allMembers.value[idx + 1] : undefined;
+});
+
+const membersFiltered = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+
+  return allMembers.value.slice(start, start + pageSize.value);
+});
+
+const fetchAllPages = async <T>(
+  fetcher: (params: Record<string, string>) => Promise<Record<string, unknown>>,
+  baseParams: Record<string, string>,
+  itemsKey: string,
+): Promise<T[]> => {
+  let collected: T[] = [];
+  let offset = 0;
+  let total = 0;
+
+  do {
+    const params = { ...baseParams, offset: String(offset), limit: String(FETCH_LIMIT) };
+    const result = await fetcher(params);
+
+    if (!(itemsKey in result)) {
+      break;
+    }
+
+    collected = collected.concat(result[itemsKey] as T[]);
+    total = result.total as number;
+    offset += FETCH_LIMIT;
+  } while (offset < total);
+
+  return collected;
+};
+
+const fetchFiles = async (id: string) => {
+  files.value = await fetchAllPages<FileType>(
+    (params) => api.getFiles(params as GetFilesParams),
+    { memberOf: id },
+    'files',
+  );
+};
+
+const populate = (md: RoCrate) => {
+  populateName(md);
+  populateMeta(md);
+  useHead(head, md);
+};
+
+const fetchMembers = async () => {
+  if (!entity.value?.memberOf) {
+    return;
+  }
+
+  allMembers.value = await fetchAllPages<EntityType>(
+    (params) => api.getEntities(params as GetEntitiesParams),
+    {
+      memberOf: entity.value.memberOf.id,
+      entityType: 'http://pcdm.org/models#Object',
+      sort: config.memberSort || '',
+      order: 'asc',
+    },
+    'entities',
+  );
+
+  const currentIndex = allMembers.value.findIndex((e) => e.id === route.query.id);
+  if (currentIndex >= 0) {
+    currentPage.value = Math.floor(currentIndex / pageSize.value) + 1;
+  }
+};
+
+const fetchdata = async () => {
+  const id = route.query.id?.toString();
+  if (!id) {
+    handleMissingEntity();
+
+    return;
+  }
+
+  isLoading.value = true;
+
+  const { entity: e, metadata: md } = await api.getEntity(id);
+  if (!md) {
+    handleMissingEntity();
+
+    return;
+  }
+
+  gtm?.trackEvent({
+    event: '/object',
+    category: 'object',
+    label: 'loaded-object',
+    value: id,
+  });
+
+  metadata.value = md;
+  entity.value = e;
+  populate(md);
+
+  await Promise.all([fetchFiles(id), fetchMembers()]);
+
+  isLoading.value = false;
+};
+
+const updatePage = (page: number) => {
+  currentPage.value = page;
+};
+
+watch(
+  () => route.params,
+  () => {
+    fetchdata();
+  },
+);
+
+fetchdata();
+</script>
+
+<template>
+  <div v-if="entity" class="px-10 pt-10 pb-7 bg-white">
+    <el-row :align="'middle'" class="mb-2 text-3xl font-medium">
+      <h5>
+        <MemberOfLink :entity="entity" />
+        {{ name }}
+      </h5>
+    </el-row>
+    <hr class="divider divider-gray pt-2" />
+  </div>
+
+  <el-row :justify="'center'" v-if="metadata && entity" class="m-5 px-10" v-loading="isLoading">
+    <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
+      <AccessHelper v-if="entity?.access && metadata.license" :access="entity.access" :license="metadata.license" />
+
+      <el-row>
+        <el-col v-for="m of meta">
+          <MetaField :meta="m" />
+        </el-col>
+      </el-row>
+
+      <el-row v-if="files.length">
+        <el-col :span="24" class="divide-solid divide-y-2 divide-red-700">
+          <div class="grid-content py-4">
+            <h2 class="text-2xl tracking-tight">
+              {{ t('object.files') }} {{ files.length }}
+              <MediaTypeIcon v-for="mt of mediaTypes" :mediaType="mt" />
+            </h2>
+          </div>
+
+          <div />
+        </el-col>
+      </el-row>
+
+      <el-row class="p-5">
+        <el-col :span="24">
+          <el-table :data="files" stripe style="width: 100%">
+            <el-table-column prop="filename" :label="t('object.filename')" min-width="200">
+            </el-table-column>
+
+            <el-table-column prop="size" :label="t('common.size')" width="120">
+              <template #default="scope">
+                {{ formatFileSize(scope.row.size) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="mediaType" :label="t('object.mediaType')" min-width="180">
+            </el-table-column>
+
+            <el-table-column :label="t('common.actions')" width="120">
+              <template #default="scope">
+                <router-link :to="`/file?id=${encodeURIComponent(scope.row.id)}`">
+                  <el-button type="primary" size="small" :disabled="!scope.row.access.content">
+                    {{ t('common.view') }}
+                  </el-button>
+                </router-link>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
+    </el-col>
+
+    <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8">
+      <el-row v-if="ui.management" :gutter="20" class="pb-5">
+        <el-col>
+          <ManagementCard :entity="entity" />
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" :align="'middle'" class="justify-center content-center pb-5">
+        <el-col v-if="metadata.license">
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">
+              {{ t('object.access') }}
+              <el-tooltip class="box-item" effect="light" trigger="hover" :content="t('object.accessTooltip')"
+                placement="top">
+                <font-awesome-icon icon="fa-solid fa-circle-info" class="ml-2 cursor-pointer" size="xs" color="gray" />
+              </el-tooltip>
+            </h5>
+
+            <hr class="divider divider-gray pt-2" />
+
+            <LicenseCard :license="metadata.license" />
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium">{{ t('object.retrieveMetadata') }}</h5>
+            <hr class="divider divider-gray pt-2" />
+            <RetrieveDataMetadata :id="String(route.query.id ?? '')" :identifier="metadata.identifier" />
+            <template v-if="metadata.metadataLicense?.length">
+              <hr class="divider divider-gray mt-4 pb-2" />
+              <h4 class="text-1xl font-medium">
+                {{ t('object.metadataLicensedAs') }}
+                <el-link underline="always" type="primary" :href="metadata.metadataLicense[0]['@id']" target="_blank"
+                  class="mx-1">
+                  {{ joinAll(metadata.metadataLicense[0].name) || metadata.metadataLicense[0]['@id'] }}
+                </el-link>
+              </h4>
+            </template>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5" v-if="metadata">
+        <el-col>
+          <CitationCard :metadata="metadata" />
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5">
+        <el-col v-if="entity">
+          <MemberOfCard routePath="collection" :entity="entity" />
+        </el-col>
+      </el-row>
+
+      <el-row v-if="totalMembers > 0">
+        <el-col>
+          <el-card :body-style="{ padding: '0px' }" class="mx-10 p-5">
+            <h5 class="text-2xl font-medium ">{{ t('object.otherObjectsInCollection') }} ({{ totalMembers }})</h5>
+            <hr class="divider divider-gray pt-2" />
+            <div v-if="allMembers.length > 1" class="flex justify-between items-center mt-4">
+              <router-link v-if="previousObject" :to="`/object?id=${encodeURIComponent(previousObject.id)}`">
+                <el-button size="small">{{ t('common.previous') }}</el-button>
+              </router-link>
+              <span v-else />
+              <router-link v-if="nextObject" :to="`/object?id=${encodeURIComponent(nextObject.id)}`">
+                <el-button size="small">{{ t('common.next') }}</el-button>
+              </router-link>
+              <span v-else />
+            </div>
+            <ul class="mt-4 space">
+              <li v-for="d of membersFiltered" :key="d.id">
+                <p v-if="d.id === route.query.id" class="font-bold">
+                  {{ d.identifiers?.shortIdentifier ? `${d.identifiers.shortIdentifier} - ${d.name || d.id}` : d.name ||
+                    d.id }}
+                </p>
+                <CollectionItem v-else :field="d" routePath="object" />
+              </li>
+            </ul>
+            <el-pagination v-if="totalMembers > pageSize" class="mt-4" background layout="prev, pager, next"
+              :total="totalMembers" v-model:page-size="pageSize" v-model:current-page="currentPage"
+              @current-change="updatePage" />
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" class="pb-5">
+        <el-col>
+          <TakedownCard />
+        </el-col>
+      </el-row>
+    </el-col>
+  </el-row>
+
+</template>

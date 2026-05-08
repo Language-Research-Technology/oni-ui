@@ -1,0 +1,99 @@
+<script setup lang="ts">
+/**
+ * This is the base view to render any type of entity. Use the slots to extend or customize the view.
+ */
+import { ArrowRight } from '@element-plus/icons-vue'
+import { useGtm } from '@gtm-support/vue-gtm';
+import { inject, ref, onMounted, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import type { AnnotationRef, ApiService, EntityType } from '@/services/api';
+import { ui } from '@/configuration';
+import { first } from '@/tools';
+import { useEntityView } from '@/composables/useEntityView';
+const api = inject<ApiService>('api');
+if (!api) {
+  throw new Error('API instance not provided');
+}
+
+const route = useRoute();
+const router = useRouter();
+const gtm = useGtm();
+
+const defaultConfig = {
+  meta: {
+    mode: 'filter' as const,
+    top: [
+      {
+        display: 'Name',
+        name: 'name'
+      }
+    ],
+    hide: [
+      '@type'
+    ]
+  },
+  memberSort: '',
+};
+const { name, meta, populateName, populateMeta, handleMissingEntity } = useEntityView(defaultConfig);
+
+// const title = ref('');
+// const parentTitle = ref('');
+const metadata = ref<Record<string, unknown> | undefined>(undefined);
+const entity = ref<EntityType | undefined>(undefined);
+const isLoading = ref(true);
+
+watchEffect(async () => {
+  const id = first(route.query.id);
+  if (!id) {
+    return handleMissingEntity();
+  }
+  isLoading.value = true;
+  try {
+    const { entity: e, metadata: md } = await api.getEntity(id);
+    if (!md) {
+      return handleMissingEntity();
+    }
+    gtm?.trackEvent({
+      event: '/entity',
+      category: 'entity',
+      label: 'loaded-entity',
+      value: id,
+    });
+
+    metadata.value = md;
+    entity.value = e;
+
+  } catch (error) {
+    // 'Not authorised' from the API's 401-retry path triggers a login redirect;
+    // swallow it so the (about-to-unload) view doesn't surface an uncaught rejection.
+    if (!(error instanceof Error && error.message === 'Not authorised')) {
+      throw error;
+    }
+  } finally {
+    isLoading.value = false;
+  }  
+});
+
+onMounted(() => {
+  console.log(`the component is now mounted.`)
+
+})
+
+</script>
+
+<template>
+  <div v-if="metadata && entity" class="entity-root" v-loading="isLoading">
+    <el-breadcrumb :separator-icon="ArrowRight">
+      <el-breadcrumb-item :to="`/entity?id=${encodeURIComponent(entity.memberOf?.id || '')}`">
+        {{ entity.memberOf?.name || entity.memberOf?.id }}
+      </el-breadcrumb-item>
+      <el-breadcrumb-item></el-breadcrumb-item>
+    </el-breadcrumb>    
+    <h1>{{ name }}</h1>
+    <h2>test</h2>
+    <h3>test</h3>
+    <h4>test</h4>
+    <h5>test</h5>
+  </div>
+
+</template>

@@ -4,6 +4,7 @@ import { authReady, getUser, login } from '@/services/auth';
 import { useAuthStore } from '@/stores/auth';
 import About from '@/views/AboutView.vue';
 import Collection from '@/views/CollectionView.vue';
+import Entity from '@/views/EntityView.vue';
 import File from '@/views/FileView.vue';
 import Home from '@/views/HomeView.vue';
 import List from '@/views/ListView.vue';
@@ -58,6 +59,11 @@ const routes: RouterOptions['routes'] = [
         path: '/file',
         name: 'file',
         component: File,
+      },
+      {
+        path: '/entity',
+        name: 'entity',
+        component: Entity,
       },
       {
         path: '/about',
